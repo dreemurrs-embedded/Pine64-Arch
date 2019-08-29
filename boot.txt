@@ -1,0 +1,17 @@
+# After modifying, run ./mkscr
+
+# Set root partition to the second partition of boot device
+part uuid ${devtype} ${devnum}:${bootpart} uuid
+
+setenv bootargs console=${console} console=tty0 fbcon=rotate:1 root=PARTUUID=${uuid} rw rootwait
+
+if load ${devtype} ${devnum}:${bootpart} ${kernel_addr_r} /boot/Image; then
+  setenv fdtfile allwinner/sun50i-a64-pinetab.dtb
+  if load ${devtype} ${devnum}:${bootpart} ${fdt_addr_r} /boot/dtbs/${fdtfile}; then
+    if load ${devtype} ${devnum}:${bootpart} ${ramdisk_addr_r} /boot/initramfs-linux.img; then
+      booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r};
+    else
+      booti ${kernel_addr_r} - ${fdt_addr_r};
+    fi;
+  fi;
+fi
