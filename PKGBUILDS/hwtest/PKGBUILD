@@ -1,0 +1,23 @@
+# Contributor: Asriel Dreemurr <asriel.danctnix@gmail.com>
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=hwtest
+pkgver=0.4.0
+pkgrel=0
+pkgdesc="Small utility to check hardware functionality on mobile devices"
+arch=(any)
+url="https://gitlab.com/MartijnBraam/hwtest"
+license=('MIT')
+depends=(python ffmpeg v4l-utils python-setuptools python-dbus evtest alsa-utils)
+source=($pkgname-$pkgver.tar.gz::https://gitlab.com/MartijnBraam/hwtest/-/archive/$pkgver/$pkgname-$pkgver.tar.gz)
+
+build() {
+  cd "$pkgname-$pkgver"
+  python3 setup.py build
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  python3 setup.py install --prefix=/usr --root="$pkgdir"
+}
+md5sums=('8fcd1887b3652fa0f0e7fb2f9e641953')
