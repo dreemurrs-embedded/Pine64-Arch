@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-pine64
 _desc="Pine64"
-pkgver=5.3_rc4
+pkgver=5.3.0
 pkgrel=0
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
@@ -18,8 +18,8 @@ CROSS_COMPILE="aarch64-linux-gnu-"
 ARCH=arm64
 
 # Source
-_commit="299a91cfe91e310a178f9af5f73f9e4a6c61d46b"
-_commit_rtl8723cs="1c9c0cb9d335626a66d8063399c6e16751ecc1a8"
+_commit="6ecddfc2164e0927e75c232d515225c6b21c71b4"
+_commit_rtl8723cs="d7db077004f1497800faabb0e6da775391393711"
 source=("linux-$_commit.tar.gz::https://gitlab.com/pine64-org/linux/-/archive/${_commit}/linux-${_commit}.tar.gz"
         "rtl8723cs-${_commit_rtl8723cs}.tar.gz::https://github.com/Icenowy/rtl8723cs/archive/${_commit_rtl8723cs}.tar.gz"
         'rtl8723cs.patch'
@@ -34,8 +34,7 @@ prepare() {
   cd linux-$_commit
 
   # Don't Be Evil / PineTab patches
-  git apply ../rtl8723cs.patch
-  #git apply ../touch-dts.patch
+  patch -p1 -N < ../rtl8723cs.patch
 
   cat "${srcdir}/config" > ./.config
 
@@ -221,10 +220,10 @@ for _p in ${pkgname[@]}; do
     _package${_p#${pkgbase}}
   }"
 done
-md5sums=('e0827e0c5cd5b918d2f2725e9d7489f3'
-         '345c8cf614453ad91e43f9852b58dc01'
+md5sums=('50c3f1acf8c9e7eaf20bed893ef79661'
+         '6e16d669ec1eb758a41ee0a45b8ed1e5'
          'db0ad22050214b64dd7532cc9d68ac70'
-         '59add90fff76876ffd6701e2b9e21ea8'
+         '68ba88fd350ac463cc572ee7c33bac55'
          '41cb5fef62715ead2dd109dbea8413d6'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77')
