@@ -1,0 +1,26 @@
+From 9dc073e44bddf5a37a5377b5f0d6814cb14a322a Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Sun, 10 Nov 2019 09:53:53 -0800
+Subject: [PATCH] arm64: dts: allwinner: set GPU clock to 432 MHz
+
+That's what BSP kernel sets it to and it seems to work fine.
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+index d039f349c7594..3154bd2ad9b1c 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+@@ -1096,6 +1096,9 @@
+ 			clocks = <&ccu CLK_BUS_GPU>, <&ccu CLK_GPU>;
+ 			clock-names = "bus", "core";
+ 			resets = <&ccu RST_BUS_GPU>;
++
++			assigned-clocks = <&ccu CLK_GPU>;
++			assigned-clock-rates = <432000000>;
+ 		};
+ 
+ 		gic: interrupt-controller@1c81000 {
