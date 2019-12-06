@@ -1,0 +1,66 @@
+# U-Boot: Pine64
+# Maintainer: Kevin Mihelich <kevin@archlinuxarm.org>
+
+buildarch=8
+
+pkgname=uboot-pine64-git
+pkgver=v2019.01.rc3.r35.g64abfc9b6b
+pkgrel=2
+pkgdesc="U-Boot for Pine64"
+arch=('aarch64')
+url='http://www.denx.de/wiki/U-Boot/WebHome'
+license=('GPL')
+makedepends=('bc' 'git' 'python' 'swig' 'dtc')
+install=${pkgname}.install
+source=('git+https://github.com/u-boot/u-boot.git#commit=28a4516cf154d6f7e738f8e0519b41eccef5af5c'
+        'git+https://github.com/ARM-software/arm-trusted-firmware.git#commit=87b582ef5b31c5893a470b61c217931fc7602da3'
+	'0001-ATF-set-fno-stack-protector.patch'
+	'0001-sunxi-Add-Pinetab-support.patch'
+        'boot.txt'
+        'mkscr')
+md5sums=('SKIP'
+         'SKIP'
+         'a61996f31a3546d411df5417867994a8'
+         'b1504e07f26af47b5fa42c15a1e38ecc'
+         '6d048eeb9808f6624a8a4db9803d622c'
+         '021623a04afd29ac3f368977140cfbfd')
+
+pkgver() {
+  cd u-boot
+  git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  cd u-boot
+  git apply ../0001-sunxi-Add-Pinetab-support.patch
+
+  cd ../arm-trusted-firmware
+  git apply ../0001-ATF-set-fno-stack-protector.patch
+}
+
+build() {
+  unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+
+  cd arm-trusted-firmware
+
+  make PLAT=sun50i_a64 DEBUG=1 bl31
+  cp build/sun50i_a64/debug/bl31.bin ../u-boot
+
+  cd ../u-boot
+
+  make distclean
+  make pinetab_defconfig
+  echo 'CONFIG_IDENT_STRING=" Arch Linux ARM"' >> .config
+  make EXTRAVERSION=-${pkgrel}
+  cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinetab.bin
+}
+
+package() {
+  cd u-boot
+
+  mkdir -p "${pkgdir}"/boot
+
+  cp u-boot-sunxi-with-spl-pinetab.bin "${pkgdir}"/boot
+  cp ../boot.txt ../mkscr "${pkgdir}"/boot
+  tools/mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d "${pkgdir}"/boot/boot.txt "${pkgdir}"/boot/boot.scr
+}

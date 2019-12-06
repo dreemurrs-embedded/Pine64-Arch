@@ -1,0 +1,15 @@
+part uuid ${devtype} ${devnum}:${distro_bootpart} uuid
+setenv kernel_addr_z 0x44080000
+
+setenv bootargs fbcon=rotate:1 console=${console} console=tty0 root=PARTUUID=${uuid} rw rootwait
+
+if load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_z} /boot/Image.gz; then
+  unzip ${kernel_addr_z} ${kernel_addr_r}
+  if load ${devtype} ${devnum}:${distro_bootpart} ${fdt_addr_r} /boot/dtbs/${fdtfile}; then
+    if load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} /boot/initramfs-linux.img; then
+      booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r};
+    else
+      booti ${kernel_addr_r} - ${fdt_addr_r};
+    fi;
+  fi;
+fi
