@@ -2,7 +2,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=hwtest
-pkgver=0.4.0
+pkgver=0.6.0
 pkgrel=0
 pkgdesc="Small utility to check hardware functionality on mobile devices"
 arch=(any)
@@ -20,4 +20,4 @@ package() {
   cd "$pkgname-$pkgver"
   python3 setup.py install --prefix=/usr --root="$pkgdir"
 }
-md5sums=('8fcd1887b3652fa0f0e7fb2f9e641953')
+md5sums=('87ec907e8345fa7b849a2491e2bac630')
