@@ -1,0 +1,21 @@
+diff --git a/src/qml/qml/qqmlcontext.cpp b/src/qml/qml/qqmlcontext.cpp
+index f75a076bcb..36080a4f38 100644
+--- a/src/qml/qml/qqmlcontext.cpp
++++ b/src/qml/qml/qqmlcontext.cpp
+@@ -318,11 +318,11 @@ void QQmlContext::setContextProperty(const QString &name, const QVariant &value)
+         QMetaObject::activate(this, d->notifyIndex, idx, nullptr);
+     }
+ 
+-    if (auto *obj = qvariant_cast<QObject *>(value)) {
+-        connect(obj, &QObject::destroyed, this, [d, name](QObject *destroyed) {
+-            d->dropDestroyedQObject(name, destroyed);
+-        });
+-    }
++//     if (auto *obj = qvariant_cast<QObject *>(value)) {
++//         connect(obj, &QObject::destroyed, this, [d, name](QObject *destroyed) {
++//             d->dropDestroyedQObject(name, destroyed);
++//         });
++//     }
+ }
+ 
+ /*!
