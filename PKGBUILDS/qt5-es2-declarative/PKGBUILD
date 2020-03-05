@@ -3,9 +3,9 @@
 
 pkgname=qt5-es2-declarative
 _pkgname=qt5-declarative
-_qtver=5.14.0
+_qtver=5.14.1
 pkgver=${_qtver/-/}
-pkgrel=2
+pkgrel=1
 arch=('x86_64' 'aarch64')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
@@ -16,15 +16,11 @@ groups=('qt' 'qt5')
 provides=("qt5-declarative=$pkgver")
 conflicts=('qtchooser' 'qt5-declarative')
 _pkgfqn="${_pkgname/5-/}-everywhere-src-${_qtver}"
-source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/submodules/${_pkgfqn}.tar.xz"
-        "qtbug-80963.patch")
-sha256sums=('bbf11ee33d6f0d6bd6c4dc641d4f2aafbc7c6cd3b421a658955302d441dc9d8e'
-            'e773ddafe7f2465252f77ad4ad50046e1fe417068734652632a6bf4d505a0a28')
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/submodules/${_pkgfqn}.tar.xz")
+sha256sums=('762fe495d2f97fd70f06dc7d3929506ea3b5e3151ad813e0629209b7bc504c8a')
 
 prepare() {
   mkdir -p build
-  cd $_pkgfqn
-  patch -p1 -i "${srcdir}/qtbug-80963.patch" # Revert change that crashes kdenlive https://bugreports.qt.io/browse/QTBUG-80963
 }
 
 build() {

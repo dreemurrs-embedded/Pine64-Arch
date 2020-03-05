@@ -3,7 +3,7 @@
 
 pkgname=qt5-es2-multimedia
 _pkgname=qt5-multimedia
-_qtver=5.14.0
+_qtver=5.14.1
 pkgver=${_qtver/-/}
 pkgrel=1
 arch=('x86_64' 'aarch64')
@@ -20,7 +20,7 @@ provides=("qt5-multimedia=$pkgver")
 conflicts=('qt5-multimedia')
 _pkgfqn="${_pkgname/5-/}-everywhere-src-${_qtver}"
 source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/submodules/${_pkgfqn}.tar.xz")
-sha256sums=('e7901aa32fe71f1409cf73a0c62f27b98f434688e7b16ea8591b29cd8f90ad5e')
+sha256sums=('c458121c8db7ff77eefe643a7c9847ff324647f2603bb5664bcafa6435edeae7')
 
 prepare() {
   mkdir -p build

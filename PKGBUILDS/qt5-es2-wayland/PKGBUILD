@@ -3,9 +3,9 @@
 
 pkgname=qt5-es2-wayland
 _pkgname=qt5-wayland
-_qtver=5.14.0
+_qtver=5.14.1
 pkgver=${_qtver/-/}
-pkgrel=3
+pkgrel=1
 arch=('x86_64' 'aarch64')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
@@ -16,31 +16,11 @@ provides=("qt5-wayland=$pkgver")
 conflicts=('qt5-wayland')
 groups=('qt' 'qt5')
 _pkgfqn="${_pkgname/5-/}-everywhere-src-${_qtver}"
-source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/submodules/${_pkgfqn}.tar.xz"
-        qt5-wayland-animate-cursor.patch::"https://code.qt.io/cgit/qt/qtwayland.git/patch/?id=36974955"
-        qt5-wayland-cursor-timer.patch::"https://code.qt.io/cgit/qt/qtwayland.git/patch/?id=ce158896"
-        qt5-wayland-linux-dmabuf.patch::"https://code.qt.io/cgit/qt/qtwayland.git/patch/?id=09861f00"
-        qt5-wayland-linux-dmabuf-2.patch::"https://code.qt.io/cgit/qt/qtwayland.git/patch/?id=a2be69d4"
-        qt5-wayland-libglvnd-egl.patch::"https://code.qt.io/cgit/qt/qtwayland.git/patch/?id=c2105d8b"
-        qtbug-80613.patch::"https://code.qt.io/cgit/qt/qtwayland.git/patch/?id=80ed5501")
-sha256sums=('32d4fadb3a8dcee8953e6d92ee567927cd7649be6fc8dd378480664902c22610'
-            'b04b021cf78bfe765616cc385e85ac00aae13c0e5d2b969e9ccf66a3763670fb'
-            '5cf52ce4db458ca316c304ae5ad86158bd7cd5aec74d85fe66896ae27f953560'
-            '708daee5fdeea7b7e7a98706c93ac068ec1947d87126c2d7dbdf72e4e3ea0508'
-            'd40de7d22445aaaa5a8741fc8aff13d33a79e926faa16e46239f64fd85db5c12'
-            'e8dd89665619aa00874b4c39317366007a8e83bad81a2c3f404880e30591af83'
-            '1535fcb7bfeb931ce55c6cbdff639f708b8e74452e35ee7477bab1b228aee032')
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/submodules/${_pkgfqn}.tar.xz")
+sha256sums=('2a03b9f554e88c5824ef237c814b3dd45844c022e97be0e091f4a502ca4c9520')
 
 prepare() {
   mkdir -p build
-
-  cd $_pkgfqn
-  patch -Np1 -i "${srcdir}/qt5-wayland-animate-cursor.patch" # Fix flickering and high CPU with wayland cursors
-  patch -Np1 -i "${srcdir}/qt5-wayland-cursor-timer.patch"   # Also fix animated cursors
-  patch -Np1 -i "${srcdir}/qt5-wayland-linux-dmabuf.patch"   # Fix for DMA-BUF support
-  patch -Np1 -i "${srcdir}/qt5-wayland-linux-dmabuf-2.patch" # More of the same
-  patch -Np1 -i "${srcdir}/qt5-wayland-libglvnd-egl.patch"   # Fix compiling with libglvnd's headers
-  patch -Np1 -i "${srcdir}/qtbug-80613.patch" # Fix keyboard repeat rate
 }
 
 build() {
