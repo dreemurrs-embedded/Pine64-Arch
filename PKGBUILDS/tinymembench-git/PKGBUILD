@@ -1,0 +1,32 @@
+# Maintainer: Anton Leontiev <scileont /at/ gmail.com>
+pkgname=tinymembench-git
+pkgver=0.3.r6.g95e6847
+pkgrel=1
+pkgdesc='Simple benchmark for memory throughput and latency'
+arch=('i686' 'x86_64' 'armv7h' 'aarch64')
+depends=('glibc')
+makedepends=('git')
+license=('MIT')
+url='https://github.com/ssvb/tinymembench'
+source=("${pkgname%-git}::git+https://github.com/ssvb/tinymembench.git")
+md5sums=('SKIP')
+
+pkgver() {
+	local name=${pkgname%-git}
+	cd $name
+	git describe --long --tags | sed -r 's/^v//;s/([^-]*-g)/r\1/;s/-/./g'
+}
+
+build() {
+	local name=${pkgname%-git}
+	cd $name
+	make
+}
+
+package() {
+	local name=${pkgname%-git}
+	cd $name
+	install -Dm755 $name "$pkgdir"/usr/bin/$name
+	sed '/\*\//Q; /\/\*/d; s/ *\* *//' main.c > LICENSE
+	install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}
