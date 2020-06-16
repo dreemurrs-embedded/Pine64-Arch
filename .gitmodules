@@ -1,9 +1,9 @@
-[submodule "PKGBUILDS/qt5-es2-base"]
-	path = PKGBUILDS/qt5-es2-base
-	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-base.git
 [submodule "PKGBUILDS/qt5-es2-declarative"]
 	path = PKGBUILDS/qt5-es2-declarative
 	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-declarative.git
+[submodule "PKGBUILDS/qt5-es2-base"]
+	path = PKGBUILDS/qt5-es2-base
+	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-base.git
 [submodule "PKGBUILDS/qt5-es2-multimedia"]
 	path = PKGBUILDS/qt5-es2-multimedia
 	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-multimedia.git
