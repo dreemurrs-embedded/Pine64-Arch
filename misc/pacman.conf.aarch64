@@ -69,19 +69,24 @@ LocalFileSigLevel = Optional
 # after the header, and they will be used before the default mirrors.
 
 [core]
-Include = /etc/pacman.d/mirrorlist
+Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+SigLevel = Never
 
 [extra]
-Include = /etc/pacman.d/mirrorlist
+Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+SigLevel = Never
 
 [community]
-Include = /etc/pacman.d/mirrorlist
+Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+SigLevel = Never
 
 [alarm]
-Include = /etc/pacman.d/mirrorlist
+Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+SigLevel = Never
 
 [aur]
-Include = /etc/pacman.d/mirrorlist
+Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+SigLevel = Never
 
 # An example of a custom package repository.  See the pacman manpage for
 # tips on creating your own repositories.
