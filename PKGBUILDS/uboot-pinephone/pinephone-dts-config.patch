@@ -1,35 +1,35 @@
-From 00aa897de2621f2f5b24a665cf8144ebc264be02 Mon Sep 17 00:00:00 2001
-From: Danct12 <danct12@disroot.org>
-Date: Wed, 17 Jun 2020 12:35:21 +0700
-Subject: [PATCH] sunxi: Add Pinetab support
+From 0cdfb424bbab2f58dc5491f966137714c38005ec Mon Sep 17 00:00:00 2001
+From: Samuel Holland <samuel@sholland.org>
+Date: Sun, 15 Dec 2019 13:34:43 -0600
+Subject: [PATCH] [DO NOT MERGE] sun50i: a64: Add PinePhone DTS and defconfig
 
-Signed-off-by: Danct12 <danct12@disroot.org>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
- arch/arm/dts/Makefile               |   1 +
- arch/arm/dts/sun50i-a64-pinetab.dts | 330 ++++++++++++++++++++++++++++
- configs/pinetab_defconfig           |  82 +++++++
- 3 files changed, 413 insertions(+)
- create mode 100644 arch/arm/dts/sun50i-a64-pinetab.dts
- create mode 100644 configs/pinetab_defconfig
+ arch/arm/dts/Makefile                 |   1 +
+ arch/arm/dts/sun50i-a64-pinephone.dts | 328 ++++++++++++++++++++++++++
+ configs/pinephone_defconfig           |  25 ++
+ 3 files changed, 354 insertions(+)
+ create mode 100644 arch/arm/dts/sun50i-a64-pinephone.dts
+ create mode 100644 configs/pinephone_defconfig
 
 diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
-index 4ffdae21..3def099e 100644
+index bb979550c44..4ffdae21c30 100644
 --- a/arch/arm/dts/Makefile
 +++ b/arch/arm/dts/Makefile
 @@ -576,6 +576,7 @@ dtb-$(CONFIG_MACH_SUN50I) += \
  	sun50i-a64-pine64-plus.dtb \
  	sun50i-a64-pine64.dtb \
  	sun50i-a64-pinebook.dtb \
-+	sun50i-a64-pinetab.dtb \
- 	sun50i-a64-pinephone.dtb \
++	sun50i-a64-pinephone.dtb \
  	sun50i-a64-sopine-baseboard.dtb \
  	sun50i-a64-teres-i.dtb
-diff --git a/arch/arm/dts/sun50i-a64-pinetab.dts b/arch/arm/dts/sun50i-a64-pinetab.dts
+ dtb-$(CONFIG_MACH_SUN9I) += \
+diff --git a/arch/arm/dts/sun50i-a64-pinephone.dts b/arch/arm/dts/sun50i-a64-pinephone.dts
 new file mode 100644
-index 00000000..399c9208
+index 00000000000..5cc7df71d73
 --- /dev/null
-+++ b/arch/arm/dts/sun50i-a64-pinetab.dts
-@@ -0,0 +1,330 @@
++++ b/arch/arm/dts/sun50i-a64-pinephone.dts
+@@ -0,0 +1,328 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +/*
 + * Copyright (C) 2019 Icenowy Zheng <icenowy@aosc.xyz>
@@ -45,8 +45,8 @@ index 00000000..399c9208
 +#include <dt-bindings/pwm/pwm.h>
 +
 +/ {
-+	model = "PineTab";
-+	compatible = "pine64,pinetab", "allwinner,sun50i-a64";
++	model = "PinePhone";
++	compatible = "pine64,pinephone", "allwinner,sun50i-a64";
 +
 +	aliases {
 +		serial0 = &uart0;
@@ -55,52 +55,73 @@ index 00000000..399c9208
 +
 +	backlight: backlight {
 +		compatible = "pwm-backlight";
-+		pwms = <&pwm 0 50000 PWM_POLARITY_INVERTED>;
-+		brightness-levels = <0 16 18 20 22 24 26 29 32 35 38 42 46 51 56 62 68 75 83 91 100>;
-+		default-brightness-level = <15>;
-+		enable-gpios = <&pio 3 23 GPIO_ACTIVE_HIGH>; /* PD23 */
-+		power-supply = <&vdd_bl>;
++		pwms = <&r_pwm 0 50000 PWM_POLARITY_INVERTED>;
++		brightness-levels = <0 10 20 30 40 50 60 70 80 90 100>;
++		default-brightness-level = <8>;
++		enable-gpios = <&pio 7 10 GPIO_ACTIVE_HIGH>; /* PH10 LCD-BL-EN */
 +	};
 +
 +	chosen {
 +		stdout-path = "serial0:115200n8";
 +	};
 +
-+	speaker_amp: audio-amplifier {
-+		compatible = "simple-audio-amplifier";
-+		enable-gpios = <&pio 7 7 GPIO_ACTIVE_HIGH>; /* PH7 */
-+		sound-name-prefix = "Speaker Amp";
++	leds {
++		compatible = "gpio-leds";
++
++		blue {
++			label = "pinephone:blue:user";
++			gpios = <&pio 3 20 GPIO_ACTIVE_HIGH>; /* PD20 */
++		};
++
++		green {
++			label = "pinephone:green:user";
++			gpios = <&pio 3 18 GPIO_ACTIVE_HIGH>; /* PD18 */
++		};
++
++		red {
++			label = "pinephone:red:user";
++			gpios = <&pio 3 19 GPIO_ACTIVE_HIGH>; /* PD19 */
++		};
 +	};
 +
-+	vdd_bl: regulator@0 {
++	reg_3v3_wifi: regulator-3v3-wifi{
 +		compatible = "regulator-fixed";
-+		regulator-name = "bl-3v3";
++		regulator-name = "vcc-wifi";
 +		regulator-min-microvolt = <3300000>;
 +		regulator-max-microvolt = <3300000>;
-+		gpio = <&pio 7 6 GPIO_ACTIVE_HIGH>; /* PH6 */
++	};
++
++	reg_vbat_4g: regulator-vbat-4g{
++		compatible = "regulator-fixed";
++		regulator-name = "vbat-4g";
++		regulator-min-microvolt = <3700000>;
++		regulator-max-microvolt = <3700000>;
++		gpio = <&r_pio 0 7 GPIO_ACTIVE_HIGH>; /* PL7 */
 +		enable-active-high;
++	};
++
++	reg_vcc5v0: regulator-vcc5v0 {
++		compatible = "regulator-fixed";
++		regulator-name = "vcc5v0";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		gpio = <&pio 3 8 GPIO_ACTIVE_HIGH>; /* PD8 */
++		enable-active-high;
++	};
++
++	speaker_amp: audio-amplifier {
++		compatible = "simple-audio-amplifier";
++		enable-gpios = <&pio 2 7 GPIO_ACTIVE_HIGH>; /* PC7 */
++		sound-name-prefix = "Speaker Amp";
 +	};
 +
 +	wifi_pwrseq: wifi_pwrseq {
 +		compatible = "mmc-pwrseq-simple";
 +		reset-gpios = <&r_pio 0 2 GPIO_ACTIVE_LOW>; /* PL2 */
-+		post-power-on-delay-ms = <200>;
 +	};
 +};
 +
 +&cpu0 {
-+	cpu-supply = <&reg_dcdc2>;
-+};
-+
-+&cpu1 {
-+	cpu-supply = <&reg_dcdc2>;
-+};
-+
-+&cpu2 {
-+	cpu-supply = <&reg_dcdc2>;
-+};
-+
-+&cpu3 {
 +	cpu-supply = <&reg_dcdc2>;
 +};
 +
@@ -113,42 +134,6 @@ index 00000000..399c9208
 +};
 +
 +&ehci1 {
-+	status = "okay";
-+};
-+
-+&i2c0 {
-+	status = "okay";
-+
-+	touchscreen@5d {
-+		compatible = "goodix,gt9271";
-+		reg = <0x5d>;
-+		interrupt-parent = <&pio>;
-+		interrupts = <7 4 IRQ_TYPE_LEVEL_HIGH>; /* PH4 */
-+		irq-gpios = <&pio 7 4 GPIO_ACTIVE_HIGH>; /* PH4 */
-+		reset-gpios = <&pio 7 8 GPIO_ACTIVE_HIGH>; /* PH8 */
-+		AVDD28-supply = <&reg_ldo_io1>;
-+	};
-+};
-+
-+&i2c0_pins {
-+	bias-pull-up;
-+};
-+
-+&i2c1 {
-+	status = "okay";
-+
-+	bma223@18 {
-+		compatible = "bosch,bma223", "bosch,bma222e";
-+		reg = <0x18>;
-+		interrupt-parent = <&pio>;
-+		interrupts = <7 5 IRQ_TYPE_LEVEL_HIGH>; /* PH5 */
-+		mount-matrix = "0", "-1", "0",
-+			       "-1", "0", "0",
-+			       "0", "0", "-1";
-+	};
-+};
-+
-+&mixer1 {
 +	status = "okay";
 +};
 +
@@ -165,8 +150,8 @@ index 00000000..399c9208
 +&mmc1 {
 +	pinctrl-names = "default";
 +	pinctrl-0 = <&mmc1_pins>;
-+	vmmc-supply = <&reg_dldo4>;
-+	vqmmc-supply = <&reg_eldo1>;
++	vmmc-supply = <&reg_3v3_wifi>;
++	vqmmc-supply = <&reg_dldo4>;
 +	mmc-pwrseq = <&wifi_pwrseq>;
 +	bus-width = <4>;
 +	non-removable;
@@ -196,7 +181,12 @@ index 00000000..399c9208
 +	status = "okay";
 +};
 +
-+&pwm {
++&pio {
++	vcc-pe-supply = <&reg_aldo1>;
++	vcc-pg-supply = <&reg_dldo4>;
++};
++
++&r_pwm {
 +	status = "okay";
 +};
 +
@@ -208,7 +198,6 @@ index 00000000..399c9208
 +		reg = <0x3a3>;
 +		interrupt-parent = <&r_intc>;
 +		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+		x-powers,drive-vbus-en;
 +	};
 +};
 +
@@ -235,7 +224,8 @@ index 00000000..399c9208
 +};
 +
 +&reg_dc1sw {
-+	regulator-name = "vcc-lcd";
++	regulator-always-on;
++	regulator-name = "dc1sw";
 +};
 +
 +&reg_dcdc1 {
@@ -272,7 +262,14 @@ index 00000000..399c9208
 +	regulator-always-on;
 +	regulator-min-microvolt = <3300000>;
 +	regulator-max-microvolt = <3300000>;
-+	regulator-name = "vcc-hdmi-dsi-sensor";
++	regulator-name = "vcc-dsi-sensor";
++};
++
++&reg_dldo2 {
++	regulator-always-on;
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-name = "vcc-mipi-io";
 +};
 +
 +&reg_dldo3 {
@@ -284,25 +281,14 @@ index 00000000..399c9208
 +&reg_dldo4 {
 +	regulator-min-microvolt = <3300000>;
 +	regulator-max-microvolt = <3300000>;
-+	regulator-name = "vcc-wifi";
-+};
-+
-+&reg_drivevbus {
-+	regulator-name = "usb0-vbus";
-+	status = "okay";
++	regulator-name = "vcc-wifi-io";
 +};
 +
 +&reg_eldo1 {
 +	regulator-always-on;
 +	regulator-min-microvolt = <1800000>;
 +	regulator-max-microvolt = <1800000>;
-+	regulator-name = "cpvdd";
-+};
-+
-+&reg_eldo2 {
-+	regulator-min-microvolt = <1800000>;
-+	regulator-max-microvolt = <1800000>;
-+	regulator-name = "vcca-1v8";
++	regulator-name = "vcc-lpddr";
 +};
 +
 +&reg_eldo3 {
@@ -325,17 +311,17 @@ index 00000000..399c9208
 +};
 +
 +&reg_ldo_io0 {
++	regulator-always-on;
 +	regulator-min-microvolt = <3300000>;
 +	regulator-max-microvolt = <3300000>;
-+	regulator-name = "vcc-usb";
++	regulator-name = "vcc-lcd";
 +	status = "okay";
 +};
 +
 +&reg_ldo_io1 {
-+	regulator-min-microvolt = <3300000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-enable-ramp-delay = <3500000>;
-+	regulator-name = "vcc-touchscreen";
++	regulator-min-microvolt = <1800000>;
++	regulator-max-microvolt = <1800000>;
++	regulator-name = "vcc-1v8-typec";
 +	status = "okay";
 +};
 +
@@ -349,105 +335,60 @@ index 00000000..399c9208
 +	status = "okay";
 +};
 +
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart1_pins>, <&uart1_rts_cts_pins>;
++	status = "okay";
++
++	bluetooth {
++		compatible = "realtek,rtl8723cs-bt";
++		reset-gpios = <&r_pio 0 4 GPIO_ACTIVE_LOW>; /* PL4 */
++		device-wake-gpios = <&pio 7 6 GPIO_ACTIVE_LOW>; /* PH6 */
++		host-wake-gpios = <&r_pio 0 5 GPIO_ACTIVE_HIGH>; /* PL5 */
++		firmware-postfix = "pinebook";
++	};
++};
++
 +&usb_otg {
-+	dr_mode = "otg";
++	dr_mode = "peripheral";
 +	status = "okay";
 +};
 +
 +&usbphy {
-+	usb0_id_det-gpios = <&pio 7 9 GPIO_ACTIVE_HIGH>; /* PH9 */
-+	usb0_vbus-supply = <&reg_drivevbus>;
-+	usb1_vbus-supply = <&reg_ldo_io0>;
++	usb1_vbus-supply = <&reg_vbat_4g>;
 +	status = "okay";
 +};
-diff --git a/configs/pinetab_defconfig b/configs/pinetab_defconfig
+diff --git a/configs/pinephone_defconfig b/configs/pinephone_defconfig
 new file mode 100644
-index 00000000..7d80d529
+index 00000000000..f4b9f6adaad
 --- /dev/null
-+++ b/configs/pinetab_defconfig
-@@ -0,0 +1,82 @@
++++ b/configs/pinephone_defconfig
+@@ -0,0 +1,25 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_SUNXI=y
++CONFIG_NR_DRAM_BANKS=1
 +CONFIG_SPL=y
++CONFIG_IDENT_STRING=""
 +CONFIG_MACH_SUN50I=y
-+CONFIG_RESERVE_ALLWINNER_BOOT0_HEADER=y
 +CONFIG_SUNXI_DRAM_LPDDR3_STOCK=y
 +CONFIG_DRAM_CLK=552
 +CONFIG_DRAM_ZQ=3881949
-+#CONFIG_DRAM_ODT_EN=y ???
-+CONFIG_MMC0_CD_PIN=""
 +CONFIG_MMC_SUNXI_SLOT_EXTRA=2
-+#CONFIG_SPL_SPI_SUNXI=y
-+CONFIG_NR_DRAM_BANKS=1
-+CONFIG_DEFAULT_DEVICE_TREE="sun50i-a64-pinetab"
-+
++# CONFIG_VIDEO_DE2 is not set
 +# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
-+# CONFIG_SPL_DOS_PARTITION is not set
-+# CONFIG_SPL_EFI_PARTITION is not set
-+CONFIG_SYS_RELOC_GD_ENV_ADDR=y
-+# CONFIG_CMD_FLASH is not set
-+# CONFIG_SUN8I_EMAC is not set
-+# CONFIG_NET is not set
-+# CONFIG_DM_ETH is not set
-+# CONFIG_CMD_NET is not set
-+# CONFIG_CMD_DHCP is not set
-+# CONFIG_CMD_PXE is not set
-+# CONFIG_CMD_NFS is not set
-+# CONFIG_CMD_MII is not set
-+# CONFIG_CMD_PING is not set
-+# CONFIG_CMD_LOADB is not set
-+# CONFIG_CMD_LOADS is not set
-+# CONFIG_DISTRO_DEFAULTS is not set
-+# CONFIG_CMD_BOOTZ is not set
-+CONFIG_CMD_FAT=y
-+CONFIG_CMD_FS_GENERIC=y
-+CONFIG_CMD_PART=y
-+CONFIG_HUSH_PARSER=y
-+CONFIG_ENV_IS_IN_FAT=y
++CONFIG_SYS_CONSOLE_INFO_QUIET=y
 +# CONFIG_DISPLAY_CPUINFO is not set
 +# CONFIG_DISPLAY_BOARDINFO is not set
-+# CONFIG_DISPLAY_BOARDINFO_LATE is not set
-+CONFIG_SYS_CONSOLE_INFO_QUIET=y
-+CONFIG_BOOTDELAY=0
-+#CONFIG_CMD_MYDBG=y
-+
-+CONFIG_SPL_SERIAL_SUPPORT=n
-+CONFIG_DM_SPI_FLASH=n
-+CONFIG_SPI_FLASH=n
-+CONFIG_PHY=n
-+CONFIG_PHY_SUN4I_USB=n
-+CONFIG_SPI=n
-+CONFIG_DM_SPI=n
-+CONFIG_SPI_MEM=n
-+CONFIG_FAT_WRITE=n
-+CONFIG_SHA1=n
-+CONFIG_SHA256=n
-+CONFIG_MD5=n
-+CONFIG_LZMA=n
-+CONFIG_GZIP=n
-+CONFIG_ZLIB=n
-+#CONFIG_MMC_WRITE=n
-+CONFIG_CMD_LZMADEC=n
-+CONFIG_CMD_UNZIP=n
-+CONFIG_BOOTM_NETBSD=n
-+CONFIG_BOOTM_PLAN9=n
-+CONFIG_BOOTM_RTEMS=n
-+CONFIG_BOOTM_VXWORKS=n
-+CONFIG_FIT_ENABLE_SHA256_SUPPORT=n
-+CONFIG_CMD_BOOTM=y
-+CONFIG_LZ4=y
-+CONFIG_FIT=y
-+
-+# CONFIG_CMD_BOOTEFI is not set
-+# CONFIG_EFI_PARTITION is not set
-+# CONFIG_EFI_LOADER is not set
-+# CONFIG_CMD_NVEDIT_EFI is not set
-+# CONFIG_PRE_CONSOLE_BUFFER is not set
-+# CONFIG_SERIAL_PRESENT is not set
-+# CONFIG_SPL_SERIAL_PRESENT is not set
++# CONFIG_SPL_RAW_IMAGE_SUPPORT is not set
 +# CONFIG_SPL_BANNER_PRINT is not set
-+# CONFIG_SPL_DISPLAY_PRINT is not set
-+# CONFIG_VIDEO_DE2 is not set
++# CONFIG_SPL_POWER_SUPPORT is not set
++CONFIG_CMD_POWEROFF=y
++# CONFIG_SPL_DOS_PARTITION is not set
++# CONFIG_SPL_EFI_PARTITION is not set
++CONFIG_DEFAULT_DEVICE_TREE="sun50i-a64-pinephone"
++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
++# CONFIG_NET is not set
++# CONFIG_EFI_LOADER is not set
 -- 
-2.27.0
+GitLab
 

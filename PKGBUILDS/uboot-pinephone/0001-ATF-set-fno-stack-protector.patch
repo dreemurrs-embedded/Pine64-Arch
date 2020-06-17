@@ -1,14 +1,10 @@
-diff --git a/Makefile b/Makefile
-index 721246d5..403d69cd 100644
---- a/Makefile
-+++ b/Makefile
-@@ -285,7 +285,8 @@ ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
+--- a/Makefile	2020-06-16 16:55:36.000000000 +0700
++++ b/Makefile	2020-06-17 12:18:28.612524000 +0700
+@@ -353,6 +353,7 @@
  				-ffreestanding -Wa,--fatal-warnings
  TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
- 				-ffreestanding -fno-builtin -Wall -std=gnu99	\
--				-Os -ffunction-sections -fdata-sections
-+				-Os -ffunction-sections -fdata-sections		\
-+				-fno-stack-protector
+ 				-ffunction-sections -fdata-sections		\
++				-fno-stack-protector				\
+ 				-ffreestanding -fno-builtin -fno-common		\
+ 				-Os -std=gnu99
  
- ifeq (${SANITIZE_UB},on)
- TF_CFLAGS		+=	-fsanitize=undefined -fno-sanitize-recover

@@ -1,0 +1,13 @@
+diff --git a/configs/pinephone_defconfig b/configs/pinephone_defconfig
+index f4b9f6adaa..ad5bff5132 100644
+--- a/configs/pinephone_defconfig
++++ b/configs/pinephone_defconfig
+@@ -5,7 +5,7 @@ CONFIG_SPL=y
+ CONFIG_IDENT_STRING=""
+ CONFIG_MACH_SUN50I=y
+ CONFIG_SUNXI_DRAM_LPDDR3_STOCK=y
+-CONFIG_DRAM_CLK=552
++CONFIG_DRAM_CLK=624
+ CONFIG_DRAM_ZQ=3881949
+ CONFIG_MMC_SUNXI_SLOT_EXTRA=2
+ # CONFIG_VIDEO_DE2 is not set

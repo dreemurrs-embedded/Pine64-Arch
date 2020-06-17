@@ -4,46 +4,57 @@
 buildarch=8
 
 pkgname=uboot-pinephone
-pkgver=v2020.01_megous
-pkgrel=1
+pkgver=v2020.07_rc4
+pkgrel=0
 pkgdesc="U-Boot for Pine64"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
 license=('GPL')
-makedepends=('bc' 'git' 'python' 'swig' 'dtc')
+makedepends=('bc' 'python' 'swig' 'dtc')
 install=${pkgname}.install
-source=('git+https://megous.com/git/u-boot#commit=0ab6225154c3d8b74f06fb3b181b52a9a64b4602'
-        'git+https://megous.com/git/atf#commit=16ddf2b7d0b4bc0367b179e3c6f3f3e60947068a'
-        '0001-sunxi-Add-Pinetab-support.patch'
+
+_commit_uboot="9cb895203a46654f7ee6dd95be5c8ab05e4dfbd3"
+_commit_atf="5eeb091ade2f6a51f2e34aa9e62830afdc032aa1"
+
+source=("u-boot-$_commit_uboot.tar.gz::https://github.com/u-boot/u-boot/archive/${_commit_uboot}.tar.gz"
+        "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/ARM-software/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
         '0001-ATF-set-fno-stack-protector.patch'
+        '0001-sunxi-Add-Pinetab-support.patch'
+        'dram-speed.patch'
+        'pinephone-dts-config.patch'
         'boot.txt'
         'mkscr')
-md5sums=('SKIP'
-         'SKIP'
-         'ef3c87f019a75c74212fa83d31e6a0cd'
-         'b07140c0c7d20f63fc28722e509e349b'
+md5sums=('808dc6dc56f6726e7b623958be2cb49f'
+         'cc84cfb04cf4174b7598c33d55939f54'
+         '348a6943a1c220047ce5312b59da95b6'
+         'ad464eccf7ca0ef3d573225d0eda9c2f'
+         '21b2642e93286c8512d36e642d139388'
+         'a28458d76a09329fb402861c73596ec7'
          '06d85506cdc2054ba76b552bf29499c2'
          '021623a04afd29ac3f368977140cfbfd')
 
 prepare() {
-  cd atf
-  git apply ../0001-ATF-set-fno-stack-protector.patch
+  cd arm-trusted-firmware-${_commit_atf}
+  patch -N -p1 < ../0001-ATF-set-fno-stack-protector.patch
 
-  cd ../u-boot
-  git apply ../0001-sunxi-Add-Pinetab-support.patch
+  cd ../u-boot-${_commit_uboot}
+  patch -N -p1 < ../pinephone-dts-config.patch
+  patch -N -p1 < ../dram-speed.patch
+  patch -N -p1 < ../0001-sunxi-Add-Pinetab-support.patch
 }
 
 build() {
   unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 
-  cd atf
+  cd arm-trusted-firmware-${_commit_atf}
 
   make PLAT=sun50i_a64 DEBUG=1 bl31
-  cp build/sun50i_a64/debug/bl31.bin ../u-boot
+  cp build/sun50i_a64/debug/bl31.bin ../u-boot-${_commit_uboot}
 
-  cd ../u-boot
+  cd ../u-boot-${_commit_uboot}
 
   # This builds the PineTab.
+  echo "Building U-Boot for PineTab..."
   make distclean
   make pinetab_defconfig
   echo 'CONFIG_IDENT_STRING=" Arch Linux ARM"' >> .config
@@ -58,6 +69,7 @@ build() {
   cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinetab.bin
 
   # This builds the PinePhone.
+  echo "Building U-Boot for PinePhone..."
   make pinephone_defconfig
   echo 'CONFIG_IDENT_STRING=" Arch Linux ARM"' >> .config
   echo 'CONFIG_SERIAL_PRESENT=y' >> .config
@@ -72,7 +84,7 @@ build() {
 }
 
 package() {
-  cd u-boot
+  cd u-boot-${_commit_uboot}
 
   mkdir -p "${pkgdir}"/boot
 
