@@ -3,6 +3,12 @@ setenv kernel_addr_z 0x44080000
 
 setenv bootargs loglevel=4 console=${console} console=tty0 root=PARTUUID=${uuid} rw rootwait
 
+# FIXME: Currently our U-Boot has no way to detect which PinePhone version is
+#        so right now we'll just force it to use v1.1.
+if test x$fdtfile = x"allwinner/sun50i-a64-pinephone.dtb" ; then
+  setenv fdtfile allwinner/sun50i-a64-pinephone-1.1.dtb
+fi
+
 if load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_z} /boot/Image.gz; then
   unzip ${kernel_addr_z} ${kernel_addr_r}
   if load ${devtype} ${devnum}:${distro_bootpart} ${fdt_addr_r} /boot/dtbs/${fdtfile}; then
