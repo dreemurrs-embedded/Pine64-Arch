@@ -1,0 +1,36 @@
+From 46453bd32b5a8d9d85684a7c5a4dc74ffd0cdc55 Mon Sep 17 00:00:00 2001
+From: Danct12 <danct12@disroot.org>
+Date: Thu, 18 Jun 2020 18:37:43 +0700
+Subject: [PATCH] configs: Add Pinetab configuration
+
+Signed-off-by: Danct12 <danct12@disroot.org>
+---
+ configs/pinetab_defconfig | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+ create mode 100644 configs/pinetab_defconfig
+
+diff --git a/configs/pinetab_defconfig b/configs/pinetab_defconfig
+new file mode 100644
+index 0000000000..f171f2e923
+--- /dev/null
++++ b/configs/pinetab_defconfig
+@@ -0,0 +1,16 @@
++CONFIG_ARM=y
++CONFIG_ARCH_SUNXI=y
++CONFIG_SPL=y
++CONFIG_MACH_SUN50I=y
++CONFIG_SUNXI_DRAM_LPDDR3_STOCK=y
++CONFIG_DRAM_CLK=624
++CONFIG_DRAM_ZQ=3881949
++CONFIG_MMC_SUNXI_SLOT_EXTRA=2
++# CONFIG_VIDEO_DE2 is not set
++# CONFIG_PINEPHONE_DT_SELECTION is not set
++# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
++CONFIG_DEFAULT_DEVICE_TREE="sun50i-a64-pinetab"
++# CONFIG_NET is not set
++# CONFIG_EFI_LOADER is not set
++CONFIG_BOOTDELAY=0
++# CONFIG_PINEPHONE_LEDS is not set
+-- 
+2.27.0
+
