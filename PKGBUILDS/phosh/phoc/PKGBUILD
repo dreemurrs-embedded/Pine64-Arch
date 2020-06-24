@@ -11,7 +11,7 @@ makedepends=('meson' 'ninja')
 source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz)
 
 build() {
-	arch-meson ${pkgname}-v${pkgver} output -Dembed-wlroots=disabled
+	arch-meson ${pkgname}-v${pkgver} output -Dembed-wlroots=disabled -Dtests=false
 	ninja -C output
 }
 
