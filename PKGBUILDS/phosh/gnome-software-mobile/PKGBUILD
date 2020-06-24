@@ -1,0 +1,44 @@
+# Contribotor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+# Contributor: Yosef Or Boczko <yoseforb@gnome.org>
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=gnome-software-mobile
+pkgver=3.34.0
+pkgrel=0
+pkgdesc="GNOME Software Tools - Purism fork"
+url="https://source.puri.sm/Librem5/gnome-software"
+arch=(x86_64 armv7h aarch64)
+license=(GPL2)
+makedepends=(appstream-glib gnome-desktop libpackagekit-glib flatpak fwupd ostree
+             docbook-xsl git gobject-introspection gspell gtk-doc meson valgrind
+             gnome-online-accounts libxmlb libhandy)
+_commit=b915095540fa7ada6778aded0d51a93572762d89
+source=(https://source.puri.sm/Librem5/gnome-software/-/archive/$_commit/gnome-software-$_commit.tar.bz2)
+sha256sums=('8edaeb11bbf0473a4c3c72e392a294a70621543ea0635aecd7dfac1d638c97eb')
+
+prepare() {
+  cd gnome-software-$_commit
+}
+
+build() {
+  arch-meson gnome-software-$_commit build
+  ninja -C build
+}
+
+check() {
+  # build container troubles
+  meson test -C build --print-errorlogs || :
+}
+
+package() {
+  provides=(gnome-software gnome-software-packagekit-plugin)
+  conflicts=(gnome-software gnome-software-packagekit-plugin)
+  depends=(libxmlb gnome-desktop gsettings-desktop-schemas gspell libpackagekit-glib
+           gnome-online-accounts appstream-glib)
+  optdepends=('flatpak: Flatpak support plugin'
+              'fwupd: fwupd support plugin'
+              'ostree: OSTree support plugin')
+
+  DESTDIR="$pkgdir" meson install -C build
+}

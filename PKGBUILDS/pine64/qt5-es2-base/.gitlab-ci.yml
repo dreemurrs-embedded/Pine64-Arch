@@ -1,0 +1,11 @@
+build-package:
+  tags:
+    - bigbuilds
+    - strit
+  script:
+    - sudo pacman -Syy && makepkg -scr --noconfirm
+    - cp ./*.pkg.tar.* /opt/dependencies/
+  artifacts:
+    paths:
+    - ./*.pkg.tar.*
+    expire_in: 1 week

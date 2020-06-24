@@ -1,0 +1,22 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=phoc
+pkgver=0.1.9
+pkgrel=0
+pkgdesc="A compositor for phones based on wlroots"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://source.puri.sm/Librem5/phoc"
+license=('GPL')
+depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'wlroots' 'mutter')
+makedepends=('meson' 'ninja')
+source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz)
+
+build() {
+	arch-meson ${pkgname}-v${pkgver} output -Dembed-wlroots=disabled
+	ninja -C output
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+}
+
+md5sums=('acc97b48095f813d23d0e597dd619aef')

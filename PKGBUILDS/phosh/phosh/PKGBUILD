@@ -1,0 +1,34 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=phosh
+pkgver=0.3.1
+pkgrel=0
+pkgdesc="The Librem5 Shell"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://source.puri.sm/Librem5/phosh"
+license=('GPL')
+depends=('gtk3' 'libhandy' 'gnome-desktop' 'gnome-session' 'upower' 'libpulse'
+         'gcr' 'feedbackd' 'libnm' 'phoc')
+makedepends=('meson' 'ninja')
+source=("$pkgname-$pkgver.tar.xz::https://repo.pureos.net/pureos/pool/main/p/phosh/phosh_$pkgver.tar.xz"
+	'pam_phosh'
+	'sm.puri.OSK0.desktop')
+
+build() {
+	arch-meson ${pkgname}-${pkgver} output
+	ninja -C output
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C output install
+
+	install -Dm644 "$srcdir"/$pkgname-$pkgver/debian/phosh.service \
+		"$pkgdir"/usr/lib/systemd/system/phosh.service
+	install -Dm644 "$srcdir"/pam_phosh \
+		"$pkgdir"/etc/pam.d/phosh
+	install -Dm644 "$srcdir"/sm.puri.OSK0.desktop \
+		"$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
+}
+
+md5sums=('491859b0d4f3ae1feb4f93c5d6c57359'
+         '6d5a0d561f8362bf91f85c236a88395d'
+         '30c7febb5cbbac40984fb50d66a88639')

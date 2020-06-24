@@ -1,0 +1,62 @@
+# Contributor Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Ionut Biru <ibiru@archlinux.org>
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=gtk3-mobile
+pkgver=3.24.8
+pkgrel=0
+pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://source.puri.sm/Librem5/gtk"
+depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2 dconf
+         libxcomposite libxdamage pango shared-mime-info at-spi2-atk wayland libxkbcommon
+         adwaita-icon-theme json-glib librsvg wayland-protocols desktop-file-utils mesa
+         cantarell-fonts colord rest libcups libcanberra fribidi)
+makedepends=(gobject-introspection gtk-doc git glib2-docs sassc)
+license=(LGPL)
+install=gtk3.install
+_commit=6c2d6dd3b3cd979aa987d00b7f5bc5666dd55d69 # This is 3.24.8 from Purism
+source=("https://source.puri.sm/Librem5/gtk/-/archive/$_commit/gtk-$_commit.tar.bz2"
+        settings.ini
+        gtk-query-immodules-3.0.hook)
+sha256sums=('858933f022d2c2b744fc0e5bdf7ba571d1438cb30558f66cb679b7fdd687c1a1'
+            '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
+            'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845')
+
+prepare() {
+  cd gtk-$_commit
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd gtk-$_commit
+
+  ./configure --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --disable-schemas-compile \
+    --enable-x11-backend \
+    --enable-broadway-backend \
+    --enable-wayland-backend
+
+  #https://bugzilla.gnome.org/show_bug.cgi?id=655517
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make
+}
+
+package() {
+  depends+=(gtk-update-icon-cache)
+  provides=(gtk3 gtk3-print-backends)
+  conflicts=(gtk3 gtk3-print-backends)
+
+  DESTDIR="$pkgdir" make -C gtk-$_commit install
+
+  install -Dt "$pkgdir/usr/share/gtk-3.0" -m644 settings.ini
+  install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 gtk-query-immodules-3.0.hook
+
+  # split this out to use with gtk2 too
+  mv "$pkgdir/usr/bin/gtk-update-icon-cache" "$srcdir"
+}
+
+# vim:set ts=2 sw=2 et:

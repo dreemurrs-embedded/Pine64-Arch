@@ -1,0 +1,12 @@
+build-package:
+  tags:
+    - bigbuilds
+    - strit
+  script:
+    - if [ -f /opt/dependencies/qt5-es2-base-* ]; then sudo pacman -U /opt/dependencies/qt5-es2-base-* --noconfirm; fi;
+    - sudo pacman -Syy && makepkg -scr --noconfirm
+    - cp ./*.pkg.tar.* /opt/dependencies/
+  artifacts:
+    paths:
+    - ./*.pkg.tar.*
+    expire_in: 1 week

@@ -1,0 +1,12 @@
+build-package:
+  tags:
+    - bigbuilds
+    - strit
+  script:
+    - if [ -f /opt/dependencies/qt5-es2-declarative-* ]; then sudo pacman -U /opt/dependencies/qt5-es2-declarative-* --noconfirm; fi;
+    - sudo pacman -Syy && makepkg -scr --noconfirm
+    - if [ -f /opt/dependencies/qt5-es2-declarative-* ]; then sudo pacman -Rsn qt5-es2-declarative qt5-es2-base --noconfirm; fi;
+  artifacts:
+    paths:
+    - ./*.pkg.tar.*
+    expire_in: 1 week
