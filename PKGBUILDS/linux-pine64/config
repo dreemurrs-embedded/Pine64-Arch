@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.6.0-0 Kernel Configuration
+# Linux/arm64 5.6.0-2 Kernel Configuration
 #
 
 #
@@ -3091,6 +3091,7 @@ CONFIG_FRAMEBUFFER_CONSOLE=y
 CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
 CONFIG_FRAMEBUFFER_CONSOLE_ROTATION=y
 # CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER is not set
+CONFIG_BOOTSPLASH=y
 # end of Console display driver support
 
 CONFIG_LOGO=y
