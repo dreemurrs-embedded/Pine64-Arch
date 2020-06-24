@@ -1,0 +1,84 @@
+From 65dae46181119867cd8e93ca5b33d3b0cf3df08c Mon Sep 17 00:00:00 2001
+From: Beralt Meppelink <b.meppelink@riwo.eu>
+Date: Fri, 27 Oct 2017 10:42:50 +0200
+Subject: [PATCH 2/2] do not rely on CR in modem output
+
+---
+ atinout.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
+
+diff --git a/atinout.c b/atinout.c
+index 924b5bc..4cd7689 100644
+--- a/atinout.c
++++ b/atinout.c
+@@ -34,7 +34,6 @@
+ 
+ #define MAX_LINE_LENGTH (4 * 1024)
+ static char buf[MAX_LINE_LENGTH];
+-static char buf2[MAX_LINE_LENGTH];
+ 
+ static struct option long_options[] = {
+ 	{"help", no_argument, NULL, 'h'},
+@@ -125,36 +124,36 @@ static bool is_final_result(const char * const response)
+ 		}
+ 		return false;
+ 	case 'B':
+-		if (strcmp(&response[1], "USY\r\n") == 0) {
++		if (strcmp(&response[1], "USY\n") == 0) {
+ 			return true;
+-		}
++                }
++		
+ 		return false;
+ 
+ 	case 'E':
+-		if (strcmp(&response[1], "RROR\r\n") == 0) {
++		if (strcmp(&response[1], "RROR\n") == 0) {
+ 			return true;
+ 		}
+ 		return false;
+ 	case 'N':
+-		if (strcmp(&response[1], "O ANSWER\r\n") == 0) {
++		if (strcmp(&response[1], "O ANSWER\n") == 0) {
+ 			return true;
+ 		}
+-		if (strcmp(&response[1], "O CARRIER\r\n") == 0) {
++		if (strcmp(&response[1], "O CARRIER\n") == 0) {
+ 			return true;
+ 		}
+-		if (strcmp(&response[1], "O DIALTONE\r\n") == 0) {
++		if (strcmp(&response[1], "O DIALTONE\n") == 0) {
+ 			return true;
+ 		}
+ 		return false;
+ 	case 'O':
+-		if (strcmp(&response[1], "K\r\n") == 0) {
++		if (strcmp(&response[1], "K\n") == 0) {
+ 			return true;
+ 		}
+ 		// fallthrough
+ 	default:
+ 		return false;
+ 	}
+-
+ }
+ 
+ int main(int argc, char *argv[])
+@@ -248,11 +247,10 @@ int main(int argc, char *argv[])
+ 				fprintf(stderr, "EOF from modem\n");
+ 				return EXIT_FAILURE;
+ 			}
+-			strcpy(buf2, line);
+-			strip_cr(buf2);
+-			res = fputs(buf2, output);
++			strip_cr(line);
++			res = fputs(line, output);
+ 			if (res < 0) {
+-				fprintf(stderr, "failed to write '%s' to output file (res = %d)\n", buf2, res);
++				fprintf(stderr, "failed to write '%s' to output file (res = %d)\n", line, res);
+ 				return EXIT_FAILURE;
+ 			}
+ 		} while (! is_final_result(line));
+-- 
+2.23.0
+

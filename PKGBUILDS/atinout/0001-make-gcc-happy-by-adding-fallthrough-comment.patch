@@ -1,0 +1,25 @@
+From ca2e04f8b069d269172f0d55d3716a809537f696 Mon Sep 17 00:00:00 2001
+From: Beralt Meppelink <b.meppelink@riwo.eu>
+Date: Fri, 27 Oct 2017 09:12:18 +0200
+Subject: [PATCH 1/2] make gcc happy by adding fallthrough comment
+
+---
+ atinout.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/atinout.c b/atinout.c
+index d04f300..924b5bc 100644
+--- a/atinout.c
++++ b/atinout.c
+@@ -150,7 +150,7 @@ static bool is_final_result(const char * const response)
+ 		if (strcmp(&response[1], "K\r\n") == 0) {
+ 			return true;
+ 		}
+-		/* no break */
++		// fallthrough
+ 	default:
+ 		return false;
+ 	}
+-- 
+2.23.0
+
