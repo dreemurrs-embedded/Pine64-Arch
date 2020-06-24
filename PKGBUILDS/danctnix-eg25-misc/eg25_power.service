@@ -1,0 +1,12 @@
+[Unit]
+Description=Quectel EG25 Modem
+Before=ofono.service ModemManager.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=True
+ExecStart=/usr/lib/danctnix/eg25/eg25_power.sh start
+ExecStop=/usr/lib/danctnix/eg25/eg25_power.sh stop
+
+[Install]
+WantedBy=multi-user.target
