@@ -1,6 +1,6 @@
 # Maintainer: Anton Leontiev <scileont /at/ gmail.com>
 pkgname=tinymembench-git
-pkgver=0.3.r6.g95e6847
+pkgver=0.4.r13.ga2cf6d7
 pkgrel=1
 pkgdesc='Simple benchmark for memory throughput and latency'
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')
