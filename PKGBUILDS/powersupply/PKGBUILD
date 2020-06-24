@@ -1,0 +1,27 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=powersupply
+pkgver=0.3.3
+pkgrel=0
+pkgdesc="GTK3 tool for displaying battery and power info"
+url="https://gitlab.com/MartijnBraam/powersupply"
+arch=(any)
+license=('MIT')
+depends=(python3 python-gobject gtk3 libhandy)
+makedepends=(python-setuptools)
+source=("$pkgname-$pkgver.tar.gz::https://gitlab.com/MartijnBraam/powersupply/-/archive/$pkgver/powersupply-$pkgver.tar.gz")
+
+build() {
+	cd $pkgname-$pkgver
+	python3 setup.py build
+}
+
+package() {
+	cd $pkgname-$pkgver
+	python3 setup.py install --prefix=/usr --root="$pkgdir"
+	install -Dm644 data/nl.brixit.powersupply.desktop \
+		"$pkgdir"/usr/share/applications/nl.brixit.powersupply.desktop
+	install -Dm644 data/nl.brixit.powersupply.svg \
+		"$pkgdir"/usr/share/icons/hicolor/scalable/apps/nl.brixit.powersupply.svg
+}
+
+md5sums=('ff96d01b46d67eb67bb451d97b13417b')
