@@ -1,0 +1,51 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=gnome-control-center-mobile
+pkgver=3.36.3
+pkgrel=0
+pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
+url="https://source.puri.sm/Librem5/gnome-control-center"
+license=(GPL2)
+arch=(x86_64 armv7h aarch64)
+depends=(accountsservice cups-pk-helper gnome-bluetooth gnome-desktop
+         gnome-online-accounts gnome-settings-daemon gsettings-desktop-schemas gtk3
+         libgtop nm-connection-editor sound-theme-freedesktop upower libpwquality
+         gnome-color-manager smbclient libmm-glib libgnomekbd grilo libibus
+         cheese libgudev bolt udisks2 libhandy gsound colord-gtk modemmanager)
+makedepends=(docbook-xsl git python meson)
+checkdepends=(python-dbusmock python-gobject xorg-server-xvfb)
+optdepends=('system-config-printer: Printer settings'
+            'gnome-user-share: WebDAV file sharing'
+            'gnome-remote-desktop: screen sharing'
+            'rygel: media sharing'
+            'openssh: remote login')
+provides=(gnome-control-center)
+conflicts=(gnome-control-center)
+_commit=fd1ea6e18db87bef3e032e248d9b0021bfdcb402
+source=("git+https://github.com/Danct12/gnome-control-center.git#commit=$_commit"
+        "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git")
+sha256sums=('SKIP'
+            'SKIP')
+
+prepare() {
+  cd gnome-control-center
+  git submodule init
+  git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
+  git submodule update
+}
+
+build() {
+  arch-meson gnome-control-center build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+  install -d -o root -g 102 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+}
