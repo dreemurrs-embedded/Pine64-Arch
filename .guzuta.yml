@@ -1,7 +1,0 @@
-name: pine64
-srcdest: sources
-logdest: logs
-pkgbuild: PKGBUILDS
-builds:
-  aarch64:
-    chroot: ./chroot-aarch64
