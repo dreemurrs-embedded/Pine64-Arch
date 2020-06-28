@@ -1,22 +1,37 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
 pkgver=0.1.9
-pkgrel=0
+pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phoc"
 license=('GPL')
-depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'wlroots' 'mutter')
+depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'mutter'
+         'xcb-util-errors' 'xcb-util-wm')
 makedepends=('meson' 'ninja')
-source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz)
+
+# We don't want to maintain the wlroots package, so we static compile it
+_commit_wlr="59f7adfe2977c3cb27a8def72c0d9fc2f2926c6d"
+source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
+        https://source.puri.sm/Librem5/wlroots/-/archive/$_commit_wlr/wlroots-$_commit_wlr.tar.gz)
+
+prepare() {
+	rm -r ${pkgname}-v${pkgver}/subprojects/wlroots
+	mv wlroots-$_commit_wlr ${pkgname}-v${pkgver}/subprojects/wlroots
+}
 
 build() {
-	arch-meson ${pkgname}-v${pkgver} output -Dembed-wlroots=disabled -Dtests=false
+	arch-meson ${pkgname}-v${pkgver} output -Dtests=false
 	ninja -C output
 }
 
 package() {
 	DESTDIR="$pkgdir" ninja -C output install
+
+	# Remove unnecessary files
+	rm -r "$pkgdir"/usr/lib
+	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('acc97b48095f813d23d0e597dd619aef')
+md5sums=('acc97b48095f813d23d0e597dd619aef'
+         '5b4ce847eb9cbbb7c215890208c2db41')
