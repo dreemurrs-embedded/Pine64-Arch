@@ -1,7 +1,7 @@
 part uuid ${devtype} ${devnum}:${distro_bootpart} uuid
 setenv kernel_addr_z 0x44080000
 
-setenv bootargs loglevel=4 console=${console} console=tty0 root=PARTUUID=${uuid} rw rootwait
+setenv bootargs loglevel=4 console=${console} console=tty0 root=PARTUUID=${uuid} rw rootwait quiet bootsplash.bootfile=bootsplash-themes/danctnix/bootsplash
 
 if load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_z} /boot/Image.gz; then
   unzip ${kernel_addr_z} ${kernel_addr_r}
