@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64"
 pkgver=5.6.0
-pkgrel=2
+pkgrel=3
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -36,7 +36,8 @@ source=("linux-$_commit.tar.gz::https://gitlab.com/pine64-org/linux/-/archive/${
         '0009-bootsplash.patch'
         '0010-bootsplash.patch'
         '0011-bootsplash.patch'
-        '0012-bootsplash.patch')
+        '0012-bootsplash.patch'
+        'dldo4-must-not-be-1-8v.patch')
 
 prepare() {
   cd linux-$_commit
@@ -57,6 +58,9 @@ prepare() {
   patch -Np1 -i "${srcdir}/0010-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0011-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0012-bootsplash.patch"
+
+  # Backlight consistency fix
+  patch -p1 -N < ../dldo4-must-not-be-1-8v.patch
 
   cat "${srcdir}/config" > ./.config
 
@@ -259,4 +263,5 @@ md5sums=('90b8d1f75f8281e3c0926c235e8f2e53'
          '6b6def41b404422dc04b39e2f1adffc8'
          '1922e3a7727d2bf51641b98d6d354738'
          'd6b7e4e43e42128cf950251e0d0aee23'
-         'ecfd8a30c480149005fcf349e4d06f4b')
+         'ecfd8a30c480149005fcf349e4d06f4b'
+         '1a76f4fa4b2fe71535021c06dba83840')
