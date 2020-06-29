@@ -5,7 +5,7 @@
 
 pkgname=gnome-software-mobile
 pkgver=3.34.0
-pkgrel=0
+pkgrel=1
 pkgdesc="GNOME Software Tools - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-software"
 arch=(x86_64 armv7h aarch64)
@@ -35,7 +35,7 @@ package() {
   provides=(gnome-software gnome-software-packagekit-plugin)
   conflicts=(gnome-software gnome-software-packagekit-plugin)
   depends=(libxmlb gnome-desktop gsettings-desktop-schemas gspell libpackagekit-glib
-           gnome-online-accounts appstream-glib)
+           gnome-online-accounts appstream-glib archlinux-appstream-data packagekit)
   optdepends=('flatpak: Flatpak support plugin'
               'fwupd: fwupd support plugin'
               'ostree: OSTree support plugin')
