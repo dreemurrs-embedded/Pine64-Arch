@@ -1,0 +1,24 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=device-pine64-pinephone
+pkgver=0.1
+pkgrel=0
+pkgdesc="PinePhone device package"
+arch=(aarch64)
+url="https://github.com/dreemurrs-embedded/Pine64-Arch"
+license=('MIT')
+depends=(
+	alsa-ucm-pinephone
+	linux-pine64
+	uboot-pinephone
+	rtl8723bt-firmware
+	danctnix-eg25-misc
+	)
+source=(10-proximity.rules)
+
+package() {
+	# Kanged from Mobian, this is to make iio-sensor-proxy works with proximity sensor.
+	install -Dm644 "$srcdir"/10-proximity.rules "$pkgdir"/usr/lib/udev/rules.d/10-proximity.rules
+}
+
+
+md5sums=('b72ff096c022588f72c226283ac328bd')
