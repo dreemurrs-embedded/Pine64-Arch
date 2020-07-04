@@ -1,0 +1,27 @@
+[Desktop Entry]
+Name=Terminal
+Comment=Use the command line
+Keywords=shell;prompt;command;commandline;cmd;
+TryExec=gnome-terminal
+Exec=gnome-terminal
+Icon=utilities-terminal
+Type=Application
+X-GNOME-DocPath=gnome-terminal/index.html
+X-GNOME-Bugzilla-Bugzilla=GNOME
+X-GNOME-Bugzilla-Product=gnome-terminal
+X-GNOME-Bugzilla-Component=BugBuddyBugs
+X-GNOME-Bugzilla-Version=3.30.2
+Categories=GNOME;GTK;System;TerminalEmulator;
+StartupNotify=true
+X-GNOME-SingleWindow=false
+OnlyShowIn=GNOME;Unity;
+Actions=new-window;preferences;
+NoDisplay=true
+
+[Desktop Action new-window]
+Name=New Window
+Exec=gnome-terminal --window
+
+[Desktop Action preferences]
+Name=Preferences
+Exec=gnome-terminal --preferences

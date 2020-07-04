@@ -1,0 +1,30 @@
+[org.gnome.desktop.interface]
+clock-show-weekday=false
+clock-show-date=false
+
+[org.gnome.desktop.wm.preferences]
+button-layout='appmenu:'
+
+[org.gnome.Epiphany]
+search-engines=[('Search the Web', 'https://duckduckgo.com/?q=%s&t=epiphany', ''), ('DuckDuckGo', 'https://duckduckgo.com/?q=%s&t=epiphany', '!ddg'), ('Qwant', 'https://www.qwant.com/?q=%s', '!q')]
+
+[org.gnome.Epiphany.web]
+mobile-user-agent=true
+user-agent='Mozilla/5.0 (PinePhone, like iPhone; X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0 Safari/605.1.15 Epiphany/605.1.15'
+
+[org.gnome.desktop.background]
+picture-uri='file:///usr/share/danctnix/adwaita-phone.jpg'
+
+[org.gnome.settings-daemon.plugins.power]
+sleep-inactive-ac-type='nothing'
+
+[org.gnome.desktop.sound]
+theme-name='librem5'
+
+[org.gnome.settings-daemon.plugins.wwan]
+unlock-sim=true
+
+[org.gnome.settings-daemon.plugins.power]
+sleep-inactive-battery-type='nothing'
+power-button-action='nothing'
+ambient-enabled=false

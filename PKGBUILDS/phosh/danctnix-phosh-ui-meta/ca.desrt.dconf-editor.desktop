@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=dconf editor
+Keywords=settings;configuration;
+Exec=dconf-editor
+Terminal=false
+Type=Application
+StartupNotify=true
+NoDisplay=true
