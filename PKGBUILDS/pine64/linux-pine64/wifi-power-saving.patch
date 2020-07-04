@@ -1,26 +1,34 @@
-From 5e0cc9c9c6cf9fac00c0bbc69f75658fa31bb2e6 Mon Sep 17 00:00:00 2001
-From: Icenowy Zheng <icenowy@aosc.io>
-Date: Thu, 27 Feb 2020 15:01:18 +0800
-Subject: [PATCH] try to enable power saving
+From 62b516401f008d166b93ad2ea6f3012989b0cccb Mon Sep 17 00:00:00 2001
+From: Dalton <dalton@ubports.com>
+Date: Tue, 23 Jun 2020 20:54:12 -0500
+Subject: [PATCH] UBPORTS SAUCE: Disable 8723cs power saving
 
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+The runtime power management features in the 8723cs firmware on the
+PinePhone don't seem to work correctly. While we expect the chipset to
+leave a low power state when it's time to send or receive data, instead
+we get a delay of 10-20 seconds before any packets are sent.
 ---
- drivers/staging/rtl8723cs-new/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/rtl8723cs-new/os_dep/linux/os_intfs.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8723cs-new/Makefile b/drivers/staging/rtl8723cs-new/Makefile
-index 17e66758e6fb..626119f460be 100644
---- a/drivers/staging/rtl8723cs-new/Makefile
-+++ b/drivers/staging/rtl8723cs-new/Makefile
-@@ -48,7 +48,7 @@ CONFIG_SDIO_HCI = y
- CONFIG_GSPI_HCI = n
- ########################## Features ###########################
- CONFIG_MP_INCLUDED = y
--CONFIG_POWER_SAVING = n
-+CONFIG_POWER_SAVING = y
- CONFIG_USB_AUTOSUSPEND = n
- CONFIG_HW_PWRP_DETECTION = n
- CONFIG_WIFI_TEST = n
+diff --git a/drivers/staging/rtl8723cs-new/os_dep/linux/os_intfs.c b/drivers/staging/rtl8723cs-new/os_dep/linux/os_intfs.c
+index 3e6ba0a0fd17..5bb850a4caf0 100644
+--- a/drivers/staging/rtl8723cs-new/os_dep/linux/os_intfs.c
++++ b/drivers/staging/rtl8723cs-new/os_dep/linux/os_intfs.c
+@@ -54,7 +54,12 @@ int rtw_adhoc_tx_pwr = 1;
+ int rtw_soft_ap = 0;
+ /* int smart_ps = 1; */
+ #ifdef CONFIG_POWER_SAVING
+-	int rtw_power_mgnt = PS_MODE_MAX;
++	// Setting PS_MODE_ACTIVE by default keeps the power saving code in the
++	// driver but works around an issue where the 8723cs won't leave Leisure
++	// Power Saving mode without long delays. Allows for testing different
++	// firmwares.
++	// int rtw_power_mgnt = PS_MODE_MAX;
++	int rtw_power_mgnt = PS_MODE_ACTIVE;
+ 	#ifdef CONFIG_IPS_LEVEL_2
+ 		int rtw_ips_mode = IPS_LEVEL_2;
+ 	#else
 -- 
-2.24.1
+GitLab
 

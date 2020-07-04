@@ -5,8 +5,8 @@ buildarch=8
 
 pkgbase=linux-pine64
 _desc="Pine64"
-pkgver=5.6.0
-pkgrel=3
+pkgver=5.7.0
+pkgrel=0
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -18,7 +18,7 @@ CROSS_COMPILE="aarch64-linux-gnu-"
 ARCH=arm64
 
 # Source
-_commit="be7bb465172f294e407757313b76e8d509f56626"
+_commit="aad90c10f4ff90ec9c541447ccddd6a0d58afd1e"
 source=("linux-$_commit.tar.gz::https://gitlab.com/pine64-org/linux/-/archive/${_commit}/linux-${_commit}.tar.gz"
         'config'
         'wifi-power-saving.patch'
@@ -36,14 +36,13 @@ source=("linux-$_commit.tar.gz::https://gitlab.com/pine64-org/linux/-/archive/${
         '0009-bootsplash.patch'
         '0010-bootsplash.patch'
         '0011-bootsplash.patch'
-        '0012-bootsplash.patch'
-        'dldo4-must-not-be-1-8v.patch')
+        '0012-bootsplash.patch')
 
 prepare() {
   cd linux-$_commit
 
   # disable power saving for now, wi-fi went out randomly
-  patch -p1 -N -R < ../wifi-power-saving.patch
+  patch -p1 -N < ../wifi-power-saving.patch
 
   # bootsplash stuffs (took from glorious manjaro arm)
   patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
@@ -58,9 +57,6 @@ prepare() {
   patch -Np1 -i "${srcdir}/0010-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0011-bootsplash.patch"
   patch -Np1 -i "${srcdir}/0012-bootsplash.patch"
-
-  # Backlight consistency fix
-  patch -p1 -N < ../dldo4-must-not-be-1-8v.patch
 
   cat "${srcdir}/config" > ./.config
 
@@ -246,9 +242,9 @@ for _p in ${pkgname[@]}; do
     _package${_p#${pkgbase}}
   }"
 done
-md5sums=('90b8d1f75f8281e3c0926c235e8f2e53'
-         '809036297deced5174c02ef28d0fbebf'
-         'b1d24e9379c006faa4cf0f950db8b802'
+md5sums=('725b810874453d0a6f94ceb4f02a09e2'
+         'dc12fcecdd39d9c21b231c3f7b2f95f0'
+         '37866c50af64b0b559278cc2bb63f021'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
@@ -263,5 +259,4 @@ md5sums=('90b8d1f75f8281e3c0926c235e8f2e53'
          '6b6def41b404422dc04b39e2f1adffc8'
          '1922e3a7727d2bf51641b98d6d354738'
          'd6b7e4e43e42128cf950251e0d0aee23'
-         'ecfd8a30c480149005fcf349e4d06f4b'
-         '1a76f4fa4b2fe71535021c06dba83840')
+         'ecfd8a30c480149005fcf349e4d06f4b')
