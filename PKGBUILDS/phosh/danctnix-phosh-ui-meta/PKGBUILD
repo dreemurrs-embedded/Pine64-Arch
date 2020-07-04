@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-ui-meta
 pkgver=0.1
-pkgrel=0
+pkgrel=1
 pkgdesc="Meta package for Phosh"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -25,6 +25,7 @@ depends=(
 	gnome-contacts
 	purple-matrix
 	sound-theme-librem5
+	iio-sensor-proxy
 	)
 source=(
 	adwaita-phone.jpg
