@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.7.0 Kernel Configuration
+# Linux/arm64 5.7.0-2 Kernel Configuration
 #
 
 #
@@ -2627,7 +2627,7 @@ CONFIG_VIDEO_V4L2_I2C=y
 # CONFIG_VIDEO_FIXED_MINOR_RANGES is not set
 CONFIG_V4L2_MEM2MEM_DEV=y
 CONFIG_V4L2_FLASH_LED_CLASS=y
-CONFIG_V4L2_FWNODE=m
+CONFIG_V4L2_FWNODE=y
 
 #
 # Media drivers
@@ -2854,6 +2854,7 @@ CONFIG_VIDEO_OV5640=m
 # CONFIG_VIDEO_S5K5BAF is not set
 # CONFIG_VIDEO_SMIAPP is not set
 # CONFIG_VIDEO_ET8EK8 is not set
+# CONFIG_VIDEO_HM5065 is not set
 
 #
 # Lens drivers
@@ -2862,6 +2863,7 @@ CONFIG_VIDEO_OV5640=m
 # CONFIG_VIDEO_AK7375 is not set
 # CONFIG_VIDEO_DW9714 is not set
 # CONFIG_VIDEO_DW9807_VCM is not set
+CONFIG_VIDEO_GC2145=y
 
 #
 # Flash devices
