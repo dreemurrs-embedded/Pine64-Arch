@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-eg25-misc
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Everything you need for your EG25 modem"
 arch=(any)
 license=('GPL2')
@@ -30,7 +30,7 @@ package() {
 		"$pkgdir"/usr/lib/systemd/system/eg25_audio_routing.service
 }
 md5sums=('ccb0ba99ba0c13b3264c0826ecf40ebf'
-         '156ba918813f9a0b8d59dfa6c2550d7a'
+         '7439b78c51feec53abd3f46dd2c092ae'
          '5d0034d037fb4f65073acc78f78e1658'
          '4ad530df9243eb47f85b225ead52bdb7'
          'cc880be5db8942f870761650c6a1a54f')

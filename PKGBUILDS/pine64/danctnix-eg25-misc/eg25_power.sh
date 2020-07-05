@@ -1,7 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 # Copyright (C) 2020 Dreemurrs Embedded Labs / DanctNIX Community.
 # SPDX-License-Identifier: GPL-2.0-only
+
+DT_MODEL=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
 
 if [ "$1" = "start" ]; then
 	echo "Starting EG25 WWAN Module"
@@ -27,7 +29,16 @@ elif [ "$1" = "stop" ]; then
 	echo 1 > /sys/class/gpio/gpio232/value
 
 	echo 1 > /sys/class/gpio/gpio35/value && sleep 2 && echo 0 > /sys/class/gpio/gpio35/value
-	sleep 30 # We need this to be a clean shutdown as we don't want to corrupt it
+
+	if [[ $DT_MODEL =~ "PinePhone (1.2)" ]]; then
+		# Just sleep for another 2 second to be sure.
+		sleep 2
+	elif [[ $DT_MODEL =~ "PinePhone" ]]; then
+		# This could either be Braveheart or Dev Phone.
+		# Which means there's a chance that the modem might get corrupted.
+		sleep 30
+	fi
+
 else
 	echo "No command specified or invalid command!"
 fi
