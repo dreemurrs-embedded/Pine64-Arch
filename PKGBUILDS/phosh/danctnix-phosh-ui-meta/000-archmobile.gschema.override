@@ -25,6 +25,7 @@ theme-name='librem5'
 unlock-sim=true
 
 [org.gnome.settings-daemon.plugins.power]
-sleep-inactive-battery-type='nothing'
+sleep-inactive-battery-type='suspend'
+sleep-inactive-battery-timeout=300
 power-button-action='nothing'
 ambient-enabled=false
