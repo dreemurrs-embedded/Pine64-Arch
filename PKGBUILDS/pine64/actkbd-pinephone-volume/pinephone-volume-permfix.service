@@ -1,0 +1,9 @@
+[Unit]
+Description=Make the user own the volume button device
+
+[Service]
+Type=oneshot
+ExecStart=chown 1000:1000 /dev/input/by-path/platform-1c21800.lradc-event
+
+[Install]
+WantedBy=multi-user.target

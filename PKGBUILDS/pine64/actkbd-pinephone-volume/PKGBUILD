@@ -1,0 +1,41 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Kevin MacMartin <prurigro@gmail.com>
+# Adapted from https://pureos.ironrobin.net/git/clover/pinephone
+
+_pkgname=actkbd
+pkgname=$_pkgname-pinephone-volume
+pkgver=0.2.8
+pkgrel=1
+pkgdesc='Enable the pinephone volume buttons'
+url='https://github.com/thkala/actkbd'
+license=('GPL2')
+arch=('aarch64')
+depends=('glibc')
+backup=("etc/$_pkgname.conf")
+install=$pkgname.install
+
+source=(
+  "https://github.com/thkala/actkbd/archive/v$pkgver.tar.gz"
+  "$_pkgname.service"
+  "$_pkgname.conf"
+  'pinephone-volume-permfix.service'
+)
+
+sha512sums=(
+  'c46effdbe6f54624caa48b720c5dd7bdea171cdd17ac1d422685a773a5d0809ec6f69fa1d3d0b5c098378eb4b71a42d62a0ff206c54f517cdd84ba792cbbba61'
+  'fa203cd15d62cd5a905c75e58ceb67343dd568f9a57f35fad76fb2cdbf0e060e0e15e21208d806a9c21d5005a372fac96f574f886f4c3285a4f89b6ca9f5b444'
+  'd05574a10a6e3e47aab2a00098e41022ae43d064bd9dd88a3bc991ebce0e7e7933758156770c43e9d7f3c650335248d2aec828d092a1a3f8b86bbea223568dd1'
+  'cb5fbf66d04a2c808d4c9d4a8c11cc60338e775b3b426b5e9bd6a616d091b7bfc9e53c47f074dde9089136f91b0b185a8763fa33c83e490a9b0f7d01482b1ee9'
+)
+
+build() {
+  cd $_pkgname-$pkgver
+  make
+}
+
+package() {
+  install -Dm644 pinephone-volume-permfix.service "$pkgdir/usr/lib/systemd/system/pinephone-volume-permfix.service"
+  install -Dm644 $_pkgname.service "$pkgdir/usr/lib/systemd/user/$_pkgname.service"
+  install -Dm644 $_pkgname.conf "$pkgdir/etc/$_pkgname.conf"
+  install -Dm755 $_pkgname-$pkgver/$_pkgname "$pkgdir/usr/bin/$_pkgname"
+}

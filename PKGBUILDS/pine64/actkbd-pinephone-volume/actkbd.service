@@ -1,0 +1,12 @@
+[Unit]
+Description=Keyboard shortcut daemon to enable Pinephone volume key control
+
+[Service]
+Type=simple
+ExecStartPre=chown alarm:alarm /dev/input/by-path/platform-1c21800.lradc-event
+ExecStart=/usr/bin/actkbd -c /etc/actkbd.conf -d /dev/input/by-path/platform-1c21800.lradc-event
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=default.target

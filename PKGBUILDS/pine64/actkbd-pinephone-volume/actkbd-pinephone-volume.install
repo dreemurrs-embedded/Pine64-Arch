@@ -1,0 +1,5 @@
+post_install() {
+  printf '%s\n' 'To enable volume button control run the following:'
+  printf '%s\n' 'sudo systemctl enable --now pinephone-volume-permfix'
+  printf '%s\n' 'systemctl enable --now --user actkbd'
+}
