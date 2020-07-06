@@ -1,23 +1,24 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinephone
 pkgver=0.1
-pkgrel=0
+pkgrel=1
 pkgdesc="UCM files for PinePhone"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
 depends=(alsa-ucm-conf)
-source=(HiFi.conf VoiceCall.conf sun50i-a64-audio.conf)
+source=(HiFi.conf VoiceCall.conf PinePhone.conf)
 
 package() {
-	install -D -m644 "$srcdir"/sun50i-a64-audio.conf \
-		"$pkgdir"/usr/share/alsa/ucm2/sun50i-a64-audi/sun50i-a64-audio.conf
+	# These UCMs came from Mobian
+	install -D -m644 "$srcdir"/PinePhone.conf \
+		"$pkgdir"/usr/share/alsa/ucm2/PinePhone/PinePhone.conf
 	install -D -m644 "$srcdir"/HiFi.conf \
-		"$pkgdir"/usr/share/alsa/ucm2/sun50i-a64-audi/HiFi.conf
+		"$pkgdir"/usr/share/alsa/ucm2/PinePhone/HiFi.conf
 	install -D -m644 "$srcdir"/VoiceCall.conf \
-		"$pkgdir"/usr/share/alsa/ucm2/sun50i-a64-audi/VoiceCall.conf
+		"$pkgdir"/usr/share/alsa/ucm2/PinePhone/VoiceCall.conf
 }
 
-md5sums=('190fa4f2e0b9cfc27a16aecac560bb40'
-         '72ddbbec25aa0a81786eb317f681b9c9'
-         '033a54ae72eb1ab4125ff6a081d78c71')
+md5sums=('8b480c45ab23439338030ddaedaebb6b'
+         '5c597913fa483586400caaea89b1f1cb'
+         '715d967b9826d03b9333c92fbd61a543')
