@@ -21,6 +21,9 @@ sleep-inactive-ac-type='nothing'
 [org.gnome.desktop.sound]
 theme-name='librem5'
 
+[org.gnome.settings-daemon.peripherals.touchscreen]
+orientation-lock=true
+
 [org.gnome.settings-daemon.plugins.wwan]
 unlock-sim=true
 
