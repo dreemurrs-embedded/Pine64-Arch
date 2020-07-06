@@ -1,0 +1,772 @@
+From 570b0d4e702e7befc7e9c52fc58df34960f0fdbf Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Fri, 3 Apr 2020 11:24:39 +0200
+Subject: [PATCH] sun50i-codec-analog: add binding for internal bias resistor
+
+In order to properly bias headset microphones, there should be a
+resistor between pins HBIAS and MICDET. This can be an external
+resistor, but the codec also provides an internal 2.2K resistor which
+can be enabled by a register.
+
+This patch adds a device-tree property and the corresponding processing
+to the sun50i-codec-analog driver to take advantage of this feature.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun8i-codec: add A64 HMIC register definitions
+
+In order to prepare for jack detection implementation, add some
+A64-specific register definitions, all related to jack and buttons
+detection.
+
+This commit also adds a `volatile_reg` callback to the regmap
+configuration, as one of these registers is volatile.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun8i-codec: better handle codec type
+
+So far, the only difference between the A33 and A64 implementations of
+the codec was an inverted LRCK. However, adding jack detection will
+complicate things and calls for a clearer handling of the codec
+variants.
+
+This commit therefore introduces a codec type enum in order to determine
+the used variant instead of relying on `inverted_lrck`. This might be
+expanded later on to support the A63 and H6 variants.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun8i-codec: initial support jack detection for A64
+
+This commit brings initial support for jack detection by setting up the
+corresponding registers and enabling the codec IRQ. Actual handling of
+this feature will be implemented in a later commit.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun8i-codec: enable jack detection externally
+
+As jack detection isn't supported by all variants of this codec and has
+to be enabled for the analog codec too, it doesn't make sense to enable
+it here by default.
+
+This commit introduces an exported function for the analog codec to
+enable jack detection if needed. The analog codec will be responsible
+for providing a callback to enable button detection on its side.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun8i-codec: actually process jack detection interrupts
+
+As we now have a working infrastructure for jack detection, we can
+actually process the interrupts and use it for enabling the analog codec
+microphone ADC, which is used to detect button presses and the type of
+headset plugged in.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun50i-analog-codec: add binding for digital codec
+
+In order to be able to enable jack detection, this analog codec must be
+aware of the corresponding digital codec. This is achieved by
+introducing a new required device-tree property.
+
+This property is then used to retrieve a pointer to the private data of
+the codec, which we'll use later on for enabling jack detection.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun50i-analog-codec: enable jack detection on startup
+
+This commit adds the necessary setup to enable jack detection on startup
+as well as the callback function enabling the microphone bias and ADC.
+
+Control is then transferred to the sun8i-codec driver for actual
+handling of jack detection, including IRQ handling.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun8i-codec: report jack state to ALSA
+
+As we now have working jack detection, hook it up to the sound
+subsystem and report jack status to ALSA so it can be used by userspace
+applications.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun8i-codec: add binding for inverted jack detection
+
+Depending on how the jack connector is wired on the board, jack
+detection IRQ's can be inverted, i.e the IN IRQ can be triggered when
+unplugging the jack while the OUT IRQ will be triggered when a jack is
+inserted.
+
+This commit introduces a DT property so the driver can be made aware of
+such a case and process the IRQ's accordingly.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+sun8i-codec: defer jack detection initialization
+
+In order to avoid hitting a race condition where the codec could
+overwrite the HMIC_* registers on startup, the jack detection
+initialization is deferred by 300ms, which is enough for the codec to
+complete its initial configuration routine.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+
+arm64: dts: allwinner: pinephone: enable jack detection
+
+On PinePhone, the headset mic bias resistor isn't populated on the
+schematics (R811), therefore we need to enable the codec's internal
+resistor.
+
+Additionnally, the jack detection IRQ's are inverted due to the
+connector wiring, so the necessary property is added to the codec node
+to made the driver aware of this fact.
+
+Finally, add the "PinePhone" name to the sound card: this will make
+upstreaming ucm config easier as we can use a unique name.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+---
+ .../allwinner,sun50i-a64-codec-analog.yaml    |  12 +
+ .../sound/allwinner,sun8i-a33-codec.yaml      |   6 +
+ .../dts/allwinner/sun50i-a64-pinephone.dtsi   |   7 +-
+ arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi |   1 +
+ sound/soc/sunxi/sun50i-codec-analog.c         | 131 +++++++++-
+ sound/soc/sunxi/sun8i-codec.c                 | 224 +++++++++++++++++-
+ sound/soc/sunxi/sun8i-codec.h                 |  22 ++
+ 7 files changed, 393 insertions(+), 10 deletions(-)
+ create mode 100644 sound/soc/sunxi/sun8i-codec.h
+
+diff --git a/Documentation/devicetree/bindings/sound/allwinner,sun50i-a64-codec-analog.yaml b/Documentation/devicetree/bindings/sound/allwinner,sun50i-a64-codec-analog.yaml
+index 3b764415c..7c25565f6 100644
+--- a/Documentation/devicetree/bindings/sound/allwinner,sun50i-a64-codec-analog.yaml
++++ b/Documentation/devicetree/bindings/sound/allwinner,sun50i-a64-codec-analog.yaml
+@@ -21,10 +21,22 @@ properties:
+     description:
+       Regulator for the headphone amplifier
+ 
++  allwinner,codec:
++    description:
++      The digital part of the codec (e.g. the node with compatible value
++      'allwinner,sun50i-a64-codec')
++    type: phandle
++
++  allwinner,internal-bias-resistor:
++    description:
++      Enable the internal 2.2K bias resistor between HBIAS and MICDET pins
++    type: boolean
++
+ required:
+   - compatible
+   - reg
+   - cpvdd-supply
++  - allwinner,codec
+ 
+ additionalProperties: false
+ 
+diff --git a/Documentation/devicetree/bindings/sound/allwinner,sun8i-a33-codec.yaml b/Documentation/devicetree/bindings/sound/allwinner,sun8i-a33-codec.yaml
+index 97d4bf0d9..edcd57367 100644
+--- a/Documentation/devicetree/bindings/sound/allwinner,sun8i-a33-codec.yaml
++++ b/Documentation/devicetree/bindings/sound/allwinner,sun8i-a33-codec.yaml
+@@ -35,6 +35,12 @@ properties:
+       - const: bus
+       - const: mod
+ 
++  allwinner,inverted-jack-detection:
++    description:
++      Jack detection IRQ's are inverted on this platform ('in' IRQ is triggered
++      when unplugging, and vice versa)
++    type: boolean
++
+ required:
+   - "#sound-dai-cells"
+   - compatible
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+index 4ba13e0a2..560644868 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+@@ -159,11 +159,13 @@ vibrator {
+ &codec {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&aif2_pins>, <&aif3_pins>;
++	allwinner,inverted-jack-detection;
+ 	status = "okay";
+ };
+ 
+ &codec_analog {
+ 	cpvdd-supply = <&reg_eldo1>;
++	allwinner,internal-bias-resistor;
+ 	status = "okay";
+ };
+ 
+@@ -594,14 +596,15 @@ &reg_rtc_ldo {
+ 
+ &sound {
+ 	status = "okay";
++	simple-audio-card,name = "PinePhone";
+ 	simple-audio-card,aux-devs = <&codec_analog>, <&speaker_amp>;
+ 	simple-audio-card,widgets = "Microphone", "Headset Microphone",
+ 				    "Microphone", "Internal Microphone",
+-				    "Headphone", "Headphone Jack",
++				    "Headphone", "Headphone",
+ 				    "Speaker", "Internal Earpiece",
+ 				    "Speaker", "Internal Speaker";
+ 	simple-audio-card,routing =
+-			"Headphone Jack", "HP",
++			"Headphone", "HP",
+ 			"Internal Earpiece", "EARPIECE",
+ 			"Internal Speaker", "Speaker Amp OUTL",
+ 			"Internal Speaker", "Speaker Amp OUTR",
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+index 9a50ce959..3873c96e3 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+@@ -1294,6 +1294,7 @@ r_ccu: clock@1f01400 {
+ 		codec_analog: codec-analog@1f015c0 {
+ 			compatible = "allwinner,sun50i-a64-codec-analog";
+ 			reg = <0x01f015c0 0x4>;
++			allwinner,codec = <&codec>;
+ 			status = "disabled";
+ 		};
+ 
+diff --git a/sound/soc/sunxi/sun50i-codec-analog.c b/sound/soc/sunxi/sun50i-codec-analog.c
+index 6c89b0716..f51a2ed8f 100644
+--- a/sound/soc/sunxi/sun50i-codec-analog.c
++++ b/sound/soc/sunxi/sun50i-codec-analog.c
+@@ -11,6 +11,7 @@
+  *
+  */
+ 
++#include <linux/input.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+@@ -21,9 +22,11 @@
+ 
+ #include <sound/soc.h>
+ #include <sound/soc-dapm.h>
++#include <sound/jack.h>
+ #include <sound/tlv.h>
+ 
+ #include "sun8i-adda-pr-regmap.h"
++#include "sun8i-codec.h"
+ 
+ /* Codec analog control register offsets and bit fields */
+ #define SUN50I_ADDA_HP_CTRL		0x00
+@@ -116,8 +119,24 @@
+ #define SUN50I_ADDA_HS_MBIAS_CTRL	0x0e
+ #define SUN50I_ADDA_HS_MBIAS_CTRL_MMICBIASEN	7
+ 
+-#define SUN50I_ADDA_JACK_MIC_CTRL	0x1d
++#define SUN50I_ADDA_MDET_CTRL			0x1c
++#define SUN50I_ADDA_MDET_CTRL_SELDETADCFS	4
++#define SUN50I_ADDA_MDET_CTRL_SELDETADCFS_MASK	(0x7<<4)
++#define SUN50I_ADDA_MDET_CTRL_SELDETADCDB	2
++#define SUN50I_ADDA_MDET_CTRL_SELDETADCDB_MASK	(0x3<<2)
++
++#define SUN50I_ADDA_JACK_MIC_CTRL		0x1d
++#define SUN50I_ADDA_JACK_MIC_CTRL_JACKDETEN	7
++#define SUN50I_ADDA_JACK_MIC_CTRL_INNERRESEN	6
+ #define SUN50I_ADDA_JACK_MIC_CTRL_HMICBIASEN	5
++#define SUN50I_ADDA_JACK_MIC_CTRL_MICADCEN	4
++
++struct sun50i_codec {
++	struct sun8i_jack_detection	jackdet;
++	struct sun8i_codec		*codec_data;
++	struct snd_soc_jack		jack;
++	bool				internal_bias_resistor;
++};
+ 
+ /* mixer controls */
+ static const struct snd_kcontrol_new sun50i_a64_codec_mixer_controls[] = {
+@@ -469,6 +488,76 @@ static const struct snd_soc_dapm_route sun50i_a64_codec_routes[] = {
+ 	{ "EARPIECE", NULL, "Earpiece Amp" },
+ };
+ 
++static void sun50i_a64_enable_micdet(struct snd_soc_component *component, bool enable)
++{
++	struct snd_soc_dapm_context *dapm = snd_soc_component_get_dapm(component);
++
++	if (enable) {
++		snd_soc_dapm_force_enable_pin(dapm, "HBIAS");
++		snd_soc_dapm_sync(dapm);
++
++		regmap_update_bits(component->regmap, SUN50I_ADDA_JACK_MIC_CTRL,
++				   BIT(SUN50I_ADDA_JACK_MIC_CTRL_MICADCEN),
++				   BIT(SUN50I_ADDA_JACK_MIC_CTRL_MICADCEN));
++	} else {
++		regmap_update_bits(component->regmap, SUN50I_ADDA_JACK_MIC_CTRL,
++				   BIT(SUN50I_ADDA_JACK_MIC_CTRL_MICADCEN), 0);
++	}
++}
++
++static struct snd_soc_jack_pin sun50i_a64_codec_pins[] = {
++	{
++		.pin = "Headphone",
++		.mask = SND_JACK_HEADPHONE,
++	},
++	{
++		.pin = "Headset Microphone",
++		.mask = SND_JACK_MICROPHONE,
++	},
++};
++
++static int sun50i_a64_codec_probe(struct snd_soc_component *component)
++{
++	struct sun50i_codec *scodec = snd_soc_component_get_drvdata(component);
++	struct snd_soc_card *card = component->card;
++	int ret;
++
++	if (scodec->internal_bias_resistor) {
++		regmap_update_bits(component->regmap,
++				   SUN50I_ADDA_JACK_MIC_CTRL,
++				   BIT(SUN50I_ADDA_JACK_MIC_CTRL_INNERRESEN),
++				   BIT(SUN50I_ADDA_JACK_MIC_CTRL_INNERRESEN));
++	}
++
++	regmap_write(component->regmap, SUN50I_ADDA_MDET_CTRL,
++		     (0x6 << SUN50I_ADDA_MDET_CTRL_SELDETADCFS) |
++		     (0x2 << SUN50I_ADDA_MDET_CTRL_SELDETADCDB));
++	regmap_update_bits(component->regmap, SUN50I_ADDA_JACK_MIC_CTRL,
++			   BIT(SUN50I_ADDA_JACK_MIC_CTRL_JACKDETEN),
++			   BIT(SUN50I_ADDA_JACK_MIC_CTRL_JACKDETEN));
++
++	scodec->jackdet.component = component;
++	scodec->jackdet.enable_micdet = sun50i_a64_enable_micdet;
++
++	ret = snd_soc_card_jack_new(card, "Headphone Jack",
++				    SND_JACK_HEADSET | SND_JACK_BTN_0 |
++				    SND_JACK_BTN_1 | SND_JACK_BTN_2,
++				    &scodec->jack, sun50i_a64_codec_pins,
++				    ARRAY_SIZE(sun50i_a64_codec_pins));
++	if (ret) {
++		dev_err(card->dev, "failed to create jack (%d)\n", ret);
++		return ret;
++	}
++
++	snd_jack_set_key(scodec->jack.jack, SND_JACK_BTN_0, KEY_PLAYPAUSE);
++	snd_jack_set_key(scodec->jack.jack, SND_JACK_BTN_1, KEY_VOLUMEUP);
++	snd_jack_set_key(scodec->jack.jack, SND_JACK_BTN_2, KEY_VOLUMEDOWN);
++
++	return sun8i_codec_set_jack_detect(scodec->codec_data,
++					   &scodec->jackdet,
++					   &scodec->jack);
++}
++
+ static int sun50i_a64_codec_suspend(struct snd_soc_component *component)
+ {
+ 	return regmap_update_bits(component->regmap, SUN50I_ADDA_HP_CTRL,
+@@ -489,6 +578,7 @@ static const struct snd_soc_component_driver sun50i_codec_analog_cmpnt_drv = {
+ 	.num_dapm_widgets	= ARRAY_SIZE(sun50i_a64_codec_widgets),
+ 	.dapm_routes		= sun50i_a64_codec_routes,
+ 	.num_dapm_routes	= ARRAY_SIZE(sun50i_a64_codec_routes),
++	.probe			= sun50i_a64_codec_probe,
+ 	.suspend		= sun50i_a64_codec_suspend,
+ 	.resume			= sun50i_a64_codec_resume,
+ };
+@@ -503,9 +593,42 @@ MODULE_DEVICE_TABLE(of, sun50i_codec_analog_of_match);
+ 
+ static int sun50i_codec_analog_probe(struct platform_device *pdev)
+ {
++	struct device_node *node = pdev->dev.of_node;
++	struct device_node *codec_node;
++	struct platform_device *codec_pdev;
++	struct sun8i_codec *codec_data;
++	struct sun50i_codec *scodec;
+ 	struct regmap *regmap;
+ 	void __iomem *base;
+ 
++	if (!node) {
++		dev_err(&pdev->dev, "of node is missing.\n");
++		return -ENODEV;
++	}
++
++	codec_node = of_parse_phandle(node, "allwinner,codec", 0);
++	if (!codec_node) {
++		dev_err(&pdev->dev, "codec phandle is missing.\n");
++		return -ENODEV;
++	}
++
++	/*
++	 * Return -EAGAIN in case of failure as this data is required, but we
++	 * can't be sure the digital codec has been probed before the first
++	 * call to this function.
++	 */
++	codec_pdev = of_find_device_by_node(codec_node);
++	if (!codec_pdev)
++		return -EAGAIN;
++
++	codec_data = platform_get_drvdata(codec_pdev);
++	if (!codec_data)
++		return -EAGAIN;
++
++	scodec = devm_kzalloc(&pdev->dev, sizeof(*scodec), GFP_KERNEL);
++	if (!scodec)
++		return -ENOMEM;
++
+ 	base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(base)) {
+ 		dev_err(&pdev->dev, "Failed to map the registers\n");
+@@ -518,6 +641,12 @@ static int sun50i_codec_analog_probe(struct platform_device *pdev)
+ 		return PTR_ERR(regmap);
+ 	}
+ 
++	scodec->internal_bias_resistor = of_property_read_bool(node,
++					"allwinner,internal-bias-resistor");
++	scodec->codec_data = codec_data;
++
++	platform_set_drvdata(pdev, scodec);
++
+ 	return devm_snd_soc_register_component(&pdev->dev,
+ 					       &sun50i_codec_analog_cmpnt_drv,
+ 					       NULL, 0);
+diff --git a/sound/soc/sunxi/sun8i-codec.c b/sound/soc/sunxi/sun8i-codec.c
+index ca5f33305..032305758 100644
+--- a/sound/soc/sunxi/sun8i-codec.c
++++ b/sound/soc/sunxi/sun8i-codec.c
+@@ -14,14 +14,19 @@
+ #include <linux/clk.h>
+ #include <linux/io.h>
+ #include <linux/of_device.h>
++#include <linux/of_irq.h>
+ #include <linux/regmap.h>
+ #include <linux/log2.h>
+ 
+ #include <sound/pcm_params.h>
++#include <sound/jack.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dapm.h>
++#include <sound/jack.h>
+ #include <sound/tlv.h>
+ 
++#include "sun8i-codec.h"
++
+ #define SUN8I_SYSCLK_CTL				0x00c
+ #define SUN8I_SYSCLK_CTL_AIF1CLK_ENA			11
+ #define SUN8I_SYSCLK_CTL_AIF1CLK_SRC_PLL		(0x3 << 8)
+@@ -121,6 +126,27 @@
+ #define SUN8I_ADC_VOL_CTRL				0x104
+ #define SUN8I_ADC_VOL_CTRL_ADCL_VOL			8
+ #define SUN8I_ADC_VOL_CTRL_ADCR_VOL			0
++#define SUN8I_HMIC_CTRL_1				0x110
++#define SUN8I_HMIC_CTRL_1_HMIC_M			12
++#define SUN8I_HMIC_CTRL_1_HMIC_M_MASK			(0xf<<12)
++#define SUN8I_HMIC_CTRL_1_HMIC_N			8
++#define SUN8I_HMIC_CTRL_1_HMIC_N_MASK			(0xf<<8)
++#define SUN8I_HMIC_CTRL_1_JACK_IN_IRQ_EN		4
++#define SUN8I_HMIC_CTRL_1_JACK_OUT_IRQ_EN		3
++#define SUN8I_HMIC_CTRL_1_MIC_DET_IRQ_EN		0
++#define SUN8I_HMIC_CTRL_2				0x114
++#define SUN8I_HMIC_CTRL_2_MDATA_THRESHOLD		8
++#define SUN8I_HMIC_CTRL_2_MDATA_THRESHOLD_MASK		(0x1f<<8)
++#define SUN8I_HMIC_STS					0x118
++#define SUN8I_HMIC_STS_MDATA_THRESHOLD_EN		15
++#define SUN8I_HMIC_STS_MDATA_DISCARD			13
++#define SUN8I_HMIC_STS_MDATA_DISCARD_MASK		(0x3<<13)
++#define SUN8I_HMIC_STS_HMIC_DATA			8
++#define SUN8I_HMIC_STS_HMIC_DATA_MASK			(0x1f<<8)
++#define SUN8I_HMIC_STS_JACK_DET_ST			6
++#define SUN8I_HMIC_STS_JACK_DET_IIRQ			4
++#define SUN8I_HMIC_STS_JACK_DET_OIRQ			3
++#define SUN8I_HMIC_STS_MIC_DET_ST			0
+ #define SUN8I_DAC_DIG_CTRL				0x120
+ #define SUN8I_DAC_DIG_CTRL_ENDA				15
+ #define SUN8I_DAC_VOL_CTRL				0x124
+@@ -155,10 +181,27 @@
+ 			     SNDRV_PCM_RATE_192000|\
+ 			     SNDRV_PCM_RATE_KNOT)
+ 
++enum sun8i_type {
++	SUN8I_TYPE_A33 = 0,
++	SUN8I_TYPE_A64
++};
++
++enum sun8i_jack_event {
++	SUN8I_JACK_INSERTED = 0,
++	SUN8I_JACK_REMOVED,
++	SUN8I_JACK_BUTTON_PRESSED
++};
++
+ struct sun8i_codec {
+-	struct regmap	*regmap;
+-	struct clk	*clk_module;
+-	bool		inverted_lrck;
++	struct regmap			*regmap;
++	struct clk			*clk_module;
++	struct delayed_work		jackdet_init_work;
++	struct delayed_work 		jack_detect_work;
++	struct sun8i_jack_detection	*jackdet;
++	struct snd_soc_jack 		*jack;
++	enum sun8i_type			type;
++	enum sun8i_jack_event		jack_event;
++	bool				inverted_jackdet;
+ };
+ 
+ static int sun8i_codec_get_hw_rate(struct snd_pcm_hw_params *params)
+@@ -244,7 +287,8 @@ static int sun8i_set_fmt(struct snd_soc_dai *dai, unsigned int fmt)
+ 	 * that the codec probably gets it backward, and we have to
+ 	 * invert the value here.
+ 	 */
+-	value ^= scodec->inverted_lrck;
++	if (scodec->type == SUN8I_TYPE_A33)
++		value ^= 0x1;
+ 	regmap_update_bits(scodec->regmap, reg,
+ 			   SUN8I_AIF_CLK_CTRL_CLK_INV_MASK,
+ 			   value << SUN8I_AIF_CLK_CTRL_CLK_INV);
+@@ -1052,6 +1096,20 @@ static int sun8i_codec_component_probe(struct snd_soc_component *component)
+ 	return 0;
+ }
+ 
++static void sun8i_codec_component_remove(struct snd_soc_component *component)
++{
++	struct sun8i_codec *scodec = snd_soc_component_get_drvdata(component);
++	unsigned int irq_mask = BIT(SUN8I_HMIC_CTRL_1_JACK_IN_IRQ_EN)  |
++				BIT(SUN8I_HMIC_CTRL_1_JACK_OUT_IRQ_EN) |
++				BIT(SUN8I_HMIC_CTRL_1_MIC_DET_IRQ_EN);
++
++	if (scodec->type == SUN8I_TYPE_A64) {
++		/* Disable jack detection interrupts */
++		regmap_update_bits(scodec->regmap, SUN8I_HMIC_CTRL_1,
++				   irq_mask, 0);
++	}
++}
++
+ static const struct snd_soc_component_driver sun8i_soc_component = {
+ 	.controls		= sun8i_codec_controls,
+ 	.num_controls		= ARRAY_SIZE(sun8i_codec_controls),
+@@ -1060,6 +1118,7 @@ static const struct snd_soc_component_driver sun8i_soc_component = {
+ 	.dapm_routes		= sun8i_codec_dapm_routes,
+ 	.num_dapm_routes	= ARRAY_SIZE(sun8i_codec_dapm_routes),
+ 	.probe			= sun8i_codec_component_probe,
++	.remove			= sun8i_codec_component_remove,
+ 	.use_pmdown_time	= 1,
+ 	.endianness		= 1,
+ 	.non_legacy_dai_naming	= 1,
+@@ -1072,15 +1131,152 @@ static const struct regmap_config sun8i_codec_regmap_config = {
+ 	.max_register	= SUN8I_DAC_MXR_SRC,
+ };
+ 
++static void jackdet_init(struct work_struct *work)
++{
++	struct sun8i_codec *scodec =
++		container_of(work, struct sun8i_codec, jackdet_init_work.work);
++	unsigned int irq_mask = BIT(SUN8I_HMIC_CTRL_1_JACK_IN_IRQ_EN) |
++				BIT(SUN8I_HMIC_CTRL_1_JACK_OUT_IRQ_EN);
++
++	regmap_write(scodec->regmap, SUN8I_HMIC_STS,
++		     0x2 << SUN8I_HMIC_STS_MDATA_DISCARD);
++	regmap_write(scodec->regmap, SUN8I_HMIC_CTRL_2,
++		     0x10 << SUN8I_HMIC_CTRL_2_MDATA_THRESHOLD);
++	regmap_write(scodec->regmap, SUN8I_HMIC_CTRL_1,
++		     SUN8I_HMIC_CTRL_1_HMIC_N_MASK);
++	regmap_update_bits(scodec->regmap, SUN8I_HMIC_CTRL_1,
++			   irq_mask, irq_mask);
++}
++
++int sun8i_codec_set_jack_detect(struct sun8i_codec *scodec,
++			        struct sun8i_jack_detection *jackdet,
++			        struct snd_soc_jack *jack)
++{
++	if (!jackdet || !jack)
++		return -1;
++
++	scodec->jack = jack;
++	scodec->jackdet = jackdet;
++	queue_delayed_work(system_power_efficient_wq,
++			   &scodec->jackdet_init_work,
++			   msecs_to_jiffies(300));
++	snd_soc_jack_report(scodec->jack, 0, SND_JACK_HEADSET);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(sun8i_codec_set_jack_detect);
++
++static unsigned int jack_read_button(struct sun8i_codec *scodec)
++{
++	unsigned int status, value;
++	int ret = 0;
++
++	regmap_read(scodec->regmap, SUN8I_HMIC_STS, &status);
++	status &= SUN8I_HMIC_STS_HMIC_DATA_MASK;
++	value = (status >> SUN8I_HMIC_STS_HMIC_DATA);
++
++	if (value < 0x2)
++		ret = SND_JACK_BTN_0;
++	else if (value < 0x7)
++		ret = SND_JACK_BTN_1;
++	else if (value < 0x10)
++		ret = SND_JACK_BTN_2;
++
++	return ret;
++}
++
++static void jack_detect(struct work_struct *work)
++{
++	struct sun8i_codec *scodec =
++		container_of(work, struct sun8i_codec, jack_detect_work.work);
++	struct sun8i_jack_detection *jackdet = scodec->jackdet;
++	unsigned int value;
++	int jack_type;
++
++	if (scodec->jack_event == SUN8I_JACK_INSERTED) {
++		jackdet->enable_micdet(jackdet->component, true);
++		msleep(600);
++		value = jack_read_button(scodec);
++		if (value == SND_JACK_BTN_0) {
++			jackdet->enable_micdet(jackdet->component, false);
++			jack_type = SND_JACK_HEADPHONE;
++		} else {
++			jack_type = SND_JACK_HEADSET;
++			regmap_update_bits(scodec->regmap, SUN8I_HMIC_CTRL_1,
++					BIT(SUN8I_HMIC_CTRL_1_MIC_DET_IRQ_EN),
++					BIT(SUN8I_HMIC_CTRL_1_MIC_DET_IRQ_EN));
++		}
++		snd_soc_jack_report(scodec->jack, jack_type, SND_JACK_HEADSET);
++	} else if (scodec->jack_event == SUN8I_JACK_REMOVED) {
++		regmap_update_bits(scodec->regmap, SUN8I_HMIC_CTRL_1,
++				   BIT(SUN8I_HMIC_CTRL_1_MIC_DET_IRQ_EN), 0);
++		jackdet->enable_micdet(jackdet->component, false);
++		snd_soc_jack_report(scodec->jack, 0, SND_JACK_HEADSET);
++	} else if (scodec->jack_event == SUN8I_JACK_BUTTON_PRESSED) {
++		value = jack_read_button(scodec);
++		snd_soc_jack_report(scodec->jack, value,
++				    SND_JACK_BTN_0 | SND_JACK_BTN_1 |
++				    SND_JACK_BTN_2);
++	}
++}
++
++static irqreturn_t sun8i_codec_interrupt(int irq, void *dev_id)
++{
++	struct sun8i_codec *scodec = dev_id;
++	unsigned int status, irq_mask;
++	irqreturn_t ret = IRQ_NONE;
++
++	regmap_read(scodec->regmap, SUN8I_HMIC_STS, &status);
++	irq_mask = BIT(SUN8I_HMIC_STS_JACK_DET_IIRQ) |
++		   BIT(SUN8I_HMIC_STS_JACK_DET_OIRQ) |
++		   BIT(SUN8I_HMIC_STS_MIC_DET_ST);
++
++	if (status & irq_mask) {
++		if (status & BIT(SUN8I_HMIC_STS_JACK_DET_IIRQ)) {
++			if (scodec->inverted_jackdet)
++				scodec->jack_event = SUN8I_JACK_REMOVED;
++			else
++				scodec->jack_event = SUN8I_JACK_INSERTED;
++		}
++		if (status & BIT(SUN8I_HMIC_STS_JACK_DET_OIRQ)) {
++			if (scodec->inverted_jackdet)
++				scodec->jack_event = SUN8I_JACK_INSERTED;
++			else
++				scodec->jack_event = SUN8I_JACK_REMOVED;
++		}
++		if (status & BIT(SUN8I_HMIC_STS_MIC_DET_ST)) {
++			scodec->jack_event = SUN8I_JACK_BUTTON_PRESSED;
++		}
++		queue_delayed_work(system_power_efficient_wq,
++				   &scodec->jack_detect_work, 0);
++		regmap_update_bits(scodec->regmap, SUN8I_HMIC_STS,
++				   irq_mask, irq_mask);
++		ret = IRQ_HANDLED;
++	}
++
++	return ret;
++}
++
+ static int sun8i_codec_probe(struct platform_device *pdev)
+ {
++	struct device_node *node = pdev->dev.of_node;
+ 	struct sun8i_codec *scodec;
+ 	void __iomem *base;
++	int irq, ret;
++
++	if (!node) {
++		dev_err(&pdev->dev, "of node is missing.\n");
++		return -ENODEV;
++	}
+ 
+ 	scodec = devm_kzalloc(&pdev->dev, sizeof(*scodec), GFP_KERNEL);
+ 	if (!scodec)
+ 		return -ENOMEM;
+ 
++	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
++	if (irq < 0)
++		return irq;
++
+ 	scodec->clk_module = devm_clk_get(&pdev->dev, "mod");
+ 	if (IS_ERR(scodec->clk_module)) {
+ 		dev_err(&pdev->dev, "Failed to get the module clock\n");
+@@ -1100,10 +1296,24 @@ static int sun8i_codec_probe(struct platform_device *pdev)
+ 		return PTR_ERR(scodec->regmap);
+ 	}
+ 
+-	scodec->inverted_lrck = (uintptr_t)of_device_get_match_data(&pdev->dev);
++	scodec->type = (uintptr_t)of_device_get_match_data(&pdev->dev);
+ 
+ 	platform_set_drvdata(pdev, scodec);
+ 
++	if (scodec->type == SUN8I_TYPE_A64) {
++		ret = devm_request_irq(&pdev->dev, irq, sun8i_codec_interrupt,
++				       0, "sun8i-jackdet-irq", scodec);
++		if (ret) {
++			dev_err(&pdev->dev, "Failed to setup interrupt\n");
++			return ret;
++		}
++
++		scodec->inverted_jackdet = of_property_read_bool(node,
++					"allwinner,inverted-jack-detection");
++		INIT_DELAYED_WORK(&scodec->jackdet_init_work, jackdet_init);
++		INIT_DELAYED_WORK(&scodec->jack_detect_work, jack_detect);
++	}
++
+ 	return devm_snd_soc_register_component(&pdev->dev, &sun8i_soc_component,
+ 					       sun8i_codec_dais,
+ 					       ARRAY_SIZE(sun8i_codec_dais));
+@@ -1112,11 +1322,11 @@ static int sun8i_codec_probe(struct platform_device *pdev)
+ static const struct of_device_id sun8i_codec_of_match[] = {
+ 	{
+ 		.compatible = "allwinner,sun8i-a33-codec",
+-		.data = (void *)1,
++		.data = (void *)SUN8I_TYPE_A33,
+ 	},
+ 	{
+ 		.compatible = "allwinner,sun50i-a64-codec",
+-		.data = (void *)0,
++		.data = (void *)SUN8I_TYPE_A64,
+ 	},
+ 	{}
+ };
+diff --git a/sound/soc/sunxi/sun8i-codec.h b/sound/soc/sunxi/sun8i-codec.h
+new file mode 100644
+index 000000000..5391822e9
+--- /dev/null
++++ b/sound/soc/sunxi/sun8i-codec.h
+@@ -0,0 +1,22 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Copyright (C) 2020 Collabora Ltd
++ */
++
++#ifndef __SUN8I_CODEC_H__
++#define __SUN8I_CODEC_H__
++
++#include <sound/soc.h>
++
++struct sun8i_codec;
++
++struct sun8i_jack_detection {
++	struct snd_soc_component *component;
++	void (*enable_micdet)(struct snd_soc_component *component, bool enable);
++};
++
++int sun8i_codec_set_jack_detect(struct sun8i_codec *codec,
++				struct sun8i_jack_detection *jackdet,
++				struct snd_soc_jack *jack);
++
++#endif /* __SUN8I_CODEC_H__ */
+-- 
+2.27.0
+
