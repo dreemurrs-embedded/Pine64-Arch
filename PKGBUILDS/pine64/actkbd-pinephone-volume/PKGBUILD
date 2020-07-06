@@ -5,7 +5,7 @@
 _pkgname=actkbd
 pkgname=$_pkgname-pinephone-volume
 pkgver=0.2.8
-pkgrel=1
+pkgrel=0
 pkgdesc='Enable the pinephone volume buttons'
 url='https://github.com/thkala/actkbd'
 license=('GPL2')
