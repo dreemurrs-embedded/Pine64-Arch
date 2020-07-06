@@ -1,0 +1,61 @@
+From 6630fea2096118cf0566cfa9a7e07d2b977ffc86 Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Thu, 5 Mar 2020 15:06:44 +0100
+Subject: [PATCH 1/4] call-display: use PinePhone's device for ugly hacks
+
+---
+ src/calls-call-display.c | 18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
+
+diff --git a/src/calls-call-display.c b/src/calls-call-display.c
+index 1d8f276..a60f24b 100644
+--- a/src/calls-call-display.c
++++ b/src/calls-call-display.c
+@@ -334,9 +334,9 @@ set_property (GObject      *object,
+ //#define UGLY_SOURCE "alsa_input.platform-sound.VoiceCall__hw_CARD_sgtl5000__source"
+ //#define UGLY_SINK   "alsa_output.platform-sound.VoiceCall__hw_CARD_sgtl5000__sink"
+ //#define UGLY_SPEAKER_PORT "Headset"
+-#define UGLY_SOURCE "alsa_input.platform-sound.Audio__hw_CARD_wm8962__source"
+-#define UGLY_SINK   "alsa_output.platform-sound.Audio__hw_CARD_wm8962__sink"
+-#define UGLY_SPEAKER_PORT "SpeakerPhone"
++#define UGLY_SOURCE "alsa_input.platform-sound.Voice_Call__hw_PinePhone_0__source"
++#define UGLY_SINK   "alsa_output.platform-sound.Voice_Call__hw_PinePhone_0__sink"
++#define UGLY_SPEAKER_PORT "Speaker"
+ 
+ 
+ static gboolean
+@@ -413,21 +413,13 @@ ugly_speaker_pressed_cb (CallsCallDisplay *self,
+ 
+   if (gtk_toggle_button_get_active (speaker))
+     {
+-      port = "Handset";
++      port = "Earpiece";
+     }
+   else
+     {
+       port = UGLY_SPEAKER_PORT;
+     }
+ 
+-  ok = ugly_set_pa_port ("source", UGLY_SOURCE,
+-                         "In", port);
+-  if (!ok)
+-    {
+-      /* Stop other handlers */
+-      return TRUE;
+-    }
+-
+   ok = ugly_set_pa_port ("sink", UGLY_SINK,
+                          "Out", port);
+   if (!ok)
+@@ -599,7 +591,7 @@ calls_call_display_class_init (CallsCallDisplayClass *klass)
+                          "Data for the call this display will be associated with",
+                          CALLS_TYPE_CALL_DATA,
+                          G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
+-   
++
+   g_object_class_install_properties (object_class, PROP_LAST_PROP, props);
+ 
+ 
+-- 
+2.20.1
+

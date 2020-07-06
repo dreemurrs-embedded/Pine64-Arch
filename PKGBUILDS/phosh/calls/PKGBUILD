@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=calls
 pkgver=0.1.7
-pkgrel=0
+pkgrel=1
 pkgdesc="The phone app"
 url="https://source.puri.sm/Librem5/calls"
 license=('GPL')
@@ -9,7 +9,13 @@ arch=('x86_64' 'armv7h' 'aarch64')
 depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
          'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager')
 makedepends=('meson' 'ninja' 'vala')
-source=(https://source.puri.sm/Librem5/calls/-/archive/v$pkgver/calls-v$pkgver.tar.gz)
+source=(https://source.puri.sm/Librem5/calls/-/archive/v$pkgver/calls-v$pkgver.tar.gz
+        0001-call-display-use-PinePhone-s-device-for-ugly-hacks.patch)
+
+prepare() {
+    cd $pkgname-v$pkgver
+    patch -p1 -N < ../0001-call-display-use-PinePhone-s-device-for-ugly-hacks.patch
+}
 
 build() {
     arch-meson $pkgname-v$pkgver output
@@ -20,4 +26,5 @@ package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('3607565aef871bd07caed8d65bfd3b8e')
+md5sums=('3607565aef871bd07caed8d65bfd3b8e'
+         'e4e13c491e29fd2cec5a6f4f0c1f9342')
