@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
 pkgver=0.4.0
-pkgrel=0
+pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phoc"
@@ -13,11 +13,18 @@ makedepends=('meson' 'ninja')
 # We don't want to maintain the wlroots package, so we static compile it
 _commit_wlr="59f7adfe2977c3cb27a8def72c0d9fc2f2926c6d"
 source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
-        https://source.puri.sm/Librem5/wlroots/-/archive/$_commit_wlr/wlroots-$_commit_wlr.tar.gz)
+        https://source.puri.sm/Librem5/wlroots/-/archive/$_commit_wlr/wlroots-$_commit_wlr.tar.gz
+        0001-seat-Don-t-notify-on-key-release.patch
+        0002-seat-inhibit-touch-events-when-in-power-save-mode-or.patch)
 
 prepare() {
 	rm -r ${pkgname}-v${pkgver}/subprojects/wlroots
 	mv wlroots-$_commit_wlr ${pkgname}-v${pkgver}/subprojects/wlroots
+
+	# Apply patches from Mobian
+	cd ${pkgname}-v${pkgver}
+	patch -p1 -N < ../0001-seat-Don-t-notify-on-key-release.patch
+	patch -p1 -N < ../0002-seat-inhibit-touch-events-when-in-power-save-mode-or.patch
 }
 
 build() {
@@ -34,4 +41,6 @@ package() {
 }
 
 md5sums=('8f1f1d9eef83a20c6664a81eecb9c378'
-         '5b4ce847eb9cbbb7c215890208c2db41')
+         '5b4ce847eb9cbbb7c215890208c2db41'
+         '9779076dbffbf2eab2b25aa7bc1edff4'
+         '6beda6022c1402852e2ea8afb9a8fbeb')

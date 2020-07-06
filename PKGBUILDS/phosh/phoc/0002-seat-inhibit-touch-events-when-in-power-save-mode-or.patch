@@ -1,0 +1,113 @@
+From c6aeee2009a2ee4647fd74da0fc3bd87f61a70fd Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@gmail.com>
+Date: Sat, 6 Jun 2020 02:52:10 +0200
+Subject: [PATCH 2/2] seat: inhibit touch events when in power save mode or
+ blank display
+
+---
+ src/desktop.c | 2 ++
+ src/output.c  | 3 +++
+ src/seat.c    | 6 ++++++
+ src/server.c  | 1 +
+ src/server.h  | 1 +
+ 5 files changed, 13 insertions(+)
+
+diff --git a/src/desktop.c b/src/desktop.c
+index 8fbb98e..40b2492 100644
+--- a/src/desktop.c
++++ b/src/desktop.c
+@@ -624,6 +624,7 @@ phoc_desktop_new (struct roots_config *config)
+ void
+ phoc_desktop_toggle_output_blank (PhocDesktop *self)
+ {
++  PhocServer *server = phoc_server_get_default ();
+   struct roots_output *output;
+ 
+   wl_list_for_each(output, &self->outputs, link) {
+@@ -631,6 +632,7 @@ phoc_desktop_toggle_output_blank (PhocDesktop *self)
+ 
+     wlr_output_enable (output->wlr_output, enable);
+     wlr_output_commit (output->wlr_output);
++    server->active = enable;
+     if (enable)
+       output_damage_whole(output);
+   }
+diff --git a/src/output.c b/src/output.c
+index c03889f..045cbc0 100644
+--- a/src/output.c
++++ b/src/output.c
+@@ -560,6 +560,7 @@ void handle_output_manager_test(struct wl_listener *listener, void *data) {
+ void
+ phoc_output_handle_output_power_manager_set_mode(struct wl_listener *listener, void *data)
+ {
++  PhocServer *server = phoc_server_get_default ();
+   struct wlr_output_power_v1_set_mode_event *event = data;
+   struct roots_output *self;
+   bool enable = true;
+@@ -584,6 +585,8 @@ phoc_output_handle_output_power_manager_set_mode(struct wl_listener *listener, v
+   if (enable == self->wlr_output->enabled)
+     return;
+ 
++  server->active = enable;
++
+   wlr_output_enable(self->wlr_output, enable);
+   if (!wlr_output_commit(self->wlr_output)) {
+     g_warning ("Failed to commit power mode change to %d for %p", enable, self);
+diff --git a/src/seat.c b/src/seat.c
+index 679a3f5..2a4c007 100644
+--- a/src/seat.c
++++ b/src/seat.c
+@@ -178,6 +178,8 @@ static void handle_touch_down(struct wl_listener *listener, void *data) {
+ 	struct roots_cursor *cursor =
+ 		wl_container_of(listener, cursor, touch_down);
+ 	PhocDesktop *desktop = server->desktop;
++	if (!server->active)
++		return;
+ 	wlr_idle_notify_activity(desktop->idle, cursor->seat->seat);
+ 	struct wlr_event_touch_down *event = data;
+ 	roots_cursor_handle_touch_down(cursor, event);
+@@ -188,6 +190,8 @@ static void handle_touch_up(struct wl_listener *listener, void *data) {
+ 	struct roots_cursor *cursor =
+ 		wl_container_of(listener, cursor, touch_up);
+ 	PhocDesktop *desktop = server->desktop;
++	if (!server->active)
++		return;
+ 	wlr_idle_notify_activity(desktop->idle, cursor->seat->seat);
+ 	struct wlr_event_touch_up *event = data;
+ 	roots_cursor_handle_touch_up(cursor, event);
+@@ -198,6 +202,8 @@ static void handle_touch_motion(struct wl_listener *listener, void *data) {
+ 	struct roots_cursor *cursor =
+ 		wl_container_of(listener, cursor, touch_motion);
+ 	PhocDesktop *desktop = server->desktop;
++	if (!server->active)
++		return;
+ 	wlr_idle_notify_activity(desktop->idle, cursor->seat->seat);
+ 	struct wlr_event_touch_motion *event = data;
+ 	roots_cursor_handle_touch_motion(cursor, event);
+diff --git a/src/server.c b/src/server.c
+index 838841b..41452cf 100644
+--- a/src/server.c
++++ b/src/server.c
+@@ -276,6 +276,7 @@ phoc_server_setup (PhocServer *self, const char *config_path,
+     phoc_startup_session (self);
+ 
+   self->inited = TRUE;
++  self->active = TRUE;
+   return TRUE;
+ }
+ 
+diff --git a/src/server.h b/src/server.h
+index 9501432..532b064 100644
+--- a/src/server.h
++++ b/src/server.h
+@@ -37,6 +37,7 @@ struct _PhocServer {
+   struct roots_input *input;
+   PhocServerDebugFlags debug_flags;
+   gboolean inited;
++  gboolean active;
+ 
+   /* The session */
+   gchar *session;
+-- 
+2.26.2
+

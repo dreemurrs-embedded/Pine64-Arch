@@ -1,0 +1,27 @@
+From 63d8f9ceb0d2336db4276e717aabe427153b76bb Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@gmail.com>
+Date: Sat, 6 Jun 2020 02:24:37 +0200
+Subject: [PATCH 1/2] seat: Don't notify on key release
+
+---
+ src/seat.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/seat.c b/src/seat.c
+index b04fed1..679a3f5 100644
+--- a/src/seat.c
++++ b/src/seat.c
+@@ -30,8 +30,9 @@ static void handle_keyboard_key(struct wl_listener *listener, void *data) {
+ 	PhocKeyboard *keyboard =
+ 		wl_container_of(listener, keyboard, keyboard_key);
+ 	PhocDesktop *desktop = server->desktop;
+-	wlr_idle_notify_activity(desktop->idle, keyboard->seat->seat);
+ 	struct wlr_event_keyboard_key *event = data;
++	if (event->state == WLR_KEY_PRESSED)
++		wlr_idle_notify_activity(desktop->idle, keyboard->seat->seat);
+ 	phoc_keyboard_handle_key(keyboard, event);
+ }
+ 
+-- 
+2.26.2
+
