@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephone
 pkgver=0.1
-pkgrel=0
+pkgrel=1
 pkgdesc="PinePhone device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -11,6 +11,7 @@ depends=(
 	linux-pine64
 	uboot-pinephone
 	rtl8723bt-firmware
+	anx7688-firmware
 	danctnix-eg25-misc
 	)
 source=(10-proximity.rules)
