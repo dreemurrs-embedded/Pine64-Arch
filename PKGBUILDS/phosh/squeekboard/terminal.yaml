@@ -1,0 +1,157 @@
+---
+outlines:
+    default: { width: 50, height: 50 }
+    altline: { width: 70, height: 50 }
+    spaceline: { width: 160, height: 50 }
+    special: { width: 35.33, height: 50 }
+    action: { width: 85, height: 35 }
+    fkey: { width: 41, height: 50 }
+
+views:
+    base:
+        - "1 2 3 4 5 6 7 8 9 0"
+        - "q w e r t y u i o p"
+        - "a s d f g h j k l"
+        - "Shift_L   z x c v b n m  BackSpace"
+        - "show_symbols show_eschars preferences         space        , . Return"
+        - "Ctrl Tab ↑ ↓ ← →"
+    upper:
+        - "! @ # $ % ^ & * ( )"
+        - "Q W E R T Y U I O P"
+        - "A S D F G H J K L"
+        - "Shift_L   Z X C V B N M  BackSpace"
+        - "show_symbols show_eschars preferences         space        < > Return"
+        - "Alt Esc PgUp PgDn Home End"
+    symbols:
+        - "~ ` ´ - _ + = ° © ®"
+        - "[ ] { } \\ | ÷ × √"
+        - "; : ' \" · € £ ¥"
+        - "Del / ? § π τ µ ¶ BackSpace"
+        - "show_letters show_eschars preferences         space        < > Return"
+        - "Ctrl Tab ↑ ↓ ← →"
+    eschars:
+        - "F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12"
+        - "ä è é ö ü Ä È É Ö Ü"
+        - "à â ê î ô À Â È Î Ô"
+        - "Del  « » ç Ç æ œ ß  BackSpace"
+        - "show_symbols show_eschars preferences         space        „ “ Return"
+        - "Alt Esc PgUp PgDn Home End"
+
+buttons:
+    Shift_L:
+        action:
+            locking:
+                lock_view: "upper"
+                unlock_view: "base"
+        outline: "altline"
+        icon: "key-shift"
+    Ctrl:
+        modifier: "Control"
+        outline: "action"
+        label: "Ctrl"
+    Alt:
+        modifier: "Alt"
+        outline: "action"
+        label: "Alt"
+    BackSpace:
+        outline: "altline"
+        icon: "edit-clear-symbolic"
+        action: "erase"
+    preferences:
+        action: "show_prefs"
+        outline: "special"
+        icon: "keyboard-mode-symbolic"
+    show_letters:
+        action:
+            set_view: "base"
+        outline: "altline"
+        label: "abc"
+    show_symbols:
+        action:
+            set_view: "symbols"
+        outline: "altline"
+        label: "[{/"
+    show_eschars:
+        action:
+            locking:
+                lock_view: "eschars"
+                unlock_view: "base"
+        outline: "altline"
+        label: "func"
+    space:
+        outline: "spaceline"
+        label: " "
+        text: " "
+    Return:
+        outline: "altline"
+        icon: "key-enter"
+        keysym: "Return"
+    F1:
+        outline: "fkey"
+        keysym: "F1"
+    F2:
+        outline: "fkey"
+        keysym: "F2"
+    F3:
+        outline: "fkey"
+        keysym: "F3"
+    F4:
+        outline: "fkey"
+        keysym: "F4"
+    F5:
+        outline: "fkey"
+        keysym: "F5"
+    F6:
+        outline: "fkey"
+        keysym: "F6"
+    F7:
+        outline: "fkey"
+        keysym: "F7"
+    F8:
+        outline: "fkey"
+        keysym: "F8"
+    F9:
+        outline: "fkey"
+        keysym: "F9"
+    F10:
+        outline: "fkey"
+        keysym: "F10"
+    F11:
+        outline: "fkey"
+        keysym: "F11"
+    F12:
+        outline: "fkey"
+        keysym: "F12"
+    Esc:
+        outline: "action"
+        keysym: "Escape"
+    Home:
+        outline: "action"
+        keysym: "Home"
+    End:
+        outline: "action"
+        keysym: "End"
+    Del:
+        outline: "altline"
+        keysym: "Delete"
+    PgUp:
+        outline: "action"
+        keysym: "Page_Up"
+    PgDn:
+        outline: "action"
+        keysym: "Page_Down"
+    Tab:
+        outline: "action"
+        keysym: "Tab"
+    "↑":
+        outline: "action"
+        keysym: "Up"
+    "↓":
+        outline: "action"
+        keysym: "Down"
+    "←":
+        outline: "action"
+        keysym: "Left"
+    "→":
+        outline: "action"
+        keysym: "Right"

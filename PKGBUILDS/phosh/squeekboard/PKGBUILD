@@ -1,14 +1,20 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=squeekboard
 pkgver=1.9.2
-pkgrel=0
+pkgrel=1
 pkgdesc="The final Phosh keyboard"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/squeekboard"
 license=('GPL')
 depends=('gtk3' 'gnome-desktop')
 makedepends=('rust' 'cargo' 'meson' 'ninja')
-source=(https://source.puri.sm/Librem5/squeekboard/-/archive/v$pkgver/squeekboard-v$pkgver.tar.gz)
+source=(https://source.puri.sm/Librem5/squeekboard/-/archive/v$pkgver/squeekboard-v$pkgver.tar.gz
+        terminal.yaml)
+
+prepare() {
+	# supply our own terminal layout
+	cp terminal.yaml ${pkgname}-v${pkgver}/data/keyboards/terminal.yaml
+}
 
 build() {
 	arch-meson ${pkgname}-v${pkgver} output
@@ -19,4 +25,5 @@ package() {
 	DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('4c3ee0ea3a8bb19911755910cda4ffdd')
+md5sums=('4c3ee0ea3a8bb19911755910cda4ffdd'
+         'ef089535a802f7d6f4c14b5ad4dc0282')
