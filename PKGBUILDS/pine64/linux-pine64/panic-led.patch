@@ -1,0 +1,12 @@
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+index 1c555456b..05fab5d79 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+@@ -78,6 +78,7 @@ green {
+ 		};
+ 
+ 		red {
++			linux,default-trigger = "panic";
+ 			function = LED_FUNCTION_INDICATOR;
+ 			color = <LED_COLOR_ID_RED>;
+ 			gpios = <&pio 3 19 GPIO_ACTIVE_HIGH>; /* PD19 */
