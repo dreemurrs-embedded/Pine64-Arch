@@ -1,0 +1,30 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=wys
+pkgver=0.1.7
+pkgrel=0
+pkgdesc="A daemon to bring up and take down PulseAudio loopbacks for phone call audio"
+url="https://source.puri.sm/Librem5/wys"
+license=('GPL')
+arch=('x86_64' 'armv7h' 'aarch64')
+depends=('glib2' 'libpulse' 'modemmanager')
+makedepends=('meson' 'ninja')
+source=("https://source.puri.sm/Librem5/wys/-/archive/v$pkgver/wys-v$pkgver.tar.gz"
+        '0001-Simplify-daemon-to-only-switch-card-profiles.patch')
+
+prepare() {
+    cd $pkgname-v$pkgver
+    patch -p1 -N < ../0001-Simplify-daemon-to-only-switch-card-profiles.patch
+}
+
+build() {
+    arch-meson $pkgname-v$pkgver output
+    ninja -C output
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C output install
+    install -Dm644 $pkgname-v$pkgver/debian/wys.user-service "$pkgdir"/usr/lib/systemd/user/wys.service
+}
+
+md5sums=('d7130b9bcfba84ed9571370016d57ebe'
+         '3a0a4bfa89d19441d6ebe242843f7a05')
