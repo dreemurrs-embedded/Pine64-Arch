@@ -17,6 +17,8 @@ provides=(libev{document,view}3.so)
 groups=(gnome)
 depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre t1lib dconf libsecret libsynctex gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell)
 makedepends=(libnautilus-extension texlive-bin gobject-introspection docbook-xsl python gtk-doc git meson appstream-glib yelp-tools)
+provides=("$_pkgname")
+conflicts=("$_pkgname")
 
 optdepends=(
   'texlive-bin: DVI support'
