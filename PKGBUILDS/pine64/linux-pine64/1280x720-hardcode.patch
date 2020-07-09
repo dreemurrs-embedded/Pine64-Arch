@@ -1,0 +1,48 @@
+From 6ed24d11befa0daca1f2a12615edee602fbf70b6 Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@gmail.com>
+Date: Sat, 4 Jul 2020 17:40:01 +0200
+Subject: [PATCH 1/2] !!! BAD HACK !!! sun6i-video: report hardcoded 1280x720
+ frame size
+
+---
+ .../platform/sunxi/sun6i-csi/sun6i_video.c      | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c b/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
+index 69b15c76a..817214e77 100644
+--- a/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
++++ b/drivers/media/platform/sunxi/sun6i-csi/sun6i_video.c
+@@ -339,6 +339,22 @@ static int vidioc_enum_fmt_vid_cap(struct file *file, void *priv,
+ 	return 0;
+ }
+ 
++static int vidioc_enum_framesizes(struct file *file, void *fh,
++				  struct v4l2_frmsizeenum *fsize)
++{
++	u32 index = fsize->index;
++
++	if (index >= ARRAY_SIZE(supported_pixformats))
++		return -EINVAL;
++
++	fsize->pixel_format = supported_pixformats[index];
++	fsize->type = V4L2_FRMSIZE_TYPE_DISCRETE;
++	fsize->discrete.width = 1280;
++	fsize->discrete.height = 720;
++
++	return 0;
++}
++
+ static int vidioc_g_fmt_vid_cap(struct file *file, void *priv,
+ 				struct v4l2_format *fmt)
+ {
+@@ -473,6 +489,7 @@ static int vidioc_s_parm(struct file *file, void *priv,
+ static const struct v4l2_ioctl_ops sun6i_video_ioctl_ops = {
+ 	.vidioc_querycap		= vidioc_querycap,
+ 	.vidioc_enum_fmt_vid_cap	= vidioc_enum_fmt_vid_cap,
++	.vidioc_enum_framesizes		= vidioc_enum_framesizes,
+ 	.vidioc_g_fmt_vid_cap		= vidioc_g_fmt_vid_cap,
+ 	.vidioc_s_fmt_vid_cap		= vidioc_s_fmt_vid_cap,
+ 	.vidioc_try_fmt_vid_cap		= vidioc_try_fmt_vid_cap,
+-- 
+2.27.0
+
