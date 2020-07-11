@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
 pkgver=0.4.0
-pkgrel=1
+pkgrel=2
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phoc"
@@ -34,6 +34,9 @@ build() {
 
 package() {
 	DESTDIR="$pkgdir" ninja -C output install
+
+	# Install scale-to-fit helper
+	install -Dm755 ${pkgname}-v${pkgver}/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
 
 	# Remove unnecessary files
 	rm -r "$pkgdir"/usr/lib
