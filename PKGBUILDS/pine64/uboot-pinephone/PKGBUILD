@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=uboot-pinephone
 pkgver=v2020.04
-pkgrel=2
+pkgrel=3
 pkgdesc="U-Boot for Pine64 - CRUST EDITION"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -14,33 +14,28 @@ makedepends=('bc' 'python' 'swig' 'dtc')
 install=${pkgname}.install
 
 _commit_uboot="f0b298c504daae9da171bac950c036432cc00201"
-_commit_atf="a4b8b9dba3a32013d9eac6dc1517ea25386568f7"
+_commit_atf="f928897fa5df6afa0f70bb1b1011e4bb03cb4596"
 
 source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/archive/${_commit_uboot}/u-boot-${_commit_uboot}.tar.gz"
         "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/crust-firmware/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
         '0001-ATF-set-fno-stack-protector.patch'
         '0001-configs-Add-Pinetab-configuration.patch'
         'fix-atf-bug.patch'
-        '6e19a238bc4743964029a8ff36b878d3295e7a28.patch'
         'boot.txt'
         'mkscr'
         'scp.bin')
 md5sums=('c04fe9cb85b9e5f6dc20eed79e0f6149'
-         '0bfdff354fe2ac22be638718f92f4752'
+         'ec70813ae71f978f07795cde13ba42c0'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
          'e2fb72a6a47dc3876585dc674935e9d0'
-         'c3191f1cc90b12d482fd48b1e134a34c'
          'e8d184f3f8834ffe9b77001d54d28ec4'
          '021623a04afd29ac3f368977140cfbfd'
-         '602bfbdf1d3f06fd25fd4704c51e26d9')
+         'af8268d4f7c026d375e60044fdf12691')
 
 prepare() {
   cd arm-trusted-firmware-${_commit_atf}
   patch -N -p1 < ../0001-ATF-set-fno-stack-protector.patch
-
-  # This patch is reverted to fix touch screen
-  patch -N -p1 -R <../6e19a238bc4743964029a8ff36b878d3295e7a28.patch
 
   cd ../u-boot-${_commit_uboot}
   patch -N -p1 < ../0001-configs-Add-Pinetab-configuration.patch
