@@ -1,0 +1,42 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Balló György <ballogyor+arch at gmail dot com>
+
+pkgname=gnome-initial-setup-mobile
+_pkgname=gnome-initial-setup
+pkgver=3.36.4
+pkgrel=0
+pkgdesc="Simple, easy, and safe way to prepare a new system - Forked with Purism patches"
+arch=(x86_64 armv7h aarch64)
+url="https://www.gnome.org/"
+license=(GPL)
+depends=(nm-connection-editor accountsservice gnome-desktop libgweather
+         gnome-online-accounts libgdm libpwquality libibus libgnomekbd
+         libpackagekit-glib geoclue libhandy)
+makedepends=(meson git)
+optdepends=('gdm: GDM Initial Setup mode'
+            'gnome-getting-started-docs: GNOME Welcome Tour')
+replaces=('gnome-initial-setup')
+conflicts=('gnome-initial-setup')
+_commit="ce0e063bda2b18274e3fe0bf8680a9f6f948e500"
+source=(git+https://github.com/Danct12/gnome-initial-setup.git#commit=$_commit)
+sha256sums=('SKIP')
+
+build() {
+  arch-meson $_pkgname build -Dparental_controls=disabled -Dcheese=disabled
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+  install -d -o root -g 102 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+
+  # Setup system user and group
+  echo 'u gnome-initial-setup - "GNOME Initial Setup" /run/gnome-initial-setup' |
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$_pkgname.conf"
+  echo 'd /run/gnome-initial-setup 0700 gnome-initial-setup gnome-initial-setup -' |
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/tmpfiles.d/$_pkgname.conf"
+}
