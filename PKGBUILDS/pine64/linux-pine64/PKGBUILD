@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64"
 pkgver=5.7.0
-pkgrel=7
+pkgrel=8
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -257,7 +257,7 @@ for _p in ${pkgname[@]}; do
   }"
 done
 md5sums=('7ae4286c072557903c1435dcdfeaa091'
-         '3c9e60a7e887086212f94b9e2cf34403'
+         'e86460c61b7527bb3b71d4255d444d31'
          '37866c50af64b0b559278cc2bb63f021'
          'b5a6d0bd17219be510a494aeec02c6d9'
          '1352a07497e7992a9c093916c0b702c5'

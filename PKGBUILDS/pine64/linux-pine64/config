@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.7.0-6 Kernel Configuration
+# Linux/arm64 5.7.0-8 Kernel Configuration
 #
 
 #
@@ -3925,7 +3925,7 @@ CONFIG_LEDS_TRIGGER_DEFAULT_ON=y
 # CONFIG_LEDS_TRIGGER_CAMERA is not set
 CONFIG_LEDS_TRIGGER_PANIC=y
 # CONFIG_LEDS_TRIGGER_NETDEV is not set
-# CONFIG_LEDS_TRIGGER_PATTERN is not set
+CONFIG_LEDS_TRIGGER_PATTERN=y
 # CONFIG_LEDS_TRIGGER_AUDIO is not set
 # CONFIG_ACCESSIBILITY is not set
 # CONFIG_INFINIBAND is not set
