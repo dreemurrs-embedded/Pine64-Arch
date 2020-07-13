@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-ui-meta
 pkgver=0.1
-pkgrel=5
+pkgrel=6
 pkgdesc="Meta package for Phosh"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -22,7 +22,8 @@ depends=(
 	gnome-clocks
 	gnome-software-mobile
 	gnome-control-center-mobile
-	gnome-contacts
+	gnome-contacts-mobile
+	gnome-initial-setup-mobile
 	purple-matrix
 	purple-telegram
 	sound-theme-librem5
