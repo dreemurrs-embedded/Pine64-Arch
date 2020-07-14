@@ -10,7 +10,7 @@ search-engines=[('Search the Web', 'https://duckduckgo.com/?q=%s&t=epiphany', ''
 
 [org.gnome.Epiphany.web]
 mobile-user-agent=true
-user-agent='Mozilla/5.0 (PinePhone, like iPhone; X11; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0 Safari/605.1.15 Epiphany/605.1.15'
+user-agent='Mozilla/5.0 (Android 6.0; Arch DanctNIX; Mobile; rv:68.0) Gecko/20100101 Firefox/68.0'
 
 [org.gnome.desktop.background]
 picture-uri='file:///usr/share/danctnix/adwaita-phone.jpg'
