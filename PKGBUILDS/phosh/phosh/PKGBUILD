@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
 pkgver=0.4.1
-pkgrel=0
+pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phosh"
@@ -9,7 +9,7 @@ license=('GPL')
 depends=('gtk3' 'libhandy' 'gnome-desktop' 'gnome-session' 'upower' 'libpulse'
          'gcr' 'feedbackd' 'libnm' 'phoc')
 makedepends=('meson' 'ninja')
-_commit_gvc="e2be83ee4a47da9c4c4fbf302a63f04b8d5683b9"
+_commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
 source=("https://source.puri.sm/Librem5/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
 	"https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
 	'pam_phosh'
@@ -38,6 +38,6 @@ package() {
 }
 
 md5sums=('a178488f58c8b146b440f8f9eb03283c'
-         'SKIP'
+         'c08f04485db11997525c139346faecc8'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639')
