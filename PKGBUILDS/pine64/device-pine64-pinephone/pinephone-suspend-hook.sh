@@ -14,6 +14,7 @@ resume_all() {
 	echo "Resuming the device..."
 	sleep 1
 	echo serial0-0 > /sys/bus/serial/drivers/hci_uart_h5/bind
+	hwclock -s
 }
 
 case $1 in

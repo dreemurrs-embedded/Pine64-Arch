@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephone
 pkgver=0.1
-pkgrel=2
+pkgrel=3
 pkgdesc="PinePhone device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -26,4 +26,4 @@ package() {
 }
 
 md5sums=('b72ff096c022588f72c226283ac328bd'
-         '1f4d0a272b2818b6ba4f3466c9f4b724')
+         '046aaa90a3477fa641de412494ff82ff')
