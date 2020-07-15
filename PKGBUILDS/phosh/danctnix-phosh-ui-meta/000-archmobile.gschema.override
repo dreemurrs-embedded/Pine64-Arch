@@ -32,6 +32,3 @@ sleep-inactive-battery-type='suspend'
 sleep-inactive-battery-timeout=300
 power-button-action='nothing'
 ambient-enabled=false
-
-[org.gnome.desktop.interface]
-enable-animations=false
