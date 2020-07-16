@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=uboot-pinephone
 pkgver=v2020.04
-pkgrel=3
+pkgrel=4
 pkgdesc="U-Boot for Pine64 - CRUST EDITION"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -20,6 +20,7 @@ source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/ar
         "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/crust-firmware/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
         '0001-ATF-set-fno-stack-protector.patch'
         '0001-configs-Add-Pinetab-configuration.patch'
+        '0001-sunxi-support-asymmetric-dual-rank-DRAM-on-A64-R40.patch'
         'fix-atf-bug.patch'
         'boot.txt'
         'mkscr'
@@ -28,6 +29,7 @@ md5sums=('c04fe9cb85b9e5f6dc20eed79e0f6149'
          'ec70813ae71f978f07795cde13ba42c0'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
+         '107f71a37d278c459c7e223d4d5bd786'
          'e2fb72a6a47dc3876585dc674935e9d0'
          'e8d184f3f8834ffe9b77001d54d28ec4'
          '021623a04afd29ac3f368977140cfbfd'
@@ -40,6 +42,7 @@ prepare() {
   cd ../u-boot-${_commit_uboot}
   patch -N -p1 < ../0001-configs-Add-Pinetab-configuration.patch
   patch -N -p1 < ../fix-atf-bug.patch
+  patch -N -p1 < ../0001-sunxi-support-asymmetric-dual-rank-DRAM-on-A64-R40.patch
 
   cp ../scp.bin .
 }
