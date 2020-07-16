@@ -1,11 +1,11 @@
 # Maintainer: Danct12 <danct12@disroot.org>
-# TODO: Find a way to build crust inside this PKGBUILD, right now it is prebuilt.
+# Contributor: Jean Lucas <jean@4ray.co>
 
 buildarch=8
 
 pkgname=uboot-pinephone
 pkgver=v2020.04
-pkgrel=3
+pkgrel=4
 pkgdesc="U-Boot for Pine64 - CRUST EDITION"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -15,23 +15,26 @@ install=${pkgname}.install
 
 _commit_uboot="f0b298c504daae9da171bac950c036432cc00201"
 _commit_atf="f928897fa5df6afa0f70bb1b1011e4bb03cb4596"
+_commit_crust="d44bc0b0ff98c88a41e3ecaee4042713a4595098"
 
 source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/archive/${_commit_uboot}/u-boot-${_commit_uboot}.tar.gz"
         "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/crust-firmware/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
+        "crust-$_commit_crust.tar.gz::https://github.com/crust-firmware/crust/archive/${_commit_crust}.tar.gz"
+        'https://musl.cc/or1k-linux-musl-cross.tgz'
         '0001-ATF-set-fno-stack-protector.patch'
         '0001-configs-Add-Pinetab-configuration.patch'
         'fix-atf-bug.patch'
         'boot.txt'
-        'mkscr'
-        'scp.bin')
+        'mkscr')
 md5sums=('c04fe9cb85b9e5f6dc20eed79e0f6149'
          'ec70813ae71f978f07795cde13ba42c0'
+         'aaa252db34c98b7529e1f2ba59eaee87'
+         '10dae56d99711b0459c1f6cf46797baf'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
          'e2fb72a6a47dc3876585dc674935e9d0'
          'e8d184f3f8834ffe9b77001d54d28ec4'
-         '021623a04afd29ac3f368977140cfbfd'
-         'af8268d4f7c026d375e60044fdf12691')
+         '021623a04afd29ac3f368977140cfbfd')
 
 prepare() {
   cd arm-trusted-firmware-${_commit_atf}
@@ -40,8 +43,6 @@ prepare() {
   cd ../u-boot-${_commit_uboot}
   patch -N -p1 < ../0001-configs-Add-Pinetab-configuration.patch
   patch -N -p1 < ../fix-atf-bug.patch
-
-  cp ../scp.bin .
 }
 
 build() {
@@ -49,13 +50,21 @@ build() {
 
   cd arm-trusted-firmware-${_commit_atf}
 
+  msg2 "Building ATF..."
   make PLAT=sun50i_a64 DEBUG=1 bl31
   cp build/sun50i_a64/debug/bl31.bin ../u-boot-${_commit_uboot}
+
+  cd ../crust-${_commit_crust}
+
+  msg2 "Building crust..."
+  make pinephone_defconfig
+  CROSS_COMPILE=../or1k-linux-musl-cross/bin/or1k-linux-musl- make scp
+  cp build/scp/scp.bin ../u-boot-${_commit_uboot}
 
   cd ../u-boot-${_commit_uboot}
 
   # This builds the PineTab.
-  echo "Building U-Boot for PineTab..."
+  msg2 "Building U-Boot for PineTab..."
   make distclean
   make pinetab_defconfig
   echo 'CONFIG_IDENT_STRING=" Arch Linux ARM"' >> .config
@@ -70,7 +79,7 @@ build() {
   cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinetab.bin
 
   # This builds the PinePhone.
-  echo "Building U-Boot for PinePhone..."
+  msg2 "Building U-Boot for PinePhone..."
   make pinephone_defconfig
   echo 'CONFIG_IDENT_STRING=" Arch Linux ARM"' >> .config
   echo 'CONFIG_SERIAL_PRESENT=y' >> .config
