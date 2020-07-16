@@ -1,11 +1,12 @@
 ---
 outlines:
     default: { width: 50, height: 50 }
+    menu: { width: 100, height: 50 }
     altline: { width: 70, height: 50 }
     spaceline: { width: 160, height: 50 }
     special: { width: 35.33, height: 50 }
     action: { width: 85, height: 35 }
-    fkey: { width: 41, height: 50 }
+    fkey: { width: 42, height: 50 }
 
 views:
     base:
@@ -20,7 +21,7 @@ views:
         - "Q W E R T Y U I O P"
         - "A S D F G H J K L"
         - "Shift_L   Z X C V B N M  BackSpace"
-        - "show_symbols show_eschars preferences         space        < > Return"
+        - "show_symbols show_eschars preferences         space        Menu Return"
         - "Alt Esc PgUp PgDn Home End"
     symbols:
         - "~ ` ´ - _ + = ° © ®"
@@ -32,7 +33,7 @@ views:
     eschars:
         - "F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12"
         - "ä è é ö ü Ä È É Ö Ü"
-        - "à â ê î ô À Â È Î Ô"
+        - "à â ê î ô À Â Ê Î Ô"
         - "Del  « » ç Ç æ œ ß  BackSpace"
         - "show_symbols show_eschars preferences         space        „ “ Return"
         - "Alt Esc PgUp PgDn Home End"
@@ -57,6 +58,9 @@ buttons:
         outline: "altline"
         icon: "edit-clear-symbolic"
         action: "erase"
+    Menu:
+        outline: "menu"
+        keysym: "Menu"
     preferences:
         action: "show_prefs"
         outline: "special"
