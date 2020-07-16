@@ -17,9 +17,7 @@ makedepends=('meson' 'ninja' 'vala')
 prepare() {
   cd libaperture-$_commit
   patch -p1 -N < ../0001-test-barcodes-remove-failing-test.patch
-  patch -p1 -N < ../0002-aperture-viewfinder-rotate-picture-90-right.patch
-
-  
+  patch -p1 -N < ../0002-aperture-viewfinder-rotate-picture-90-right.patch  
 }
 
 build() {
