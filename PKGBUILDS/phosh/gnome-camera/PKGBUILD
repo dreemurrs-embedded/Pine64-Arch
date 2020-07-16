@@ -1,0 +1,23 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=gnome-camera
+pkgver=0.0.0+git20200715
+pkgrel=0
+pkgdesc="Take photos and videos on your computer or smartphone"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://gitlab.gnome.org/jwestman/camera"
+license=('GPL')
+depends=('gtk3' 'libaperture' 'libhandy1' 'gst-plugin-gtk')
+makedepends=('git' 'meson' 'vala')
+_commit="0a48305877762b98709f7f0fabb35131bd9e1ea7"
+source=(git+https://gitlab.gnome.org/jwestman/camera.git#commit=$_commit)
+md5sums=("SKIP")
+
+build() {
+  arch-meson camera build -Dexecutable_name=gnome-camera
+  meson compile -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" meson install -C build
+}
+# vim:set ts=2 sw=2 et
