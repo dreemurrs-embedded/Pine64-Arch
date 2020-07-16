@@ -1,0 +1,39 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=libaperture
+pkgver=0.0.0+git20200708
+pkgrel=0
+pkgdesc='A camera library for GTK3'
+url='https://gitlab.gnome.org/jwestman/libaperture'
+arch=('x86_64' 'armv7h' 'aarch64')
+license=('LGPL')
+_commit="49da8fd46c11e323f8227e2128c51f678e44e2f7"
+source=("https://gitlab.gnome.org/jwestman/libaperture/-/archive/$_commit/libaperture-$_commit.tar.gz"
+	'0001-test-barcodes-remove-failing-test.patch'
+	'0002-aperture-viewfinder-rotate-picture-90-right.patch')
+depends=('gtk3' 'glib2' 'gobject-introspection' 'gstreamer' 'gst-plugins-base-libs')
+makedepends=('meson' 'ninja' 'vala')
+
+prepare() {
+  cd libaperture-$_commit
+  patch -p1 -N < ../0001-test-barcodes-remove-failing-test.patch
+  patch -p1 -N < ../0002-aperture-viewfinder-rotate-picture-90-right.patch
+
+  
+}
+
+build() {
+  arch-meson libaperture-$_commit build -Ddemo=false -Dgtk_doc=false
+  meson compile -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+
+  # We don't want tests binary here
+  rm "$pkgdir"/usr/bin/aperture-tests
+}
+
+md5sums=('a706ebeddfd9f88e35d967d6d65c34af'
+         '99a974a21dca6f4c59a1f46d35cd2f9a'
+         'be7979795d7a16a0c345c6755ab8802c')
