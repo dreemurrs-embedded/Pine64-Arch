@@ -3,7 +3,7 @@
 
 pkgname=danctnix-usb-tethering
 pkgver=0.1
-pkgrel=0
+pkgrel=1
 pkgdesc="USB tethering on Pine64/ConfigFS systems"
 arch=('armv7h' 'aarch64')
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -39,7 +39,7 @@ package() {
   install -d ${pkgdir}/etc/danctnix/
   install -m 644 dhcpd.conf ${pkgdir}/etc/danctnix/
 }
-md5sums=('62ad102e0418d9093fea5ec2e26d81ec'
+md5sums=('c9badeec853b845f4cdb1091760f2fb5'
          '3381ca51c6661ce7ba9acad5c7a36a8b'
          '8d25b1c3f1146635800db77f300b908c'
          '40f9bd2b32edd79a01b2c7d85b0478cc'

@@ -7,11 +7,11 @@
 
 deviceinfo_usb_idVendor="0x1F3A"
 deviceinfo_usb_idProduct="0xEFE8"
-deviceinfo_manufacturer="Pine64"
-deviceinfo_name="PinePhone"
+deviceinfo_manufacturer="DanctNIX"
+deviceinfo_name="Arch Linux Mobile"
 
 # We'll let them know that this device is Arch ARM.
-deviceinfo_usb_serialnumber="Arch ARM Pine64"
+deviceinfo_usb_serialnumber="Arch"
 
 setup_usb_network_configfs() {
 	# See: https://www.kernel.org/doc/Documentation/usb/gadget_configfs.txt
