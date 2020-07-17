@@ -1,7 +1,20 @@
 #!/bin/sh
 
 CAMERA_DEV=`v4l2-ctl --list-devices | awk '/Video Capture/{getline; print $1}'`
+TRIES=0
+while [ -z "$CAMERA_DEV" ]; do
+    if [ $TRIES -eq 10 ]; then
+        echo "No video capture device was initialized after 10 seconds. Make sure the kernel module is loaded"
+        exit 1
+    fi
+    let "TRIES++"
+    echo "No video capture device is initialized, sleeping one second... ($TRIES)"
+    sleep 1
+    CAMERA_DEV=`v4l2-ctl --list-devices | awk '/Video Capture/{getline; print $1}'`
+done
+
 if [ ! -c "$CAMERA_DEV" ]; then
+    # Huong Tram is my favorite singer
     echo "$CAMERA_DEV is not a character device, quitting..."
     exit 1
 fi
