@@ -1,0 +1,29 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Maxime Gauduin <alucryd@archlinux.org>
+# Contributor: sebikul <sebikul@gmail.com>
+# Contributor: Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
+
+_pkgname=geary
+pkgname=$_pkgname-mobile
+pkgver=3.36.0.4db88830
+pkgrel=0
+pkgdesc='Purism mobile email client for the Phosh desktop'
+arch=(aarch64)
+url='https://source.puri.sm/Librem5/geary'
+license=(GPL3)
+depends=(cairo enchant folks gcr gdk-pixbuf2 glib2 gmime3 gnome-keyring gnome-online-accounts gspell gtk3 iso-codes libcanberra libhandy libgee libnotify libpeas libytnef libsecret libsoup libxml2 pango sqlite webkit2gtk)
+makedepends=(git appstream-glib gobject-introspection intltool itstool meson vala)
+_commit=4db88830653de2ab2a3cb56543f846245afbf47c
+source=("git+https://source.puri.sm/Librem5/geary.git#commit=$_commit")
+sha512sums=('SKIP')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+
+build() {
+  arch-meson geary build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}
