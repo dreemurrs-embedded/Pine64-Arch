@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.4.0
-pkgrel=2
+pkgver=0.4.1
+pkgrel=0
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phoc"
@@ -43,7 +43,7 @@ package() {
 	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('8f1f1d9eef83a20c6664a81eecb9c378'
+md5sums=('b9b8bc1903dd2eed581c48a14ec5298a'
          '5b4ce847eb9cbbb7c215890208c2db41'
          '9779076dbffbf2eab2b25aa7bc1edff4'
          '6beda6022c1402852e2ea8afb9a8fbeb')
