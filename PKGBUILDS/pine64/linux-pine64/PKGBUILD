@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64"
 pkgver=5.7.0
-pkgrel=8
+pkgrel=9
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -26,6 +26,9 @@ source=("linux-$_commit.tar.gz::https://gitlab.com/pine64-org/linux/-/archive/${
         'panic-led.patch'
         'Revert-ASoc-sun4i-i2s-Add-20-and-24-bit-support.patch'
         '1280x720-hardcode.patch'
+        '5w-15w-anx7688-power.patch'
+        'enable-hdmi-output.patch'
+        'enable-hdmi-audio.patch'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
@@ -57,6 +60,11 @@ prepare() {
   # camera & audio stuffs
   patch -p1 -N < ../Revert-ASoc-sun4i-i2s-Add-20-and-24-bit-support.patch
   patch -p1 -N < ../1280x720-hardcode.patch
+
+  # ANX7688 & HDMI Patches
+  patch -p1 -N < ../5w-15w-anx7688-power.patch
+  patch -p1 -N < ../enable-hdmi-output.patch
+  patch -p1 -N < ../enable-hdmi-audio.patch
 
   # bootsplash stuffs (took from glorious manjaro arm)
   patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
@@ -120,7 +128,7 @@ build() {
 
 _package() {
   pkgdesc="The Linux Kernel and modules - ${_desc}"
-  depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
+  depends=('coreutils' 'kmod' 'mkinitcpio>=0.7')
   optdepends=('crda: to set the correct wireless channels of your country')
   provides=('kernel26' "linux=${pkgver}")
   conflicts=('linux')
@@ -263,6 +271,9 @@ md5sums=('7ae4286c072557903c1435dcdfeaa091'
          '1352a07497e7992a9c093916c0b702c5'
          '0ec18f19cf3e210b748888cd86849c9a'
          '32100b619b3e097ec870d80bb65da199'
+         '14c5f901974192179a6c4a2ba8370509'
+         '9c6a8f3bcc90f25ceb0ebcd710265ffd'
+         '2557241b1cd9a851bf746e8a2c89cd55'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'

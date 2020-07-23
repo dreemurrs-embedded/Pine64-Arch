@@ -1,0 +1,42 @@
+From b4f0e90c6cdf3be59cd32ab043537572db1e886d Mon Sep 17 00:00:00 2001
+From: Ondrej Jirman <megous@megous.com>
+Date: Sat, 11 Jul 2020 23:46:45 +0200
+Subject: [PATCH] usb: typec: anx7688: Increase declared MAX_POWER from 5W to
+ 15W
+
+According to Icenowy, this makes her PD charger work with PP.
+
+We still need to react better to PD negotiation results, but
+most PD chargers can probably produce 15W, so this should make
+more PD chargers work with PinePhone.
+
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+---
+ drivers/usb/typec/anx7688.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/typec/anx7688.c b/drivers/usb/typec/anx7688.c
+index 2e433b383582..c1f8fde7f0a3 100644
+--- a/drivers/usb/typec/anx7688.c
++++ b/drivers/usb/typec/anx7688.c
+@@ -449,15 +449,14 @@ static int anx7688_connect(struct anx7688 *anx7688)
+ 
+ 
+         /* min/max power in 500 mW units */
+-        ret = anx7688_reg_write(anx7688, ANX7688_REG_MAX_POWER, 5 * 2); /* 5 W */
++        ret = anx7688_reg_write(anx7688, ANX7688_REG_MAX_POWER, 15 * 2); /* 15 W */
+ 	if (ret)
+ 		goto err_vconoff;
+ 
+-        ret = anx7688_reg_write(anx7688, ANX7688_REG_MIN_POWER, 1 * 2);  /* 1 W */
++        ret = anx7688_reg_write(anx7688, ANX7688_REG_MIN_POWER, 1);  /* 0.5 W */
+ 	if (ret)
+ 		goto err_vconoff;
+ 
+-
+         /* auto_pd, try.src, try.sink, goto safe 5V */
+         ret = anx7688_reg_write(anx7688, ANX7688_REG_FEATURE_CTRL, 0x1e);
+ 	if (ret)
+-- 
+GitLab
+
