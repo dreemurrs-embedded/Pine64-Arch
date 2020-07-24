@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
 pkgver=0.4.1
-pkgrel=1
+pkgrel=2
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phosh"
@@ -13,12 +13,16 @@ _commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
 source=("https://source.puri.sm/Librem5/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
 	"https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
 	'pam_phosh'
-	'sm.puri.OSK0.desktop')
+	'sm.puri.OSK0.desktop'
+	'0001-panel-implement-reboot-action.patch')
 
 prepare() {
 	cd ${pkgname}-v${pkgver}
 	rm -r subprojects/gvc
 	mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
+
+	# Apply patches
+	patch -p1 -N < ../0001-panel-implement-reboot-action.patch
 }
 
 build() {
@@ -40,4 +44,5 @@ package() {
 md5sums=('a178488f58c8b146b440f8f9eb03283c'
          'c08f04485db11997525c139346faecc8'
          '6d5a0d561f8362bf91f85c236a88395d'
-         '30c7febb5cbbac40984fb50d66a88639')
+         '30c7febb5cbbac40984fb50d66a88639'
+         'bf102ac7588c4d4ba4096053cd90a9e6')

@@ -1,0 +1,107 @@
+From d3941548bd078dd945f6c46afe3116d950a87660 Mon Sep 17 00:00:00 2001
+From: Luca Weiss <luca@z3ntu.xyz>
+Date: Thu, 23 Jul 2020 22:26:16 +0200
+Subject: [PATCH 1/2] panel: implement reboot action
+
+Fixes #241
+---
+ src/panel.c         | 17 +++++++++++++++++
+ src/session.c       | 17 +++++++++++++++++
+ src/session.h       |  1 +
+ src/ui/top-panel.ui |  7 +++++++
+ 4 files changed, 42 insertions(+)
+
+diff --git a/src/panel.c b/src/panel.c
+index deb7fd9..90f3919 100644
+--- a/src/panel.c
++++ b/src/panel.c
+@@ -82,6 +82,22 @@ on_shutdown_action (GSimpleAction *action,
+ }
+ 
+ 
++static void
++on_reboot_action (GSimpleAction *action,
++                  GVariant      *parameter,
++                  gpointer       data)
++{
++  PhoshPanel *self = PHOSH_PANEL(data);
++
++  g_return_if_fail (PHOSH_IS_PANEL (self));
++  phosh_session_reboot ();
++  /* TODO: Since we don't implement
++   * gnome.SessionManager.EndSessionDialog yet */
++  phosh_session_reboot ();
++  phosh_panel_fold (self);
++}
++
++
+ static void
+ on_lockscreen_action (GSimpleAction *action,
+                       GVariant      *parameter,
+@@ -242,6 +258,7 @@ on_button_press_event (PhoshPanel *self, GdkEventKey *event, gpointer data)
+ 
+ static GActionEntry entries[] = {
+   { "poweroff", on_shutdown_action, NULL, NULL, NULL },
++  { "reboot", on_reboot_action, NULL, NULL, NULL },
+   { "lockscreen", on_lockscreen_action, NULL, NULL, NULL },
+   { "logout", on_logout_action, NULL, NULL, NULL },
+ };
+diff --git a/src/session.c b/src/session.c
+index c444883..47afd5f 100644
+--- a/src/session.c
++++ b/src/session.c
+@@ -181,6 +181,23 @@ phosh_session_shutdown (void)
+                      NULL);
+ }
+ 
++
++void
++phosh_session_reboot (void)
++{
++  g_return_if_fail (G_IS_DBUS_PROXY(_proxy));
++
++  g_dbus_proxy_call (_proxy,
++                     "Reboot",
++                     NULL,
++                     G_DBUS_CALL_FLAGS_NONE,
++                     -1,
++                     NULL,
++                     NULL,
++                     NULL);
++}
++
++
+ void
+ phosh_session_logout (void)
+ {
+diff --git a/src/session.h b/src/session.h
+index dc4b006..b767dc8 100644
+--- a/src/session.h
++++ b/src/session.h
+@@ -11,4 +11,5 @@
+ void phosh_session_register (const char *client_id);
+ void phosh_session_unregister (void);
+ void phosh_session_shutdown (void);
++void phosh_session_reboot (void);
+ void phosh_session_logout (void);
+diff --git a/src/ui/top-panel.ui b/src/ui/top-panel.ui
+index eaaad7a..a91e9c4 100644
+--- a/src/ui/top-panel.ui
++++ b/src/ui/top-panel.ui
+@@ -22,6 +22,13 @@
+             <property name="text" translatable="yes">Logout</property>
+           </object>
+         </child>
++        <child>
++          <object class="GtkModelButton">
++            <property name="visible">True</property>
++            <property name="action-name">panel.reboot</property>
++            <property name="text" translatable="yes">Restart</property>
++          </object>
++        </child>
+         <child>
+           <object class="GtkModelButton">
+             <property name="visible">True</property>
+-- 
+2.27.0
+
