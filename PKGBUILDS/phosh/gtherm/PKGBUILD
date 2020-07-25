@@ -1,0 +1,27 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Dan Johansen <strit@manjaro.org>
+# Contributor: Philip Müller <philm@manjaro.org>
+
+pkgname=gtherm
+pkgver=0.0.2
+pkgrel=0
+pkgdesc="A simple daemon to monitor thermal zones and cooling devices"
+url="https://source.puri.sm/Librem5/gtherm"
+license=('GPL')
+arch=('x86_64' 'armv7h' 'aarch64')
+depends=('glib2' 'gobject-introspection')
+makedepends=('meson' 'vala')
+source=("https://source.puri.sm/Librem5/gtherm/-/archive/v$pkgver/gtherm-v$pkgver.tar.gz")
+sha256sums=('c468e78591f68f37f0e902064e8782a9e92690e45e12e42f3303f088df061ea2')
+
+build() {
+    arch-meson $pkgname-v$pkgver build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    mkdir -p $pkgdir/usr/lib/systemd/user/default.target.wants
+    install -Dm644 $pkgname-v$pkgver/debian/gthd.user.service $pkgdir/usr/lib/systemd/user/gthd.service
+    ln -sfv /usr/lib/systemd/user/gthd.service $pkgdir/usr/lib/systemd/user/default.target.wants/gthd.service
+}
