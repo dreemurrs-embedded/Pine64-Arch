@@ -1,0 +1,662 @@
+From 258f1ab335cf8918162bde034bc753ded2d964cc Mon Sep 17 00:00:00 2001
+From: Evangelos Ribeiro Tzaras <devrtz@fortysixandtwo.eu>
+Date: Wed, 8 Jul 2020 18:45:08 +0200
+Subject: [PATCH 1/3] phosh-wayland.c: Indent
+
+---
+ src/phosh-wayland.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/src/phosh-wayland.c b/src/phosh-wayland.c
+index 427625ce..ed11341b 100644
+--- a/src/phosh-wayland.c
++++ b/src/phosh-wayland.c
+@@ -67,17 +67,17 @@ registry_handle_global (void *data,
+   struct wl_output *output;
+ 
+   if (!strcmp (interface, "phosh_private")) {
+-      priv->phosh_private = wl_registry_bind (
+-        registry,
+-        name,
+-        &phosh_private_interface,
+-        MIN(4, version));
+-  } else  if (!strcmp (interface, zwlr_layer_shell_v1_interface.name)) {
+-      priv->layer_shell = wl_registry_bind (
+-        registry,
+-        name,
+-        &zwlr_layer_shell_v1_interface,
+-        1);
++    priv->phosh_private = wl_registry_bind (
++      registry,
++      name,
++      &phosh_private_interface,
++      MIN(4, version));
++  } else if (!strcmp (interface, zwlr_layer_shell_v1_interface.name)) {
++    priv->layer_shell = wl_registry_bind (
++      registry,
++      name,
++      &zwlr_layer_shell_v1_interface,
++      1);
+   } else if (!strcmp (interface, "wl_output")) {
+     output = wl_registry_bind (
+       registry,
+-- 
+2.26.2
+
+
+From 3df86a33b472b420b8e289ef5d65b5ba50db3b22 Mon Sep 17 00:00:00 2001
+From: Evangelos Ribeiro Tzaras <devrtz@fortysixandtwo.eu>
+Date: Thu, 16 Jul 2020 23:49:49 +0200
+Subject: [PATCH 2/3] d/control: Use Rules-Requires-Root: no
+
+---
+ debian/control | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/debian/control b/debian/control
+index 3fae57c4..65639a6e 100644
+--- a/debian/control
++++ b/debian/control
+@@ -26,6 +26,7 @@ Build-Depends:
+  xauth,
+ Standards-Version: 4.1.3
+ Homepage: https://source.puri.sm/Librem5/phosh
++Rules-Requires-Root: no
+ 
+ Package: phosh
+ Architecture: any
+-- 
+2.26.2
+
+
+From 396da2296954c5ee9e70130b48076c394ab13032 Mon Sep 17 00:00:00 2001
+From: Evangelos Ribeiro Tzaras <devrtz@fortysixandtwo.eu>
+Date: Wed, 8 Jul 2020 18:18:59 +0200
+Subject: [PATCH 3/3] Add keyboard forwarding protocol
+
+* protocol/phosh-private.xml: Add keyboard_event interface
+* src/keyboard-events.{c,h}: Implement keyboard_event interface. Emit a
+  signal on keypress
+* src/settings.c: Use PhoshKeyboardEvents signaling to change volume on
+  keypress
+* src/meson.build: Include keyboard-events.{c,h} in compilation
+* docs/phosh-docs.xml: Generate documentation for PhoshKeyboardEvents
+* src/phosh-wayland.c: Bump version to 5
+---
+ docs/phosh-docs.xml        |   1 +
+ protocol/phosh-private.xml |  86 +++++++++++++-
+ src/keyboard-events.c      | 223 +++++++++++++++++++++++++++++++++++++
+ src/keyboard-events.h      |  23 ++++
+ src/meson.build            |   3 +
+ src/phosh-wayland.c        |   2 +-
+ src/settings.c             | 100 ++++++++++++++++-
+ 7 files changed, 435 insertions(+), 3 deletions(-)
+ create mode 100644 src/keyboard-events.c
+ create mode 100644 src/keyboard-events.h
+
+diff --git a/docs/phosh-docs.xml b/docs/phosh-docs.xml
+index 1621049b..c289a675 100644
+--- a/docs/phosh-docs.xml
++++ b/docs/phosh-docs.xml
+@@ -48,6 +48,7 @@
+       <xi:include href="xml/favorite-list-model.xml"/>
+       <xi:include href="xml/feedback-manager.xml"/>
+       <xi:include href="xml/feedbackinfo.xml"/>
++      <xi:include href="xml/keyboard-events.xml"/>
+       <xi:include href="xml/home.xml"/>
+       <xi:include href="xml/idle-manager.xml"/>
+       <xi:include href="xml/layersurface.xml"/>
+diff --git a/protocol/phosh-private.xml b/protocol/phosh-private.xml
+index bc102f30..f67514ba 100644
+--- a/protocol/phosh-private.xml
++++ b/protocol/phosh-private.xml
+@@ -1,5 +1,5 @@
+ <protocol name="phosh">
+-  <interface name="phosh_private" version="4">
++  <interface name="phosh_private" version="5">
+     <description summary="Phone shell extensions">
+       Private protocol between phosh and the compositor.
+     </description>
+@@ -36,6 +36,90 @@
+       <arg name="max_width" type="uint" />
+       <arg name="max_height" type="uint" />
+     </request>
++
++    <request name="get_keyboard_event" since="5">
++      <description summary="request a keyboard event handler">
++        Allows to subscribe to specific keyboard events.
++
++        The client grabs an accelerator by a string and gets an action id returned.
++        When the accelerator is used the client will be informed via the corresponding
++        action id.
++      </description>
++      <arg name="id" type="new_id" interface="phosh_private_keyboard_event"/>
++    </request>
++
++  </interface>
++
++  <interface name="phosh_private_keyboard_event" version="5">
++    <description summary="Interface for additional keyboard events">
++      The interface is meant to allow subscription and forwarding of keyboard events.
++    </description>
++    <enum name="error">
++      <entry name="invalid_argument" value="0"
++             summary="an invalid argument was provided in a request"/>
++      <entry name="invalid_keysym" value="1"
++             summary="keysym not subscribeable"/>
++      <entry name="already_subscribed" value="2"
++             summary="accelerator has already been subscribed to"/>
++      <entry name="misc_error" value="3"
++             summary="an miscellaneous error has occured"/>
++    </enum>
++    <event name="accelerator_activated_event" since="5">
++      <description summary="Report an accelerator press">
++        Forward an action to the client.
++      </description>
++      <arg name="action_id" type="uint" summary="The previously assigned action_id"/>
++      <arg name="timestamp" type="uint" summary="The timestamp when the key has been pressed"/>
++    </event>
++
++    <event name="grab_failed_event" since="5">
++      <description summary="Report subscription failure">
++        A previous accelerator grab request has failed.
++      </description>
++      <arg name="accelerator" type="string" summary="The failed accelerator"/>
++      <arg name="error" type="uint" summary="The error code"/>
++    </event>
++
++    <event name="grab_success_event" since="5">
++      <description summary="Report subscription success">
++        A previous accelerator grab request has succeeded.
++      </description>
++      <arg name="accelerator" type="string" summary="The subscribed accelerator"/>
++      <arg name="action_id" type="uint" summary="The id that has been assigned to the accelerator"/>
++    </event>
++
++    <request name="grab_accelerator_request" since="5">
++      <description summary="Subscribe to an accelerator">
++        Client subscribes to a specific accelerator.
++      </description>
++      <arg name="accelerator" type="string" summary="The accelerator string (with modifiers)"/>
++    </request>
++
++    <event name="ungrab_failed_event" since="5">
++      <description summary="Report unsubscription failure">
++        A previous accelerator ungrab request has failed.
++      </description>
++      <arg name="action_id" type="uint" summary="The failed action"/>
++      <arg name="error" type="uint" summary="The error code"/>
++    </event>
++
++    <event name="ungrab_success_event" since="5">
++      <description summary="Report unsubscription success">
++        A previous accelerator ungrab request has suceeded.
++      </description>
++      <arg name="action" type="uint" summary="The unsubscribed action"/>
++    </event>
++
++    <request name="ungrab_accelerator_request" since="5">
++      <description summary="Unsubscribe to an accelerator">
++        Client unsubscribes a specific accelerator"
++      </description>
++      <arg name="action_id" type="uint" summary="The action to unsubscribe"/>
++    </request>
++
++    <request name="destroy" type="destructor" since="5">
++      <description summary="destroy the keyboard_event interface instance"/>
++    </request>
+   </interface>
+ 
+   <!-- application switch/close handling -->
+diff --git a/src/keyboard-events.c b/src/keyboard-events.c
+new file mode 100644
+index 00000000..d1a69355
+--- /dev/null
++++ b/src/keyboard-events.c
+@@ -0,0 +1,223 @@
++/*
++ * Copyright (C) 2020 Evangelos Ribeiro Tzaras
++ * SPDX-License-Identifier: GPL-3.0+
++ * Author: Evangelos Ribeiro Tzaras <devrtz@fortysixandtwo.eu>
++ */
++
++#define G_LOG_DOMAIN "phosh-keyboard-events"
++
++#include "keyboard-events.h"
++#include "wlr-screencopy-unstable-v1-client-protocol.h"
++#include "phosh-private-client-protocol.h"
++#include "phosh-wayland.h"
++
++/**
++ * SECTION:keyboard-events
++ * @short_description: Grabs and manages special keyboard events
++ * @Title: PhoshKeyboardEvents
++ */
++
++enum {
++  PROP_0,
++  PROP_LAST_PROP,
++};
++//static GParamSpec *props[PROP_LAST_PROP];
++
++enum {
++  SIGNAL_ACCELERATOR_ACTIVATED,
++  SIGNAL_ACCELERATOR_GRABBED,
++  N_SIGNALS,
++};
++static guint signals[N_SIGNALS] = { 0 };
++
++struct _PhoshKeyboardEvents {
++  GObject parent;
++
++  struct phosh_private_keyboard_event *kbevent;
++
++};
++
++static void initable_iface_init (GInitableIface *iface);
++
++G_DEFINE_TYPE_WITH_CODE (PhoshKeyboardEvents, phosh_keyboard_events, G_TYPE_OBJECT,
++                         G_IMPLEMENT_INTERFACE(G_TYPE_INITABLE, initable_iface_init));
++
++
++static void
++handle_accelerator_activated_event (void *data,
++                                    struct phosh_private_keyboard_event *kbevent,
++                                    uint32_t action_id,
++                                    uint32_t timestamp)
++{
++  PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (data);
++  g_debug ("incoming action! %d", action_id);
++  /** Emitting a signal allows other "modules" to connect to a signal
++   *  and take appropriate action (f.e. change the volume)
++   */
++
++  g_signal_emit (self,
++                 signals[SIGNAL_ACCELERATOR_ACTIVATED],
++                 0,
++                 action_id,
++                 timestamp);
++}
++
++static void
++handle_grab_failed_event (void *data,
++                          struct phosh_private_keyboard_event *kbevent,
++                          const char *accelerator,
++                          uint32_t error)
++{
++  switch ((enum phosh_private_keyboard_event_error) error) {
++  case PHOSH_PRIVATE_KEYBOARD_EVENT_ERROR_ALREADY_SUBSCRIBED:
++    g_warning ("Already subscribed to accelerator %s\n", accelerator);
++    break;
++  case PHOSH_PRIVATE_KEYBOARD_EVENT_ERROR_INVALID_KEYSYM:
++    g_warning ("Accelerator %s not subscribeable\n", accelerator);
++    break;
++  case PHOSH_PRIVATE_KEYBOARD_EVENT_ERROR_MISC_ERROR:
++  case PHOSH_PRIVATE_KEYBOARD_EVENT_ERROR_INVALID_ARGUMENT:
++  default:
++    g_warning ("Unknown error %d trying to subscribe accelerator %s\n", error, accelerator);
++  }
++}
++
++static void
++handle_grab_success_event (void *data,
++                           struct phosh_private_keyboard_event *kbevent,
++                           const char *accelerator,
++                           uint32_t action_id)
++{
++  PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (data);
++  g_signal_emit (self,
++                 signals[SIGNAL_ACCELERATOR_GRABBED],
++                 0,
++                 accelerator,
++                 action_id);
++}
++
++static const struct phosh_private_keyboard_event_listener keyboard_event_listener = {
++  .accelerator_activated_event = handle_accelerator_activated_event,
++  .grab_failed_event = handle_grab_failed_event,
++  .grab_success_event = handle_grab_success_event,
++};
++
++static gboolean
++initable_init (GInitable    *initable,
++               GCancellable *cancelable,
++               GError      **error)
++{
++  struct phosh_private *phosh_private;
++  PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (initable);
++
++  phosh_private = phosh_wayland_get_phosh_private (
++    phosh_wayland_get_default ());
++
++  if (!phosh_private) {
++    g_warning ("Skipping grab manager due to missing phosh_private protocol extension");
++    g_set_error (error,
++                 G_IO_ERROR, G_IO_ERROR_FAILED,
++                 "Missing phosh_private protocol extension!");
++    return FALSE;
++  }
++
++  if (phosh_private_get_version (phosh_private) < 5) {
++    g_warning ("Skipping grab manager due to mismatch of phosh_private protocol version");
++    g_set_error (error,
++                 G_IO_ERROR, G_IO_ERROR_FAILED,
++                 "Protocol version mismatch. Need 5, got %d",
++                 phosh_private_get_version (phosh_private));
++    return FALSE;
++  }
++
++  if ((self->kbevent = phosh_private_get_keyboard_event (phosh_private)) == NULL) {
++    g_warning ("Skipping grab manager because of an unknown phosh_private protocol error");
++    g_set_error (error,
++                 G_IO_ERROR, G_IO_ERROR_FAILED,
++                 "Unknown protocol error (Running out of memory?)");
++    return FALSE;
++  }
++
++  phosh_private_keyboard_event_add_listener (self->kbevent, &keyboard_event_listener, self);
++
++  return TRUE;
++}
++
++static void
++initable_iface_init (GInitableIface *iface)
++{
++  iface->init = initable_init;
++}
++
++static void
++phosh_keyboard_events_dispose (GObject *object)
++{
++  PhoshKeyboardEvents *self = PHOSH_KEYBOARD_EVENTS (object);
++  g_clear_pointer(&self->kbevent, phosh_private_keyboard_event_destroy);
++
++  G_OBJECT_CLASS (phosh_keyboard_events_parent_class)->dispose (object);
++}
++
++
++static void
++phosh_keyboard_events_class_init (PhoshKeyboardEventsClass *klass)
++{
++  GObjectClass *object_class = G_OBJECT_CLASS (klass);
++
++  object_class->dispose = phosh_keyboard_events_dispose;
++
++  /**
++   * PhoshKeyboardEvents::keypress:
++   * @kbevent: The #PhoshKeyboardEvents emitting the signal.
++   * @action_id: The id of the forwarded action
++   * @timestamp: The timestamp when the key has been pressed
++   *
++   * Emitted whenever a subscribed accelerator/action has been received
++   */
++  signals[SIGNAL_ACCELERATOR_ACTIVATED] = g_signal_new (
++    "accelerator-activated",
++    G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST, 0, NULL, NULL,
++    NULL, G_TYPE_NONE, 2, G_TYPE_UINT, G_TYPE_UINT);
++
++  /**
++   * PhoshKeyboardEvents::accelerator-grabbed:
++   * @kbevent: The #PhoshKeyboardEvents emitting the signal.
++   * @accelerator: The accelerator which has been grabbed
++   * @action_id: The assigned id of the accelerator
++   *
++   * Emitted whenever an accelerator subscription has been successfull
++   */
++
++  signals[SIGNAL_ACCELERATOR_GRABBED] = g_signal_new (
++    "accelerator-grabbed",
++    G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST, 0, NULL, NULL,
++    NULL, G_TYPE_NONE, 2, G_TYPE_STRING, G_TYPE_UINT);
++
++}
++
++void
++phosh_keyboard_events_register_keys (PhoshKeyboardEvents *self,
++                                     gchar              **accelerators,
++                                     size_t               len)
++{
++  g_return_if_fail (self->kbevent);
++
++  for (size_t i = 0; i < len; ++i) {
++    phosh_private_keyboard_event_grab_accelerator_request (self->kbevent, accelerators[i]);
++  }
++}
++
++static void
++phosh_keyboard_events_init (PhoshKeyboardEvents *self)
++{
++}
++
++PhoshKeyboardEvents *
++phosh_keyboard_events_new (void)
++{
++  g_autoptr (GError) err = NULL;
++  return g_initable_new (PHOSH_TYPE_KEYBOARD_EVENTS,
++                         NULL,
++                         &err,
++                         NULL);
++}
+diff --git a/src/keyboard-events.h b/src/keyboard-events.h
+new file mode 100644
+index 00000000..e1efe840
+--- /dev/null
++++ b/src/keyboard-events.h
+@@ -0,0 +1,23 @@
++/*
++ * Copyright (C) 2020 Evangelos Ribeiro Tzaras
++ * SPDX-License-Identifier: GPL-3.0+
++ * Author: Evangelos Ribeiro Tzaras <devrtz@fortysixandtwo.eu>
++ */
++
++#pragma once
++
++#include <stdint.h>
++#include <gtk/gtk.h>
++
++#define PHOSH_TYPE_KEYBOARD_EVENTS (phosh_keyboard_events_get_type ())
++
++G_DECLARE_FINAL_TYPE (PhoshKeyboardEvents,
++                      phosh_keyboard_events,
++                      PHOSH,
++                      KEYBOARD_EVENTS,
++                      GObject)
++
++PhoshKeyboardEvents  *phosh_keyboard_events_new           (void);
++void                  phosh_keyboard_events_register_keys (PhoshKeyboardEvents *self,
++                                                           gchar              **keys,
++                                                           size_t               len);
+diff --git a/src/meson.build b/src/meson.build
+index d528d932..6266914b 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -100,6 +100,8 @@ libphosh_sources = [
+   'feedbackinfo.h',
+   'home.c',
+   'home.h',
++  'keyboard-events.c',
++  'keyboard-events.h',
+   'idle-manager.c',
+   'idle-manager.h',
+   'lockscreen-manager.c',
+@@ -202,3 +204,4 @@ phosh = executable('phosh', ['main.c', libphosh_sources],
+   dependencies: phosh_tool_dep,
+   install: true,
+   install_dir: libexecdir)
++
+diff --git a/src/phosh-wayland.c b/src/phosh-wayland.c
+index ed11341b..365ac79a 100644
+--- a/src/phosh-wayland.c
++++ b/src/phosh-wayland.c
+@@ -71,7 +71,7 @@ registry_handle_global (void *data,
+       registry,
+       name,
+       &phosh_private_interface,
+-      MIN(4, version));
++      MIN(5, version));
+   } else if (!strcmp (interface, zwlr_layer_shell_v1_interface.name)) {
+     priv->layer_shell = wl_registry_bind (
+       registry,
+diff --git a/src/settings.c b/src/settings.c
+index d71e64b7..bd390c97 100644
+--- a/src/settings.c
++++ b/src/settings.c
+@@ -22,17 +22,21 @@
+ #include "notifications/notify-manager.h"
+ #include "notifications/notification-frame.h"
+ #include "media-player.h"
++#include "keyboard-events.h"
+ 
+ #include <pulse/pulseaudio.h>
+ #include "gvc-mixer-control.h"
+ #include "gvc-mixer-stream.h"
+ #include <gio/gdesktopappinfo.h>
++#include <xkbcommon/xkbcommon.h>
+ 
+ #include <math.h>
+ 
+ #define LIBFEEDBACK_USE_UNSTABLE_API
+ #include <libfeedback.h>
+ 
++#define VOLUME_SCALE 5
++
+ /**
+  * SECTION:settings
+  * @short_description: The settings menu
+@@ -64,6 +68,10 @@ typedef struct _PhoshSettings
+   GtkWidget *list_notifications;
+   GtkWidget *sw_notifications;
+   LfbEvent  *notify_event;
++
++  /* KeyboardEvents */
++  PhoshKeyboardEvents *keyboard_events;
++  GHashTable *accelerator_callbacks;
+ } PhoshSettings;
+ 
+ 
+@@ -79,7 +87,6 @@ brightness_value_changed_cb (GtkScale *scale_brightness, gpointer *unused)
+   brightness_set (brightness);
+ }
+ 
+-
+ static void
+ rotation_setting_clicked_cb (PhoshSettings *self)
+ {
+@@ -141,6 +148,64 @@ battery_setting_clicked_cb (PhoshSettings *self)
+   g_signal_emit (self, signals[SETTING_DONE], 0);
+ }
+ 
++static void change_volume (PhoshSettings *self,
++                           gint steps)
++{
++  GtkAdjustment *adj;
++  gdouble vol, inc;
++
++  adj = GTK_ADJUSTMENT (gvc_channel_bar_get_adjustment (GVC_CHANNEL_BAR (self->output_vol_bar)));
++
++  vol = gtk_adjustment_get_value (adj);
++  inc = gtk_adjustment_get_step_increment (adj);
++
++  vol += steps * inc * VOLUME_SCALE;
++
++  g_debug ("Setting volume to %f", vol);
++
++  gtk_adjustment_set_value (adj, vol);
++}
++
++static void lower_volume (PhoshSettings *self)
++{
++  change_volume (self, -1);
++}
++
++static void raise_volume (PhoshSettings *self)
++{
++  change_volume (self, 1);
++}
++
++static void
++accelerator_grabbed_cb (PhoshSettings *self,
++                        const gchar *accelerator,
++                        uint32_t action_id)
++{
++  guint64 action = action_id;
++  if (g_strcmp0 (accelerator, "XF86AudioLowerVolume") == 0) {
++    g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) lower_volume);
++  }
++  else if (g_strcmp0 (accelerator, "XF86AudioRaiseVolume") == 0) {
++     g_hash_table_insert (self->accelerator_callbacks, (gpointer) action, (gpointer) raise_volume);
++  }
++}
++
++static void
++accelerator_activated_cb (PhoshSettings *self,
++                          uint32_t action_id,
++                          uint32_t timestamp)
++{
++  void (*callback)(PhoshSettings *);
++  guint64 action = action_id;
++  g_return_if_fail (PHOSH_IS_SETTINGS (self));
++  callback = g_hash_table_lookup (self->accelerator_callbacks, (gpointer) action);
++  if (callback == NULL) {
++    g_warning ("No callback for action %d", action_id);
++    return;
++  }
++  callback (self);
++}
++
+ static void
+ update_output_vol_bar (PhoshSettings *self)
+ {
+@@ -383,6 +448,13 @@ phosh_settings_dispose (GObject *object)
+     g_clear_object (&self->notify_event);
+   }
+ 
++  if (self->accelerator_callbacks != NULL)
++  {
++    g_hash_table_remove_all (self->accelerator_callbacks);
++    g_hash_table_unref (self->accelerator_callbacks);
++    self->accelerator_callbacks = NULL;
++  }
++
+   G_OBJECT_CLASS (phosh_settings_parent_class)->dispose (object);
+ }
+ 
+@@ -442,9 +514,35 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+ static void
+ phosh_settings_init (PhoshSettings *self)
+ {
++  gchar *subscribe_accelerators[] = {
++    "XF86AudioLowerVolume",
++    "XF86AudioRaiseVolume",
++    "XF86AudioMute",
++  };
++
+   self->notify_event = lfb_event_new ("message-missed-notification");
+ 
+   gtk_widget_init_template (GTK_WIDGET (self));
++
++  self->keyboard_events = phosh_keyboard_events_new ();
++
++  if (!self->keyboard_events)
++    return;
++
++  self->accelerator_callbacks = g_hash_table_new (g_direct_hash, g_direct_equal);
++
++  phosh_keyboard_events_register_keys (self->keyboard_events,
++                                       subscribe_accelerators,
++                                       G_N_ELEMENTS (subscribe_accelerators));
++  g_signal_connect_swapped (self->keyboard_events,
++                            "accelerator-activated",
++                            G_CALLBACK (accelerator_activated_cb),
++                            self);
++  g_signal_connect_swapped (self->keyboard_events,
++                            "accelerator-grabbed",
++                            G_CALLBACK (accelerator_grabbed_cb),
++                            self);
++
+ }
+ 
+ GtkWidget *
+-- 
+2.26.2
+
