@@ -1,0 +1,820 @@
+From 6d828c6dcd3f69eeeab1292074073f6468250058 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Tue, 23 Jun 2020 14:05:57 +0200
+Subject: [PATCH 1/3] Add rotation-manager
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This interfaces with lockscreen, iio-sensor-proxy and
+gsettings to figure out the correct screen orientation.
+
+We wire it up in the shell as a property so e.g. widgets
+have a chance to connect later on. This helps to break
+initial dependency cycles.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ docs/phosh-docs.xml    |   1 +
+ src/meson.build        |   2 +
+ src/rotation-manager.c | 383 +++++++++++++++++++++++++++++++++++++++++
+ src/rotation-manager.h |  23 +++
+ src/shell.c            |  30 +++-
+ src/shell.h            |   2 +
+ 6 files changed, 440 insertions(+), 1 deletion(-)
+ create mode 100644 src/rotation-manager.c
+ create mode 100644 src/rotation-manager.h
+
+diff --git a/docs/phosh-docs.xml b/docs/phosh-docs.xml
+index 1621049b..61101609 100644
+--- a/docs/phosh-docs.xml
++++ b/docs/phosh-docs.xml
+@@ -77,6 +77,7 @@
+       <xi:include href="xml/proximity.xml"/>
+       <xi:include href="xml/quick-setting.xml"/>
+       <xi:include href="xml/rotateinfo.xml"/>
++      <xi:include href="xml/rotation-manager.xml"/>
+       <xi:include href="xml/screen-saver-manager.xml"/>
+       <xi:include href="xml/sensor-proxy-manager.xml"/>
+       <xi:include href="xml/session.xml"/>
+diff --git a/src/meson.build b/src/meson.build
+index d528d932..2e8a9ee3 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -120,6 +120,8 @@ libphosh_sources = [
+   'polkit-auth-prompt.h',
+   'proximity.h',
+   'proximity.c',
++  'rotation-manager.h',
++  'rotation-manager.c',
+   'sensor-proxy-manager.c',
+   'sensor-proxy-manager.h',
+   'rotateinfo.c',
+diff --git a/src/rotation-manager.c b/src/rotation-manager.c
+new file mode 100644
+index 00000000..298e662c
+--- /dev/null
++++ b/src/rotation-manager.c
+@@ -0,0 +1,383 @@
++/*
++ * Copyright (C) 2020 Purism SPC
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ * Author: Guido Günther <agx@sigxcpu.org>
++ */
++
++#define G_LOG_DOMAIN "phosh-rotation-manager"
++
++#include "config.h"
++#include "rotation-manager.h"
++#include "shell.h"
++#include "sensor-proxy-manager.h"
++#include "util.h"
++
++#define ORIENTATION_LOCK_SCHEMA_ID "org.gnome.settings-daemon.peripherals.touchscreen"
++#define ORIENTATION_LOCK_KEY       "orientation-lock"
++
++/**
++ * SECTION:rotation-manager
++ * @short_description: The Rotation Manager
++ * @Title: PhoshRotationManager
++ *
++ * #PhoshRotationManager is responsible for interfacing with
++ * #PhoshSensorProxyManager to set the correct orientation of the *
++ * #built-in display taking the #PhoshLockscreenManager's
++ * #PhoshLockscreenManager:locked status and the orientation-lock
++ * #GSetting into account.
++ */
++
++enum {
++  PROP_0,
++  PROP_SENSOR_PROXY_MANAGER,
++  PROP_LOCKSCREEN_MANAGER,
++  PROP_ORIENTATION_LOCKED,
++  LAST_PROP,
++};
++static GParamSpec *props[LAST_PROP];
++
++typedef struct _PhoshRotationManager {
++  GObject                  parent;
++
++  gboolean                 claimed;
++  PhoshSensorProxyManager *sensor_proxy_manager;
++  PhoshLockscreenManager  *lockscreen_manager;
++
++  GSettings               *settings;
++  gboolean                 orientation_locked;
++} PhoshRotationManager;
++
++G_DEFINE_TYPE (PhoshRotationManager, phosh_rotation_manager, G_TYPE_OBJECT);
++
++/**
++ * match_orientation:
++ * @self: The #PhoshRotationManager
++ *
++ * Match the screen orientation to the sensor output.
++ * Do nothing if orientation lock is on or there's no
++ * sensor claimed.
++ */
++static void
++match_orientation (PhoshRotationManager *self)
++{
++  PhoshShell *shell = phosh_shell_get_default ();
++  const gchar *orient;
++  gint degree = 0;
++
++  orient = phosh_dbus_sensor_proxy_get_accelerometer_orientation (
++    PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
++
++  g_debug ("Orientation changed: %s, locked: %d, claimed: %d",
++           orient, self->orientation_locked, self->claimed);
++
++  if (self->orientation_locked || !self->claimed)
++    return;
++
++  if (!g_strcmp0 ("normal", orient)) {
++    degree = 0;
++  } else if (!g_strcmp0 ("right-up", orient)) {
++    degree = 90;
++  } else if (!g_strcmp0 ("bottom-up", orient)) {
++    degree = 180;
++  } else if (!g_strcmp0 ("left-up", orient)) {
++    degree = 270;
++  }
++  phosh_shell_rotate_display (shell, degree);
++}
++
++static void
++on_accelerometer_claimed (PhoshSensorProxyManager *sensor_proxy_manager,
++                          GAsyncResult            *res,
++                          PhoshRotationManager    *self)
++{
++  g_autoptr (GError) err = NULL;
++  gboolean success;
++
++  g_return_if_fail (PHOSH_IS_SENSOR_PROXY_MANAGER (sensor_proxy_manager));
++  g_return_if_fail (PHOSH_IS_ROTATION_MANAGER (self));
++  g_return_if_fail (sensor_proxy_manager == self->sensor_proxy_manager);
++
++  success = phosh_dbus_sensor_proxy_call_claim_accelerometer_finish (
++    PHOSH_DBUS_SENSOR_PROXY (sensor_proxy_manager),
++    res, &err);
++  if (success) {
++    g_debug ("Claimed accelerometer");
++    self->claimed = TRUE;
++  } else {
++    g_warning ("Failed to claim accelerometer: %s", err->message);
++  }
++  match_orientation (self);
++  g_object_unref (self);
++}
++
++static void
++on_accelerometer_released (PhoshSensorProxyManager *sensor_proxy_manager,
++                           GAsyncResult            *res,
++                           PhoshRotationManager    *self)
++{
++  g_autoptr (GError) err = NULL;
++  gboolean success;
++
++  g_return_if_fail (PHOSH_IS_SENSOR_PROXY_MANAGER (sensor_proxy_manager));
++  g_return_if_fail (PHOSH_IS_ROTATION_MANAGER (self));
++  g_return_if_fail (sensor_proxy_manager == self->sensor_proxy_manager);
++
++  success = phosh_dbus_sensor_proxy_call_release_accelerometer_finish (
++    PHOSH_DBUS_SENSOR_PROXY (sensor_proxy_manager),
++    res, &err);
++  if (success) {
++    g_debug ("Released rotation sensor");
++    self->claimed = FALSE;
++  } else {
++    g_warning ("Failed to release rotation sensor: %s", err->message);
++  }
++  g_object_unref (self);
++}
++
++static void
++phosh_rotation_manager_claim_accelerometer (PhoshRotationManager *self, gboolean claim)
++{
++  if (claim == self->claimed)
++    return;
++
++  if (claim) {
++    phosh_dbus_sensor_proxy_call_claim_accelerometer (
++      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager),
++      NULL,
++      (GAsyncReadyCallback)on_accelerometer_claimed,
++      g_object_ref (self));
++  } else {
++    phosh_dbus_sensor_proxy_call_release_accelerometer (
++      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager),
++      NULL,
++      (GAsyncReadyCallback)on_accelerometer_released,
++      g_object_ref (self));
++  }
++}
++
++static void
++on_has_accelerometer_changed (PhoshRotationManager    *self,
++                              GParamSpec              *pspec,
++                              PhoshSensorProxyManager *proxy)
++{
++  gboolean has_accel;
++
++  /* Don't claim on screen lock, enables runtime pm */
++  if (phosh_lockscreen_manager_get_locked (self->lockscreen_manager))
++    return;
++
++  has_accel = phosh_dbus_sensor_proxy_get_has_accelerometer (
++    PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager));
++
++  g_debug ("Found %s accelerometer", has_accel ? "a" : "no");
++  phosh_rotation_manager_claim_accelerometer (self, has_accel);
++}
++
++static void
++on_lockscreen_manager_locked (PhoshRotationManager *self, GParamSpec *pspec,
++                              PhoshLockscreenManager *lockscreen_manager)
++{
++  gboolean locked;
++
++  g_return_if_fail (PHOSH_IS_ROTATION_MANAGER (self));
++  g_return_if_fail (PHOSH_IS_LOCKSCREEN_MANAGER (lockscreen_manager));
++
++  locked = phosh_lockscreen_manager_get_locked (self->lockscreen_manager);
++  phosh_rotation_manager_claim_accelerometer (self, !locked);
++}
++
++static void
++on_accelerometer_orientation_changed (PhoshRotationManager    *self,
++                                      GParamSpec              *pspec,
++                                      PhoshSensorProxyManager *sensor)
++{
++  g_return_if_fail (PHOSH_IS_ROTATION_MANAGER (self));
++  g_return_if_fail (self->sensor_proxy_manager == sensor);
++
++  match_orientation (self);
++}
++
++static void
++phosh_rotation_manager_set_property (GObject      *object,
++                                     guint         property_id,
++                                     const GValue *value,
++                                     GParamSpec   *pspec)
++{
++  PhoshRotationManager *self = PHOSH_ROTATION_MANAGER (object);
++
++  switch (property_id) {
++  case PROP_SENSOR_PROXY_MANAGER:
++    /* construct only */
++    self->sensor_proxy_manager = g_value_dup_object (value);
++    break;
++  case PROP_LOCKSCREEN_MANAGER:
++    /* construct only */
++    self->lockscreen_manager = g_value_dup_object (value);
++    break;
++  case PROP_ORIENTATION_LOCKED:
++    phosh_rotation_manager_set_orientation_locked (self,
++                                                   g_value_get_boolean (value));
++    break;
++  default:
++    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
++    break;
++  }
++}
++
++static void
++phosh_rotation_manager_get_property (GObject    *object,
++                                     guint       property_id,
++                                     GValue     *value,
++                                     GParamSpec *pspec)
++{
++  PhoshRotationManager *self = PHOSH_ROTATION_MANAGER (object);
++
++  switch (property_id) {
++  case PROP_SENSOR_PROXY_MANAGER:
++    g_value_set_object (value, self->sensor_proxy_manager);
++    break;
++  case PROP_LOCKSCREEN_MANAGER:
++    g_value_set_object (value, self->lockscreen_manager);
++    break;
++  case PROP_ORIENTATION_LOCKED:
++    g_value_set_boolean (value, self->orientation_locked);
++    break;
++  default:
++    G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
++    break;
++  }
++}
++
++static void
++phosh_rotation_manager_constructed (GObject *object)
++{
++  PhoshRotationManager *self = PHOSH_ROTATION_MANAGER (object);
++
++  g_signal_connect_swapped (self->lockscreen_manager,
++                            "notify::locked",
++                            (GCallback) on_lockscreen_manager_locked,
++                            self);
++
++  g_signal_connect_swapped (self->sensor_proxy_manager,
++                            "notify::accelerometer-orientation",
++                            (GCallback) on_accelerometer_orientation_changed,
++                            self);
++
++  g_signal_connect_swapped (self->sensor_proxy_manager,
++                            "notify::has-accelerometer",
++                            (GCallback) on_has_accelerometer_changed,
++                            self);
++  on_has_accelerometer_changed (self, NULL, self->sensor_proxy_manager);
++
++  self->settings = g_settings_new (ORIENTATION_LOCK_SCHEMA_ID);
++
++  g_settings_bind (self->settings,
++                   ORIENTATION_LOCK_KEY,
++                   self,
++                   "orientation-locked",
++                   G_BINDING_SYNC_CREATE
++                   | G_BINDING_BIDIRECTIONAL);
++
++  G_OBJECT_CLASS (phosh_rotation_manager_parent_class)->constructed (object);
++}
++
++static void
++phosh_rotation_manager_dispose (GObject *object)
++{
++  PhoshRotationManager *self = PHOSH_ROTATION_MANAGER (object);
++
++  g_clear_object (&self->settings);
++
++  if (self->sensor_proxy_manager) {
++    g_signal_handlers_disconnect_by_data (self->sensor_proxy_manager,
++                                          self);
++    /* Sync call since we're going away */
++    phosh_dbus_sensor_proxy_call_release_accelerometer_sync (
++      PHOSH_DBUS_SENSOR_PROXY (self->sensor_proxy_manager), NULL, NULL);
++    g_clear_object (&self->sensor_proxy_manager);
++  }
++
++  if (self->lockscreen_manager) {
++    g_signal_handlers_disconnect_by_data (self->lockscreen_manager,
++                                          self);
++    g_clear_object (&self->lockscreen_manager);
++  }
++
++  G_OBJECT_CLASS (phosh_rotation_manager_parent_class)->dispose (object);
++}
++
++static void
++phosh_rotation_manager_class_init (PhoshRotationManagerClass *klass)
++{
++  GObjectClass *object_class = (GObjectClass *)klass;
++
++  object_class->constructed = phosh_rotation_manager_constructed;
++  object_class->dispose = phosh_rotation_manager_dispose;
++
++  object_class->set_property = phosh_rotation_manager_set_property;
++  object_class->get_property = phosh_rotation_manager_get_property;
++
++  props[PROP_SENSOR_PROXY_MANAGER] =
++    g_param_spec_object (
++      "sensor-proxy-manager",
++      "Sensor proxy manager",
++      "The object inerfacing with iio-sensor-proxy",
++      PHOSH_TYPE_SENSOR_PROXY_MANAGER,
++      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
++
++  props[PROP_LOCKSCREEN_MANAGER] =
++    g_param_spec_object (
++      "lockscreen-manager",
++      "Lockscren manager",
++      "The object managing the lock screen",
++      PHOSH_TYPE_LOCKSCREEN_MANAGER,
++      G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
++
++  props[PROP_ORIENTATION_LOCKED] =
++    g_param_spec_boolean (
++      "orientation-locked",
++      "Screen orientation locked",
++      "Whether the screen orientation is locked",
++      TRUE,
++      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
++
++  g_object_class_install_properties (object_class, LAST_PROP, props);
++
++}
++
++static void
++phosh_rotation_manager_init (PhoshRotationManager *self)
++{
++}
++
++
++PhoshRotationManager *
++phosh_rotation_manager_new (PhoshSensorProxyManager *sensor_proxy_manager,
++                            PhoshLockscreenManager  *lockscreen_manager)
++{
++  return g_object_new (PHOSH_TYPE_ROTATION_MANAGER,
++                       "sensor-proxy-manager", sensor_proxy_manager,
++                       "lockscreen-manager", lockscreen_manager,
++                       NULL);
++}
++
++void
++phosh_rotation_manager_set_orientation_locked (PhoshRotationManager *self, gboolean locked)
++{
++  g_return_if_fail (PHOSH_IS_ROTATION_MANAGER (self));
++
++  if (locked == self->orientation_locked)
++    return;
++
++  self->orientation_locked = locked;
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ORIENTATION_LOCKED]);
++  match_orientation (self);
++}
++
++gboolean
++phosh_rotation_manager_get_orientation_locked (PhoshRotationManager *self)
++{
++  g_return_val_if_fail (PHOSH_IS_ROTATION_MANAGER (self), TRUE);
++
++  return self->orientation_locked;
++}
+diff --git a/src/rotation-manager.h b/src/rotation-manager.h
+new file mode 100644
+index 00000000..04ebf1f5
+--- /dev/null
++++ b/src/rotation-manager.h
+@@ -0,0 +1,23 @@
++/*
++ * Copyright (C) 2020 Purism SPC
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++#pragma once
++
++#include "lockscreen-manager.h"
++#include "sensor-proxy-manager.h"
++
++G_BEGIN_DECLS
++
++#define PHOSH_TYPE_ROTATION_MANAGER (phosh_rotation_manager_get_type ())
++
++G_DECLARE_FINAL_TYPE (PhoshRotationManager, phosh_rotation_manager, PHOSH, ROTATION_MANAGER, GObject);
++
++PhoshRotationManager *phosh_rotation_manager_new (PhoshSensorProxyManager *sensor_proxy_manager,
++                                                  PhoshLockscreenManager  *lockscreen_manager);
++void                  phosh_rotation_manager_set_orientation_locked (PhoshRotationManager *self,
++                                                                     gboolean              locked);
++gboolean              phosh_rotation_manager_get_orientation_locked (PhoshRotationManager *self);
++
++G_END_DECLS
+diff --git a/src/shell.c b/src/shell.c
+index d316b24c..b9063fff 100644
+--- a/src/shell.c
++++ b/src/shell.c
+@@ -38,6 +38,7 @@
+ #include "phosh-wayland.h"
+ #include "polkit-auth-agent.h"
+ #include "proximity.h"
++#include "rotation-manager.h"
+ #include "sensor-proxy-manager.h"
+ #include "screen-saver-manager.h"
+ #include "session.h"
+@@ -63,6 +64,7 @@ enum {
+   PHOSH_SHELL_PROP_ROTATION,
+   PHOSH_SHELL_PROP_LOCKED,
+   PHOSH_SHELL_PROP_PRIMARY_MONITOR,
++  PHOSH_SHELL_PROP_ROTATION_MANAGER,
+   PHOSH_SHELL_PROP_LAST_PROP
+ };
+ static GParamSpec *props[PHOSH_SHELL_PROP_LAST_PROP];
+@@ -93,6 +95,7 @@ typedef struct
+   /* sensors */
+   PhoshSensorProxyManager *sensor_proxy_manager;
+   PhoshProximity *proximity;
++  PhoshRotationManager *rotation_manager;
+ 
+   gboolean startup_finished;
+   gint rot; /* current rotation of primary monitor */
+@@ -304,6 +307,9 @@ phosh_shell_get_property (GObject *object,
+   case PHOSH_SHELL_PROP_PRIMARY_MONITOR:
+     g_value_set_object (value, phosh_shell_get_primary_monitor (self));
+     break;
++  case PHOSH_SHELL_PROP_ROTATION_MANAGER:
++    g_value_set_object (value, phosh_shell_get_rotation_manager (self));
++    break;
+   default:
+     G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+     break;
+@@ -337,6 +343,7 @@ phosh_shell_dispose (GObject *object)
+   g_clear_object (&priv->polkit_auth_agent);
+   g_clear_object (&priv->background_manager);
+   g_clear_object (&priv->proximity);
++  g_clear_object (&priv->rotation_manager);
+   g_clear_object (&priv->sensor_proxy_manager);
+   g_clear_object (&priv->feedback_manager);
+   g_clear_object (&priv->primary_monitor);
+@@ -457,7 +464,9 @@ setup_idle_cb (PhoshShell *self)
+   if (priv->sensor_proxy_manager) {
+     priv->proximity = phosh_proximity_new (priv->sensor_proxy_manager,
+                                            priv->lockscreen_manager);
+-    /* TODO: accelerometer */
++    priv->rotation_manager = phosh_rotation_manager_new (priv->sensor_proxy_manager,
++                                                         priv->lockscreen_manager);
++    g_object_notify_by_pspec (G_OBJECT (self), props[PHOSH_SHELL_PROP_ROTATION_MANAGER]);
+   }
+ 
+   phosh_session_register (PHOSH_APP_ID);
+@@ -607,6 +616,13 @@ phosh_shell_class_init (PhoshShellClass *klass)
+                          PHOSH_TYPE_MONITOR,
+                          G_PARAM_READWRITE | G_PARAM_EXPLICIT_NOTIFY);
+ 
++  props[PHOSH_SHELL_PROP_ROTATION_MANAGER] =
++    g_param_spec_object ("rotation-manager",
++                         "Rotation manager",
++                         "The rotation manager",
++                         PHOSH_TYPE_ROTATION_MANAGER,
++                         G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY);
++
+   g_object_class_install_properties (object_class, PHOSH_SHELL_PROP_LAST_PROP, props);
+ }
+ 
+@@ -837,6 +853,18 @@ phosh_shell_get_feedback_manager (PhoshShell *self)
+   return priv->feedback_manager;
+ }
+ 
++PhoshRotationManager *
++phosh_shell_get_rotation_manager (PhoshShell *self)
++{
++  PhoshShellPrivate *priv;
++
++  g_return_val_if_fail (PHOSH_IS_SHELL (self), NULL);
++  priv = phosh_shell_get_instance_private (self);
++  g_return_val_if_fail (PHOSH_IS_ROTATION_MANAGER (priv->rotation_manager), NULL);
++
++  return priv->rotation_manager;
++}
++
+ /**
+  * Returns the usable area in pixels usable by a client on the phone
+  * display
+diff --git a/src/shell.h b/src/shell.h
+index 3074a611..2fcd0485 100644
+--- a/src/shell.h
++++ b/src/shell.h
+@@ -12,6 +12,7 @@
+ #include "monitor/monitor.h"
+ #include "lockscreen-manager.h"
+ #include "osk-manager.h"
++#include "rotation-manager.h"
+ #include "toplevel-manager.h"
+ #include "wifimanager.h"
+ #include "bt-manager.h"
+@@ -49,6 +50,7 @@ PhoshToplevelManager *phosh_shell_get_toplevel_manager (PhoshShell *self);
+ PhoshWifiManager    *phosh_shell_get_wifi_manager    (PhoshShell *self);
+ PhoshFeedbackManager *phosh_shell_get_feedback_manager (PhoshShell *self);
+ PhoshBtManager      *phosh_shell_get_bt_manager      (PhoshShell *self);
++PhoshRotationManager *phosh_shell_get_rotation_manager (PhoshShell *self);
+ void                 phosh_shell_fade_out (PhoshShell *self, guint timeout);
+ void                 phosh_shell_enable_power_save (PhoshShell *self, gboolean enable);
+ gboolean             phosh_shell_started_by_display_manager(PhoshShell *self);
+-- 
+2.26.2
+
+
+From 28fbcef6e86aa15fa56af9e546197fa268d9c671 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Tue, 23 Jun 2020 14:08:53 +0200
+Subject: [PATCH 2/3] rotateinfo: Display rotation lock instead of orientation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Now that we have orientation information use that instead
+of displaying whether we're rotated or not.
+
+We listen for the shell's rotation-manager property first
+and if that show up connect to `orientation-locked` to
+update the icon status.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/rotateinfo.c | 102 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 65 insertions(+), 37 deletions(-)
+
+diff --git a/src/rotateinfo.c b/src/rotateinfo.c
+index 178d8ba5..18157734 100644
+--- a/src/rotateinfo.c
++++ b/src/rotateinfo.c
+@@ -13,10 +13,10 @@
+ 
+ /**
+  * SECTION:rotateinfo
+- * @short_description: A widget to display the rotate status
++ * @short_description: A widget to display the rotate lock status
+  * @Title: PhoshRotateInfo
+  *
+- * Rotate Info widget
++ * A #PhoshStatusIcon to display the current rotation lock status.
+  */
+ 
+ typedef struct _PhoshRotateInfo {
+@@ -26,61 +26,89 @@ typedef struct _PhoshRotateInfo {
+ 
+ G_DEFINE_TYPE (PhoshRotateInfo, phosh_rotate_info, PHOSH_TYPE_STATUS_ICON)
+ 
+-
+-static void
+-set_state (PhoshRotateInfo *self)
++static gboolean
++binding_set_icon (GBinding        *binding,
++                  const GValue    *from_value,
++                  GValue          *to_value,
++                  PhoshRotateInfo *self)
+ {
+-  PhoshShell *shell = phosh_shell_get_default ();
+-  /* TODO: switch to builtin monitor once we support wlr-output-management */
+-  PhoshMonitor *monitor = phosh_shell_get_primary_monitor (shell);
+-  gboolean monitor_is_landscape;
+-  gboolean portrait = !phosh_shell_get_rotation (shell);
+-
+-  /* If we have a landscape monitor (tv, laptop) flip the rotation */
+-  monitor_is_landscape = ((double)monitor->width / (double)monitor->height) > 1.0;
+-  portrait = monitor_is_landscape ? !portrait : portrait;
+-
+-  g_debug ("Potrait: %d, width: %d, height: %d", portrait, monitor->width , monitor->height);
+-  if (portrait) {
+-    phosh_status_icon_set_icon_name (PHOSH_STATUS_ICON (self), "screen-rotation-portrait-symbolic");
+-    phosh_status_icon_set_info (PHOSH_STATUS_ICON (self), _("Portrait"));
+-  } else {
+-    phosh_status_icon_set_icon_name (PHOSH_STATUS_ICON (self), "screen-rotation-landscape-symbolic");
+-    phosh_status_icon_set_info (PHOSH_STATUS_ICON (self), _("Landscape"));
+-  }
++  gboolean locked = g_value_get_boolean (from_value);
++  const char *icon_name;
++
++  icon_name = locked ? "rotation-locked-symbolic" : "rotation-allowed-symbolic";
++  g_value_set_string (to_value, icon_name);
++
++  return TRUE;
+ }
+ 
++static gboolean
++binding_set_info (GBinding        *binding,
++                  const GValue    *from_value,
++                  GValue          *to_value,
++                  PhoshRotateInfo *self)
+ 
+-static void
+-phosh_rotate_info_finalize (GObject *object)
+ {
+-  PhoshRotateInfo *self = PHOSH_ROTATE_INFO(object);
++  gboolean locked = g_value_get_boolean (from_value);
++  const gchar *info;
+ 
+-  g_signal_handlers_disconnect_by_data (phosh_shell_get_default (), self);
++  /* Translators: Automatic screen orientation is either on (enabled) or off (locked/disabled) */
++  info = locked ? _("Off") : _("On");
++  g_value_set_string (to_value, info);
+ 
+-  G_OBJECT_CLASS (phosh_rotate_info_parent_class)->finalize (object);
++  return TRUE;
+ }
+ 
+-
+ static void
+ phosh_rotate_info_class_init (PhoshRotateInfoClass *klass)
+ {
+-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+-  object_class->finalize = phosh_rotate_info_finalize;
+ }
+ 
++static void
++on_rotation_manager_changed (PhoshRotateInfo *self, GParamSpec *pspec, PhoshShell *shell)
++{
++  PhoshRotationManager *rotation_manager;
++
++  g_return_if_fail (PHOSH_IS_ROTATE_INFO (self));
++  g_return_if_fail (PHOSH_SHELL (shell));
++
++  rotation_manager = phosh_shell_get_rotation_manager (shell);
++  if (!rotation_manager)
++    return;
++
++  g_object_bind_property_full (rotation_manager,
++                               "orientation-locked",
++                               self,
++                               "icon-name",
++                               G_BINDING_SYNC_CREATE
++                               | G_BINDING_DEFAULT,
++                               (GBindingTransformFunc)binding_set_icon,
++                               NULL,
++                               self,
++                               NULL);
++  g_object_bind_property_full (rotation_manager,
++                               "orientation-locked",
++                               self,
++                               "info",
++                               G_BINDING_SYNC_CREATE
++                               | G_BINDING_DEFAULT,
++                               (GBindingTransformFunc)binding_set_info,
++                               NULL,
++                               self,
++                               NULL);
++}
+ 
+ static void
+ phosh_rotate_info_init (PhoshRotateInfo *self)
+ {
+-  g_signal_connect_swapped (phosh_shell_get_default (),
+-                            "notify::rotation",
+-                            G_CALLBACK (set_state),
+-                            self);
+-  set_state (self);
++  /* Rotation manager might not be there when iio-sensor-proxy is missing
++     so only connect to it once valid */
++  g_signal_connect_object (phosh_shell_get_default (),
++                           "notify::rotation-manager",
++                           G_CALLBACK (on_rotation_manager_changed),
++                           self,
++                           G_CONNECT_SWAPPED);
+ }
+ 
+-
+ GtkWidget *
+ phosh_rotate_info_new (void)
+ {
+-- 
+2.26.2
+
+
+From 05f584da2ba38cc6ad0233e0c5ecc9c4fcc22de0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Tue, 23 Jun 2020 14:10:38 +0200
+Subject: [PATCH 3/3] settings: Toggle orientation lock in quick settings
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Instead of just switching landscape and back toggle the
+orientation-lock.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/settings.c          | 16 +++++++++-------
+ src/ui/settings-menu.ui |  2 +-
+ 2 files changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/src/settings.c b/src/settings.c
+index d71e64b7..8fa81012 100644
+--- a/src/settings.c
++++ b/src/settings.c
+@@ -81,15 +81,16 @@ brightness_value_changed_cb (GtkScale *scale_brightness, gpointer *unused)
+ 
+ 
+ static void
+-rotation_setting_clicked_cb (PhoshSettings *self)
++rotation_locked_setting_clicked_cb (PhoshSettings *self)
+ {
+   PhoshShell *shell = phosh_shell_get_default ();
+-  gboolean rotated;
++  PhoshRotationManager *rotation_manager;
++  gboolean locked;
+ 
+-  g_return_if_fail (PHOSH_IS_SETTINGS (self));
+-  rotated = phosh_shell_get_rotation (shell);
+-  phosh_shell_rotate_display (shell, !rotated ? 90 : 0);
+-  g_signal_emit (self, signals[SETTING_DONE], 0);
++  rotation_manager = phosh_shell_get_rotation_manager (shell);
++  g_return_if_fail (rotation_manager);
++  locked = phosh_rotation_manager_get_orientation_locked (rotation_manager);
++  phosh_rotation_manager_set_orientation_locked (rotation_manager, !locked);
+ }
+ 
+ static void
+@@ -429,7 +430,8 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+   gtk_widget_class_bind_template_child (widget_class, PhoshSettings, sw_notifications);
+ 
+   gtk_widget_class_bind_template_callback (widget_class, battery_setting_clicked_cb);
+-  gtk_widget_class_bind_template_callback (widget_class, rotation_setting_clicked_cb);
++  gtk_widget_class_bind_template_callback (widget_class, rotation_locked_setting_clicked_cb);  
++
+   gtk_widget_class_bind_template_callback (widget_class, feedback_setting_clicked_cb);
+   gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
+   gtk_widget_class_bind_template_callback (widget_class, wifi_setting_clicked_cb);
+diff --git a/src/ui/settings-menu.ui b/src/ui/settings-menu.ui
+index a094f376..6d39f837 100644
+--- a/src/ui/settings-menu.ui
++++ b/src/ui/settings-menu.ui
+@@ -94,7 +94,7 @@
+                   <object class="PhoshQuickSetting">
+                     <property name="visible">True</property>
+                     <property name="can_focus">False</property>
+-                    <signal name="clicked" handler="rotation_setting_clicked_cb" object="PhoshSettings" swapped="yes"/>
++                    <signal name="clicked" handler="rotation_locked_setting_clicked_cb" object="PhoshSettings" swapped="yes"/>
+                     <child>
+                       <object class="PhoshRotateInfo" id="rotateinfo">
+                         <property name="visible">True</property>
+-- 
+2.26.2
+
