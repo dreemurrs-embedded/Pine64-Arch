@@ -16,14 +16,11 @@ prepare_suspend() {
 
 	# Braveheart users need this if they want to suspend properly
 	[ -n "$IT_NEVER_CAME_BACK_ON" ] && echo "1c19000.usb" > /sys/bus/platform/drivers/musb-sunxi/unbind
-
-	echo serial0-0 > /sys/bus/serial/drivers/hci_uart_h5/unbind
 }
 
 resume_all() {
 	echo "Resuming the device..."
 	sleep 1
-	echo serial0-0 > /sys/bus/serial/drivers/hci_uart_h5/bind
 
 	# Braveheart users need this if they want to suspend properly
 	[ -n "$IT_NEVER_CAME_BACK_ON" ] && echo "1c19000.usb" > /sys/bus/platform/drivers/musb-sunxi/bind
