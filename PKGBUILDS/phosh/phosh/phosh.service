@@ -1,0 +1,52 @@
+[Unit]
+Description=Phosh, a shell for mobile phones
+Documentation=https://source.puri.sm/Librem5/phosh
+
+# Make sure we are started after logins are permitted.
+After=systemd-user-sessions.service
+# If Plymouth is used, we want to start when it is on its way out.
+After=plymouth-quit-wait.service
+
+# D-Bus is necessary for contacting logind. Logind is required.
+Wants=dbus.socket
+After=dbus.socket
+
+# This scope is created by pam_systemd when logging in as the user.
+# This directive is a workaround to a systemd bug, where the setup of the
+# user session by PAM has some race condition, possibly leading to a failure.
+# See README for more details.
+After=session-c1.scope
+
+# Since we are part of the graphical session, make sure we are started before
+# it is complete.
+Before=graphical.target
+
+# Prevent starting on systems without virtual consoles
+ConditionPathExists=/dev/tty0
+
+[Service]
+ExecStart=/usr/bin/phosh
+TimeoutStartSec=30
+User=1000
+PAMName=login
+WorkingDirectory=~
+Restart=on-failure
+RestartSec=5s
+
+# A virtual terminal is needed.
+TTYPath=/dev/tty7
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+
+# Fail to start if not controlling the tty.
+StandardInput=tty-fail
+StandardOutput=journal
+StandardError=journal
+
+# Log this user with utmp, letting it show up with commands 'w' and 'who'.
+UtmpIdentifier=tty7
+UtmpMode=user
+
+[Install]
+WantedBy=graphical.target
