@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=purple-mm-sms
-pkgver=0.1.5
+pkgver=0.1.7
 pkgrel=0
 pkgdesc="Purple SMS plugin using ModemManager"
 url="https://source.puri.sm/Librem5/purple-mm-sms"
@@ -19,4 +19,4 @@ package() {
     DESTDIR="$pkgdir" make install
 }
 
-md5sums=('37ad99a1540126cfc735d66139ba7925')
+md5sums=('7aae5462bad27227b101bc4244f94887')
