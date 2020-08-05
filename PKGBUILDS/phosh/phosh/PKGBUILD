@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.4.2
-pkgrel=3
+pkgver=0.4.3
+pkgrel=0
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phosh"
@@ -15,8 +15,7 @@ source=("https://source.puri.sm/Librem5/phosh/-/archive/v$pkgver/phosh-v$pkgver.
 	'auto-rotate.patch'
 	'pam_phosh'
 	'sm.puri.OSK0.desktop'
-	'phosh.service'
-	'537.patch')
+	'phosh.service')
 
 prepare() {
 	cd ${pkgname}-v${pkgver}
@@ -24,7 +23,6 @@ prepare() {
 	mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
 
 	# Apply patches
-	patch -p1 -N < ../537.patch
 	patch -p1 -N < ../auto-rotate.patch
 }
 
@@ -44,10 +42,9 @@ package() {
 		"$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
-md5sums=('b18d3baa28df4f95e90d915aa243380f'
+md5sums=('bfb938fe34772671ed42b8db1460c2b2'
          'c08f04485db11997525c139346faecc8'
          'f53ee61c53063520564333b38d8e40bc'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
-         'efeeab2f55315f576c88e45c494edc7c'
-         'b111e8e2fa0fc12911e55aa2630b4ee2')
+         'efeeab2f55315f576c88e45c494edc7c')
