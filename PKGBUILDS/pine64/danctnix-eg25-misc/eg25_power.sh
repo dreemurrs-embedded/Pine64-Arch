@@ -3,8 +3,6 @@
 # Copyright (C) 2020 Dreemurrs Embedded Labs / DanctNIX Community.
 # SPDX-License-Identifier: GPL-2.0-only
 
-DT_MODEL=$(tr -d '\0' < /sys/firmware/devicetree/base/model)
-
 if [ "$1" = "start" ]; then
 	echo "Starting EG25 WWAN Module"
 
@@ -30,13 +28,13 @@ elif [ "$1" = "stop" ]; then
 
 	echo 1 > /sys/class/gpio/gpio35/value && sleep 2 && echo 0 > /sys/class/gpio/gpio35/value
 
-	if [[ $DT_MODEL =~ "PinePhone (1.2)" ]]; then
-		# Just sleep for another 2 second to be sure.
-		sleep 2
-	elif [[ $DT_MODEL =~ "PinePhone" ]]; then
-		# This could either be Braveheart or Dev Phone.
-		# Which means there's a chance that the modem might get corrupted.
+	if grep -q 1.1 /proc/device-tree/model
+	then
+		# Intentional delay on Braveheart
+		# As modem gets corrupted very easily on that model.
 		sleep 30
+	else
+		sleep 2
 	fi
 
 else
