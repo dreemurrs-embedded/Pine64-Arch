@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-eg25-misc
 pkgver=0.1
-pkgrel=4
+pkgrel=5
 pkgdesc="Everything you need for your EG25 modem"
 arch=(any)
 license=('GPL2')
@@ -31,6 +31,6 @@ package() {
 }
 md5sums=('ccb0ba99ba0c13b3264c0826ecf40ebf'
          '2a179d58dd1e113d903c3a98127dc250'
-         'c721c8f94267cee55e5e48e7295d02cc'
+         '3c3fd28d358720abcf7d0c5be4ac020e'
          '4ad530df9243eb47f85b225ead52bdb7'
          'cc880be5db8942f870761650c6a1a54f')
