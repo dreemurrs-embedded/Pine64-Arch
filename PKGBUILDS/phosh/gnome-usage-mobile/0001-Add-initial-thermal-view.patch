@@ -1,0 +1,1071 @@
+From 023f3fc82029fc4dbbea2366f0bf29542fb3a591 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Mon, 28 Oct 2019 11:05:50 +0100
+Subject: [PATCH 25/27] Add initial thermal view
+
+Just thermal zone temperature for now, no cooling devices
+---
+ data/meson.build                      |   1 +
+ data/org.gnome.Usage.gresource.xml    |   3 +
+ data/ui/no-gthd-view.ui               |  41 +++++++++++
+ data/ui/thermal-row.ui                |  60 +++++++++++++++
+ data/ui/thermal-view.ui               |  61 +++++++++++++++
+ meson.build                           |   3 +
+ src/graph-switcher-button.vala        |   6 ++
+ src/meson.build                       |  10 +++
+ src/no-gthd-view.vala                 |  23 ++++++
+ src/system-monitor.vala               |  14 ++++
+ src/thermal-graph-model.vala          |  57 ++++++++++++++
+ src/thermal-graph-stack-switcher.vala |  96 ++++++++++++++++++++++++
+ src/thermal-graph.vala                |  63 ++++++++++++++++
+ src/thermal-list-box.vala             | 102 ++++++++++++++++++++++++++
+ src/thermal-monitor.vala              |  69 +++++++++++++++++
+ src/thermal-row.vala                  |  53 +++++++++++++
+ src/thermal-sub-view.vala             |  85 +++++++++++++++++++++
+ src/thermal-view.vala                 |  59 +++++++++++++++
+ src/window.vala                       |   1 +
+ 19 files changed, 807 insertions(+)
+ create mode 100644 data/ui/no-gthd-view.ui
+ create mode 100644 data/ui/thermal-row.ui
+ create mode 100644 data/ui/thermal-view.ui
+ create mode 100644 src/no-gthd-view.vala
+ create mode 100644 src/thermal-graph-model.vala
+ create mode 100644 src/thermal-graph-stack-switcher.vala
+ create mode 100644 src/thermal-graph.vala
+ create mode 100644 src/thermal-list-box.vala
+ create mode 100644 src/thermal-monitor.vala
+ create mode 100644 src/thermal-row.vala
+ create mode 100644 src/thermal-sub-view.vala
+ create mode 100644 src/thermal-view.vala
+
+diff --git a/data/meson.build b/data/meson.build
+index a4400e5..c6f8fcb 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -3,6 +3,7 @@ resource_data = files(
+   'ui/primary-menu.ui',
+   'ui/header-bar.ui',
+   'ui/memory-speedometer.ui',
++  'ui/no-gthd-view.ui',
+   'ui/no-results-found-view.ui',
+   'ui/performance-view.ui',
+   'ui/process-row.ui',
+diff --git a/data/org.gnome.Usage.gresource.xml b/data/org.gnome.Usage.gresource.xml
+index ace1cd8..e8fa617 100644
+--- a/data/org.gnome.Usage.gresource.xml
++++ b/data/org.gnome.Usage.gresource.xml
+@@ -6,6 +6,7 @@
+         <file preprocess="xml-stripblanks">ui/primary-menu.ui</file>
+         <file preprocess="xml-stripblanks">ui/header-bar.ui</file>
+         <file preprocess="xml-stripblanks">ui/memory-speedometer.ui</file>
++        <file preprocess="xml-stripblanks">ui/no-gthd-view.ui</file>
+         <file preprocess="xml-stripblanks">ui/no-results-found-view.ui</file>
+         <file preprocess="xml-stripblanks">ui/performance-view.ui</file>
+         <file preprocess="xml-stripblanks">ui/quit-process-dialog.ui</file>
+@@ -14,5 +15,7 @@
+         <file preprocess="xml-stripblanks">ui/storage-view.ui</file>
+         <file preprocess="xml-stripblanks">ui/process-row.ui</file>
+         <file preprocess="xml-stripblanks">ui/swap-speedometer.ui</file>
++        <file preprocess="xml-stripblanks">ui/thermal-row.ui</file>
++        <file preprocess="xml-stripblanks">ui/thermal-view.ui</file>
+     </gresource>
+ </gresources>
+diff --git a/data/ui/no-gthd-view.ui b/data/ui/no-gthd-view.ui
+new file mode 100644
+index 0000000..d6d0a25
+--- /dev/null
++++ b/data/ui/no-gthd-view.ui
+@@ -0,0 +1,41 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <!-- interface-requires gtk+ 3.9 -->
++  <template class="UsageNoGthdView" parent="UsageView">
++    <property name="visible">True</property>
++    <child>
++      <object class="GtkBox">
++        <property name="margin-top">40</property>
++        <property name="orientation">vertical</property>
++        <child>
++          <object class="GtkImage">
++            <property name="margin">10</property>
++            <property name="icon-name">system-run-symbolic</property>
++            <property name="pixel-size">72</property>
++          </object>
++        </child>
++        <child>
++          <object class="GtkLabel">
++            <attributes>
++              <attribute name="font-desc" value="16"/>
++              <attribute name="weight" value="PANGO_WEIGHT_BOLD"/>
++            </attributes>
++            <property name="label" translatable="yes">Thermal daemon is not running</property>
++            <property name="margin">10</property>
++          </object>
++        </child>
++        <child>
++          <object class="GtkLabel">
++            <attributes>
++              <attribute name="font-desc" value="12"/>
++            </attributes>
++            <property name="label" translatable="yes">Please start gthd</property>
++            <style>
++              <class name="dim-label"/>
++            </style>
++          </object>
++        </child>
++      </object>
++    </child>
++  </template>
++</interface>
+diff --git a/data/ui/thermal-row.ui b/data/ui/thermal-row.ui
+new file mode 100644
+index 0000000..b6c4202
+--- /dev/null
++++ b/data/ui/thermal-row.ui
+@@ -0,0 +1,60 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!-- Generated with glade 3.22.1 -->
++<interface>
++  <requires lib="gtk+" version="3.10"/>
++  <template class="UsageThermalZoneRow" parent="GtkListBoxRow">
++    <property name="visible">True</property>
++    <property name="can_focus">False</property>
++    <child>
++      <object class="GtkBox">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="orientation">vertical</property>
++        <child>
++          <object class="GtkBox">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <child>
++              <object class="GtkLabel" id="type_label">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="margin_left">6</property>
++                <property name="wrap">True</property>
++                <property name="ellipsize">end</property>
++                <property name="max_width_chars">60</property>
++                <attributes>
++                  <attribute name="scale" value="1"/>
++                </attributes>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">False</property>
++                <property name="position">2</property>
++              </packing>
++            </child>
++            <child>
++              <object class="GtkLabel" id="temp_label">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="margin_right">10</property>
++                <property name="ellipsize">end</property>
++                <property name="max_width_chars">30</property>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="pack_type">end</property>
++                <property name="position">3</property>
++              </packing>
++            </child>
++          </object>
++          <packing>
++            <property name="expand">False</property>
++            <property name="fill">True</property>
++            <property name="position">0</property>
++          </packing>
++        </child>
++      </object>
++    </child>
++  </template>
++</interface>
+diff --git a/data/ui/thermal-view.ui b/data/ui/thermal-view.ui
+new file mode 100644
+index 0000000..d05498d
+--- /dev/null
++++ b/data/ui/thermal-view.ui
+@@ -0,0 +1,61 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <!-- interface-requires gtk+ 3.9 -->
++
++  <template class="UsageThermalView" parent="UsageView">
++    <property name="visible">True</property>
++
++    <child>
++
++      <object class="HdyLeaflet" id="leaflet">
++        <property name="visible">True</property>
++        <property name="orientation">horizontal</property>
++        <property name="mode-transition-type">slide</property>
++        <property name="visible-child">content_box</property>
++
++        <child>
++          <object class="GtkBox" id="switcher_box">
++            <property name="hexpand">False</property>
++            <property name="hexpand-set">True</property>
++            <property name="width-request">200</property>
++            <style>
++              <class name="sidebar"/>
++            </style>
++          </object>
++        </child>
++
++        <child>
++          <object class="GtkBox" id="content_box">
++            <property name="visible">True</property>
++            <property name="orientation">vertical</property>
++            <property name="width-request">360</property>
++
++            <child>
++              <object class="UsageAnimatedScrolledWindow" id="scrolled_window">
++                <property name="visible">True</property>
++                <property name="vexpand">True</property>
++                <child>
++                  <object class="HdyColumn">
++                    <property name="visible">True</property>
++                    <property name="margin-start">12</property>
++                    <property name="margin-end">12</property>
++                    <property name="expand">True</property>
++                    <property name="maximum-width">600</property>
++                    <property name="linear-growth-width">400</property>
++                    <child>
++                      <object class="GtkBox" id="thermal_content">
++                        <property name="visible">True</property>
++                        <property name="orientation">vertical</property>
++                        <property name="spacing">30</property>
++                      </object>
++                    </child>
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++      </object>
++    </child>
++  </template>
++</interface>
+diff --git a/meson.build b/meson.build
+index 78ab17f..7958b45 100644
+--- a/meson.build
++++ b/meson.build
+@@ -16,7 +16,8 @@ gtk_dep = dependency('gtk+-3.0', version
+ libdazzle_dep = dependency('libdazzle-1.0', version : '>=3.30')
+ libgtop_dep = dependency('libgtop-2.0', version : '>= 2.34.0')
+ libhandy_dep = dependency('libhandy-0.0', version : '>=0.0.11', required: false)
+-tracker_dep = dependency('tracker-sparql-2.0')
++tracker_dep = dependency('tracker-sparql-2.0')
++gtherm_dep = dependency('libgtherm-0.0')
+ 
+ if not libhandy_dep.found()
+   libhandy_subproj = subproject(
+diff --git a/src/graph-switcher-button.vala b/src/graph-switcher-button.vala
+index f0863c4..798786d 100644
+--- a/src/graph-switcher-button.vala
++++ b/src/graph-switcher-button.vala
+@@ -36,6 +36,12 @@ namespace Usage
+             child = createContent(memory_graph, label);
+         }
+ 
++        public GraphSwitcherButton.temperature(string label)
++        {
++            var thermal_graph = new ThermalGraph();
++            child = createContent(thermal_graph, label);
++        }
++
+         private Gtk.Box createContent(Dazzle.GraphView graph, string label_text)
+         {
+             graph.height_request = 80;
+diff --git a/src/meson.build b/src/meson.build
+index 447aad5..7e62a9a 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -19,6 +19,7 @@ vala_sources = [
+   'memory-speedometer.vala',
+   'memory-sub-view.vala',
+   'monitor.vala',
++  'no-gthd-view.vala',
+   'no-results-found-view.vala',
+   'performance-view.vala',
+   'pie-chart.vala',
+@@ -39,6 +40,14 @@ vala_sources = [
+   'storage-worker.vala',
+   'swap-speedometer.vala',
+   'system-monitor.vala',
++  'thermal-list-box.vala',
++  'thermal-row.vala',
++  'thermal-graph.vala',
++  'thermal-graph-stack-switcher.vala',
++  'thermal-graph-model.vala',
++  'thermal-monitor.vala',
++  'thermal-view.vala',
++  'thermal-sub-view.vala',
+   'utils.vala',
+   'view.vala',
+   'window.vala'
+@@ -48,6 +57,7 @@ deps = [
+   gio_dep,
+   glib_dep,
+   gobject_dep,
++  gtherm_dep,
+   gtk_dep,
+   dependency('libgtop-2.0', version : '>= 2.34.0'),
+   libdazzle_dep,
+diff --git a/src/no-gthd-view.vala b/src/no-gthd-view.vala
+new file mode 100644
+index 0000000..23bac1a
+--- /dev/null
++++ b/src/no-gthd-view.vala
+@@ -0,0 +1,23 @@
++/* no-results-found-box.vala
++ *
++ * Copyright (C) 2020 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++namespace Usage
++{
++    [GtkTemplate (ui = "/org/gnome/Usage/ui/no-gthd-view.ui")]
++    public class NoGthdView : View { }
++}
+diff --git a/src/system-monitor.vala b/src/system-monitor.vala
+index 30f9d37..748b3e5 100644
+--- a/src/system-monitor.vala
++++ b/src/system-monitor.vala
+@@ -23,6 +23,7 @@ namespace Usage
+     public class SystemMonitor : Object
+     {
+         public bool process_list_ready { get; private set; default = false; }
++        public bool thermal_list_ready { get; private set; default = false; }
+         public double cpu_load { get; private set; }
+         public double[] x_cpu_load { get; private set; }
+         public uint64 ram_usage { get; private set; }
+@@ -30,9 +31,11 @@ namespace Usage
+         public uint64 swap_usage { get; private set; }
+         public uint64 swap_total { get; private set; }
+         public bool group_system_apps { get; set; default = true; }
++        public double[] x_temp { get; private set; }
+ 
+         private CpuMonitor cpu_monitor;
+         private MemoryMonitor memory_monitor;
++        private ThermalMonitor thermal_monitor;
+         private GameMode.PidList gamemode_pids;
+ 
+         private HashTable<string, AppItem> app_table;
+@@ -58,6 +61,12 @@ namespace Usage
+             return app_table.get(name);
+         }
+ 
++        public GLib.GenericArray<Gth.ThermalZone> get_thermal_zones()
++        {
++            return thermal_monitor.get_thermal_zones ();
++        }
++
++
+         public SystemMonitor()
+         {
+             GTop.init();
+@@ -65,6 +74,7 @@ namespace Usage
+ 
+             cpu_monitor = new CpuMonitor();
+             memory_monitor = new MemoryMonitor();
++            thermal_monitor = new ThermalMonitor();
+             gamemode_pids = new GameMode.PidList();
+ 
+             app_table = new HashTable<string, AppItem>(str_hash, str_equal);
+@@ -84,6 +94,7 @@ namespace Usage
+             var settings = Settings.get_default();
+             app_table.remove_all();
+             process_list_ready = false;
++            thermal_list_ready = false;
+ 
+             if(group_system_apps) {
+                 var system = new AppItem.system();
+@@ -98,6 +109,7 @@ namespace Usage
+             Timeout.add(settings.data_update_interval, () =>
+             {
+                 process_list_ready = true;
++                thermal_list_ready = true;
+                 return false;
+             });
+         }
+@@ -106,6 +118,7 @@ namespace Usage
+         {
+             cpu_monitor.update();
+             memory_monitor.update();
++            thermal_monitor.update();
+ 
+             cpu_load = cpu_monitor.get_cpu_load();
+             x_cpu_load = cpu_monitor.get_x_cpu_load();
+@@ -113,6 +126,7 @@ namespace Usage
+             ram_total = memory_monitor.get_ram_total();
+             swap_usage = memory_monitor.get_swap_usage();
+             swap_total = memory_monitor.get_swap_total();
++            x_temp = thermal_monitor.get_x_temp();
+ 
+             foreach (var app in app_table.get_values ())
+                 app.mark_as_not_updated();
+diff --git a/src/thermal-graph-model.vala b/src/thermal-graph-model.vala
+new file mode 100644
+index 0000000..c325048
+--- /dev/null
++++ b/src/thermal-graph-model.vala
+@@ -0,0 +1,57 @@
++/* thermal-graph-model.vala
++ *
++ * Copyright (C) 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authors: Guido Guenther <agx@sigxcpu.org>
++ */
++
++using Dazzle;
++
++namespace Usage {
++
++    public class ThermalGraphModel : GraphModel {
++        public int num_zones;
++
++        public ThermalGraphModel () {
++            var settings = Settings.get_default();
++            SystemMonitor monitor = SystemMonitor.get_default();
++            set_timespan (settings.graph_timespan * 1000);
++            set_max_samples (settings.graph_max_samples);
++            num_zones = monitor.x_temp.length;
++
++            for (int i = 0; i < num_zones; i++) {
++                /* TODO: use correct zone numbers */
++                var column_x_temp = new GraphColumn("ThermalZone: " + i.to_string(), Type.from_name("gdouble"));
++                add_column(column_x_temp);
++            }
++
++            Timeout.add(settings.graph_update_interval, update_data);
++        }
++
++        bool update_data() {
++            GraphModelIter iter;
++            push (out iter, get_monotonic_time ());
++
++            SystemMonitor monitor = SystemMonitor.get_default();
++
++            for (int i = 0; i < num_zones; i++) {
++                iter_set_value(iter, i, monitor.x_temp[i]);
++            }
++
++            return true;
++        }
++    }
++}
+diff --git a/src/thermal-graph-stack-switcher.vala b/src/thermal-graph-stack-switcher.vala
+new file mode 100644
+index 0000000..11da822
+--- /dev/null
++++ b/src/thermal-graph-stack-switcher.vala
+@@ -0,0 +1,96 @@
++/* graph-stack-switcher.vala
++ *
++ * Copyright (C) 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authors: Guido Guenther <agx@sigxcpu.org>
++ */
++
++namespace Usage
++{
++    public class ThermalGraphStackSwitcher : Gtk.Box
++    {
++        View[] sub_views;
++        AnimatedScrolledWindow scrolled_window;
++
++        GraphSwitcherButton[] buttons;
++
++        class construct
++        {
++            set_css_name("graph-stack-switcher");
++        }
++
++        public ThermalGraphStackSwitcher(AnimatedScrolledWindow scrolled_window, View[] sub_views)
++        {
++            Object(orientation: Gtk.Orientation.VERTICAL, spacing: 0);
++
++            this.sub_views = sub_views;
++            this.scrolled_window = scrolled_window;
++
++            scrolled_window.scroll_changed.connect(on_scroll_changed);
++
++            buttons = {
++                new GraphSwitcherButton.temperature(_("Temperature")),
++            };
++
++            foreach(GraphSwitcherButton button in buttons)
++            {
++                this.pack_start(button, false, true, 0);
++
++                button.button_release_event.connect(() => {
++                    var button_number = get_button_number(button);
++                    scroll_to_view(button_number);
++
++                    return false;
++                });
++            }
++        }
++
++        private int get_button_number(Gtk.Button button)
++        {
++            for(int i = 0; i < buttons.length; i++)
++            {
++                if(buttons[i] == button)
++                    return i;
++            }
++
++            return 0;
++        }
++
++        private void scroll_to_view(int button_number)
++        {
++            Gtk.Allocation alloc;
++
++            this.sub_views[button_number].get_allocation(out alloc);
++            scrolled_window.animated_scroll_vertically(alloc.y);
++        }
++
++        private void on_scroll_changed(double y)
++        {
++            Gtk.Allocation alloc;
++
++            var button_number = 0;
++            for(int i = 1; i < buttons.length; i++)
++            {
++                this.sub_views[i].get_allocation(out alloc);
++                if(y < alloc.y)
++                    break;
++                button_number = i;
++            }
++
++            buttons[button_number].set_active(true);
++        }
++    }
++}
+diff --git a/src/thermal-graph.vala b/src/thermal-graph.vala
+new file mode 100644
+index 0000000..02e0c65
+--- /dev/null
++++ b/src/thermal-graph.vala
+@@ -0,0 +1,63 @@
++/* thermal-graph.vala
++ *
++ * Copyright (C) 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authors: Guido Guenther <agx@sigxcpu.org>
++ */
++
++using Dazzle;
++
++namespace Usage
++{
++    public class ThermalGraph : GraphView
++    {
++        private static ThermalGraphModel graph_model;
++        private GraphLineRenderer[] renderers;
++        private Gdk.RGBA line_color_max;
++        private Gdk.RGBA line_color_normal;
++
++        class construct
++        {
++            set_css_name("rg-graph");
++        }
++
++        public ThermalGraph()
++        {
++            get_style_context().add_class("line_max");
++            line_color_max = get_style_context().get_color(get_style_context().get_state());
++            get_style_context().remove_class("line_max");
++            get_style_context().add_class("line");
++            line_color_normal = get_style_context().get_color(get_style_context().get_state());
++            get_style_context().remove_class("line");
++            get_style_context().add_class("big");
++
++            if(graph_model == null)
++                graph_model = new ThermalGraphModel();
++
++            set_model(graph_model);
++
++            renderers = new GraphLineRenderer[graph_model.num_zones];
++            for(int i = 0; i < graph_model.num_zones; i++)
++            {
++                renderers[i] = new GraphLineRenderer();
++                renderers[i].column = i;
++                renderers[i].stroke_color_rgba = line_color_normal;
++                renderers[i].line_width = 1.5;
++                add_renderer(renderers[i]);
++            }
++        }
++    }
++}
+diff --git a/src/thermal-list-box.vala b/src/thermal-list-box.vala
+new file mode 100644
+index 0000000..78c0c9d
+--- /dev/null
++++ b/src/thermal-list-box.vala
+@@ -0,0 +1,102 @@
++/* cooling-list-box.vala
++ *
++ * Copyright (C) 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authors: Guido Guenther <agx@sigxcpu.org>
++ */
++
++using Gth;
++
++namespace Usage
++{
++    public class ThermalListBox : Gtk.ListBox
++    {
++        public bool empty { get; set; default = true; }
++        public string search_text { get; set; default = ""; }
++
++        private ListStore model;
++
++        public ThermalListBox()
++        {
++            set_selection_mode (Gtk.SelectionMode.NONE);
++            set_header_func (update_header);
++
++            model = new ListStore(typeof(ThermalZone));
++            bind_model(model, on_row_created);
++
++            row_activated.connect((row) => {
++                var thermal_row = (ThermalZoneRow) row;
++                thermal_row.activate();
++            });
++
++            this.notify["search-text"].connect ((sender, property) => {
++                update();
++            });
++
++            var system_monitor = SystemMonitor.get_default();
++
++        system_monitor.notify["thermal-list-ready"].connect (() => {
++                if(system_monitor.thermal_list_ready)
++                    update();
++            });
++
++            var settings = Settings.get_default();
++            Timeout.add(settings.list_update_interval_UI, update);
++
++            bind_property ("empty", this, "visible", BindingFlags.INVERT_BOOLEAN);
++        }
++
++        private bool update()
++        {
++            CompareDataFunc<ThermalZone> zone_cmp = (a, b) => {
++                ThermalZone zone_a = (ThermalZone) a;
++                ThermalZone zone_b = (ThermalZone) b;
++
++                return (int) (zone_a.temperature < zone_b.temperature) - (int) (zone_a.temperature > zone_b.temperature);
++            };
++
++            model.remove_all();
++
++            var system_monitor = SystemMonitor.get_default();
++            var zones = system_monitor.get_thermal_zones();
++
++            if(search_text == "") {
++                for (int i = 0; i < zones.length; i++) {
++                    var z = zones.get(i);
++                    model.insert_sorted(z, zone_cmp);
++                }
++            }
++
++            empty = (model.get_n_items() == 0);
++            return true;
++        }
++
++        private Gtk.Widget on_row_created (Object item) {
++            return new ThermalZoneRow((ThermalZone) item);
++        }
++
++        private void update_header(Gtk.ListBoxRow row, Gtk.ListBoxRow? before_row) {
++            if(before_row == null)
++                row.set_header(null);
++            else {
++                var separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
++                separator.get_style_context().add_class("list");
++                separator.show();
++                row.set_header(separator);
++            }
++        }
++    }
++}
+diff --git a/src/thermal-monitor.vala b/src/thermal-monitor.vala
+new file mode 100644
+index 0000000..0eec651
+--- /dev/null
++++ b/src/thermal-monitor.vala
+@@ -0,0 +1,69 @@
++/* cpu-monitor.vala
++ *
++ * Copyright (C) 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authors: Guido Guenther <agx@sigxcpu.org>
++ */
++using GLib;
++using Gth;
++
++namespace Usage
++{
++    public class ThermalMonitor : Monitor
++    {
++        private double[] x_temp;
++        private GLib.DBusConnection con;
++        private Gth.Manager therm_manager;
++        private GLib.GenericArray<Gth.ThermalZone> thermal_zones;
++
++        public ThermalMonitor()
++        {
++            try {
++                con = GLib.Bus.get_sync(GLib.BusType.SESSION);
++                therm_manager = new Gth.Manager.sync(con, 0);
++                thermal_zones = therm_manager.get_thermal_zones();
++            } catch(IOError e) {
++                warning("GThermal Proxy creation failed: %s", e.message);
++            } catch(GLib.Error e) {
++                warning("GThermal D-Bus error: %s", e.message);
++            }
++            x_temp = new double[thermal_zones.length];
++        }
++
++        public GLib.GenericArray<Gth.ThermalZone> get_thermal_zones()
++        {
++            return thermal_zones;
++        }
++
++        public void update()
++        {
++            for (int i = 0; i < x_temp.length; i++)
++            {
++                x_temp[i] = thermal_zones.get(i).temperature / 1000.0;
++            }
++        }
++
++        public double[] get_x_temp()
++        {
++            return x_temp;
++        }
++
++        public void update_process(ref Process process)
++        {
++           /* todo: empty since we inherited form monitor */
++        }
++    }
++}
+diff --git a/src/thermal-row.vala b/src/thermal-row.vala
+new file mode 100644
+index 0000000..df3b079
+--- /dev/null
++++ b/src/thermal-row.vala
+@@ -0,0 +1,53 @@
++/* process-row.vala
++ *
++ * Copyright (C) 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authors: Guido Guenther <agx@sigxcpu.org>
++ */
++
++using Gth;
++
++namespace Usage
++{
++    [GtkTemplate (ui = "/org/gnome/Usage/ui/thermal-row.ui")]
++    public class ThermalZoneRow : Gtk.ListBoxRow
++    {
++        public ThermalZone zone;
++
++        [GtkChild]
++        private Gtk.Label type_label;
++
++        [GtkChild]
++        private Gtk.Label temp_label;
++
++        public ThermalZoneRow(ThermalZone zone)
++        {
++            this.zone = zone;
++            update();
++        }
++
++        private void update()
++        {
++            type_label.label = zone.type;
++            temp_label.label = "%.2f ⁰C".printf(zone.temperature / 1000.0);
++            /* todo: add cooling devs */
++        }
++
++        public new void activate()
++        {
++        }
++    }
++}
+diff --git a/src/thermal-sub-view.vala b/src/thermal-sub-view.vala
+new file mode 100644
+index 0000000..b354548
+--- /dev/null
++++ b/src/thermal-sub-view.vala
+@@ -0,0 +1,85 @@
++/* thermal-sub-view.vala
++ *
++ * Copyright (C) 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authors: Guido Guenther <agx@sigxcpu.org>
++ */
++
++namespace Usage
++{
++    public class ThermalSubView : View, SubView
++    {
++        private ThermalListBox thermal_list_box;
++        private NoGthdView no_thermal_view;
++
++        public ThermalSubView()
++        {
++            name = "THERMAL";
++
++            var label = new Gtk.Label("<span font_desc=\"14.0\">" + _("Thermal Zones") + "</span>");
++            label.set_use_markup(true);
++            label.margin_top = 25;
++            label.margin_bottom = 15;
++
++            thermal_list_box = new ThermalListBox();
++            thermal_list_box.margin_bottom = 20;
++            thermal_list_box.margin_top = 30;
++
++            var spinner = new Gtk.Spinner();
++            spinner.active = true;
++            spinner.margin_top = 30;
++            spinner.height_request = 250;
++
++            no_thermal_view = new NoGthdView();
++
++            var thermal_graph = new ThermalGraph();
++            thermal_graph.hexpand = true;
++            var thermal_graph_box = new GraphBox(thermal_graph);
++            thermal_graph_box.height_request = 225;
++            thermal_graph_box.valign = Gtk.Align.START;
++
++            var thermal_box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
++            thermal_box.pack_start(label, false, false, 0);
++            thermal_box.pack_start(thermal_graph_box, false, false, 0);
++
++            thermal_box.add(no_thermal_view);
++
++            var system_monitor = SystemMonitor.get_default();
++            system_monitor.notify["thermal-list-ready"].connect ((sender, property) => {
++                    if(system_monitor.thermal_list_ready) {
++                        thermal_box.pack_start(thermal_list_box, false, false, 0);
++                        thermal_box.remove(spinner);
++                    } else {
++                        thermal_box.pack_start(spinner, true, true, 0);
++                        thermal_box.remove(thermal_list_box);
++                    }
++                });
++
++            thermal_list_box.bind_property ("empty", no_thermal_view, "visible", BindingFlags.BIDIRECTIONAL);
++            add(thermal_box);
++        }
++
++        public override void show_all() {
++            base.show_all();
++            this.no_thermal_view.hide();
++        }
++
++        public void search_in_processes(string text)
++        {
++            /* tbd */
++        }
++    }
++}
+diff --git a/src/thermal-view.vala b/src/thermal-view.vala
+new file mode 100644
+index 0000000..c2fadb5
+--- /dev/null
++++ b/src/thermal-view.vala
+@@ -0,0 +1,59 @@
++/* performance-view.vala
++ *
++ * Copyright (C) 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authors: Guido Guenther <agx@sigxcpu.org>
++ */
++
++using Gtk;
++
++namespace Usage
++{
++    [GtkTemplate (ui = "/org/gnome/Usage/ui/thermal-view.ui")]
++    public class ThermalView : View
++    {
++        [GtkChild]
++        private Gtk.Box switcher_box;
++
++        [GtkChild]
++        private Gtk.Box thermal_content;
++
++        [GtkChild]
++        private AnimatedScrolledWindow scrolled_window;
++
++        View[] sub_views;
++
++        public ThermalView ()
++        {
++            name = "THERMAL";
++            title = _("Thermal");
++            icon_name = "weather-clear-symbolic";
++
++            sub_views = new View[]
++            {
++                new ThermalSubView(),
++            };
++
++            foreach(var sub_view in sub_views)
++                thermal_content.pack_start(sub_view, true, true, 0);
++
++            var stackSwitcher = new ThermalGraphStackSwitcher(scrolled_window, sub_views);
++            switcher_box.add (stackSwitcher);
++
++            show_all ();
++        }
++    }
++}
+diff --git a/src/window.vala b/src/window.vala
+index 7e85f3a..207645f 100644
+--- a/src/window.vala
++++ b/src/window.vala
+@@ -58,6 +58,7 @@ namespace Usage
+             {
+                 new PerformanceView(),
+                 new StorageView(),
++                new ThermalView(),
+             };
+ 
+             foreach(var view in views) {
+-- 
+2.26.2
+

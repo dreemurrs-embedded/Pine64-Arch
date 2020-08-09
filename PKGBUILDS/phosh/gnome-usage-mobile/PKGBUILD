@@ -1,0 +1,52 @@
+# Maintainer: Philip Müller <philm at manjaro dot org>
+# Contributor: Balló György <ballogyor+arch at gmail dot com>
+
+pkgname=gnome-usage-mobile
+_pkgname=gnome-usage
+pkgver=3.33.2+28+g05741cb
+pkgrel=2
+pkgdesc="GNOME application to view information about use of system resources"
+arch=(aarch64)
+url="https://wiki.gnome.org/Apps/Usage"
+license=(GPL3)
+depends=(gtk3 libgtop libdazzle tracker libhandy gtherm)
+makedepends=(git meson vala)
+optdepends=('accountsservice: show user tags for processes')
+provides=("$_pkgname=$pkgver")
+conflicts=("$_pkgname")
+_commit=05741cbf3e2dfd13eefbef4a71c6e6935764995d  # tags/v3.33.2
+source=("git+https://source.puri.sm/Librem5/gnome-usage.git#commit=$_commit"
+        '0001-Add-initial-thermal-view.patch')
+sha256sums=('SKIP'
+            'cc93935908de44f6559515b7e588d2b1d687b69ea81199e1f5d4695c7ba15958')
+
+pkgver() {
+  cd $_pkgname
+  git describe --tags | sed 's/^v//;s/-/+/g'
+}
+
+prepare() {
+  cd $_pkgname
+
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+}
+
+build() {
+  arch-meson $_pkgname build
+  ninja -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}
