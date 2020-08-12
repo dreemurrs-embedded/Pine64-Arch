@@ -11,7 +11,7 @@ makedepends=('rust' 'cargo' 'meson' 'ninja')
 source=(https://source.puri.sm/Librem5/squeekboard/-/archive/v$pkgver/squeekboard-v$pkgver.tar.gz)
 
 build() {
-	arch-meson ${pkgname}-v${pkgver} output
+	arch-meson ${pkgname}-v${pkgver} output -Dtests=false
 	ninja -C output
 }
 
