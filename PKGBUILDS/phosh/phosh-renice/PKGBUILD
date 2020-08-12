@@ -1,13 +1,13 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh-renice
-pkgver=0.0.0_20200811
+pkgver=0.0.0_20200812
 pkgrel=0
 pkgdesc="A quick hack to prioritise calls, NetworkManager, phoc, phosh, and squeekboard on the PinePhone."
 arch=('any')
 url="https://github.com/KeironO/phosh-renice"
 license=('MIT')
 depends=('phosh' 'util-linux')
-_commit="743065696d9ce99a5e53e294ed0a715f0d2f95e4"
+_commit="34f6ea2a88af604b43d236df050637d2f60358b2"
 source=("https://github.com/KeironO/phosh-renice/archive/$_commit.tar.gz")
 
 prepare() {
@@ -26,4 +26,4 @@ package() {
 		"$pkgdir"/usr/lib/systemd/system/multi-user.target.wants/phosh-renice.service
 }
 
-md5sums=('9b7907bf113102cf2d5bd231c76feecd')
+md5sums=('c767e234cc1c9e8f1dacd11b5b1c0aa8')
