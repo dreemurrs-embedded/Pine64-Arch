@@ -1,0 +1,29 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=phosh-renice
+pkgver=0.0.0_20200811
+pkgrel=0
+pkgdesc="A quick hack to prioritise calls, NetworkManager, phoc, phosh, and squeekboard on the PinePhone."
+arch=('any')
+url="https://github.com/KeironO/phosh-renice"
+license=('MIT')
+depends=('phosh' 'util-linux')
+_commit="743065696d9ce99a5e53e294ed0a715f0d2f95e4"
+source=("https://github.com/KeironO/phosh-renice/archive/$_commit.tar.gz")
+
+prepare() {
+	cd ${pkgname}-$_commit
+	sed -i "s/\/usr\/local/\/usr/g" phosh-renice.service
+}
+
+package() {
+	install -Dm755 "$srcdir"/${pkgname}-$_commit/phosh_renice.sh \
+		"$pkgdir"/usr/bin/phosh_renice
+	install -Dm644 "$srcdir"/${pkgname}-$_commit/phosh-renice.service \
+		"$pkgdir"/usr/lib/systemd/system/phosh-renice.service
+
+	mkdir -p "$pkgdir"/usr/lib/systemd/system/multi-user.target.wants
+	ln -sfv ../phosh-renice.service \
+		"$pkgdir"/usr/lib/systemd/system/multi-user.target.wants/phosh-renice.service
+}
+
+md5sums=('9b7907bf113102cf2d5bd231c76feecd')
