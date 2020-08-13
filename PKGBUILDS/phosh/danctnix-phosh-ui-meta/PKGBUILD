@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-ui-meta
 pkgver=0.1
-pkgrel=10
+pkgrel=11
 pkgdesc="Meta package for Phosh"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -79,5 +79,5 @@ md5sums=('7567fd058afb2a7e5c8690fff0291c80'
          '8275502efc147f126643c194f386640e'
          '40a3cfff4bb4f499f2d31d9b80ac36df'
          'ab46e1b0be015b1cd45e0ae338bb13df'
-         '2a67986d3661400e2c1a22d82d21cbc9'
+         '82e48accf8280087cedbde389a96860b'
          'c74df615bedb6c45fd997e54dcafd564')
