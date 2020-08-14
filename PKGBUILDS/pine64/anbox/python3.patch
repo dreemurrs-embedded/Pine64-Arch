@@ -1,0 +1,250 @@
+Taken from https://copr-dist-git.fedorainfracloud.org/cgit/eclipseo/anbox/anbox.git/tree/0001-convert-script-to-python3.patch
+
+diff -up anbox-cd829e9ccd3a5d654c8aa5e16e32f0d3915d54a8/scripts/gen-emugl-entries.py.convert_to_python3 anbox-cd829e9ccd3a5d654c8aa5e16e32f0d3915d54a8/scripts/gen-emugl-entries.py
+--- anbox-cd829e9ccd3a5d654c8aa5e16e32f0d3915d54a8/scripts/gen-emugl-entries.py.convert_to_python3	2019-06-26 11:21:50.000000000 +0200
++++ anbox-cd829e9ccd3a5d654c8aa5e16e32f0d3915d54a8/scripts/gen-emugl-entries.py	2019-07-21 19:32:14.307308135 +0200
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python2
++#!/usr/bin/python3
+ 
+ # Copyright 2015 The Android Open Source Project
+ #
+@@ -25,7 +25,7 @@
+ #
+ # Anything else is an error.
+ 
+-from __future__ import print_function
++
+ import re
+ import sys
+ import argparse
+@@ -43,7 +43,7 @@ class Entry:
+            |return_type| its return type, and |parameters| is a list of
+            (type,name) tuples from the entry's signature.
+         """
+-        self.func_name = func_name
++        self.__name__ = func_name
+         self.return_type = return_type
+         self.parameters = ""
+         self.vartypes = []
+@@ -145,11 +145,11 @@ def gen_functions_header(entries, prefix
+     for entry in entries:
+         if with_args:
+             print("  X(%s, %s, (%s), (%s)) \\" % \
+-                    (entry.return_type, entry.func_name, entry.parameters,
++                    (entry.return_type, entry.__name__, entry.parameters,
+                      entry.call))
+         else:
+             print("  X(%s, %s, (%s)) \\" % \
+-                    (entry.return_type, entry.func_name, entry.parameters))
++                    (entry.return_type, entry.__name__, entry.parameters))
+ 
+     print("")
+     print("")
+@@ -170,27 +170,27 @@ def gen_translator(entries):
+     from gles3translatorgen import gles31_custom
+ 
+     translator_custom_share_processing = { }
+-    for (k, v) in gles30_custom.custom_share_processing.items():
++    for (k, v) in list(gles30_custom.custom_share_processing.items()):
+         translator_custom_share_processing[k] = v
+-    for (k, v) in gles31_custom.custom_share_processing.items():
++    for (k, v) in list(gles31_custom.custom_share_processing.items()):
+         translator_custom_share_processing[k] = v
+ 
+     translator_custom_pre = { }
+-    for (k, v) in gles30_custom.custom_preprocesses.items():
++    for (k, v) in list(gles30_custom.custom_preprocesses.items()):
+         translator_custom_pre[k] = v
+-    for (k, v) in gles31_custom.custom_preprocesses.items():
++    for (k, v) in list(gles31_custom.custom_preprocesses.items()):
+         translator_custom_pre[k] = v
+ 
+     translator_custom_post = { }
+-    for (k, v) in gles30_custom.custom_postprocesses.items():
++    for (k, v) in list(gles30_custom.custom_postprocesses.items()):
+         translator_custom_post[k] = v
+-    for (k, v) in gles31_custom.custom_postprocesses.items():
++    for (k, v) in list(gles31_custom.custom_postprocesses.items()):
+         translator_custom_post[k] = v
+ 
+     translator_no_passthrough = {}
+-    for (k, v) in gles30_custom.no_passthrough.items():
++    for (k, v) in list(gles30_custom.no_passthrough.items()):
+         translator_no_passthrough[k] = v
+-    for (k, v) in gles31_custom.no_passthrough.items():
++    for (k, v) in list(gles31_custom.no_passthrough.items()):
+         translator_no_passthrough[k] = v
+ 
+     translator_needexternc = {
+@@ -208,13 +208,13 @@ def gen_translator(entries):
+             "glClientWaitSync" : "GL_WAIT_FAILED",
+     }
+     def needExternC(entry):
+-        if translator_needexternc.has_key(entry.func_name):
++        if entry.__name__ in translator_needexternc:
+             return "extern \"C\" "
+         else:
+             return ""
+     def get_fail_code(entry):
+-        if translator_nocontext_fail_codes.has_key(entry.func_name):
+-            return translator_nocontext_fail_codes[entry.func_name]
++        if entry.__name__ in translator_nocontext_fail_codes:
++            return translator_nocontext_fail_codes[entry.__name__]
+         else:
+             return "0"
+     def gen_cxt_getter(entry):
+@@ -224,9 +224,9 @@ def gen_translator(entries):
+             print("    GET_CTX_V2_RET(%s);" % get_fail_code(entry))
+ 
+     def gen_validations_custom_impl(entry):
+-        isGen = entry.func_name.startswith("glGen")
+-        isDelete = entry.func_name.startswith("glDelete")
+-        isBufferOp = "Buffer" in entry.func_name
++        isGen = entry.__name__.startswith("glGen")
++        isDelete = entry.__name__.startswith("glDelete")
++        isBufferOp = "Buffer" in entry.__name__
+ 
+         hasTargetArg = "target" in entry.varnames
+         hasProgramArg = "program" in entry.varnames
+@@ -241,8 +241,8 @@ def gen_translator(entries):
+             print("    %s;" % mySetError("n < 0", "GL_INVALID_VALUE"))
+         if (isBufferOp and hasTargetArg):
+             print("    %s;" % mySetError("!GLESv2Validate::bufferTarget(ctx, target)", "GL_INVALID_ENUM"))
+-        if translator_custom_pre.has_key(entry.func_name):
+-            print(translator_custom_pre[entry.func_name],)
++        if entry.__name__ in translator_custom_pre:
++            print(translator_custom_pre[entry.__name__],)
+ 
+     def gen_call_ret(entry):
+         globalNameTypes = {
+@@ -262,44 +262,44 @@ def gen_translator(entries):
+ 
+         needsShareGroup = False
+         for v in zip(entry.vartypes, entry.varnames):
+-            if v in globalNameTypes.keys():
++            if v in list(globalNameTypes.keys()):
+                 needsShareGroup = True
+ 
+         if needsShareGroup:
+             print("    if (ctx->shareGroup().get()) {")
+             for key in zip(entry.vartypes, entry.varnames):
+                 vartype, varname = key
+-                if globalNames.has_key(key):
++                if key in globalNames:
+                     print("        const GLuint %s = ctx->shareGroup()->getGlobalName(%s, %s);" % (globalNames[key], globalNameTypes[key], varname))
+ 
+-        globalCall = ", ".join(map(lambda k: globalNames.get(k, k[1]), zip(entry.vartypes, entry.varnames)))
++        globalCall = ", ".join([globalNames.get(k, k[1]) for k in zip(entry.vartypes, entry.varnames)])
+ 
+-        if needsShareGroup and translator_custom_share_processing.has_key(entry.func_name):
+-            print(translator_custom_share_processing[entry.func_name])
++        if needsShareGroup and entry.__name__ in translator_custom_share_processing:
++            print(translator_custom_share_processing[entry.__name__])
+ 
+         if (entry.return_type == "void"):
+             if (needsShareGroup):
+                 print("   "),
+ 
+-            if not translator_no_passthrough.has_key(entry.func_name):
+-                print("    ctx->dispatcher().%s(%s);" % (entry.func_name, globalCall))
++            if entry.__name__ not in translator_no_passthrough:
++                print("    ctx->dispatcher().%s(%s);" % (entry.__name__, globalCall))
+ 
+             if needsShareGroup:
+                 print("    }")
+-            if translator_custom_post.has_key(entry.func_name):
+-                print(translator_custom_post[entry.func_name])
++            if entry.__name__ in translator_custom_post:
++                print(translator_custom_post[entry.__name__])
+         else:
+             if (needsShareGroup):
+                 print("   "),
+-            if not translator_no_passthrough.has_key(entry.func_name):
+-                print("    %s %s = ctx->dispatcher().%s(%s);" % (entry.return_type, entry.func_name + "RET", entry.func_name, globalCall))
++            if entry.__name__ not in translator_no_passthrough:
++                print("    %s %s = ctx->dispatcher().%s(%s);" % (entry.return_type, entry.__name__ + "RET", entry.__name__, globalCall))
+             else:
+                 print(")    %s %s = %s" % (entry.return_type, entry_func_name + "RET", get_fail_code(entry)))
+ 
+-            if translator_custom_post.has_key(entry.func_name):
+-                print(translator_custom_post[entry.func_name])
++            if entry.__name__ in translator_custom_post:
++                print(translator_custom_post[entry.__name__])
+ 
+-            print("    return %s;" % (entry.func_name + "RET"))
++            print("    return %s;" % (entry.__name__ + "RET"))
+             if needsShareGroup:
+                 print("    } else return %s;" % (get_fail_code(entry)))
+ 
+@@ -308,7 +308,7 @@ def gen_translator(entries):
+     print("// Try to make changes through gen_translator in gen-entries.py,")
+     print("// and/or parcel out custom functionality in separate code.")
+     for entry in entries:
+-        print("%sGL_APICALL %s GL_APIENTRY %s(%s) {" % (needExternC(entry), entry.return_type, entry.func_name, entry.parameters))
++        print("%sGL_APICALL %s GL_APIENTRY %s(%s) {" % (needExternC(entry), entry.return_type, entry.__name__, entry.parameters))
+         gen_cxt_getter(entry)
+         gen_validations_custom_impl(entry)
+         gen_call_ret(entry)
+@@ -339,7 +339,7 @@ def gen_dll_wrapper(entries, prefix_name
+     print("///")
+     print("")
+     for entry in entries:
+-        ptr_name = ENTRY_PREFIX + entry.func_name
++        ptr_name = ENTRY_PREFIX + entry.__name__
+         print("static %s (*%s)(%s) = 0;" % \
+                 (entry.return_type, ptr_name, entry.parameters))
+ 
+@@ -351,8 +351,8 @@ def gen_dll_wrapper(entries, prefix_name
+ 
+     for entry in entries:
+         print ("%s %s(%s) {" % \
+-                (entry.return_type, entry.func_name, entry.parameters))
+-        ptr_name = ENTRY_PREFIX + entry.func_name
++                (entry.return_type, entry.__name__, entry.parameters))
++        ptr_name = ENTRY_PREFIX + entry.__name__
+         if entry.return_type != "void":
+             print("  return %s(%s);" % (ptr_name, entry.call))
+         else:
+@@ -367,12 +367,12 @@ def gen_dll_wrapper(entries, prefix_name
+ 
+     print("int %s_dynlink_init(void* lib) {" % prefix_name)
+     for entry in entries:
+-        ptr_name = ENTRY_PREFIX + entry.func_name
++        ptr_name = ENTRY_PREFIX + entry.__name__
+         print("  %s = (%s(*)(%s))dlsym(lib, \"%s\");" % \
+                 (ptr_name,
+                  entry.return_type,
+                  entry.parameters,
+-                 entry.func_name))
++                 entry.__name__))
+         print("  if (!%s) return -1;" % ptr_name)
+     print("  return 0;")
+     print("}")
+@@ -383,7 +383,7 @@ def gen_windows_def_file(entries):
+     """
+     print("EXPORTS")
+     for entry in entries:
+-        print("    %s" % entry.func_name)
++        print("    %s" % entry.__name__)
+ 
+ 
+ def gen_unix_sym_file(entries):
+@@ -393,7 +393,7 @@ def gen_unix_sym_file(entries):
+     print("VERSION {")
+     print("\tglobal:")
+     for entry in entries:
+-        print("\t\t%s;" % entry.func_name)
++        print("\t\t%s;" % entry.__name__)
+     print("\tlocal:")
+     print("\t\t*;")
+     print("};")
+@@ -407,7 +407,7 @@ def gen_symbols(entries, underscore):
+     if underscore:
+         prefix = "_"
+     for entry in entries:
+-        print("%s%s" % (prefix, entry.func_name))
++        print("%s%s" % (prefix, entry.__name__))
+ 
+ def parse_file(filename, lines, mode):
+     """Generate one of possible outputs from |filename|. |lines| must be a list
