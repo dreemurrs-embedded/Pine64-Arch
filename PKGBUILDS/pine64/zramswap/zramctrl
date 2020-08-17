@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [ -f /etc/zramswap.conf ]; then
+  source /etc/zramswap.conf
+fi
+
+start() {
+  if [ ! "$ZRAM_SIZE_PERCENT" ]; then
+    ZRAM_SIZE_PERCENT=20
+  fi
+  (( MEM_TOTAL= `cat /proc/meminfo|grep MemTotal|awk '{print $2}'` * 1024 ))
+  (( MEM= MEM_TOTAL * $ZRAM_SIZE_PERCENT / 100 ))
+  modprobe zram
+  if [ -n "$ZRAM_COMPRESSION_ALGO" ]; then
+    echo "$ZRAM_COMPRESSION_ALGO" > /sys/block/zram0/comp_algorithm
+  fi
+  echo $MEM > /sys/block/zram0/disksize
+  mkswap /dev/zram0 -L zram0
+  swapon -p 100 /dev/zram0
+}
+
+stop() {
+  swapoff /dev/zram0
+  rmmod zram
+}
+
+case $1 in
+  start|stop) "$1" ;;
+esac
