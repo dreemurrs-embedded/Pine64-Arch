@@ -1,0 +1,17 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=anbox-image-aarch64
+pkgver=0_20200520
+pkgrel=0
+pkgdesc="Anbox image for ARM64"
+arch=(aarch64)
+url="https://anbox.postmarketos.org"
+license=('custom')
+depends=(anbox)
+provides=(anbox-image)
+source=(android.img::http://anbox.postmarketos.org/android-7.1.2_r39-anbox_arm64-userdebug.img)
+
+package() {
+  install -Dm644 "$srcdir"/android.img "$pkgdir"/var/lib/anbox/android.img
+}
+
+md5sums=('5c2e2a5fc1e6a388f6949b3df65b5c0c')
