@@ -1,19 +1,20 @@
 # Maintainer: Danct12 <danct12@disroot.org>
-pkgname=gnome-camera
-pkgver=0.0.0+git20200715
-pkgrel=1
+pkgname=pinhole
+pkgver=0.0.0+git20200816
+pkgrel=0
 pkgdesc="Take photos and videos on your computer or smartphone"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/jwestman/camera"
 license=('GPL')
 depends=('gtk3' 'libaperture' 'libhandy1' 'gst-plugin-gtk' 'gst-plugins-good' 'gst-plugins-bad')
 makedepends=('git' 'meson' 'vala')
-_commit="0a48305877762b98709f7f0fabb35131bd9e1ea7"
+replaces=('gnome-camera')
+_commit="e7a1bc9b35027ef2c43c75a4bb73367c91100024"
 source=(git+https://gitlab.gnome.org/jwestman/camera.git#commit=$_commit)
-md5sums=("SKIP")
+md5sums=('SKIP')
 
 build() {
-  arch-meson camera build -Dexecutable_name=gnome-camera
+  arch-meson camera build -Dexecutable_name=pinhole
   meson compile -C build
 }
 
