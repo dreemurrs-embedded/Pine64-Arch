@@ -10,3 +10,6 @@
 [submodule "PKGBUILDS/pine64/qt5-es2-wayland"]
 	path = PKGBUILDS/pine64/qt5-es2-wayland
 	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-wayland.git
+[submodule "PKGBUILDS/pine64/ofono"]
+	path = PKGBUILDS/pine64/ofono
+	url = https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/ofono.git
