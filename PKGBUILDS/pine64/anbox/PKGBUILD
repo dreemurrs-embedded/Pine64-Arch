@@ -53,7 +53,7 @@ build() {
 		-DBUILD_TESTING=False \
 		-DANBOX_VERSION=danctnix-$pkgver-r$pkgrel \
 		-DWerror=OFF
-	make
+	make -j1
 }
 
 package() {
