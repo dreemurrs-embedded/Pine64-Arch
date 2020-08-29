@@ -3,7 +3,7 @@
 
 pkgname=anbox
 pkgver=0_git20200821
-pkgrel=0
+pkgrel=1
 arch=(x86_64 armv7h aarch64)
 url="http://anbox.io/"
 license=('GPL3')
@@ -15,6 +15,7 @@ _sdbus_cpp_commit="3b735bf1aad65277f56e65c828a22455cbaf5245"
 source=("$pkgname-$_commit.tar.gz::https://github.com/anbox/anbox/archive/$_commit.tar.gz"
 	"cpu_features-$_cpu_features_commit.tar.gz::https://github.com/google/cpu_features/archive/$_cpu_features_commit.tar.gz"
 	"sdbus_cpp-$_sdbus_cpp_commit.tar.gz::https://github.com/Kistler-Group/sdbus-cpp/archive/$_sdbus_cpp_commit.tar.gz"
+	'inputmethod-hack.patch'
 	'give-more-time-to-start.patch'
 	'python3.patch'
 	'anbox-container-manager.service'
@@ -32,6 +33,9 @@ prepare() {
 
 	rm -r external/sdbus-cpp
 	cp -r $srcdir/sdbus-cpp-*/ external/sdbus-cpp
+
+	# inputmethod hack
+	patch -p1 -N < ../inputmethod-hack.patch
 
 	patch -p1 -N < ../give-more-time-to-start.patch
 	patch -p1 -N < ../python3.patch
@@ -69,10 +73,15 @@ package() {
 
   install -Dm755 scripts/anbox-bridge.sh $pkgdir/usr/share/anbox/anbox-bridge.sh
   install -Dm755 scripts/anbox-shell.sh $pkgdir/usr/share/anbox/anbox-shell.sh
+
+  # start the container service on boot
+  mkdir -p $pkgdir/usr/lib/systemd/system/multi-user.target.wants
+  ln -sfv ../anbox-container-manager.service $pkgdir/usr/lib/systemd/system/multi-user.target.wants/anbox-container-manager.service
 }
 md5sums=('8162a7ba963a2cc8f9faccb50eaca96e'
          '68954a1285359f2de777a4a6aa82bcc7'
          '403b77272d205aaa2bfcdceb8fa3afa3'
+         '2dc0a582de4429cd28f050f58cf1f815'
          '4ccfa0d5d1188bde722077048d02e84a'
          '30ddec19b26469062aaa34aaee02f432'
          '654183805a524635454632712db618ed'
