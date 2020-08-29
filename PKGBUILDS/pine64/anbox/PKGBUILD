@@ -2,17 +2,19 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=anbox
-pkgver=0_git20200609
+pkgver=0_git20200821
 pkgrel=0
 arch=(x86_64 armv7h aarch64)
 url="http://anbox.io/"
 license=('GPL3')
 depends=('lxc' 'sdl2_image' 'protobuf' 'libsystemd' 'boost-libs')
 makedepends=('cmake' 'git' 'glm' 'lxc' 'sdl2_image' 'protobuf' 'properties-cpp' 'boost' 'python3' 'gtest')
-_commit="c898810050df67adccd64a84b2d763250a42e722"
+_commit="c1e75506bad0c479c8591970ce422aa8646654ac"
 _cpu_features_commit="b5c271c53759b2b15ff91df19bd0b32f2966e275"
+_sdbus_cpp_commit="3b735bf1aad65277f56e65c828a22455cbaf5245"
 source=("$pkgname-$_commit.tar.gz::https://github.com/anbox/anbox/archive/$_commit.tar.gz"
 	"cpu_features-$_cpu_features_commit.tar.gz::https://github.com/google/cpu_features/archive/$_cpu_features_commit.tar.gz"
+	"sdbus_cpp-$_sdbus_cpp_commit.tar.gz::https://github.com/Kistler-Group/sdbus-cpp/archive/$_sdbus_cpp_commit.tar.gz"
 	'give-more-time-to-start.patch'
 	'python3.patch'
 	'anbox-container-manager.service'
@@ -27,6 +29,9 @@ prepare() {
 	# the bundled cpu_features is outdated and breaks build on arm.
 	rm -r external/cpu_features
 	cp -r $srcdir/cpu_features-*/ external/cpu_features
+
+	rm -r external/sdbus-cpp
+	cp -r $srcdir/sdbus-cpp-*/ external/sdbus-cpp
 
 	patch -p1 -N < ../give-more-time-to-start.patch
 	patch -p1 -N < ../python3.patch
@@ -65,8 +70,9 @@ package() {
   install -Dm755 scripts/anbox-bridge.sh $pkgdir/usr/share/anbox/anbox-bridge.sh
   install -Dm755 scripts/anbox-shell.sh $pkgdir/usr/share/anbox/anbox-shell.sh
 }
-md5sums=('52ecd71e30298eb8303075ceeb876535'
+md5sums=('8162a7ba963a2cc8f9faccb50eaca96e'
          '68954a1285359f2de777a4a6aa82bcc7'
+         '403b77272d205aaa2bfcdceb8fa3afa3'
          '4ccfa0d5d1188bde722077048d02e84a'
          '30ddec19b26469062aaa34aaee02f432'
          '654183805a524635454632712db618ed'
