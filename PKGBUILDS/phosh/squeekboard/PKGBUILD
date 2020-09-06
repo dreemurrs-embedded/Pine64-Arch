@@ -7,6 +7,7 @@ arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/squeekboard"
 license=('GPL')
 depends=('gtk3' 'gnome-desktop' 'feedbackd')
+optdepends=('noto-fonts-emoji: Emoji support')
 makedepends=('rust' 'cargo' 'meson' 'ninja')
 source=(https://source.puri.sm/Librem5/squeekboard/-/archive/v$pkgver/squeekboard-v$pkgver.tar.gz)
 
