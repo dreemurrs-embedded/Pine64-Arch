@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-ui-meta
 pkgver=0.1
-pkgrel=12
+pkgrel=13
 pkgdesc="Meta package for Phosh"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -18,6 +18,7 @@ depends=(
 	chatty
 	kgx
 	squeekboard
+	dnsmasq
 	gnome-software-mobile
 	gnome-control-center-mobile
 	gnome-contacts-mobile
@@ -42,7 +43,8 @@ source=(
 	qvidcap.desktop
 	vim.desktop
 	01-phoc-scaling
-	dconf-profile-danctnix)
+	dconf-profile-danctnix
+	danctnix_feedbackd.json)
 
 package() {
 	# Hide apps we don't care
@@ -62,11 +64,14 @@ package() {
 	# Dconf
 	install -Dm755 "$srcdir"/dconf-profile-danctnix "$pkgdir"/etc/dconf/profile/user
 	install -Dm755 "$srcdir"/01-phoc-scaling "$pkgdir"/etc/dconf/db/danctnix.d/01-phoc-scaling
+
+	# Feedbackd
+	install -Dm644 "$srcdir"/danctnix_feedbackd.json "$pkgdir"/usr/share/feedbackd/themes/danctnix.json
 }
 
 
 md5sums=('7567fd058afb2a7e5c8690fff0291c80'
-         '4e060d406b742a03336224389c2e648a'
+         'f43e513598de8a3b2185c49eca31f43a'
          '5a125ec8db04c3eaadd64b913dbca494'
          'b55db963b6aa8e510787eae5cda2e3c2'
          '663ea1f9f3db9cab5be49aa01bf816a1'
@@ -80,4 +85,5 @@ md5sums=('7567fd058afb2a7e5c8690fff0291c80'
          '40a3cfff4bb4f499f2d31d9b80ac36df'
          'ab46e1b0be015b1cd45e0ae338bb13df'
          '82e48accf8280087cedbde389a96860b'
-         'c74df615bedb6c45fd997e54dcafd564')
+         'c74df615bedb6c45fd997e54dcafd564'
+         '1acb7434a384bc3e57855fe9fc63fe88')
