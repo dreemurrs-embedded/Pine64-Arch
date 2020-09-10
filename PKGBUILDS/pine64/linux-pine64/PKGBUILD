@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64"
 pkgver=5.7.19
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -28,6 +28,7 @@ source=("linux-$_commit.tar.gz::https://gitlab.com/pine64-org/linux/-/archive/${
         '5w-15w-anx7688-power.patch'
         'enable-hdmi-output.patch'
         'improve-brightness.patch'
+        'new-pinetab-panel.patch'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
@@ -65,6 +66,9 @@ prepare() {
 
   # Improve brightness
   patch -p1 -N < ../improve-brightness.patch
+
+  # support the new pinetab panel
+  patch -p1 -N < ../new-pinetab-panel.patch
 
   # bootsplash stuffs (took from glorious manjaro arm)
   patch -Np1 -i "${srcdir}/0001-bootsplash.patch"
@@ -265,7 +269,7 @@ for _p in ${pkgname[@]}; do
   }"
 done
 md5sums=('cac7b8e68bb84ca1640f9cbed63225cc'
-         '307bfaaec0631a224e9b5156b49c21a1'
+         '0f35495dabc4ba5c4292429ea3246e0a'
          '37866c50af64b0b559278cc2bb63f021'
          'b5a6d0bd17219be510a494aeec02c6d9'
          '1352a07497e7992a9c093916c0b702c5'
@@ -273,6 +277,7 @@ md5sums=('cac7b8e68bb84ca1640f9cbed63225cc'
          '14c5f901974192179a6c4a2ba8370509'
          '9c6a8f3bcc90f25ceb0ebcd710265ffd'
          'da7c3170f0d34d041cfd819ea3f2c56f'
+         '41c953ca20ecea14a05ceccf24f1b0bf'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
