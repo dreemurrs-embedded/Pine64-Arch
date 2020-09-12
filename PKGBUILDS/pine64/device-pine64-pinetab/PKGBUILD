@@ -1,14 +1,15 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="PineTab device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
 depends=(linux-pine64
 	uboot-pinephone
-	rtl8723bt-firmware)
+	rtl8723bt-firmware
+	alsa-ucm-pinetab)
 source=(pinetab-camera-setup.service
 	pinetab-camera-setup.sh
 	pinetab-suspend-hook.sh
