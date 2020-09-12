@@ -75,12 +75,12 @@
         {
           "event-name" : "button-pressed",
           "type"       : "VibraRumble",
-          "duration"   : 100
+          "duration"   : 80
         },
         {
           "event-name" : "button-released",
           "type"       : "VibraRumble",
-          "duration"   : 70
+          "duration"   : 40
         },
         {
           "event-name" : "message-new-email",
