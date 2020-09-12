@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab
 pkgver=0.1
-pkgrel=2
+pkgrel=3
 pkgdesc="PineTab device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -29,7 +29,7 @@ package() {
 	install -Dm644 "$srcdir"/phoc.ini "$pkgdir"/etc/phosh/phoc.ini
 }
 
-md5sums=('a9e5d68b0f52e09892a1c13724f38475'
+md5sums=('cf68fc6cf6bb028a36fae9db8108534e'
          '3dd30470fe4747b0e1192663e0663e18'
          '2199e3df7ba331ecf4fc662f24ab7eec'
          '5b09f56730748532e169173d124f7cad')

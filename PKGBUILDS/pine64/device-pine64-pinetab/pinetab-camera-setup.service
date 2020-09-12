@@ -1,9 +1,9 @@
 [Unit]
-Description=Configure PinePhone Camera
+Description=Configure PineTab Camera
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/pinephone-camera-setup.sh
+ExecStart=/usr/bin/pinetab-camera-setup.sh
 
 [Install]
 WantedBy=multi-user.target
