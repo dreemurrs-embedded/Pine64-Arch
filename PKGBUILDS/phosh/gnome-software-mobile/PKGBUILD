@@ -5,7 +5,7 @@
 
 pkgname=gnome-software-mobile
 pkgver=3.34.0
-pkgrel=1
+pkgrel=2
 pkgdesc="GNOME Software Tools - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-software"
 arch=(x86_64 armv7h aarch64)
