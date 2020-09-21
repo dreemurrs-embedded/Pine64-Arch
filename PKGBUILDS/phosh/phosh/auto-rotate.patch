@@ -1,4 +1,4 @@
-From 6d828c6dcd3f69eeeab1292074073f6468250058 Mon Sep 17 00:00:00 2001
+From d9c4edbb67f67d29d9e20e31fbcfa583d5b66cfd Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:05:57 +0200
 Subject: [PATCH 1/3] Add rotation-manager
@@ -19,17 +19,17 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  src/meson.build        |   2 +
  src/rotation-manager.c | 383 +++++++++++++++++++++++++++++++++++++++++
  src/rotation-manager.h |  23 +++
- src/shell.c            |  30 +++-
+ src/shell.c            |  29 +++-
  src/shell.h            |   2 +
- 6 files changed, 440 insertions(+), 1 deletion(-)
+ 6 files changed, 439 insertions(+), 1 deletion(-)
  create mode 100644 src/rotation-manager.c
  create mode 100644 src/rotation-manager.h
 
 diff --git a/docs/phosh-docs.xml b/docs/phosh-docs.xml
-index 1621049b..61101609 100644
+index d7f0b80..8d8ecd4 100644
 --- a/docs/phosh-docs.xml
 +++ b/docs/phosh-docs.xml
-@@ -77,6 +77,7 @@
+@@ -87,6 +87,7 @@
        <xi:include href="xml/proximity.xml"/>
        <xi:include href="xml/quick-setting.xml"/>
        <xi:include href="xml/rotateinfo.xml"/>
@@ -38,10 +38,10 @@ index 1621049b..61101609 100644
        <xi:include href="xml/sensor-proxy-manager.xml"/>
        <xi:include href="xml/session.xml"/>
 diff --git a/src/meson.build b/src/meson.build
-index d528d932..2e8a9ee3 100644
+index 93df138..fe7175c 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -120,6 +120,8 @@ libphosh_sources = [
+@@ -122,6 +122,8 @@ libphosh_sources = [
    'polkit-auth-prompt.h',
    'proximity.h',
    'proximity.c',
@@ -52,7 +52,7 @@ index d528d932..2e8a9ee3 100644
    'rotateinfo.c',
 diff --git a/src/rotation-manager.c b/src/rotation-manager.c
 new file mode 100644
-index 00000000..298e662c
+index 0000000..298e662
 --- /dev/null
 +++ b/src/rotation-manager.c
 @@ -0,0 +1,383 @@
@@ -441,7 +441,7 @@ index 00000000..298e662c
 +}
 diff --git a/src/rotation-manager.h b/src/rotation-manager.h
 new file mode 100644
-index 00000000..04ebf1f5
+index 0000000..04ebf1f
 --- /dev/null
 +++ b/src/rotation-manager.h
 @@ -0,0 +1,23 @@
@@ -469,10 +469,10 @@ index 00000000..04ebf1f5
 +
 +G_END_DECLS
 diff --git a/src/shell.c b/src/shell.c
-index d316b24c..b9063fff 100644
+index 476028f..7da615a 100644
 --- a/src/shell.c
 +++ b/src/shell.c
-@@ -38,6 +38,7 @@
+@@ -43,6 +43,7 @@
  #include "phosh-wayland.h"
  #include "polkit-auth-agent.h"
  #include "proximity.h"
@@ -480,7 +480,7 @@ index d316b24c..b9063fff 100644
  #include "sensor-proxy-manager.h"
  #include "screen-saver-manager.h"
  #include "session.h"
-@@ -63,6 +64,7 @@ enum {
+@@ -70,6 +71,7 @@ enum {
    PHOSH_SHELL_PROP_ROTATION,
    PHOSH_SHELL_PROP_LOCKED,
    PHOSH_SHELL_PROP_PRIMARY_MONITOR,
@@ -488,15 +488,15 @@ index d316b24c..b9063fff 100644
    PHOSH_SHELL_PROP_LAST_PROP
  };
  static GParamSpec *props[PHOSH_SHELL_PROP_LAST_PROP];
-@@ -93,6 +95,7 @@ typedef struct
+@@ -101,6 +103,7 @@ typedef struct
    /* sensors */
    PhoshSensorProxyManager *sensor_proxy_manager;
    PhoshProximity *proximity;
 +  PhoshRotationManager *rotation_manager;
  
    gboolean startup_finished;
-   gint rot; /* current rotation of primary monitor */
-@@ -304,6 +307,9 @@ phosh_shell_get_property (GObject *object,
+   int rot; /* current rotation of primary monitor */
+@@ -312,6 +315,9 @@ phosh_shell_get_property (GObject *object,
    case PHOSH_SHELL_PROP_PRIMARY_MONITOR:
      g_value_set_object (value, phosh_shell_get_primary_monitor (self));
      break;
@@ -506,15 +506,15 @@ index d316b24c..b9063fff 100644
    default:
      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
      break;
-@@ -337,6 +343,7 @@ phosh_shell_dispose (GObject *object)
-   g_clear_object (&priv->polkit_auth_agent);
-   g_clear_object (&priv->background_manager);
+@@ -356,6 +362,7 @@ phosh_shell_dispose (GObject *object)
+ 
+   /* sensors */
    g_clear_object (&priv->proximity);
 +  g_clear_object (&priv->rotation_manager);
    g_clear_object (&priv->sensor_proxy_manager);
-   g_clear_object (&priv->feedback_manager);
-   g_clear_object (&priv->primary_monitor);
-@@ -457,7 +464,9 @@ setup_idle_cb (PhoshShell *self)
+   phosh_system_prompter_unregister ();
+   phosh_session_unregister ();
+@@ -474,7 +481,9 @@ setup_idle_cb (PhoshShell *self)
    if (priv->sensor_proxy_manager) {
      priv->proximity = phosh_proximity_new (priv->sensor_proxy_manager,
                                             priv->lockscreen_manager);
@@ -525,7 +525,7 @@ index d316b24c..b9063fff 100644
    }
  
    phosh_session_register (PHOSH_APP_ID);
-@@ -607,6 +616,13 @@ phosh_shell_class_init (PhoshShellClass *klass)
+@@ -624,6 +633,13 @@ phosh_shell_class_init (PhoshShellClass *klass)
                           PHOSH_TYPE_MONITOR,
                           G_PARAM_READWRITE | G_PARAM_EXPLICIT_NOTIFY);
  
@@ -539,8 +539,8 @@ index d316b24c..b9063fff 100644
    g_object_class_install_properties (object_class, PHOSH_SHELL_PROP_LAST_PROP, props);
  }
  
-@@ -837,6 +853,18 @@ phosh_shell_get_feedback_manager (PhoshShell *self)
-   return priv->feedback_manager;
+@@ -886,6 +902,17 @@ phosh_shell_get_wwan (PhoshShell *self)
+   return priv->wwan;
  }
  
 +PhoshRotationManager *
@@ -554,15 +554,14 @@ index d316b24c..b9063fff 100644
 +
 +  return priv->rotation_manager;
 +}
-+
+ 
  /**
   * Returns the usable area in pixels usable by a client on the phone
-  * display
 diff --git a/src/shell.h b/src/shell.h
-index 3074a611..2fcd0485 100644
+index 377738f..e5cd51f 100644
 --- a/src/shell.h
 +++ b/src/shell.h
-@@ -12,6 +12,7 @@
+@@ -13,6 +13,7 @@
  #include "monitor/monitor.h"
  #include "lockscreen-manager.h"
  #include "osk-manager.h"
@@ -570,19 +569,18 @@ index 3074a611..2fcd0485 100644
  #include "toplevel-manager.h"
  #include "wifimanager.h"
  #include "bt-manager.h"
-@@ -49,6 +50,7 @@ PhoshToplevelManager *phosh_shell_get_toplevel_manager (PhoshShell *self);
+@@ -51,6 +52,7 @@ PhoshToplevelManager *phosh_shell_get_toplevel_manager (PhoshShell *self);
  PhoshWifiManager    *phosh_shell_get_wifi_manager    (PhoshShell *self);
  PhoshFeedbackManager *phosh_shell_get_feedback_manager (PhoshShell *self);
  PhoshBtManager      *phosh_shell_get_bt_manager      (PhoshShell *self);
 +PhoshRotationManager *phosh_shell_get_rotation_manager (PhoshShell *self);
+ PhoshWWan           *phosh_shell_get_wwan        (PhoshShell *self);
  void                 phosh_shell_fade_out (PhoshShell *self, guint timeout);
  void                 phosh_shell_enable_power_save (PhoshShell *self, gboolean enable);
- gboolean             phosh_shell_started_by_display_manager(PhoshShell *self);
 -- 
-2.26.2
+2.28.0
 
-
-From 28fbcef6e86aa15fa56af9e546197fa268d9c671 Mon Sep 17 00:00:00 2001
+From 5fca0e097f89293dd16b2cd5b183b8168f246219 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:08:53 +0200
 Subject: [PATCH 2/3] rotateinfo: Display rotation lock instead of orientation
@@ -603,10 +601,10 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 65 insertions(+), 37 deletions(-)
 
 diff --git a/src/rotateinfo.c b/src/rotateinfo.c
-index 178d8ba5..18157734 100644
+index 80cebe9..58a98e2 100644
 --- a/src/rotateinfo.c
 +++ b/src/rotateinfo.c
-@@ -13,10 +13,10 @@
+@@ -15,10 +15,10 @@
  
  /**
   * SECTION:rotateinfo
@@ -619,7 +617,7 @@ index 178d8ba5..18157734 100644
   */
  
  typedef struct _PhoshRotateInfo {
-@@ -26,61 +26,89 @@ typedef struct _PhoshRotateInfo {
+@@ -28,61 +28,89 @@ typedef struct _PhoshRotateInfo {
  
  G_DEFINE_TYPE (PhoshRotateInfo, phosh_rotate_info, PHOSH_TYPE_STATUS_ICON)
  
@@ -745,10 +743,9 @@ index 178d8ba5..18157734 100644
  phosh_rotate_info_new (void)
  {
 -- 
-2.26.2
+2.28.0
 
-
-From 05f584da2ba38cc6ad0233e0c5ecc9c4fcc22de0 Mon Sep 17 00:00:00 2001
+From b072fef6e9ed7b7bd0fcbc38cbebf927c0c4df81 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:10:38 +0200
 Subject: [PATCH 3/3] settings: Toggle orientation lock in quick settings
@@ -766,11 +763,11 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  2 files changed, 10 insertions(+), 8 deletions(-)
 
 diff --git a/src/settings.c b/src/settings.c
-index d71e64b7..8fa81012 100644
+index 5ac4609..8451cd4 100644
 --- a/src/settings.c
 +++ b/src/settings.c
-@@ -81,15 +81,16 @@ brightness_value_changed_cb (GtkScale *scale_brightness, gpointer *unused)
- 
+@@ -89,15 +89,16 @@ brightness_value_changed_cb (GtkScale *scale_brightness, gpointer *unused)
+ }
  
  static void
 -rotation_setting_clicked_cb (PhoshSettings *self)
@@ -792,18 +789,18 @@ index d71e64b7..8fa81012 100644
  }
  
  static void
-@@ -429,7 +430,8 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+@@ -502,7 +503,8 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
    gtk_widget_class_bind_template_child (widget_class, PhoshSettings, sw_notifications);
  
    gtk_widget_class_bind_template_callback (widget_class, battery_setting_clicked_cb);
 -  gtk_widget_class_bind_template_callback (widget_class, rotation_setting_clicked_cb);
-+  gtk_widget_class_bind_template_callback (widget_class, rotation_locked_setting_clicked_cb);  
++  gtk_widget_class_bind_template_callback (widget_class, rotation_locked_setting_clicked_cb);
 +
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_clicked_cb);
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
    gtk_widget_class_bind_template_callback (widget_class, wifi_setting_clicked_cb);
 diff --git a/src/ui/settings-menu.ui b/src/ui/settings-menu.ui
-index a094f376..6d39f837 100644
+index 43dad28..0c9ff1b 100644
 --- a/src/ui/settings-menu.ui
 +++ b/src/ui/settings-menu.ui
 @@ -94,7 +94,7 @@
@@ -816,5 +813,5 @@ index a094f376..6d39f837 100644
                        <object class="PhoshRotateInfo" id="rotateinfo">
                          <property name="visible">True</property>
 -- 
-2.26.2
+2.28.0
 

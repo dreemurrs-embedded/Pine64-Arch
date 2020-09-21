@@ -1,12 +1,12 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.4.3
+pkgver=0.4.4
 pkgrel=0
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phosh"
 license=('GPL')
-depends=('gtk3' 'libhandy' 'gnome-desktop' 'gnome-session' 'upower' 'libpulse'
+depends=('gtk3' 'libhandy1' 'gnome-desktop' 'gnome-session' 'upower' 'libpulse'
          'gcr' 'feedbackd' 'libnm' 'phoc')
 makedepends=('meson' 'ninja')
 _commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
@@ -42,9 +42,9 @@ package() {
 		"$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
-md5sums=('bfb938fe34772671ed42b8db1460c2b2'
+md5sums=('7952fd3b9efb1a4f50bd74e16b65a9af'
          'c08f04485db11997525c139346faecc8'
-         'f53ee61c53063520564333b38d8e40bc'
+         '5f102eabe29d90c675e7f68fd7fb2cf2'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
          'efeeab2f55315f576c88e45c494edc7c')
