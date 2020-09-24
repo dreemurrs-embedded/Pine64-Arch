@@ -4,7 +4,7 @@
 
 pkgname=gtk3-mobile
 pkgver=3.24.8
-pkgrel=0
+pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/gtk"
@@ -47,7 +47,7 @@ build() {
 
 package() {
   depends+=(gtk-update-icon-cache)
-  provides=(gtk3 gtk3-print-backends)
+  provides=(gtk3 gtk3-print-backends libgtk-3.so libgdk-3.so libgailutil-3.so)
   conflicts=(gtk3 gtk3-print-backends)
 
   DESTDIR="$pkgdir" make -C gtk-$_commit install
