@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=megapixels
-pkgver=0.7.0
+pkgver=0.9.0
 pkgrel=1
 pkgdesc="A camera app that deal with V4L2 request"
 url="https://git.sr.ht/~martijnbraam/megapixels"
@@ -9,7 +9,7 @@ arch=('x86_64' 'armv7h' 'aarch64')
 depends=('glib2' 'gtk3')
 makedepends=('meson' 'ninja')
 source=("https://git.sr.ht/~martijnbraam/megapixels/archive/${pkgver}.tar.gz")
-sha256sums=('9a5e555924b183e7c4d75d8afdd10a24bcfcad20f898e8d27b3eb171f31f4dd3')
+sha256sums=('36f0ec1c2f098d91832d572b57cb217a28e51420a1b92e5b6e6fd089fa73d2c1')
 
 build() {
     arch-meson $pkgname-$pkgver build
