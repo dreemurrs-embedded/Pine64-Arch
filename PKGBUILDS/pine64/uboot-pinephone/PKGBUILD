@@ -4,8 +4,8 @@
 buildarch=8
 
 pkgname=uboot-pinephone
-pkgver=v2020.07
-pkgrel=2
+pkgver=v2020.10_rc3
+pkgrel=1
 pkgdesc="U-Boot for Pine64 - CRUST EDITION"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -13,7 +13,7 @@ license=('GPL')
 makedepends=('bc' 'python' 'swig' 'dtc')
 install=${pkgname}.install
 
-_commit_uboot="495f85a398272e6d8ea8142790158afa1bb29c77"
+_commit_uboot="7206996ef7f89375dd74b275ced62d85f8bc7f42"
 _commit_atf="f928897fa5df6afa0f70bb1b1011e4bb03cb4596"
 
 source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/archive/${_commit_uboot}/u-boot-${_commit_uboot}.tar.gz"
@@ -23,7 +23,7 @@ source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/ar
         'boot.txt'
         'mkscr'
         'scp.bin')
-md5sums=('3cb1a4c194490993a4a12c06c0be65f5'
+md5sums=('96ca5597c63d724b245315ca88589a21'
          'ec70813ae71f978f07795cde13ba42c0'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
