@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64"
 pkgver=5.7.19
-pkgrel=7
+pkgrel=8
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -31,6 +31,7 @@ source=("linux-$_commit.tar.gz::https://gitlab.com/pine64-org/linux/-/archive/${
         'enable-jack-detection-pinetab.patch'
         'pinetab-bluetooth.patch'
         'camera-added-bggr-bayer-mode.patch'
+        'camera-autofocus.patch'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
@@ -69,6 +70,7 @@ prepare() {
 
   # camera
   patch -p1 -N < ../camera-added-bggr-bayer-mode.patch
+  patch -p1 -N < ../camera-autofocus.patch
 
   # pinetab
   patch -p1 -N < ../new-pinetab-panel.patch
@@ -284,6 +286,7 @@ md5sums=('cac7b8e68bb84ca1640f9cbed63225cc'
          '264f19a48c9184119cae92fc8a3d4442'
          '85d8339bc3d5daf45aa579d578ef0255'
          'a020d566b1b55988476b32840b204834'
+         'd62149494eca9917f394b1c6ad86aa49'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
