@@ -1,0 +1,52 @@
+From a184b5bf51a17016cfed26d44d959642352fbb26 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 7 Sep 2020 17:51:23 +0200
+Subject: [PATCH] wayland: Emit dummy configure event when resizing while fixed
+
+When a fixed size is active (e.g. the window is maximized),
+gtk_window_resize() shouldn't take immediate effect, so the request was
+dropped. This made GTK unhappy if this happened, it will freeze updating
+the window until it received the new size it demanded.
+
+Handle this by being nice and emitting a dummy GDK_CONFIGURE event with
+the old size where we previously ignored it. It won't resize the window
+immediately, so it shouldn't have a visible effect, and the size GTK
+requested is still saved away for when the window is unmaximized, but
+emitting the event will make GTK receive the event it expects.
+
+We still drop the request on the floor, e.g. if we still haven't seen
+the initial configuration, just as we do when actually doing the resize.
+
+Closes: https://gitlab.gnome.org/GNOME/gtk/-/issues/2907
+---
+ gdk/wayland/gdkwindow-wayland.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/gdk/wayland/gdkwindow-wayland.c b/gdk/wayland/gdkwindow-wayland.c
+index c91b882c9d..045368797d 100644
+--- a/gdk/wayland/gdkwindow-wayland.c
++++ b/gdk/wayland/gdkwindow-wayland.c
+@@ -3495,7 +3495,19 @@ gdk_window_wayland_move_resize (GdkWindow *window,
+       if (!should_use_fixed_size (window->state) ||
+           (width == impl->fixed_size_width &&
+            height == impl->fixed_size_height))
+-        gdk_wayland_window_maybe_configure (window, width, height, impl->scale);
++        {
++          gdk_wayland_window_maybe_configure (window,
++                                              width,
++                                              height,
++                                              impl->scale);
++        }
++      else if (!should_inhibit_resize (window))
++        {
++          gdk_wayland_window_configure (window,
++                                        window->width,
++                                        window->height,
++                                        impl->scale);
++        }
+     }
+ }
+ 
+-- 
+GitLab
+

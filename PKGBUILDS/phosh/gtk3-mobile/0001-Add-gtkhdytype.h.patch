@@ -1,0 +1,54 @@
+From d0369d15ce0b53507ffa597c9d81b133dc45bc31 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 1 Jul 2019 12:23:20 +0200
+Subject: [PATCH 01/23] Add gtkhdytype.h
+
+This will help importing Handy classes.
+---
+ gtk/gtkhdytype.h | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+ create mode 100644 gtk/gtkhdytype.h
+
+diff --git a/gtk/gtkhdytype.h b/gtk/gtkhdytype.h
+new file mode 100644
+index 0000000000..3863e4d1c0
+--- /dev/null
++++ b/gtk/gtkhdytype.h
+@@ -0,0 +1,34 @@
++/*
++ * Copyright (C) 2019 Purism SPC
++ *
++ * SPDX-License-Identifier: LGPL-2.1+
++ */
++
++#pragma once
++
++#include <glib.h>
++
++G_BEGIN_DECLS
++
++#define GTK_HDY_DECLARE_DERIVABLE_TYPE(ModuleObjName, module_obj_name, MODULE, OBJ_NAME, ParentName) \
++  GType module_obj_name##_get_type (void);                                                               \
++  G_GNUC_BEGIN_IGNORE_DEPRECATIONS                                                                       \
++  typedef struct _##ModuleObjName ModuleObjName;                                                         \
++  typedef struct _##ModuleObjName##Class ModuleObjName##Class;                                           \
++  struct _##ModuleObjName { ParentName parent_instance; };                                               \
++                                                                                                         \
++  G_DEFINE_AUTOPTR_CLEANUP_FUNC (ModuleObjName, g_object_unref)                                               \
++                                                                                                         \
++  static inline ModuleObjName * MODULE##_##OBJ_NAME (gpointer ptr) {                                     \
++    return G_TYPE_CHECK_INSTANCE_CAST (ptr, module_obj_name##_get_type (), ModuleObjName); }             \
++  static inline ModuleObjName##Class * MODULE##_##OBJ_NAME##_CLASS (gpointer ptr) {                      \
++    return G_TYPE_CHECK_CLASS_CAST (ptr, module_obj_name##_get_type (), ModuleObjName##Class); }         \
++  static inline gboolean MODULE##_IS_##OBJ_NAME (gpointer ptr) {                                         \
++    return G_TYPE_CHECK_INSTANCE_TYPE (ptr, module_obj_name##_get_type ()); }                            \
++  static inline gboolean MODULE##_IS_##OBJ_NAME##_CLASS (gpointer ptr) {                                 \
++    return G_TYPE_CHECK_CLASS_TYPE (ptr, module_obj_name##_get_type ()); }                               \
++  static inline ModuleObjName##Class * MODULE##_##OBJ_NAME##_GET_CLASS (gpointer ptr) {                  \
++    return G_TYPE_INSTANCE_GET_CLASS (ptr, module_obj_name##_get_type (), ModuleObjName##Class); }       \
++  G_GNUC_END_IGNORE_DEPRECATIONS
++
++G_END_DECLS
+-- 
+2.28.0
+

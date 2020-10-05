@@ -1,0 +1,33 @@
+From 27c4307d7abbd16120f808c79a913c7475644870 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 24 Jun 2019 14:49:07 +0200
+Subject: [PATCH 09/23] GtkMessageDialog: Pack the buttons vertically
+
+This makes the dialog work better with horizontally constrained screens.
+---
+ gtk/gtkmessagedialog.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/gtk/gtkmessagedialog.c b/gtk/gtkmessagedialog.c
+index e70c82056c..36a224a2cb 100644
+--- a/gtk/gtkmessagedialog.c
++++ b/gtk/gtkmessagedialog.c
+@@ -36,6 +36,7 @@
+ #include "gtkimage.h"
+ #include "gtkintl.h"
+ #include "gtkprivate.h"
++#include "gtkorientable.h"
+ #include "gtktypebuiltins.h"
+ 
+ /**
+@@ -327,6 +328,7 @@ gtk_message_dialog_init (GtkMessageDialog *dialog)
+ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+   action_area = gtk_dialog_get_action_area (GTK_DIALOG (dialog));
+ G_GNUC_END_IGNORE_DEPRECATIONS
++  gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_VERTICAL);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (action_area), GTK_BUTTONBOX_EXPAND);
+ 
+   settings = gtk_widget_get_settings (GTK_WIDGET (dialog));
+-- 
+2.28.0
+

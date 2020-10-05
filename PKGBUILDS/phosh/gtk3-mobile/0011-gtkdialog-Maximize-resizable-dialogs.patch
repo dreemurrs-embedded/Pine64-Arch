@@ -1,0 +1,27 @@
+From 9d7702d2a6919441f21786fe9c4689b6b912fcfc Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Thu, 11 Jul 2019 10:26:16 +0200
+Subject: [PATCH 11/23] gtkdialog: Maximize resizable dialogs
+
+This will make them look better on phone screens.
+---
+ gtk/gtkdialog.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/gtk/gtkdialog.c b/gtk/gtkdialog.c
+index 1905b48db7..d29d16ce87 100644
+--- a/gtk/gtkdialog.c
++++ b/gtk/gtkdialog.c
+@@ -778,6 +778,9 @@ gtk_dialog_map (GtkWidget *widget)
+ 
+   GTK_WIDGET_CLASS (gtk_dialog_parent_class)->map (widget);
+ 
++  if (gtk_window_get_resizable (window))
++    gtk_window_maximize (window);
++
+   focus = gtk_window_get_focus (window);
+   if (!focus)
+     {
+-- 
+2.28.0
+

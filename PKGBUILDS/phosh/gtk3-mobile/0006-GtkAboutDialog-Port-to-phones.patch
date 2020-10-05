@@ -1,0 +1,183 @@
+From ffa3dd3f62c5940d7aae98b11db783bf43905215 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 28 Jan 2019 18:52:40 +0100
+Subject: [PATCH 06/23] GtkAboutDialog: Port to phones
+
+---
+ gtk/gtkaboutdialog.c     | 11 ++++++---
+ gtk/ui/gtkaboutdialog.ui | 50 +++++++++++++++++++++++++++++++++-------
+ 2 files changed, 50 insertions(+), 11 deletions(-)
+
+diff --git a/gtk/gtkaboutdialog.c b/gtk/gtkaboutdialog.c
+index 8bfbdac52e..ba6fc9cb65 100644
+--- a/gtk/gtkaboutdialog.c
++++ b/gtk/gtkaboutdialog.c
+@@ -51,12 +51,12 @@
+ #include "gtktogglebutton.h"
+ #include "gtktypebuiltins.h"
+ #include "gtkstack.h"
+-#include "gtkstackswitcher.h"
+ #include "gtksettings.h"
+ #include "gtkheaderbar.h"
+ #include "gtkprivate.h"
+ #include "gtkintl.h"
+ #include "gtkdialogprivate.h"
++#include "hdy-view-switcher-bar-private.h"
+ 
+ 
+ /**
+@@ -600,6 +600,7 @@ gtk_about_dialog_class_init (GtkAboutDialogClass *klass)
+   gtk_widget_class_bind_template_child_private (widget_class, GtkAboutDialog, credits_grid);
+   gtk_widget_class_bind_template_child_private (widget_class, GtkAboutDialog, license_view);
+ 
++  gtk_widget_class_bind_template_callback (widget_class, close_cb);
+   gtk_widget_class_bind_template_callback (widget_class, emit_activate_link);
+   gtk_widget_class_bind_template_callback (widget_class, text_view_event_after);
+   gtk_widget_class_bind_template_callback (widget_class, text_view_key_press_event);
+@@ -625,9 +626,9 @@ update_stack_switcher_visibility (GtkAboutDialog *about)
+ 
+   if (gtk_widget_get_visible (priv->credits_page) ||
+       gtk_widget_get_visible (priv->license_page))
+-    gtk_widget_show (priv->stack_switcher);
++    gtk_hdy_view_switcher_bar_set_reveal (GTK_HDY_VIEW_SWITCHER_BAR (priv->stack_switcher), TRUE);
+   else
+-    gtk_widget_hide (priv->stack_switcher);
++    gtk_hdy_view_switcher_bar_set_reveal (GTK_HDY_VIEW_SWITCHER_BAR (priv->stack_switcher), FALSE);
+ }
+ 
+ static void
+@@ -746,6 +747,8 @@ gtk_about_dialog_init (GtkAboutDialog *about)
+ 
+   gtk_dialog_set_default_response (GTK_DIALOG (about), GTK_RESPONSE_CANCEL);
+ 
++  g_type_ensure (GTK_TYPE_HDY_VIEW_SWITCHER_BAR);
++
+   gtk_widget_init_template (GTK_WIDGET (about));
+   gtk_dialog_set_use_header_bar_from_setting (GTK_DIALOG (about));
+ 
+@@ -2194,6 +2197,8 @@ add_credits_section (GtkAboutDialog  *about,
+   markup = g_strdup_printf ("<span size=\"small\">%s</span>", title);
+   label = gtk_label_new (markup);
+   gtk_label_set_use_markup (GTK_LABEL (label), TRUE);
++  gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
++  gtk_label_set_line_wrap_mode (GTK_LABEL (label), PANGO_WRAP_WORD_CHAR);
+   g_free (markup);
+   gtk_widget_set_halign (label, GTK_ALIGN_END);
+   gtk_widget_set_valign (label, GTK_ALIGN_CENTER);
+diff --git a/gtk/ui/gtkaboutdialog.ui b/gtk/ui/gtkaboutdialog.ui
+index 31bb628d9e..eb0fdffe44 100644
+--- a/gtk/ui/gtkaboutdialog.ui
++++ b/gtk/ui/gtkaboutdialog.ui
+@@ -6,23 +6,41 @@
+     <property name="icon-name">help-about</property>
+   </object>
+   <template class="GtkAboutDialog" parent="GtkDialog">
+-    <property name="border-width">5</property>
+-    <property name="resizable">0</property>
++    <property name="resizable">1</property>
+     <property name="type-hint">dialog</property>
+     <child internal-child="headerbar">
+       <object class="GtkHeaderBar" id="headerbar1">
+         <property name="visible">1</property>
+-        <property name="show-close-button">1</property>
+-        <child type="title">
+-          <object class="GtkStackSwitcher" id="stack_switcher">
+-            <property name="stack">stack</property>
+-            <property name="no-show-all">1</property>
++        <property name="show-close-button">0</property>
++        <child>
++          <object class="GtkButton" id="back">
++            <property name="receives-default">0</property>
++            <property name="valign">center</property>
++            <property name="visible">1</property>
++            <signal name="clicked" handler="close_cb" swapped="yes"/>
++            <style>
++              <class name="image-button"/>
++            </style>
++            <child internal-child="accessible">
++              <object class="AtkObject" id="a11y-back">
++                <property name="accessible-name" translatable="yes">Back</property>
++              </object>
++            </child>
++            <child>
++              <object class="GtkImage" id="back_image">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="icon_name">go-previous-symbolic</property>
++                <property name="icon_size">1</property>
++              </object>
++            </child>
+           </object>
+         </child>
+       </object>
+     </child>
+     <child internal-child="vbox">
+       <object class="GtkBox" id="dialog-vbox1">
++        <property name="border-width">0</property>
+         <property name="orientation">vertical</property>
+         <property name="spacing">2</property>
+         <child>
+@@ -57,12 +75,16 @@
+             </child>
+             <child>
+               <object class="GtkStack" id="stack">
+-                <property name="width-request">400</property>
++                <property name="width-request">300</property>
+                 <property name="height-request">100</property>
+                 <property name="visible">1</property>
+                 <property name="transition-type">over-up-down</property>
+                 <property name="transition-duration">600</property>
+                 <signal name="notify::visible-child" handler="stack_visible_child_notify" swapped="no"/>
++                <child>
++                  <object class="GtkScrolledWindow" id="scrolledwindow3">
++                    <property name="visible">1</property>
++                    <property name="hscrollbar-policy">never</property>
+                 <child>
+                   <object class="GtkBox" id="page_vbox">
+                     <property name="visible">1</property>
+@@ -131,9 +153,12 @@
+                         <property name="fill">0</property>
+                       </packing>
+                     </child>
++                  </object>
++                    </child>
+                   </object>
+                   <packing>
+                     <property name="name">main</property>
++                    <property name="icon-name">help-about-symbolic</property>
+                     <property name="title" translatable="yes">About</property>
+                   </packing>
+                 </child>
+@@ -174,6 +199,7 @@
+                   </object>
+                   <packing>
+                     <property name="name">credits</property>
++                    <property name="icon-name">system-users-symbolic</property>
+                     <property name="title" translatable="yes">Credits</property>
+                   </packing>
+                 </child>
+@@ -207,6 +233,7 @@
+                   </object>
+                   <packing>
+                     <property name="name">license</property>
++                    <property name="icon-name">accessories-dictionary-symbolic</property>
+                     <property name="title" translatable="yes">License</property>
+                   </packing>
+                 </child>
+@@ -222,6 +249,13 @@
+             <property name="position">1</property>
+           </packing>
+         </child>
++        <child>
++          <object class="GtkHdyViewSwitcherBar" id="stack_switcher">
++            <property name="stack">stack</property>
++            <property name="no-show-all">1</property>
++            <property name="visible">1</property>
++          </object>
++        </child>
+       </object>
+     </child>
+   </template>
+-- 
+2.28.0
+

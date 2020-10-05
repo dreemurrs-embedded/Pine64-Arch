@@ -3,11 +3,11 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.8
+pkgver=3.24.23
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://source.puri.sm/Librem5/gtk"
+url="https://www.gtk.org/"
 depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2 dconf
          libxcomposite libxdamage pango shared-mime-info at-spi2-atk wayland libxkbcommon
          adwaita-icon-theme json-glib librsvg wayland-protocols desktop-file-utils mesa
@@ -15,16 +15,85 @@ depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2 d
 makedepends=(gobject-introspection gtk-doc git glib2-docs sassc)
 license=(LGPL)
 install=gtk3.install
-_commit=6c2d6dd3b3cd979aa987d00b7f5bc5666dd55d69 # This is 3.24.8 from Purism
-source=("https://source.puri.sm/Librem5/gtk/-/archive/$_commit/gtk-$_commit.tar.bz2"
+_commit=016e8c55ab924c9ef4d32c8cb06253b1dc1be60d  # tags/3.24.23^0
+source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.bz2"
         settings.ini
-        gtk-query-immodules-3.0.hook)
-sha256sums=('858933f022d2c2b744fc0e5bdf7ba571d1438cb30558f66cb679b7fdd687c1a1'
+        gtk-query-immodules-3.0.hook
+        fix-wayland.patch
+        0001-Add-gtkhdytype.h.patch
+        0002-Support-libhandy-hardcoded-styles.patch
+        0003-Add-GtkHdyViewSwitcherButton.patch
+        0004-Add-GtkHdyViewSwitcher.patch
+        0005-Add-GtkHdyViewSwitcherBar.patch
+        0006-GtkAboutDialog-Port-to-phones.patch
+        0007-Add-the-view-sidebar-symbolic-icon.patch
+        0008-GtkFileChooserWidget-Port-to-phones.patch
+        0009-GtkMessageDialog-Pack-the-buttons-vertically.patch
+        0010-gtkscrolledwindow-Drop-the-deceleration-friction.patch
+        0011-gtkdialog-Maximize-resizable-dialogs.patch
+        0012-gtkheaderbar-Use-a-back-button-in-dialogs.patch
+        0013-gtkwindow-Maximize-resizable-windows.patch
+        0014-gtkheaderbar-Use-a-back-button-in-transient-windows.patch
+        0015-gtkwindow-Maximize-resizable-pseudo-dialogs.patch
+        0016-gtkwindow-Maximize-dialogs-when-mapping.patch
+        0017-gtkinfobar-Move-the-action-area-below.patch
+        0018-gtkfilechooserdialog-Drop-the-custom-save-entry.patch
+        0019-gtkfilechooserwidget-Expand-the-filename-entry.patch
+        0020-gtkfontchooserwidget-Reduce-the-size-request.patch
+        0021-gtkapplication-dbus-Initialise-screensaver-active-pr.patch)
+sha256sums=('6e0527fd35b8c53025deca3400732848585c65876f7b0043c751e2ca5302ab7c'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
-            'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845')
+            'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
+            'aa2e08a9fb99095fa2990931baafe2862a4c1dcbbde9d500e41ca551c799d1cd'
+            '1652b400185b2ec41fa64c028d245bbf73049fa684614ed5f1ec9f3e2699bf2b'
+            '9d627045d22fda87adbf7775557d67b66ef8504b8d559c1965157ab67366cd41'
+            'f29ea6df80f91147bea95c9ced3e8b2b5e3fab1bcf3593d96a700361abb9b082'
+            '9339f8280694c29e216b9ca3ded750275ba33b5f8e2318bd538c886c43f91dbc'
+            '239c7766bfb94529bda9286be2b1a48c100f9ad9f512ef9c3dccb8ab10b7c959'
+            '8fd99193fa7212a17a2dbc20827432a98837f26cd6e72fc23a7e9267ee2610e5'
+            'ad0d6f1bff665048fc8c9a6abb258b8814d3dfaba826688f64d13c5180390f46'
+            '7944c400c857e06613c30224ded239e31ea084d363b133816b01e10469cf0652'
+            'b5b39c416d4033ec20f2ef521da5209060478c3047cabac47a710abf9a71b94f'
+            'fd4b5b6e020f9628065939f9f1d0d6dfa5349a3ecb8574904c5cea3c90bdac31'
+            '2ea248221dc371c40aaee7152706f742d12bd0955b97f081ed405f35ca279144'
+            '2a24a773de68f8af6692fc99b75065c72ada21cbbcccf1e53a509809f2bbe515'
+            '3ba9f67521340f4d0baa369d353ae8e1439f57d232ecbe199d7612ce9a3bc116'
+            '51d9b3ba91e282682a5a598ef958c799dcc7d2a1e67057ac56c14e8867556824'
+            '8a798b95f77de605109aa250271e857d1ebc4f21835947e8cd2a96f15b71078a'
+            '6e573cb458e4d9650886444dfb8a592f6d63fa397ae50622c3d7288e7969c63c'
+            '3fe7ad81968194cc01b22966b1a7be474415265077238e72c89c495bcc8c0ec8'
+            'aac5860c71de0773f7c6af28959806325433912777a0ddae1e620ed855bbcd2d'
+            '0265a6a67889b21db2e2659adaca0ca0b7456222bee940e9bcc6d1eb64be74fb'
+            '9cd476b4ddf94091dcee48bef20560bfbb3964574841cad00dbab8e1a15237e7'
+            'a6f2b7487b49a384e8403cc252a53979674362b69f6e4cdf65678a0723378a7d')
 
 prepare() {
   cd gtk-$_commit
+
+  # apply patches
+  patch -p1 -N < ../fix-wayland.patch
+  patch -p1 -N < ../0001-Add-gtkhdytype.h.patch
+  patch -p1 -N < ../0002-Support-libhandy-hardcoded-styles.patch
+  patch -p1 -N < ../0003-Add-GtkHdyViewSwitcherButton.patch
+  patch -p1 -N < ../0004-Add-GtkHdyViewSwitcher.patch
+  patch -p1 -N < ../0005-Add-GtkHdyViewSwitcherBar.patch
+  patch -p1 -N < ../0006-GtkAboutDialog-Port-to-phones.patch
+  patch -p1 -N < ../0007-Add-the-view-sidebar-symbolic-icon.patch
+  patch -p1 -N < ../0008-GtkFileChooserWidget-Port-to-phones.patch
+  patch -p1 -N < ../0009-GtkMessageDialog-Pack-the-buttons-vertically.patch
+  patch -p1 -N < ../0010-gtkscrolledwindow-Drop-the-deceleration-friction.patch
+  patch -p1 -N < ../0011-gtkdialog-Maximize-resizable-dialogs.patch
+  patch -p1 -N < ../0012-gtkheaderbar-Use-a-back-button-in-dialogs.patch
+  patch -p1 -N < ../0013-gtkwindow-Maximize-resizable-windows.patch
+  patch -p1 -N < ../0014-gtkheaderbar-Use-a-back-button-in-transient-windows.patch
+  patch -p1 -N < ../0015-gtkwindow-Maximize-resizable-pseudo-dialogs.patch
+  patch -p1 -N < ../0016-gtkwindow-Maximize-dialogs-when-mapping.patch
+  patch -p1 -N < ../0017-gtkinfobar-Move-the-action-area-below.patch
+  patch -p1 -N < ../0018-gtkfilechooserdialog-Drop-the-custom-save-entry.patch
+  patch -p1 -N < ../0019-gtkfilechooserwidget-Expand-the-filename-entry.patch
+  patch -p1 -N < ../0020-gtkfontchooserwidget-Reduce-the-size-request.patch
+  patch -p1 -N < ../0021-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
+
   NOCONFIGURE=1 ./autogen.sh
 }
 

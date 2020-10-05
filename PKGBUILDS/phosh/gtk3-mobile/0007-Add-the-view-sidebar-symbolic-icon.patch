@@ -1,0 +1,112 @@
+From 4542ec60c554b37427f1d6888742f8ea2bde45e0 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 1 Jul 2019 13:28:48 +0200
+Subject: [PATCH 07/23] Add the view-sidebar-symbolic icon
+
+This will be used to reveal/conceal the file chooser sidebar.
+---
+ gtk/Makefile.am                               |  2 +-
+ .../actions/view-sidebar-symbolic.svg         | 78 +++++++++++++++++++
+ 2 files changed, 79 insertions(+), 1 deletion(-)
+ create mode 100644 gtk/icons/scalable/actions/view-sidebar-symbolic.svg
+
+diff --git a/gtk/Makefile.am b/gtk/Makefile.am
+index d9317530b6..d13d5199d7 100644
+--- a/gtk/Makefile.am
++++ b/gtk/Makefile.am
+@@ -1350,7 +1350,7 @@ gtk.gresource.xml: Makefile.am inspector/Makefile.inc
+ 	  done; \
+ 	done; \
+ 	for s in scalable; do \
+-	  for c in status; do \
++	  for c in actions status; do \
+ 	    for f in $(srcdir)/icons/$$s/$$c/*.svg; do \
+ 	      test "$$f" = "$(srcdir)/icons/$$s/$$c/*.svg" && continue; \
+ 	      n=`basename $$f`; \
+diff --git a/gtk/icons/scalable/actions/view-sidebar-symbolic.svg b/gtk/icons/scalable/actions/view-sidebar-symbolic.svg
+new file mode 100644
+index 0000000000..559e11fe0f
+--- /dev/null
++++ b/gtk/icons/scalable/actions/view-sidebar-symbolic.svg
+@@ -0,0 +1,78 @@
++<?xml version="1.0" encoding="UTF-8" standalone="no"?>
++<!-- Created with Inkscape (http://www.inkscape.org/) -->
++
++<svg
++   xmlns:dc="http://purl.org/dc/elements/1.1/"
++   xmlns:cc="http://creativecommons.org/ns#"
++   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
++   xmlns:svg="http://www.w3.org/2000/svg"
++   xmlns="http://www.w3.org/2000/svg"
++   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
++   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
++   width="4.2333331mm"
++   height="4.2333331mm"
++   viewBox="0 0 4.2333331 4.2333331"
++   version="1.1"
++   id="svg10539"
++   inkscape:version="0.92.2 2405546, 2018-03-11"
++   sodipodi:docname="view-sidebar-symbolic.svg">
++  <defs
++     id="defs10533" />
++  <sodipodi:namedview
++     id="base"
++     pagecolor="#e8e8e7"
++     bordercolor="#666666"
++     borderopacity="1.0"
++     inkscape:pageopacity="0"
++     inkscape:pageshadow="2"
++     inkscape:zoom="44.8"
++     inkscape:cx="3.9955133"
++     inkscape:cy="6.9472436"
++     inkscape:document-units="px"
++     inkscape:current-layer="layer1"
++     showgrid="true"
++     fit-margin-top="0"
++     fit-margin-left="0"
++     fit-margin-right="0"
++     fit-margin-bottom="0"
++     inkscape:window-width="3440"
++     inkscape:window-height="1376"
++     inkscape:window-x="0"
++     inkscape:window-y="27"
++     inkscape:window-maximized="1">
++    <inkscape:grid
++       type="xygrid"
++       id="grid11109" />
++  </sodipodi:namedview>
++  <metadata
++     id="metadata10536">
++    <rdf:RDF>
++      <cc:Work
++         rdf:about="">
++        <dc:format>image/svg+xml</dc:format>
++        <dc:type
++           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
++        <dc:title />
++      </cc:Work>
++    </rdf:RDF>
++  </metadata>
++  <g
++     inkscape:label="Layer 1"
++     inkscape:groupmode="layer"
++     id="layer1"
++     transform="translate(45.205952,-342.50834)">
++    <path
++       style="color:#bebebe;display:inline;overflow:visible;visibility:visible;opacity:1;fill:#2e3436;fill-opacity:1;stroke:none;stroke-width:0.99999994;marker:none"
++       d="M 3 2 C 1.9093002 2 1 2.9093039 1 4 L 1 12 L 1 14 L 15 14 L 15 12 L 15 4 C 15 2.9093039 14.090704 2 13 2 L 3 2 z M 3 4 L 6 4 L 6 12 L 3 12 L 3 4 z M 7 4 L 13 4 L 13 12 L 7 12 L 7 4 z "
++       transform="matrix(0.26458333,0,0,0.26458333,-45.205952,342.50834)"
++       id="rect10509" />
++    <rect
++       transform="matrix(0,-1,-1,0,0,0)"
++       style="color:#bebebe;display:inline;overflow:visible;visibility:visible;opacity:0.35;fill:#2e3436;fill-opacity:1;stroke:none;stroke-width:0.26458332;marker:none"
++       id="rect10511"
++       width="2.1166327"
++       height="0.79374611"
++       x="-345.68332"
++       y="43.618412" />
++  </g>
++</svg>
+-- 
+2.28.0
+

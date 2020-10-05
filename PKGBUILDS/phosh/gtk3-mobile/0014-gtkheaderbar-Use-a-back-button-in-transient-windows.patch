@@ -1,0 +1,28 @@
+From a748ecdc6679cc20018cff75841740d68ab5f60d Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Thu, 11 Jul 2019 14:25:15 +0200
+Subject: [PATCH 14/23] gtkheaderbar: Use a back button in transient windows
+
+This will allow to drop the close buttons and make the transient windows
+look like proper mobile dialogs.
+---
+ gtk/gtkheaderbar.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/gtk/gtkheaderbar.c b/gtk/gtkheaderbar.c
+index 6fcc4dc0ce..80cf10a2df 100644
+--- a/gtk/gtkheaderbar.c
++++ b/gtk/gtkheaderbar.c
+@@ -312,7 +312,8 @@ _gtk_header_bar_update_window_buttons (GtkHeaderBar *bar)
+                 "gtk-decoration-layout", &layout_desc,
+                 NULL);
+ 
+-  is_mobile_dialog = GTK_IS_DIALOG (toplevel);
++  is_mobile_dialog = GTK_IS_DIALOG (toplevel) ||
++                     (GTK_IS_WINDOW (toplevel) && !!gtk_window_get_transient_for (GTK_WINDOW (toplevel)));
+ 
+   if (is_mobile_dialog)
+     {
+-- 
+2.28.0
+

@@ -1,0 +1,57 @@
+From 21ecddab70544dc4421cd34247e9c7c2ef551409 Mon Sep 17 00:00:00 2001
+From: Bob Ham <bob.ham@puri.sm>
+Date: Fri, 6 Sep 2019 14:59:07 +0100
+Subject: [PATCH 21/23] gtkapplication-dbus: Initialise screensaver-active
+ property
+
+When GtkApplication starts listening to the screensaver's D-Bus
+status, the screensaver-active property is not initialised and
+applications making use of the property are out of sync until the
+first state change.  Any application starting when the screensaver is
+active will think it's inactive.
+
+To fix this, we set the property when we first start monitoring the
+screensaver.
+---
+ gtk/gtkapplication-dbus.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/gtk/gtkapplication-dbus.c b/gtk/gtkapplication-dbus.c
+index dc141cfa5f..a270354119 100644
+--- a/gtk/gtkapplication-dbus.c
++++ b/gtk/gtkapplication-dbus.c
+@@ -329,8 +329,31 @@ gtk_application_impl_dbus_startup (GtkApplicationImpl *impl,
+ 
+   if (dbus->ss_proxy)
+     {
++      GVariant *active_var;
++      gboolean active;
++
+       g_signal_connect (dbus->ss_proxy, "g-signal",
+                         G_CALLBACK (screensaver_signal_session), impl->application);
++
++      active_var = g_dbus_proxy_call_sync (dbus->ss_proxy,
++                                           "GetActive",
++                                           NULL,
++                                           G_DBUS_CALL_FLAGS_NONE,
++                                           G_MAXINT,
++                                           NULL,
++                                           &error);
++      if (!active_var)
++        {
++          g_debug ("Error calling GetActive on GNOME screensaver: %s",
++                   error->message);
++          g_clear_error (&error);
++        }
++      else
++        {
++          g_variant_get (active_var, "(b)", &active);
++          g_variant_unref (active_var);
++          gtk_application_set_screensaver_active (dbus->impl.application, active);
++        }
+     }
+ 
+   g_debug ("Registering client '%s' '%s'", dbus->application_id, client_id);
+-- 
+2.28.0
+
