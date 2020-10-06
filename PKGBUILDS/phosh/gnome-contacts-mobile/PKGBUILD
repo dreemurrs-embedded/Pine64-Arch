@@ -5,21 +5,26 @@
 pkgname=gnome-contacts-mobile
 _pkgname=gnome-contacts
 pkgver=3.36.2
-pkgrel=0
+pkgrel=1
 pkgdesc="Contacts Manager for GNOME - Forked for Purism patches"
 url="https://wiki.gnome.org/Apps/Contacts"
 arch=(x86_64 armv7h aarch64)
 license=(GPL2)
-depends=(gtk3 folks gnome-desktop dconf gnome-online-accounts libgee libhandy)
+depends=(gtk3 folks gnome-desktop dconf gnome-online-accounts libgee libhandy0)
 makedepends=(vala gobject-introspection git meson)
 provides=(gnome-contacts)
 conflicts=(gnome-contacts)
 _commit=9be91de2d0cd9bb9a94f5b9320e96463cb2e518a
-source=("git+https://github.com/Danct12/gnome-contacts.git#commit=$_commit")
-sha256sums=('SKIP')
+source=("git+https://github.com/Danct12/gnome-contacts.git#commit=$_commit"
+        dont-use-unsupported-vala-syntax.patch)
+sha256sums=('SKIP'
+            '2a49c4f92f5efd21d8cb44498391fedca84d9addec3e3555a65d8759f03e2585')
 
 prepare() {
   cd $_pkgname
+
+  # Fix compilation
+  patch -p1 -N < ../dont-use-unsupported-vala-syntax.patch
 }
 
 build() {
