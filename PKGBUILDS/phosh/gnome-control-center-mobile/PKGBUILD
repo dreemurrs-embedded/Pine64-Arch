@@ -4,7 +4,7 @@
 
 pkgname=gnome-control-center-mobile
 pkgver=3.36.3
-pkgrel=1
+pkgrel=2
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-control-center"
 license=(GPL2)
@@ -13,7 +13,7 @@ depends=(accountsservice cups-pk-helper gnome-bluetooth gnome-desktop
          gnome-online-accounts gnome-settings-daemon gsettings-desktop-schemas gtk3
          libgtop nm-connection-editor sound-theme-freedesktop upower libpwquality
          gnome-color-manager smbclient libmm-glib libgnomekbd grilo libibus
-         libgudev bolt udisks2 libhandy gsound colord-gtk modemmanager)
+         libgudev bolt udisks2 libhandy0 gsound colord-gtk modemmanager)
 makedepends=(docbook-xsl git python meson)
 checkdepends=(python-dbusmock python-gobject xorg-server-xvfb)
 optdepends=('system-config-printer: Printer settings'
