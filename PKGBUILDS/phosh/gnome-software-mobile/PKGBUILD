@@ -5,14 +5,14 @@
 
 pkgname=gnome-software-mobile
 pkgver=3.34.0
-pkgrel=2
+pkgrel=3
 pkgdesc="GNOME Software Tools - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-software"
 arch=(x86_64 armv7h aarch64)
 license=(GPL2)
 makedepends=(appstream-glib gnome-desktop libpackagekit-glib flatpak fwupd ostree
              docbook-xsl git gobject-introspection gspell gtk-doc meson valgrind
-             gnome-online-accounts libxmlb libhandy)
+             gnome-online-accounts libxmlb libhandy0)
 _commit=b915095540fa7ada6778aded0d51a93572762d89
 source=(https://source.puri.sm/Librem5/gnome-software/-/archive/$_commit/gnome-software-$_commit.tar.bz2)
 sha256sums=('8edaeb11bbf0473a4c3c72e392a294a70621543ea0635aecd7dfac1d638c97eb')
