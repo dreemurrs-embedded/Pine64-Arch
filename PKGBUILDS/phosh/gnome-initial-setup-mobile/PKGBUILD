@@ -4,14 +4,14 @@
 pkgname=gnome-initial-setup-mobile
 _pkgname=gnome-initial-setup
 pkgver=3.36.4
-pkgrel=0
+pkgrel=1
 pkgdesc="Simple, easy, and safe way to prepare a new system - Forked with Purism patches"
 arch=(x86_64 armv7h aarch64)
 url="https://www.gnome.org/"
 license=(GPL)
 depends=(nm-connection-editor accountsservice gnome-desktop libgweather
          gnome-online-accounts libgdm libpwquality libibus libgnomekbd
-         libpackagekit-glib geoclue libhandy)
+         libpackagekit-glib geoclue libhandy0)
 makedepends=(meson git)
 optdepends=('gdm: GDM Initial Setup mode'
             'gnome-getting-started-docs: GNOME Welcome Tour')
