@@ -6,7 +6,7 @@
 _pkgname=evince
 pkgname=$_pkgname-mobile
 pkgver=3.34.1
-pkgrel=0
+pkgrel=1
 pkgdesc='Purism mobile document viewer (PDF, Postscript, djvu, tiff, dvi, XPS, SyncTex support with gedit, comics books (cbr,cbz,cb7 and cbt))'
 url='https://source.puri.sm/Librem5/evince'
 arch=('aarch64')
@@ -17,7 +17,7 @@ sha256sums=('SKIP')
 provides=(libev{document,view}3.so $_pkgname-mobile)
 conflicts=($_pkgname-mobile)
 depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre t1lib dconf libsecret libsynctex
-         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy)
+         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy0)
 makedepends=(libnautilus-extension texlive-bin gobject-introspection docbook-xsl python gtk-doc
              git meson appstream-glib yelp-tools)
 
