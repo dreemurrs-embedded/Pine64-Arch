@@ -1,13 +1,13 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=calls
 pkgver=0.1.8
-pkgrel=1
+pkgrel=2
 pkgdesc="The phone app"
 url="https://source.puri.sm/Librem5/calls"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
-         'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager')
+         'gom' 'gtk3' 'libhandy0' 'libpeas' 'modemmanager')
 makedepends=('meson' 'ninja' 'vala')
 source=(https://source.puri.sm/Librem5/calls/-/archive/v$pkgver/calls-v$pkgver.tar.gz
         0001-call-display-use-PinePhone-s-device-for-ugly-hacks.patch)
