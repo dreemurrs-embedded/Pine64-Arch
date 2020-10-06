@@ -1,12 +1,12 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=chatty
 pkgver=0.1.16
-pkgrel=1
+pkgrel=2
 pkgdesc="Messaging client"
 url="https://source.puri.sm/Librem5/chatty"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('evolution-data-server' 'feedbackd' 'gtk3' 'libhandy' 'purple-mm-sms')
+depends=('evolution-data-server' 'feedbackd' 'gtk3' 'libhandy0' 'purple-mm-sms')
 makedepends=('meson' 'ninja')
 source=(https://source.puri.sm/Librem5/chatty/-/archive/v$pkgver/chatty-v$pkgver.tar.gz)
 
