@@ -1,12 +1,12 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=kgx
 pkgver=0.2.1
-pkgrel=1
+pkgrel=2
 pkgdesc="A minimal terminal for GNOME"
 url="https://gitlab.gnome.org/ZanderBrown/kgx"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('vte3' 'gtk3' 'glib2' 'libhandy' 'libgtop')
+depends=('vte3' 'gtk3' 'glib2' 'libhandy0' 'libgtop')
 makedepends=('meson')
 source=(https://gitlab.gnome.org/ZanderBrown/kgx/-/archive/$pkgver/kgx-$pkgver.tar.gz)
 
