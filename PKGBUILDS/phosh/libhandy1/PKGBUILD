@@ -1,33 +1,9 @@
-# Maintainer: Danct12 <danct12@disroot.org>
-# Contributor: Mufeed Ali <fushinari@protonmail.com>
-
 pkgname=libhandy1
-_author=GNOME
-_gitname=libhandy
 pkgver=1.0.0
-pkgrel=2
-pkgdesc="Library full of GTK+ widgets for mobile phones (1.0, can be installed alongside 0.0)"
-url="https://gitlab.gnome.org/GNOME/libhandy"
-license=(LGPL2.1)
+pkgrel=99
+pkgdesc="This is a dummy package. It is no longer needed."
+url="https://danctnix.org"
+license=(NONE)
 arch=(i686 x86_64 armv7h aarch64)
-depends=(gtk3)
-conflicts=(libhandy-git)
-makedepends=(git glade gobject-introspection meson vala)
-source=("https://gitlab.gnome.org/$_author/$_gitname/-/archive/$pkgver/$_gitname-$pkgver.tar.gz"
-        swipe-tracker-Special-case-dragging-from-buttons.patch)
-sha256sums=('dc1fff98cbc72a492d1adb489ee1b00e43ab4ac14c983c855ef3df435bbbda27'
-            'c4ef96e3fa76ac4a6fcd4008bffce9b59c9e8ca01b1588cda97915cdab99bee1')
+depends=(libhandy)
 
-prepare() {
-    cd $_gitname-$pkgver
-    patch -p1 -N < ../swipe-tracker-Special-case-dragging-from-buttons.patch
-}
-
-build() {
-    arch-meson $_gitname-$pkgver build -Dgtk_doc=False -Dexamples=false -Dtests=false
-    ninja -C build
-}
-
-package() {
-    DESTDIR="$pkgdir" meson install -C build
-}
