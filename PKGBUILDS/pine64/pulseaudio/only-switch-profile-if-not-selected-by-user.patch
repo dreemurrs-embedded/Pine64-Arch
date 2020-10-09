@@ -1,0 +1,120 @@
+From 5a8225d24a2b0e0fd333ec5bec2e36469fd902a8 Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Mon, 6 Apr 2020 11:53:53 +0200
+Subject: [PATCH] switch-on-port-available: only switch profile if not selected
+ by user
+
+When switching to/from a newly available port, pulseaudio automatically
+switches to the preferred profile if not active. However, if the current
+profile has been selected by the user, this doesn't make sense, as the
+user probably wants to keep using the same profile with a different port
+combination.
+
+For example, this happens when switching to a "Voice Call" profile, then
+plugging a headset. The profile is then switched to the default "HiFi"
+profile, even though the phone call is still ongoing and the user still
+needs the "Voice Call" profile to be active.
+
+This patch keeps track of user-initiated profile changes, and adds a new
+condition so that profile is automatically switched only when it wasn't
+previously selected by the user.
+
+Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+---
+ src/modules/module-switch-on-port-available.c | 25 ++++++++++++-------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
+
+diff --git a/src/modules/module-switch-on-port-available.c b/src/modules/module-switch-on-port-available.c
+index 2fa7e4d62..49715a89a 100644
+--- a/src/modules/module-switch-on-port-available.c
++++ b/src/modules/module-switch-on-port-available.c
+@@ -35,6 +35,7 @@ PA_MODULE_VERSION(PACKAGE_VERSION);
+ struct card_info {
+     struct userdata *userdata;
+     pa_card *card;
++    bool user_selected_profile;
+ 
+     /* We need to cache the active profile, because we want to compare the old
+      * and new profiles in the PROFILE_CHANGED hook. Without this we'd only
+@@ -228,14 +229,17 @@ static struct port_pointers find_port_pointers(pa_device_port *port) {
+ }
+ 
+ /* Switches to a port, switching profiles if necessary or preferred */
+-static void switch_to_port(pa_device_port *port) {
++static void switch_to_port(pa_device_port *port, struct userdata* u) {
+     struct port_pointers pp = find_port_pointers(port);
++    struct card_info *info;
+ 
+     if (pp.is_port_active)
+         return; /* Already selected */
+ 
++    info = pa_hashmap_get(u->card_infos, port->card);
++
+     pa_log_debug("Trying to switch to port %s", port->name);
+-    if (!pp.is_preferred_profile_active) {
++    if (!info->user_selected_profile && !pp.is_preferred_profile_active) {
+         if (try_to_switch_profile(port) < 0) {
+             if (!pp.is_possible_profile_active)
+                 return;
+@@ -252,7 +256,7 @@ static void switch_to_port(pa_device_port *port) {
+ }
+ 
+ /* Switches away from a port, switching profiles if necessary or preferred */
+-static void switch_from_port(pa_device_port *port) {
++static void switch_from_port(pa_device_port *port, struct userdata* u) {
+     struct port_pointers pp = find_port_pointers(port);
+     pa_device_port *p, *best_port = NULL;
+     void *state;
+@@ -282,11 +286,11 @@ static void switch_from_port(pa_device_port *port) {
+      * PA_CORE_HOOK_CARD_PROFILE_AVAILABLE_CHANGED callback, as at this point
+      * the profile availability hasn't been updated yet. */
+     if (best_port)
+-        switch_to_port(best_port);
++        switch_to_port(best_port, u);
+ }
+ 
+ 
+-static pa_hook_result_t port_available_hook_callback(pa_core *c, pa_device_port *port, void* userdata) {
++static pa_hook_result_t port_available_hook_callback(pa_core *c, pa_device_port *port, struct userdata* u) {
+     pa_assert(port);
+ 
+     if (!port->card) {
+@@ -304,10 +308,10 @@ static pa_hook_result_t port_available_hook_callback(pa_core *c, pa_device_port
+ 
+     switch (port->available) {
+     case PA_AVAILABLE_YES:
+-        switch_to_port(port);
++        switch_to_port(port, u);
+         break;
+     case PA_AVAILABLE_NO:
+-        switch_from_port(port);
++        switch_from_port(port, u);
+         break;
+     default:
+         break;
+@@ -508,9 +512,12 @@ static pa_hook_result_t card_profile_changed_callback(pa_core *core, pa_card *ca
+ 
+     /* This profile change wasn't initiated by the user, so it doesn't signal
+      * a change in the user's port preferences. */
+-    if (!card->save_profile)
++    if (!card->save_profile) {
++        info->user_selected_profile = false;
+         return PA_HOOK_OK;
++    }
+ 
++    info->user_selected_profile = true;
+     update_preferred_input_port(card, old_profile, new_profile);
+     update_preferred_output_port(card, old_profile, new_profile);
+ 
+@@ -554,7 +561,7 @@ int pa__init(pa_module*m) {
+     pa_module_hook_connect(m, &m->core->hooks[PA_CORE_HOOK_SOURCE_NEW],
+                            PA_HOOK_NORMAL, (pa_hook_cb_t) source_new_hook_callback, NULL);
+     pa_module_hook_connect(m, &m->core->hooks[PA_CORE_HOOK_PORT_AVAILABLE_CHANGED],
+-                           PA_HOOK_LATE, (pa_hook_cb_t) port_available_hook_callback, NULL);
++                           PA_HOOK_LATE, (pa_hook_cb_t) port_available_hook_callback, u);
+     pa_module_hook_connect(m, &m->core->hooks[PA_CORE_HOOK_CARD_PROFILE_AVAILABLE_CHANGED],
+                            PA_HOOK_LATE, (pa_hook_cb_t) card_profile_available_hook_callback, NULL);
+     pa_module_hook_connect(m, &m->core->hooks[PA_CORE_HOOK_CARD_PUT],
+-- 
+2.20.1
+
