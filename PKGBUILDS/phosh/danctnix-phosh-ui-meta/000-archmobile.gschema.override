@@ -9,7 +9,6 @@ button-layout='appmenu:'
 search-engines=[('Search the Web', 'https://duckduckgo.com/?q=%s&t=epiphany', ''), ('DuckDuckGo', 'https://duckduckgo.com/?q=%s&t=epiphany', '!ddg'), ('Qwant', 'https://www.qwant.com/?q=%s', '!q')]
 
 [org.gnome.Epiphany.web]
-mobile-user-agent=true
 user-agent='Mozilla/5.0 (Android 6.0; Arch DanctNIX; Mobile; rv:68.0) Gecko/20100101 Firefox/68.0'
 
 [org.gnome.desktop.background]
