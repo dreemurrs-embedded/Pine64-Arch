@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.4.4
+pkgver=0.4.5
 pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -12,7 +12,6 @@ makedepends=('meson' 'ninja')
 _commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
 source=("https://source.puri.sm/Librem5/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
 	"https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
-	'auto-rotate.patch'
 	'pam_phosh'
 	'sm.puri.OSK0.desktop'
 	'phosh.service')
@@ -21,9 +20,6 @@ prepare() {
 	cd ${pkgname}-v${pkgver}
 	rm -r subprojects/gvc
 	mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
-
-	# Apply patches
-	patch -p1 -N < ../auto-rotate.patch
 }
 
 build() {
@@ -42,9 +38,8 @@ package() {
 		"$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
-md5sums=('7952fd3b9efb1a4f50bd74e16b65a9af'
+md5sums=('2e08b3276ae12353efdc929bd373a6d7'
          'c08f04485db11997525c139346faecc8'
-         '5f102eabe29d90c675e7f68fd7fb2cf2'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
          'efeeab2f55315f576c88e45c494edc7c')
