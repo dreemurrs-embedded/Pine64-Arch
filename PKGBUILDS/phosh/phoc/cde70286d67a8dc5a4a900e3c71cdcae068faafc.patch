@@ -1,0 +1,37 @@
+From cde70286d67a8dc5a4a900e3c71cdcae068faafc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Thu, 8 Oct 2020 16:06:27 +0200
+Subject: [PATCH] desktop: Refresh all views when auto-maximize changes
+
+So far this only affected new views but when e.g. unplugging an
+external (switching to 'phone' mode) we want running apps to
+behave.
+---
+ src/desktop.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/desktop.c b/src/desktop.c
+index 6b26cce..15c54db 100644
+--- a/src/desktop.c
++++ b/src/desktop.c
+@@ -712,8 +712,17 @@ phoc_desktop_toggle_output_blank (PhocDesktop *self)
+ void
+ phoc_desktop_set_auto_maximize (PhocDesktop *self, gboolean enable)
+ {
++  struct roots_view *view;
++
+   g_debug ("auto-maximize: %d", enable);
+   self->maximize = enable;
++
++  /* Disabling auto-maximize leaves all views in their current position */
++  if (!enable)
++    return;
++
++  wl_list_for_each (view, &self->views, link)
++    view_auto_maximize (view);
+ }
+ 
+ gboolean
+-- 
+2.26.2
+
