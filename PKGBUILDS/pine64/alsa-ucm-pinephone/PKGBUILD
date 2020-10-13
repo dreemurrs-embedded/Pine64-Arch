@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinephone
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 pkgdesc="UCM files for PinePhone"
 arch=(any)
@@ -19,6 +19,6 @@ package() {
 		"$pkgdir"/usr/share/alsa/ucm2/PinePhone/VoiceCall.conf
 }
 
-md5sums=('8b480c45ab23439338030ddaedaebb6b'
-         '5c597913fa483586400caaea89b1f1cb'
+md5sums=('431baa5284fbc329899a7322a9a8eb9b'
+         'bf7f30ab29b06346cdcd4679944ba3b9'
          '715d967b9826d03b9333c92fbd61a543')
