@@ -1,0 +1,26 @@
+From 5a3d7fd96843710d468603412a3270e7eefe997a Mon Sep 17 00:00:00 2001
+From: Danct12 <danct12@disroot.org>
+Date: Wed, 14 Oct 2020 01:18:40 +0700
+Subject: [PATCH] arm64: dts: pinephone: remove flash node for ov5640
+
+Signed-off-by: Danct12 <danct12@disroot.org>
+---
+ arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+index 3781eb8ea..6bc0e9d6d 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+@@ -439,8 +439,6 @@ ov5640: rear-camera@4c {
+ 		reset-gpios = <&pio 3 3 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>; /* PD3 */
+ 		powerdown-gpios = <&pio 2 0 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>; /* PC0 */
+ 
+-		flash-leds = <&sgm3140_flash>;
+-
+ 		port {
+ 			ov5640_ep: endpoint {
+ 				remote-endpoint = <&csi_ov5640_ep>;
+-- 
+2.28.0
+
