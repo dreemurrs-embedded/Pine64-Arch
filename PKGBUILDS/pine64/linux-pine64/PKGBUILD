@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64"
 pkgver=5.7.19
-pkgrel=8
+pkgrel=9
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -26,6 +26,7 @@ source=("linux-$_commit.tar.gz::https://gitlab.com/pine64-org/linux/-/archive/${
         'panic-led.patch'
         '5w-15w-anx7688-power.patch'
         'enable-hdmi-output.patch'
+        'enable-hdmi-output-pinetab.patch'
         'improve-brightness.patch'
         'new-pinetab-panel.patch'
         'enable-jack-detection-pinetab.patch'
@@ -64,6 +65,7 @@ prepare() {
   # ANX7688 & HDMI Patches
   patch -p1 -N < ../5w-15w-anx7688-power.patch
   patch -p1 -N < ../enable-hdmi-output.patch
+  patch -p1 -N < ../enable-hdmi-output-pinetab.patch
 
   # Improve brightness
   patch -p1 -N < ../improve-brightness.patch
@@ -281,6 +283,7 @@ md5sums=('cac7b8e68bb84ca1640f9cbed63225cc'
          '1352a07497e7992a9c093916c0b702c5'
          '14c5f901974192179a6c4a2ba8370509'
          '9c6a8f3bcc90f25ceb0ebcd710265ffd'
+         '979a787cf84bef9c60da78e72ec96550'
          'da7c3170f0d34d041cfd819ea3f2c56f'
          '41c953ca20ecea14a05ceccf24f1b0bf'
          '264f19a48c9184119cae92fc8a3d4442'
