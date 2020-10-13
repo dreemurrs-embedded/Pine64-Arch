@@ -5,38 +5,10 @@
 
 if [ "$1" = "start" ]; then
 	echo "Starting EG25 WWAN Module"
-
-	# GPIO35 is PWRKEY
-	# GPIO68 is RESET_N
-	# GPIO232 is W_DISABLE#
-	for i in 35 68 232
-	do
-		[ -e /sys/class/gpio/gpio$i ] && continue
-		echo $i > /sys/class/gpio/export || return 1
-		echo out > /sys/class/gpio/gpio$i/direction || return 1
-	done
-
-	echo 0 > /sys/class/gpio/gpio68/value || return 1
-	echo 0 > /sys/class/gpio/gpio232/value || return 1
-
-	( echo 1 > /sys/class/gpio/gpio35/value && sleep 2 && echo 0 > /sys/class/gpio/gpio35/value ) || return 1
+	echo 1 > /sys/class/modem-power/modem-power/device/powered
 elif [ "$1" = "stop" ]; then
 	echo "Stopping EG25 WWAN Module"
-
-	echo 1 > /sys/class/gpio/gpio68/value
-	echo 1 > /sys/class/gpio/gpio232/value
-
-	echo 1 > /sys/class/gpio/gpio35/value && sleep 2 && echo 0 > /sys/class/gpio/gpio35/value
-
-	if grep -q 1.1 /proc/device-tree/model
-	then
-		# Intentional delay on Braveheart
-		# As modem gets corrupted very easily on that model.
-		sleep 30
-	else
-		sleep 2
-	fi
-
+	echo 0 > /sys/class/modem-power/modem-power/device/powered
 else
 	echo "No command specified or invalid command!"
 fi

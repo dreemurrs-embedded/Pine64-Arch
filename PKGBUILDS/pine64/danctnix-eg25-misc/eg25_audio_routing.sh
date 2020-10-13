@@ -60,26 +60,6 @@ echo ${AP_READY} > /sys/class/gpio/export
 echo out > /sys/class/gpio/gpio${AP_READY}/direction
 echo 0 > /sys/class/gpio/gpio${AP_READY}/value
 
-# Set modem audio configs
-if echo "AT+QDAI=1,0,0,2,0,1,1,1" | atinout - /dev/EG25.AT - | grep -q OK; then
-        echo "Successfully configured modem audio"
-else
-        echo "Failed to set modem audio up: $?"
-fi
-
-if echo 'AT+QCFG="risignaltype","physical"' | atinout - /dev/EG25.AT - | grep -q OK; then
-        echo "Successfully configured modem ring wakeup"
-else
-        echo "Failed to set modem ring wakeup: $?"
-fi
-
-# Set URC port (Unsolicited Result Code)
-if echo "AT+QURCCFG=\"urcport\",\"usbat\"" | atinout - /dev/EG25.AT - | grep -q OK; then
-        echo "Successfully configured URC (Unsolicited Result Code)"
-else
-        echo "Failed to configure URC (Unsolicited Result Code): $?"
-fi
-
 # Setup VoLTE
 if echo "AT+QMBNCFG=\"AutoSel\",1" | atinout - /dev/EG25.AT - | grep -q OK; then
         echo "Successfully configured VoLTE to AutoSel"
