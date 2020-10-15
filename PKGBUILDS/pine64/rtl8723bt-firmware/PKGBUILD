@@ -1,19 +1,19 @@
 pkgname=rtl8723bt-firmware
 pkgrel=1
-pkgdesc="Firmware files for RTL8723BS and RTL8723CS"
+pkgdesc="Firmware files for RTL8723BS/CS"
 makedepends=('git')
 arch=('any')
-url="https://github.com/anarsoul/rtl8723bt-firmware"
+url="https://xff.cz/git/linux-firmware"
 license=('custom')
-pkgver=20190223.28ad358
+pkgver=20200620.331f8c0
 options=(!strip)
-source=("$pkgname::git+https://github.com/anarsoul/rtl8723bt-firmware.git")
+source=("git+https://megous.com/git/linux-firmware")
 md5sums=('SKIP')
 
 pkgver() {
   # Mimics ABS pkgver described like this:
   # Commit date + git rev-parse --short origin/master
-  cd "${srcdir}/${pkgname}"
+  cd "${srcdir}/linux-firmware"
   (
   git show --format='%cI' -q master | sed 's/T.*//g;s/-//g'
   echo .
@@ -22,12 +22,7 @@ pkgver() {
 }
 
 package() {
-  cd "${srcdir}/${pkgname}"
-
-  make DESTDIR="${pkgdir}" FIRMWAREDIR=/usr/lib/firmware install
-  rm "${pkgdir}/usr/lib/firmware/"Makefile
-
-  install -d "${pkgdir}/usr/share/licenses/rtl8723bt-firmware"
-  install -Dm644 LICEN* WHENCE "${pkgdir}/usr/share/licenses/rtl8723bt-firmware/"
+  mkdir -p ${pkgdir}/usr/lib/firmware
+  cp -rv ${srcdir}/linux-firmware/rtl_bt ${pkgdir}/usr/lib/firmware
 }
 # vim:set ts=2 sw=2 et
