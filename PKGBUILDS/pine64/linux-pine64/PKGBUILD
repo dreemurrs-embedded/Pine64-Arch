@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64"
 pkgver=5.9.0
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -21,6 +21,7 @@ ARCH=arm64
 _commit="e98db7f114d7602c6b847d76e183787f0c97cf5b"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
+        'SA-00435.patch'
         'wifi-power-saving.patch'
         'panic-led.patch'
         'enable-hdmi-output-pinetab.patch'
@@ -51,6 +52,13 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
 
 prepare() {
   cd linux-$_commit
+
+  # BlueZ security vulnerability
+  # INTEL-SA-00435:
+  #   - CVE-2020-12351
+  #   - CVE-2020-12352
+  #   - CVE-2020-24490
+  patch -p1 -N < ../SA-00435.patch
 
   # disable power saving for now, wi-fi went out randomly
   patch -p1 -N < ../wifi-power-saving.patch
@@ -280,6 +288,7 @@ for _p in ${pkgname[@]}; do
 done
 md5sums=('ebf44c06d59306911bb35f04c6b22216'
          '09b9bbea635260e53de6346994df48ce'
+         '51fcefc480e85edeb8dee26da07c8f12'
          '37866c50af64b0b559278cc2bb63f021'
          '1352a07497e7992a9c093916c0b702c5'
          '979a787cf84bef9c60da78e72ec96550'
