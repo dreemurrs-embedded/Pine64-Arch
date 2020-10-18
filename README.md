@@ -7,4 +7,4 @@ Compiled rootfs images can be found in "Releases"
 ## Come talk to us!
  * Discord: https://discord.gg/AvtdRJ3 (#archlinux-pinephone)
  * Matrix: #archlinux-pinephone:kde.org
- * Telegram: @archlinux_pinephone
+ * Telegram: [@archmobile](https://t.me/archmobile)
