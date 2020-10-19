@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=uboot-pinephone
 pkgver=v2020.10_rc3
-pkgrel=1
+pkgrel=2
 pkgdesc="U-Boot for Pine64 - CRUST EDITION"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -27,7 +27,7 @@ md5sums=('96ca5597c63d724b245315ca88589a21'
          'ec70813ae71f978f07795cde13ba42c0'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
-         'e8d184f3f8834ffe9b77001d54d28ec4'
+         'e172791a0705f1be46a1191235bfedac'
          '021623a04afd29ac3f368977140cfbfd'
          'af8268d4f7c026d375e60044fdf12691')
 
