@@ -4,25 +4,25 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gnome-software-mobile
-pkgver=3.34.0
-pkgrel=3
+pkgver=3.36.1
+pkgrel=1
 pkgdesc="GNOME Software Tools - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-software"
 arch=(x86_64 armv7h aarch64)
 license=(GPL2)
 makedepends=(appstream-glib gnome-desktop libpackagekit-glib flatpak fwupd ostree
              docbook-xsl git gobject-introspection gspell gtk-doc meson valgrind
-             gnome-online-accounts libxmlb libhandy0)
-_commit=b915095540fa7ada6778aded0d51a93572762d89
+             gnome-online-accounts libxmlb libhandy)
+_commit=abc45148c37fc511baacffd3c9c9bbeb65cc77d8
 source=(https://source.puri.sm/Librem5/gnome-software/-/archive/$_commit/gnome-software-$_commit.tar.bz2)
-sha256sums=('8edaeb11bbf0473a4c3c72e392a294a70621543ea0635aecd7dfac1d638c97eb')
+sha256sums=('703867c44cc6ada9a7782be77aa19e000005e0723a3465dd730b67b879064043')
 
 prepare() {
   cd gnome-software-$_commit
 }
 
 build() {
-  arch-meson gnome-software-$_commit build
+  arch-meson gnome-software-$_commit build -Dmalcontent=false
   ninja -C build
 }
 
