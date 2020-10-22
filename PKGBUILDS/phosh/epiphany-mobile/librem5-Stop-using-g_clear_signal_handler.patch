@@ -1,0 +1,51 @@
+From: Alexander Mikhaylenko <alexander.mikhaylenko@puri.sm>
+Date: Tue, 22 Sep 2020 18:18:10 +0500
+Subject: librem5: Stop using g_clear_signal_handler()
+
+Another recent glib addition.
+---
+ embed/ephy-embed.c | 13 +++++++++++--
+ src/ephy-session.c |  6 +++++-
+ 2 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/embed/ephy-embed.c b/embed/ephy-embed.c
+index f0d4a15..4e3bf05 100644
+--- a/embed/ephy-embed.c
++++ b/embed/ephy-embed.c
+@@ -364,8 +364,17 @@ ephy_embed_dispose (GObject *object)
+   g_clear_handle_id (&embed->delayed_request_source_id, g_source_remove);
+   g_clear_handle_id (&embed->fullscreen_message_id, g_source_remove);
+ 
+-  g_clear_signal_handler (&embed->status_handler_id, embed->web_view);
+-  g_clear_signal_handler (&embed->progress_update_handler_id, embed->web_view);
++  /* Do not listen to status message notifications anymore, if we try
++   * to update the statusbar after dispose we might crash. */
++  if (embed->status_handler_id) {
++    g_signal_handler_disconnect (embed->web_view, embed->status_handler_id);
++    embed->status_handler_id = 0;
++  }
++
++  if (embed->progress_update_handler_id) {
++    g_signal_handler_disconnect (embed->web_view, embed->progress_update_handler_id);
++    embed->progress_update_handler_id = 0;
++  }
+ 
+   g_clear_object (&embed->delayed_request);
+   g_clear_pointer (&embed->delayed_state, webkit_web_view_session_state_unref);
+diff --git a/src/ephy-session.c b/src/ephy-session.c
+index cd7f71c..0e7195d 100644
+--- a/src/ephy-session.c
++++ b/src/ephy-session.c
+@@ -1351,7 +1351,11 @@ session_end_element (GMarkupParseContext  *ctx,
+ 
+     ephy_embed_shell_restored_window (shell);
+ 
+-    g_clear_signal_handler (&context->destroy_id, context->window);
++    if (context->destroy_id) {
++      g_signal_handler_disconnect (context->window, context->destroy_id);
++      context->destroy_id = 0;
++    }
++
+     context->window = NULL;
+     context->active_tab = 0;
+     context->is_first_window = FALSE;

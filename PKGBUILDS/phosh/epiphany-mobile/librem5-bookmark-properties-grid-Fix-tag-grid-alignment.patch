@@ -1,0 +1,25 @@
+From: Alexander Mikhaylenko <alexander.mikhaylenko@puri.sm>
+Date: Tue, 22 Sep 2020 20:42:48 +0500
+Subject: librem5: bookmark-properties-grid: Fix tag grid alignment
+
+Fill valign is fine when the dialog is not resizable, as it is upstream.
+However, we have a patch to make it resizable and maximize it via
+HdyDialog, so instead top-align the grid so the tags aren't stretched.
+
+Upstreamed in https://gitlab.gnome.org/GNOME/epiphany/-/merge_requests/832
+---
+ src/resources/gtk/bookmark-properties-grid.ui | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/resources/gtk/bookmark-properties-grid.ui b/src/resources/gtk/bookmark-properties-grid.ui
+index ce12168..4e322fc 100644
+--- a/src/resources/gtk/bookmark-properties-grid.ui
++++ b/src/resources/gtk/bookmark-properties-grid.ui
+@@ -157,6 +157,7 @@
+                 <property name="homogeneous">True</property>
+                 <property name="column_spacing">6</property>
+                 <property name="row_spacing">6</property>
++                <property name="valign">start</property>
+                 <property name="min_children_per_line">2</property>
+                 <property name="max_children_per_line">3</property>
+                 <property name="selection_mode">none</property>

@@ -1,0 +1,103 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=epiphany-mobile
+pkgver=3.38.1
+pkgrel=1
+pkgdesc="A GNOME web browser based on the WebKit rendering engine"
+url="https://wiki.gnome.org/Apps/Web"
+arch=(x86_64 armv7h aarch64)
+license=(GPL)
+depends=(webkit2gtk gcr icu libdazzle libhandy libportal)
+makedepends=(docbook-xml startup-notification lsb-release gobject-introspection yelp-tools
+             appstream-glib git meson)
+checkdepends=(xorg-server-xvfb aspell hspell hunspell nuspell libvoikko)
+groups=(gnome)
+provides=(epiphany)
+conflicts=(epiphany)
+_commit=41b6c74a412f24b5e5e164efb28dffbfcb5e41a1  # tags/3.38.1^0
+source=("$pkgname::git+https://gitlab.gnome.org/GNOME/epiphany.git#commit=$_commit"
+        librem5-adblock-Stop-using-g_task_set_name.patch
+        librem5-adblock-Use-GTimeVal-again-instead-of-GDateTime.patch
+        librem5-bookmark-properties-grid-Fix-tag-grid-alignment.patch
+        librem5-bookmarks-popover-Make-the-popover-narrower.patch
+        librem5-bookmarks-popover-Make-the-tag-detail-label-adapt.patch
+        librem5-bookmarks-row-Make-properties-dialog-resizable.patch
+        librem5-Disable-create_delete_dir-test.patch
+        librem5-Disable-fullscreen.patch
+        librem5-Disable-print.patch
+        librem5-Disable-WebKit-fullscreen.patch
+        librem5-Drop-the-shortcuts-window.patch
+        librem5-Hide-web-app-preferences-for-system-apps.patch
+        librem5-password-manager-Revert-the-port-to-the-secret_pa.patch
+        librem5-prefs-general-page-Don-t-manually-scale-web-app-i.patch
+        librem5-prefs-general-page-Redesign-web-application-prefe.patch
+        librem5-search-engine-dialog-Make-it-fit-narrow-screens.patch
+        librem5-search-engine-dialog-Restyle-header-labels.patch
+        librem5-search-engine-dialog-Use-an-inline-toolbar.patch
+        librem5-Skip-system-web-apps-for-about-applications.patch
+        librem5-Stop-using-g_clear_signal_handler.patch
+        librem5-webapp-additional-urls-dialog-Slightly-modernize-.patch)
+sha256sums=('SKIP'
+            '26ec39e83ddca32ed2fc866497e3dffec99920bc4d38b064a347748140429768'
+            '8179e06de0ba39a77e3666568e6ecb639853184d9680706049b04375714c07e7'
+            'ccda3bc42ae6b9e0f6eb215be5149ef39c7e710884e8f5cd04cda6c4e6a239f7'
+            '04e010c7d5a3c56032f8580894fdc6ebc136feaecea8dba4dbc7c726a688eaf1'
+            '7a7a6e0648cad150b1a7270ee1f0beb5a7364179571c4dae0d80970752164099'
+            '7ac31f1f3885b23a2c4115de6458a052ca1164a13281ea19b4efd298a03f05ef'
+            'f72a6998c63adaf5dbf7bcd4c7bf9d1c34bedfb4c9408c0d30543e50159bd810'
+            '760d7591aa5de14b375db899cf27a9d0b96652f65c0ce3bc62762cf46720af1b'
+            '29c64a30f6a14b161f79060f9bd37596c1cabe4498bc8fc642b532d4e2dbb7a3'
+            '07295ea02a1b2ce5696b9bdd71b4b83b16e05555817478488bc888f991d66edd'
+            'b64c49039443751319e5df7d9f402624b1cdaf5c40e02cbe12204e49b0014158'
+            '3a26316f67d6660f05b0d724b798aff5d09e7e09eed3f3159518e1673ad8e780'
+            'da5058d1526d15b9aca7e024bb1dfc509fbf96997dd5e75e13611886cefc00dd'
+            'fc2287ff22fe25864a2da082637546630f9b358bbcd7db1b8500deb578528a64'
+            '1798baf9cacdb05aba4c96a3bcaad070063c5f7ca7b01e9a957bbc1fc0da0c8c'
+            'c133e4507b55b1267161137ca34eb028b539a30f17050ed3e2397525959a2ddf'
+            '1dd9c105e54889420ed8c3a4147eccb7d93e8e633427688aea7dc66d3a726392'
+            '81cc1a2097da137d0c94bc9a6e3e2e4ed860d20b3b4670f76712ae4ec28b3548'
+            '9ea7965c65629d65b6ee3ec0b9c78e3610f442a40ec0d77040f9f4a4a6707cd9'
+            '268cc787dc492fbb4cb9b1f829934533db1bf6cea6a5f742b2d802901cbdffcd'
+            '1fdd14ce62ff888ff7191b6555e04e69a8b842630fb869887f7c89058b204b5e')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+
+  patch -p1 -N < ../librem5-Disable-fullscreen.patch
+  patch -p1 -N < ../librem5-Disable-print.patch
+  patch -p1 -N < ../librem5-Drop-the-shortcuts-window.patch
+  patch -p1 -N < ../librem5-Disable-WebKit-fullscreen.patch
+  patch -p1 -N < ../librem5-search-engine-dialog-Make-it-fit-narrow-screens.patch
+  patch -p1 -N < ../librem5-search-engine-dialog-Restyle-header-labels.patch
+  patch -p1 -N < ../librem5-search-engine-dialog-Use-an-inline-toolbar.patch
+  patch -p1 -N < ../librem5-bookmarks-row-Make-properties-dialog-resizable.patch
+  patch -p1 -N < ../librem5-bookmark-properties-grid-Fix-tag-grid-alignment.patch
+  patch -p1 -N < ../librem5-bookmarks-popover-Make-the-popover-narrower.patch
+  patch -p1 -N < ../librem5-bookmarks-popover-Make-the-tag-detail-label-adapt.patch
+  patch -p1 -N < ../librem5-adblock-Use-GTimeVal-again-instead-of-GDateTime.patch
+  patch -p1 -N < ../librem5-adblock-Stop-using-g_task_set_name.patch
+  patch -p1 -N < ../librem5-Stop-using-g_clear_signal_handler.patch
+  patch -p1 -N < ../librem5-password-manager-Revert-the-port-to-the-secret_pa.patch
+  patch -p1 -N < ../librem5-Disable-create_delete_dir-test.patch
+  patch -p1 -N < ../librem5-prefs-general-page-Redesign-web-application-prefe.patch
+  patch -p1 -N < ../librem5-webapp-additional-urls-dialog-Slightly-modernize-.patch
+  patch -p1 -N < ../librem5-prefs-general-page-Don-t-manually-scale-web-app-i.patch
+  patch -p1 -N < ../librem5-Hide-web-app-preferences-for-system-apps.patch
+  patch -p1 -N < ../librem5-Skip-system-web-apps-for-about-applications.patch
+}
+
+build() {
+  arch-meson $pkgname build
+  meson compile -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

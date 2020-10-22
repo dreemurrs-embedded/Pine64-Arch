@@ -1,0 +1,187 @@
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 10 Jul 2019 19:17:38 +0200
+Subject: librem5: Disable fullscreen
+
+This prevent the windows from going fullscreen, as we currently have no
+way to exit fullscreen from a touch screen only.
+---
+ src/ephy-lockdown.c   | 18 ------------------
+ src/ephy-window.c     | 40 ++++------------------------------------
+ src/window-commands.c | 24 ------------------------
+ src/window-commands.h |  3 ---
+ 4 files changed, 4 insertions(+), 81 deletions(-)
+
+diff --git a/src/ephy-lockdown.c b/src/ephy-lockdown.c
+index 43f3113..fe08141 100644
+--- a/src/ephy-lockdown.c
++++ b/src/ephy-lockdown.c
+@@ -65,17 +65,6 @@ arbitrary_url_cb (GSettings  *settings,
+   }
+ }
+ 
+-static void
+-fullscreen_cb (GSettings  *settings,
+-               const char *key,
+-               EphyWindow *window)
+-{
+-  if (g_settings_get_boolean (settings, key))
+-    gtk_window_fullscreen (GTK_WINDOW (window));
+-  else
+-    gtk_window_unfullscreen (GTK_WINDOW (window));
+-}
+-
+ typedef struct {
+   const char *key;
+   const char *action;
+@@ -96,8 +85,6 @@ static const BindAction window_actions[] = {
+ 
+   { EPHY_PREFS_LOCKDOWN_BOOKMARK_EDITING, "bookmark-page", "enabled" },
+ 
+-  { EPHY_PREFS_LOCKDOWN_FULLSCREEN, "fullscreen", "enabled" },
+-
+   { EPHY_PREFS_LOCKDOWN_PRINTING, "print", "enabled" },
+ 
+   { EPHY_PREFS_LOCKDOWN_SAVE_TO_DISK, "save-as", "enabled" }
+@@ -194,16 +181,11 @@ window_added_cb (GtkApplication *application,
+   if (!EPHY_IS_WINDOW (window))
+     return;
+ 
+-  g_signal_connect (EPHY_SETTINGS_LOCKDOWN,
+-                    "changed::" EPHY_PREFS_LOCKDOWN_FULLSCREEN,
+-                    G_CALLBACK (fullscreen_cb), window);
+   g_signal_connect (EPHY_SETTINGS_LOCKDOWN,
+                     "changed::" EPHY_PREFS_LOCKDOWN_ARBITRARY_URL,
+                     G_CALLBACK (arbitrary_url_cb), window);
+ 
+   /* Trigger an initial state on these elements. */
+-  fullscreen_cb (EPHY_SETTINGS_LOCKDOWN,
+-                 EPHY_PREFS_LOCKDOWN_FULLSCREEN, EPHY_WINDOW (window));
+   arbitrary_url_cb (EPHY_SETTINGS_LOCKDOWN,
+                     EPHY_PREFS_LOCKDOWN_ARBITRARY_URL, EPHY_WINDOW (window));
+ 
+diff --git a/src/ephy-window.c b/src/ephy-window.c
+index d6adfb2..46b592f 100644
+--- a/src/ephy-window.c
++++ b/src/ephy-window.c
+@@ -120,7 +120,6 @@ const struct {
+ 
+   /* Toggle actions */
+   { "win.browse-with-caret", { "F7", NULL } },
+-  { "win.fullscreen", { "F11", NULL } },
+ 
+   /* Navigation */
+   { "toolbar.stop", { "Escape", "Stop", NULL } },
+@@ -554,23 +553,6 @@ update_adaptive_mode (EphyWindow *window)
+     ephy_window_close_pages_view (window);
+ }
+ 
+-static void
+-ephy_window_fullscreen (EphyWindow *window)
+-{
+-  EphyEmbed *embed;
+-
+-  window->is_fullscreen = TRUE;
+-
+-  /* sync status */
+-  embed = window->active_embed;
+-  sync_tab_load_status (ephy_embed_get_web_view (embed), WEBKIT_LOAD_STARTED, window);
+-  sync_tab_security (ephy_embed_get_web_view (embed), NULL, window);
+-
+-  update_adaptive_mode (window);
+-  sync_chromes_visibility (window);
+-  ephy_embed_entering_fullscreen (embed);
+-}
+-
+ static void
+ ephy_window_unfullscreen (EphyWindow *window)
+ {
+@@ -871,7 +853,6 @@ static const GActionEntry window_entries [] = {
+ 
+   /* Toggle actions */
+   { "browse-with-caret", NULL, NULL, "false", window_cmd_change_browse_with_caret_state },
+-  { "fullscreen", NULL, NULL, "false", window_cmd_change_fullscreen_state },
+ };
+ 
+ static const GActionEntry tab_entries [] = {
+@@ -3309,28 +3290,15 @@ ephy_window_state_event (GtkWidget           *widget,
+   }
+ 
+   if (event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN) {
+-    GActionGroup *action_group;
+-    GAction *action;
+-    gboolean fullscreen;
++    if (event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN)
++      gtk_window_unfullscreen (GTK_WINDOW (window));
+ 
+-    fullscreen = !!(event->new_window_state & GDK_WINDOW_STATE_FULLSCREEN);
+-
+-    if (fullscreen) {
+-      ephy_window_fullscreen (window);
+-    } else {
+-      ephy_window_unfullscreen (window);
+-    }
++    ephy_window_unfullscreen (window);
+ 
+     if (window->show_fullscreen_header_bar)
+-      dzl_application_window_set_fullscreen (DZL_APPLICATION_WINDOW (window), fullscreen);
++      dzl_application_window_set_fullscreen (DZL_APPLICATION_WINDOW (window), FALSE);
+ 
+     window->show_fullscreen_header_bar = FALSE;
+-
+-    action_group = gtk_widget_get_action_group (GTK_WIDGET (window), "win");
+-    action = g_action_map_lookup_action (G_ACTION_MAP (action_group), "fullscreen");
+-
+-    g_simple_action_set_state (G_SIMPLE_ACTION (action),
+-                               g_variant_new_boolean (fullscreen));
+   } else if (event->changed_mask & GDK_WINDOW_STATE_MAXIMIZED) {
+     window->is_maximized = !!(event->new_window_state & GDK_WINDOW_STATE_MAXIMIZED);
+   }
+diff --git a/src/window-commands.c b/src/window-commands.c
+index fd4dafc..4ed4184 100644
+--- a/src/window-commands.c
++++ b/src/window-commands.c
+@@ -2616,30 +2616,6 @@ window_cmd_change_browse_with_caret_state (GSimpleAction *action,
+                           EPHY_PREFS_ENABLE_CARET_BROWSING, active);
+ }
+ 
+-void
+-window_cmd_change_fullscreen_state (GSimpleAction *action,
+-                                    GVariant      *state,
+-                                    gpointer       user_data)
+-{
+-  EphyWindow *window = EPHY_WINDOW (user_data);
+-  gboolean active;
+-
+-  active = g_variant_get_boolean (state);
+-
+-  /* This is performed only here because we don't want it occuring when a window
+-   * enters fullscreen mode for some other reason other than action activation.
+-   * E.g. we don't want it appearing for fullscreen video.
+-   */
+-  ephy_window_show_fullscreen_header_bar (window);
+-
+-  if (active)
+-    gtk_window_fullscreen (GTK_WINDOW (window));
+-  else
+-    gtk_window_unfullscreen (GTK_WINDOW (window));
+-
+-  g_simple_action_set_state (action, g_variant_new_boolean (active));
+-}
+-
+ void
+ window_cmd_tabs_previous (GSimpleAction *action,
+                           GVariant      *variant,
+diff --git a/src/window-commands.h b/src/window-commands.h
+index ca80dcf..784363b 100644
+--- a/src/window-commands.h
++++ b/src/window-commands.h
+@@ -173,9 +173,6 @@ void window_cmd_go_tabs_view                    (GSimpleAction *action,
+ void window_cmd_change_browse_with_caret_state  (GSimpleAction *action,
+                                                  GVariant      *state,
+                                                  gpointer       user_data);
+-void window_cmd_change_fullscreen_state         (GSimpleAction *action,
+-                                                 GVariant      *state,
+-                                                 gpointer       user_data);
+ void window_cmd_tabs_previous                   (GSimpleAction *action,
+                                                  GVariant      *state,
+                                                  gpointer       user_data);

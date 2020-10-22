@@ -1,0 +1,40 @@
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 2 Sep 2019 09:10:17 +0200
+Subject: librem5: bookmarks-popover: Make the popover narrower
+
+This helps it fit in narrow screens.
+
+Upstreamed in https://gitlab.gnome.org/GNOME/epiphany/-/merge_requests/833
+---
+ src/bookmarks/ephy-bookmarks-popover.c | 3 +++
+ src/resources/gtk/bookmarks-popover.ui | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/src/bookmarks/ephy-bookmarks-popover.c b/src/bookmarks/ephy-bookmarks-popover.c
+index 4fc24f2..59aa6df 100644
+--- a/src/bookmarks/ephy-bookmarks-popover.c
++++ b/src/bookmarks/ephy-bookmarks-popover.c
+@@ -244,6 +244,9 @@ create_tag_row (const char *tag)
+   }
+   label = gtk_label_new (tag);
+ 
++  gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
++  gtk_label_set_xalign (GTK_LABEL (label), 0);
++
+   gtk_box_pack_start (GTK_BOX (box), image, FALSE, FALSE, 0);
+   gtk_box_pack_start (GTK_BOX (box), label, TRUE, FALSE, 0);
+ 
+diff --git a/src/resources/gtk/bookmarks-popover.ui b/src/resources/gtk/bookmarks-popover.ui
+index 6ee426c..3e1498d 100644
+--- a/src/resources/gtk/bookmarks-popover.ui
++++ b/src/resources/gtk/bookmarks-popover.ui
+@@ -165,6 +165,9 @@
+                   <object class="GtkLabel" id="title">
+                     <property name="label" translatable="yes">No bookmarks yet?</property>
+                     <property name="visible">true</property>
++                    <property name="max-width-chars">40</property>
++                    <property name="wrap">true</property>
++                    <property name="justify">center</property>
+                     <style>
+                       <class name="dim-label"/>
+                     </style>

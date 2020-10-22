@@ -1,0 +1,115 @@
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 13 Aug 2019 13:57:59 +0200
+Subject: librem5: search-engine-dialog: Make it fit narrow screens
+
+---
+ src/resources/gtk/search-engine-dialog.ui | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/src/resources/gtk/search-engine-dialog.ui b/src/resources/gtk/search-engine-dialog.ui
+index 5202965..e2e2be9 100644
+--- a/src/resources/gtk/search-engine-dialog.ui
++++ b/src/resources/gtk/search-engine-dialog.ui
+@@ -30,6 +30,8 @@
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+             <property name="margin">12</property>
++            <property name="orientation">vertical</property>
++            <property name="spacing">12</property>
+             <child>
+               <object class="GtkBox">
+                 <property name="visible">True</property>
+@@ -117,7 +119,7 @@
+                 </child>
+               </object>
+               <packing>
+-                <property name="expand">False</property>
++                <property name="expand">True</property>
+                 <property name="fill">True</property>
+                 <property name="position">0</property>
+               </packing>
+@@ -132,7 +134,6 @@
+                   <object class="GtkGrid">
+                     <property name="visible">True</property>
+                     <property name="can_focus">False</property>
+-                    <property name="halign">center</property>
+                     <property name="row_spacing">6</property>
+                     <property name="column_spacing">12</property>
+                     <child>
+@@ -165,12 +166,11 @@
+                       <object class="GtkEntry" id="search_engine_name_entry">
+                         <property name="visible">True</property>
+                         <property name="can_focus">True</property>
+-                        <property name="width_chars">40</property>
++                        <property name="hexpand">True</property>
+                       </object>
+                       <packing>
+                         <property name="left_attach">1</property>
+                         <property name="top_attach">0</property>
+-			<property name="width">3</property>
+                       </packing>
+                     </child>
+                     <child>
+@@ -182,30 +182,30 @@
+                         <property name="margin">6</property>
+                       </object>
+                       <packing>
+-                        <property name="left_attach">2</property>
+-                        <property name="top_attach">2</property>
++                        <property name="left_attach">0</property>
++                        <property name="top_attach">3</property>
+                       </packing>
+                     </child>
+                     <child>
+                       <object class="GtkEntry" id="search_engine_bang_entry">
+                         <property name="visible">True</property>
+                         <property name="can_focus">True</property>
++                        <property name="hexpand">True</property>
+                       </object>
+                       <packing>
+-                        <property name="left_attach">3</property>
+-                        <property name="top_attach">2</property>
++                        <property name="left_attach">1</property>
++                        <property name="top_attach">3</property>
+                       </packing>
+                     </child>
+                     <child>
+                       <object class="GtkEntry" id="search_engine_address_entry">
+                         <property name="visible">True</property>
+                         <property name="can_focus">True</property>
+-                        <property name="width_chars">40</property>
++                        <property name="hexpand">True</property>
+                       </object>
+                       <packing>
+                         <property name="left_attach">1</property>
+                         <property name="top_attach">1</property>
+-			<property name="width">3</property>
+                       </packing>
+                     </child>
+                     <child>
+@@ -225,7 +225,7 @@
+                       <object class="GtkSwitch" id="search_engine_default_switch">
+                         <property name="visible">True</property>
+                         <property name="can_focus">True</property>
+-			<property name="halign">start</property>
++			<property name="halign">end</property>
+ 			<property name="valign">center</property>
+                         <signal name="notify::active" handler="on_default_search_engine_switch_state_modified"/>
+                       </object>
+@@ -284,14 +284,14 @@
+                 </child>
+               </object>
+               <packing>
+-                <property name="expand">True</property>
++                <property name="expand">False</property>
+                 <property name="fill">True</property>
+                 <property name="position">1</property>
+               </packing>
+             </child>
+           </object>
+           <packing>
+-            <property name="expand">False</property>
++            <property name="expand">True</property>
+             <property name="fill">True</property>
+             <property name="position">1</property>
+           </packing>

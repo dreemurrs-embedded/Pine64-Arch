@@ -1,0 +1,134 @@
+From: Alexander Mikhaylenko <alexander.mikhaylenko@puri.sm>
+Date: Fri, 25 Sep 2020 15:31:11 +0500
+Subject: librem5: Hide web app preferences for system apps
+
+Since system web apps have desktop file in /usr, they cannot be edited and
+the preferences do nothing.
+
+Introduce EPHY_WEB_APPLICATION_SYSTEM option, set it for any applications
+created via ephy_web_application_ensure_for_app_info(). Hide preferences
+for those apps.
+
+Upstreamed in https://gitlab.gnome.org/GNOME/epiphany/-/merge_requests/835
+---
+ data/org.gnome.epiphany.gschema.xml  |  5 +++++
+ lib/ephy-prefs.h                     |  1 +
+ lib/ephy-web-app-utils.c             | 11 ++++++++---
+ lib/ephy-web-app-utils.h             |  1 +
+ src/preferences/prefs-general-page.c | 17 +++++++++++------
+ 5 files changed, 26 insertions(+), 9 deletions(-)
+
+diff --git a/data/org.gnome.epiphany.gschema.xml b/data/org.gnome.epiphany.gschema.xml
+index be60ff9..d1341d4 100644
+--- a/data/org.gnome.epiphany.gschema.xml
++++ b/data/org.gnome.epiphany.gschema.xml
+@@ -257,6 +257,11 @@
+ 			<summary>Run in background</summary>
+ 			<description>If enabled, application continues running in the background after closing the window.</description>
+ 		</key>
++		<key type="b" name="system">
++			<default>false</default>
++			<summary>WebApp is system-wide</summary>
++			<description>If enabled, application cannot be edited or removed.</description>
++		</key>
+ 	</schema>
+ 	<schema id="org.gnome.Epiphany.state">
+ 		<key type="s" name="download-dir">
+diff --git a/lib/ephy-prefs.h b/lib/ephy-prefs.h
+index d423441..6158df1 100644
+--- a/lib/ephy-prefs.h
++++ b/lib/ephy-prefs.h
+@@ -198,6 +198,7 @@ static const char * const ephy_prefs_web_schema[] = {
+ #define EPHY_PREFS_WEB_APP_ADDITIONAL_URLS   "additional-urls"
+ #define EPHY_PREFS_WEB_APP_MOBILE_CAPABLE    "mobile-capable"
+ #define EPHY_PREFS_WEB_APP_RUN_IN_BACKGROUND "run-in-background"
++#define EPHY_PREFS_WEB_APP_SYSTEM            "system"
+ 
+ static struct {
+   const char *schema;
+diff --git a/lib/ephy-web-app-utils.c b/lib/ephy-web-app-utils.c
+index aff0bc2..086d794 100644
+--- a/lib/ephy-web-app-utils.c
++++ b/lib/ephy-web-app-utils.c
+@@ -467,7 +467,7 @@ ephy_web_application_ensure_for_app_info (GAppInfo *app_info)
+     if (error)
+       g_warning ("Couldn't copy desktop file: %s", error->message);
+ 
+-    ephy_web_application_initialize_settings (profile_dir, EPHY_WEB_APPLICATION_NONE);
++    ephy_web_application_initialize_settings (profile_dir, EPHY_WEB_APPLICATION_SYSTEM);
+   }
+ 
+   return g_steal_pointer (&profile_dir);
+@@ -793,12 +793,17 @@ ephy_web_application_initialize_settings (const char                *profile_dir
+   g_object_unref (settings);
+   g_object_unref (web_app_settings);
+ 
+-  if (options & EPHY_WEB_APPLICATION_MOBILE_CAPABLE) {
++  if (options) {
+     path = g_build_path ("/", "/org/gnome/epiphany/web-apps/", name, "webapp/", NULL);
+     web_app_settings = g_settings_new_with_path (EPHY_PREFS_WEB_APP_SCHEMA, path);
+     g_free (path);
+ 
+-    g_settings_set_boolean (web_app_settings, EPHY_PREFS_WEB_APP_MOBILE_CAPABLE, TRUE);
++    if (options & EPHY_WEB_APPLICATION_MOBILE_CAPABLE)
++      g_settings_set_boolean (web_app_settings, EPHY_PREFS_WEB_APP_MOBILE_CAPABLE, TRUE);
++
++    if (options & EPHY_WEB_APPLICATION_SYSTEM)
++      g_settings_set_boolean (web_app_settings, EPHY_PREFS_WEB_APP_SYSTEM, TRUE);
++
+     g_object_unref (web_app_settings);
+   }
+ 
+diff --git a/lib/ephy-web-app-utils.h b/lib/ephy-web-app-utils.h
+index b51fdaf..0044abf 100644
+--- a/lib/ephy-web-app-utils.h
++++ b/lib/ephy-web-app-utils.h
+@@ -38,6 +38,7 @@ typedef struct {
+ typedef enum {
+   EPHY_WEB_APPLICATION_NONE,
+   EPHY_WEB_APPLICATION_MOBILE_CAPABLE,
++  EPHY_WEB_APPLICATION_SYSTEM,
+ } EphyWebApplicationOptions;
+ 
+ #define EPHY_WEB_APP_ICON_NAME "app-icon.png"
+diff --git a/src/preferences/prefs-general-page.c b/src/preferences/prefs-general-page.c
+index defb8a2..ac3d820 100644
+--- a/src/preferences/prefs-general-page.c
++++ b/src/preferences/prefs-general-page.c
+@@ -1209,9 +1209,12 @@ setup_general_page (PrefsGeneralPage *general_page)
+   if (ephy_embed_shell_get_mode (ephy_embed_shell_get_default ()) == EPHY_EMBED_SHELL_MODE_APPLICATION) {
+     general_page->webapp = ephy_web_application_for_profile_directory (ephy_profile_dir ());
+     g_assert (general_page->webapp);
+-    prefs_general_page_update_webapp_icon (general_page, general_page->webapp->icon_url);
+-    gtk_entry_set_text (GTK_ENTRY (general_page->webapp_url), general_page->webapp->url);
+-    gtk_entry_set_text (GTK_ENTRY (general_page->webapp_title), general_page->webapp->name);
++
++    if (!g_settings_get_boolean (EPHY_SETTINGS_WEB_APP, EPHY_PREFS_WEB_APP_SYSTEM)) {
++      prefs_general_page_update_webapp_icon (general_page, general_page->webapp->icon_url);
++      gtk_entry_set_text (GTK_ENTRY (general_page->webapp_url), general_page->webapp->url);
++      gtk_entry_set_text (GTK_ENTRY (general_page->webapp_title), general_page->webapp->name);
++    }
+   }
+ 
+   /* ======================================================================== */
+@@ -1356,8 +1359,12 @@ prefs_general_page_init (PrefsGeneralPage *general_page)
+ 
+   gtk_widget_init_template (GTK_WIDGET (general_page));
+ 
++  setup_general_page (general_page);
++
+   gtk_widget_set_visible (general_page->webapp_box,
+-                          mode == EPHY_EMBED_SHELL_MODE_APPLICATION);
++                          mode == EPHY_EMBED_SHELL_MODE_APPLICATION &&
++                          !g_settings_get_boolean (EPHY_SETTINGS_WEB_APP,
++                                                   EPHY_PREFS_WEB_APP_SYSTEM));
+   gtk_widget_set_visible (general_page->homepage_box,
+                           mode != EPHY_EMBED_SHELL_MODE_APPLICATION);
+   gtk_widget_set_visible (general_page->search_box,
+@@ -1366,6 +1373,4 @@ prefs_general_page_init (PrefsGeneralPage *general_page)
+                           mode != EPHY_EMBED_SHELL_MODE_APPLICATION);
+   gtk_widget_set_visible (general_page->browsing_box,
+                           mode != EPHY_EMBED_SHELL_MODE_APPLICATION);
+-
+-  setup_general_page (general_page);
+ }

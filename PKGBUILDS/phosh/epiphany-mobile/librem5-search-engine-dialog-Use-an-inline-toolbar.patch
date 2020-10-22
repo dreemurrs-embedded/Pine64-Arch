@@ -1,0 +1,58 @@
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 13 Aug 2019 13:58:16 +0200
+Subject: librem5: search-engine-dialog: Use an inline toolbar
+
+It looks better than lonely buttons.
+---
+ src/resources/gtk/search-engine-dialog.ui | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
+
+diff --git a/src/resources/gtk/search-engine-dialog.ui b/src/resources/gtk/search-engine-dialog.ui
+index e2e2be9..9b34ac8 100644
+--- a/src/resources/gtk/search-engine-dialog.ui
++++ b/src/resources/gtk/search-engine-dialog.ui
+@@ -64,9 +64,23 @@
+                   </packing>
+                 </child>
+                 <child>
+-                  <object class="GtkBox">
++                  <object class="GtkToolbar">
+                     <property name="visible">True</property>
+                     <property name="can_focus">False</property>
++                    <property name="toolbar_style">icons</property>
++                    <property name="show_arrow">False</property>
++                    <property name="icon_size">1</property>
++                    <style>
++                      <class name="inline-toolbar"/>
++                    </style>
++                    <child>
++                      <object class="GtkToolItem">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <child>
++                          <object class="GtkBox">
++                            <property name="visible">True</property>
++                            <property name="can_focus">False</property>
+                     <child>
+                       <object class="GtkButton" id="search_engine_add_button">
+                         <property name="visible">True</property>
+@@ -107,15 +121,11 @@
+                         <property name="position">1</property>
+                       </packing>
+                     </child>
+-                    <style>
+-                      <class name="linked"/>
+-                    </style>
++                          </object>
++                        </child>
++                      </object>
++                    </child>
+                   </object>
+-                  <packing>
+-                    <property name="expand">False</property>
+-                    <property name="fill">True</property>
+-                    <property name="position">1</property>
+-                  </packing>
+                 </child>
+               </object>
+               <packing>

@@ -1,0 +1,22 @@
+From: Alexander Mikhaylenko <alexander.mikhaylenko@puri.sm>
+Date: Tue, 22 Sep 2020 17:43:19 +0500
+Subject: librem5: Disable WebKit fullscreen
+
+This lets WebKit and websites they don't have the right to make the
+window fullscreen.
+---
+ embed/ephy-embed-prefs.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/embed/ephy-embed-prefs.c b/embed/ephy-embed-prefs.c
+index 3120897..e9ec876 100644
+--- a/embed/ephy-embed-prefs.c
++++ b/embed/ephy-embed-prefs.c
+@@ -566,6 +566,7 @@ ephy_embed_prefs_init (gpointer user_data)
+   webkit_settings = webkit_settings_new_with_settings ("enable-back-forward-navigation-gestures", TRUE,
+                                                        "enable-developer-extras", TRUE,
+                                                        "enable-dns-prefetching", TRUE,
++                                                       "enable-fullscreen", FALSE,
+                                                        "enable-plugins", FALSE,
+                                                        NULL);
+ 
