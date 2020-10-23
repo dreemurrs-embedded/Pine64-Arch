@@ -4,7 +4,7 @@
 
 pkgname=gtk3-mobile
 pkgver=3.24.23
-pkgrel=2
+pkgrel=3
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -41,7 +41,8 @@ source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.
         0019-gtkfilechooserwidget-Expand-the-filename-entry.patch
         0020-gtkfontchooserwidget-Reduce-the-size-request.patch
         0021-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
-        2ef7303da3723c1430c94beb566b32aee9b5262e.patch)
+        2ef7303da3723c1430c94beb566b32aee9b5262e.patch
+        605ea9404a3847c88f3567a7f78fef24e7be30db.patch)
 sha256sums=('6e0527fd35b8c53025deca3400732848585c65876f7b0043c751e2ca5302ab7c'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
@@ -67,7 +68,8 @@ sha256sums=('6e0527fd35b8c53025deca3400732848585c65876f7b0043c751e2ca5302ab7c'
             '0265a6a67889b21db2e2659adaca0ca0b7456222bee940e9bcc6d1eb64be74fb'
             '9cd476b4ddf94091dcee48bef20560bfbb3964574841cad00dbab8e1a15237e7'
             'a6f2b7487b49a384e8403cc252a53979674362b69f6e4cdf65678a0723378a7d'
-            '84744c9682d6534232a50392c2cf9aa0cb8c3e25ac412c7aee9e99bce1fe621b')
+            '84744c9682d6534232a50392c2cf9aa0cb8c3e25ac412c7aee9e99bce1fe621b'
+            '6cab7975f28144db2134741b4c137d3a3fe0891f402f4d9ecab4a3b01af4267b')
 
 prepare() {
   cd gtk-$_commit
@@ -97,6 +99,7 @@ prepare() {
   patch -p1 -N < ../0021-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
 
   patch -p1 -N < ../2ef7303da3723c1430c94beb566b32aee9b5262e.patch
+  patch -p1 -N < ../605ea9404a3847c88f3567a7f78fef24e7be30db.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }

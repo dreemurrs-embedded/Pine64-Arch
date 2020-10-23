@@ -1,0 +1,74 @@
+From 605ea9404a3847c88f3567a7f78fef24e7be30db Mon Sep 17 00:00:00 2001
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Mon, 19 Oct 2020 14:13:56 +0500
+Subject: [PATCH] gestureswipe: Count last event when calculating velocity
+
+The last event, matching lifting the finger/releasing the mouse button,
+is important when there's a large delay between it and the previous events,
+as in when performing a movement, stopping, then releasing fingers as
+opposed to doing a swipe.
+
+If this event is skipped, doing this will result in kinetic deceleration
+matching the previous finger movement, while the expected behavior would
+be no deceleration.
+
+See also 97f540622abca60b54d5a8141d6f05bf791ffdb8 for a similar fix in
+GtkEventControllerScroll.
+---
+ gtk/gtkgestureswipe.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/gtk/gtkgestureswipe.c b/gtk/gtkgestureswipe.c
+index bf84eb5a3e..91bf19d999 100644
+--- a/gtk/gtkgestureswipe.c
++++ b/gtk/gtkgestureswipe.c
+@@ -126,17 +126,16 @@ _gtk_gesture_swipe_clear_backlog (GtkGestureSwipe *gesture,
+ }
+ 
+ static void
+-gtk_gesture_swipe_update (GtkGesture       *gesture,
+-                          GdkEventSequence *sequence)
++gtk_gesture_swipe_append_event (GtkGestureSwipe  *swipe,
++                                GdkEventSequence *sequence)
+ {
+-  GtkGestureSwipe *swipe = GTK_GESTURE_SWIPE (gesture);
+   GtkGestureSwipePrivate *priv;
+   EventData new;
+   gdouble x, y;
+ 
+   priv = gtk_gesture_swipe_get_instance_private (swipe);
+-  _gtk_gesture_get_last_update_time (gesture, sequence, &new.evtime);
+-  gtk_gesture_get_point (gesture, sequence, &x, &y);
++  _gtk_gesture_get_last_update_time (GTK_GESTURE (swipe), sequence, &new.evtime);
++  gtk_gesture_get_point (GTK_GESTURE (swipe), sequence, &x, &y);
+ 
+   new.point.x = x;
+   new.point.y = y;
+@@ -145,6 +144,15 @@ gtk_gesture_swipe_update (GtkGesture       *gesture,
+   g_array_append_val (priv->events, new);
+ }
+ 
++static void
++gtk_gesture_swipe_update (GtkGesture       *gesture,
++                          GdkEventSequence *sequence)
++{
++  GtkGestureSwipe *swipe = GTK_GESTURE_SWIPE (gesture);
++
++  gtk_gesture_swipe_append_event (swipe, sequence);
++}
++
+ static void
+ _gtk_gesture_swipe_calculate_velocity (GtkGestureSwipe *gesture,
+                                        gdouble         *velocity_x,
+@@ -198,6 +206,8 @@ gtk_gesture_swipe_end (GtkGesture       *gesture,
+   if (gtk_gesture_is_active (gesture))
+     return;
+ 
++  gtk_gesture_swipe_append_event (swipe, sequence);
++
+   priv = gtk_gesture_swipe_get_instance_private (swipe);
+   _gtk_gesture_swipe_calculate_velocity (swipe, &velocity_x, &velocity_y);
+   g_signal_emit (gesture, signals[SWIPE], 0, velocity_x, velocity_y);
+-- 
+2.26.2
+
