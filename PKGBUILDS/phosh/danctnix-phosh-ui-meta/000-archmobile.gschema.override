@@ -5,6 +5,9 @@ clock-show-date=false
 [org.gnome.desktop.wm.preferences]
 button-layout='appmenu:'
 
+[org.gnome.desktop.a11y.applications]
+screen-keyboard-enabled=true
+
 [org.gnome.Epiphany]
 search-engines=[('Search the Web', 'https://duckduckgo.com/?q=%s&t=epiphany', ''), ('DuckDuckGo', 'https://duckduckgo.com/?q=%s&t=epiphany', '!ddg'), ('Qwant', 'https://www.qwant.com/?q=%s', '!q')]
 
