@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=squeekboard
-pkgver=1.9.3
-pkgrel=0
+pkgver=1.10.0
+pkgrel=1
 pkgdesc="The final Phosh keyboard"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/squeekboard"
@@ -19,4 +19,4 @@ package() {
 	DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('e80d28112c5e21b104a36d280b4634af')
+md5sums=('034bfbaeb057c27a7de431bb05b19b7d')
