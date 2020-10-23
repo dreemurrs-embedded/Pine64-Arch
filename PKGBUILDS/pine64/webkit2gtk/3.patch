@@ -1,0 +1,808 @@
+From 9e48fb46ad6653d54ff948d7e2f2ab098152b563 Mon Sep 17 00:00:00 2001
+From: "clord@igalia.com" <clord@igalia.com>
+Date: Tue, 1 Sep 2020 09:51:27 +0000
+Subject: [PATCH 1/2] Add support for smooth scrolling animation with async
+ scrolling https://bugs.webkit.org/show_bug.cgi?id=210382
+
+Reviewed by Carlos Garcia Campos.
+
+This removes the dependency on ScrollableArea from
+ScrollAnimationSmooth, which allows its use as a utility class for
+smooth scrolling. This class is then used in the Nicosia async layer
+composition scrolling code to provide smooth scrolling, when the
+feature is enabled. This mirrors the work done in bug 209230 for
+kinetic scrolling.
+
+No new tests, enabling existing functionality in more situations.
+
+* page/scrolling/ScrollingTreeScrollingNode.cpp:
+(WebCore::ScrollingTreeScrollingNode::scrollTo):
+* page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp:
+(WebCore::ScrollingTreeFrameScrollingNodeNicosia::ScrollingTreeFrameScrollingNodeNicosia):
+(WebCore::ScrollingTreeFrameScrollingNodeNicosia::commitStateAfterChildren):
+(WebCore::ScrollingTreeFrameScrollingNodeNicosia::handleWheelEvent):
+(WebCore::ScrollingTreeFrameScrollingNodeNicosia::stopScrollAnimations):
+* page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.h:
+* page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp:
+(WebCore::ScrollingTreeOverflowScrollingNodeNicosia::ScrollingTreeOverflowScrollingNodeNicosia):
+(WebCore::ScrollingTreeOverflowScrollingNodeNicosia::commitStateAfterChildren):
+(WebCore::ScrollingTreeOverflowScrollingNodeNicosia::handleWheelEvent):
+(WebCore::ScrollingTreeOverflowScrollingNodeNicosia::stopScrollAnimations):
+* page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.h:
+* platform/ScrollAnimation.h:
+(WebCore::ScrollAnimation::serviceAnimation):
+* platform/ScrollAnimationKinetic.cpp:
+* platform/ScrollAnimationKinetic.h:
+* platform/ScrollAnimationSmooth.cpp:
+(WebCore::ScrollAnimationSmooth::ScrollAnimationSmooth):
+(WebCore::ScrollAnimationSmooth::scroll):
+(WebCore::ScrollAnimationSmooth::stop):
+(WebCore::ScrollAnimationSmooth::updateVisibleLengths):
+(WebCore::ScrollAnimationSmooth::animationTimerFired):
+* platform/ScrollAnimationSmooth.h:
+* platform/ScrollAnimator.cpp:
+(WebCore::ScrollAnimator::ScrollAnimator):
+* platform/generic/ScrollAnimatorGeneric.cpp:
+(WebCore::ScrollAnimatorGeneric::ScrollAnimatorGeneric):
+(WebCore::ScrollAnimatorGeneric::ensureSmoothScrollingAnimation):
+
+git-svn-id: http://svn.webkit.org/repository/webkit/trunk@266390 268f45cc-cd09-0410-ab3c-d52691b4dbfc
+---
+ .../scrolling/ScrollingTreeScrollingNode.cpp  |  3 -
+ ...ScrollingTreeFrameScrollingNodeNicosia.cpp | 89 +++++++++++++++----
+ .../ScrollingTreeFrameScrollingNodeNicosia.h  |  4 +
+ ...ollingTreeOverflowScrollingNodeNicosia.cpp | 89 +++++++++++++++----
+ ...crollingTreeOverflowScrollingNodeNicosia.h |  4 +
+ Source/WebCore/platform/ScrollAnimation.h     | 14 ++-
+ .../platform/ScrollAnimationKinetic.cpp       |  4 +-
+ .../WebCore/platform/ScrollAnimationKinetic.h | 10 +--
+ .../platform/ScrollAnimationSmooth.cpp        | 58 ++++++++----
+ .../WebCore/platform/ScrollAnimationSmooth.h  | 16 +++-
+ Source/WebCore/platform/ScrollAnimator.cpp    | 18 ++--
+ .../generic/ScrollAnimatorGeneric.cpp         | 18 ++--
+ 12 files changed, 246 insertions(+), 81 deletions(-)
+
+diff --git a/Source/WebCore/page/scrolling/ScrollingTreeScrollingNode.cpp b/Source/WebCore/page/scrolling/ScrollingTreeScrollingNode.cpp
+index c2b1a99725..8d3f833a68 100644
+--- a/Source/WebCore/page/scrolling/ScrollingTreeScrollingNode.cpp
++++ b/Source/WebCore/page/scrolling/ScrollingTreeScrollingNode.cpp
+@@ -257,9 +257,6 @@ void ScrollingTreeScrollingNode::scrollTo(const FloatPoint& position, ScrollType
+     if (position == m_currentScrollPosition)
+         return;
+ 
+-    if (scrollType == ScrollType::Programmatic)
+-        stopScrollAnimations();
+-
+     scrollingTree().setIsHandlingProgrammaticScroll(scrollType == ScrollType::Programmatic);
+     
+     m_currentScrollPosition = adjustedScrollPosition(position, clamp);
+diff --git a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp
+index cb52ed805b..08b5e5e4f6 100644
+--- a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp
++++ b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp
+@@ -40,6 +40,9 @@
+ #if ENABLE(KINETIC_SCROLLING)
+ #include "ScrollAnimationKinetic.h"
+ #endif
++#if ENABLE(SMOOTH_SCROLLING)
++#include "ScrollAnimationSmooth.h"
++#endif
+ 
+ namespace WebCore {
+ 
+@@ -53,10 +56,14 @@ ScrollingTreeFrameScrollingNodeNicosia::ScrollingTreeFrameScrollingNodeNicosia(S
+ {
+ #if ENABLE(KINETIC_SCROLLING)
+     m_kineticAnimation = makeUnique<ScrollAnimationKinetic>(
+-        [this]() -> ScrollAnimationKinetic::ScrollExtents {
+-            return { IntPoint(minimumScrollPosition()), IntPoint(maximumScrollPosition()) };
++        [this]() -> ScrollExtents {
++            return { IntPoint(minimumScrollPosition()), IntPoint(maximumScrollPosition()), IntSize(scrollableAreaSize()) };
+         },
+         [this](FloatPoint&& position) {
++#if ENABLE(SMOOTH_SCROLLING)
++            m_smoothAnimation->setCurrentPosition(position);
++#endif
++
+             auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrolledContentsLayer());
+             ASSERT(scrollLayer);
+             auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
+@@ -65,6 +72,22 @@ ScrollingTreeFrameScrollingNodeNicosia::ScrollingTreeFrameScrollingNodeNicosia(S
+             scrollTo(position);
+         });
+ #endif
++#if ENABLE(SMOOTH_SCROLLING)
++    m_smoothAnimation = makeUnique<ScrollAnimationSmooth>(
++        [this]() -> ScrollExtents {
++            return { IntPoint(minimumScrollPosition()), IntPoint(maximumScrollPosition()), IntSize(scrollableAreaSize()) };
++        },
++        currentScrollPosition(),
++        [this](FloatPoint&& position) {
++            auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrolledContentsLayer());
++            ASSERT(scrollLayer);
++            auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
++
++            auto updateScope = compositionLayer.createUpdateScope();
++            scrollTo(position);
++        },
++        [] { });
++#endif
+ }
+ 
+ ScrollingTreeFrameScrollingNodeNicosia::~ScrollingTreeFrameScrollingNodeNicosia() = default;
+@@ -109,8 +132,12 @@ void ScrollingTreeFrameScrollingNodeNicosia::commitStateAfterChildren(const Scro
+ 
+     // Update the scroll position after child nodes have been updated, because they need to have updated their constraints before any scrolling happens.
+     if (scrollingStateNode.hasChangedProperty(ScrollingStateScrollingNode::RequestedScrollPosition)) {
++        stopScrollAnimations();
+         const auto& requestedScrollData = scrollingStateNode.requestedScrollData();
+         scrollTo(requestedScrollData.scrollPosition, requestedScrollData.scrollType, requestedScrollData.clamping);
++#if ENABLE(SMOOTH_SCROLLING)
++        m_smoothAnimation->setCurrentPosition(currentScrollPosition());
++#endif
+     }
+ }
+ 
+@@ -119,33 +146,60 @@ WheelEventHandlingResult ScrollingTreeFrameScrollingNodeNicosia::handleWheelEven
+     if (!canHandleWheelEvent(wheelEvent))
+         return WheelEventHandlingResult::unhandled();
+ 
+-    if (wheelEvent.deltaX() || wheelEvent.deltaY()) {
+-        auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrolledContentsLayer());
+-        ASSERT(scrollLayer);
+-        auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
+-
+-        auto updateScope = compositionLayer.createUpdateScope();
+-        scrollBy({ -wheelEvent.deltaX(), -wheelEvent.deltaY() });
+-
+-    }
+-
+ #if ENABLE(KINETIC_SCROLLING)
+     m_kineticAnimation->appendToScrollHistory(wheelEvent);
+-#endif
+-
+-#if ENABLE(KINETIC_SCROLLING)
+     m_kineticAnimation->stop();
+     if (wheelEvent.isEndOfNonMomentumScroll()) {
+         m_kineticAnimation->start(currentScrollPosition(), m_kineticAnimation->computeVelocity(), canHaveHorizontalScrollbar(), canHaveVerticalScrollbar());
+         m_kineticAnimation->clearScrollHistory();
++        return WheelEventHandlingResult::handled();
+     }
+     if (wheelEvent.isTransitioningToMomentumScroll()) {
+         m_kineticAnimation->start(currentScrollPosition(), wheelEvent.swipeVelocity(), canHaveHorizontalScrollbar(), canHaveVerticalScrollbar());
+         m_kineticAnimation->clearScrollHistory();
++        return WheelEventHandlingResult::handled();
++    }
++#endif
++
++    float deltaX = canHaveHorizontalScrollbar() ? wheelEvent.deltaX() : 0;
++    float deltaY = canHaveVerticalScrollbar() ? wheelEvent.deltaY() : 0;
++    if ((deltaX < 0 && currentScrollPosition().x() >= maximumScrollPosition().x())
++        || (deltaX > 0 && currentScrollPosition().x() <= minimumScrollPosition().x()))
++        deltaX = 0;
++    if ((deltaY < 0 && currentScrollPosition().y() >= maximumScrollPosition().y())
++        || (deltaY > 0 && currentScrollPosition().y() <= minimumScrollPosition().y()))
++        deltaY = 0;
++
++    if (!deltaX && !deltaY)
++        return WheelEventHandlingResult::unhandled();
++
++    if (wheelEvent.granularity() == ScrollByPageWheelEvent) {
++        if (deltaX) {
++            bool negative = deltaX < 0;
++            deltaX = Scrollbar::pageStepDelta(scrollableAreaSize().width());
++            if (negative)
++                deltaX = -deltaX;
++        }
++        if (deltaY) {
++            bool negative = deltaY < 0;
++            deltaY = Scrollbar::pageStepDelta(scrollableAreaSize().height());
++            if (negative)
++                deltaY = -deltaY;
++        }
+     }
++
++#if ENABLE(SMOOTH_SCROLLING)
++    m_smoothAnimation->scroll(HorizontalScrollbar, ScrollByPixel, 1, -deltaX);
++    m_smoothAnimation->scroll(VerticalScrollbar, ScrollByPixel, 1, -deltaY);
++#else
++    auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrolledContentsLayer());
++    ASSERT(scrollLayer);
++    auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
++
++    auto updateScope = compositionLayer.createUpdateScope();
++    scrollBy({ -deltaX, -deltaY });
+ #endif
+ 
+-    // FIXME: This needs to return whether the event was handled.
+     return WheelEventHandlingResult::handled();
+ }
+ 
+@@ -155,6 +209,9 @@ void ScrollingTreeFrameScrollingNodeNicosia::stopScrollAnimations()
+     m_kineticAnimation->stop();
+     m_kineticAnimation->clearScrollHistory();
+ #endif
++#if ENABLE(SMOOTH_SCROLLING)
++    m_smoothAnimation->stop();
++#endif
+ }
+ 
+ FloatPoint ScrollingTreeFrameScrollingNodeNicosia::adjustedScrollPosition(const FloatPoint& position, ScrollClamping clamping) const
+diff --git a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.h b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.h
+index 6473a4b56e..5054bebfec 100644
+--- a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.h
++++ b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.h
+@@ -39,6 +39,7 @@ class CompositionLayer;
+ }
+ 
+ namespace WebCore {
++class ScrollAnimation;
+ class ScrollAnimationKinetic;
+ 
+ class ScrollingTreeFrameScrollingNodeNicosia final : public ScrollingTreeFrameScrollingNode {
+@@ -73,6 +74,9 @@ private:
+ #if ENABLE(KINETIC_SCROLLING)
+     std::unique_ptr<ScrollAnimationKinetic> m_kineticAnimation;
+ #endif
++#if ENABLE(SMOOTH_SCROLLING)
++    std::unique_ptr<ScrollAnimation> m_smoothAnimation;
++#endif
+ };
+ 
+ } // namespace WebCore
+diff --git a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp
+index b45b6e1f76..069ad4f923 100644
+--- a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp
++++ b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp
+@@ -35,6 +35,9 @@
+ #if ENABLE(KINETIC_SCROLLING)
+ #include "ScrollAnimationKinetic.h"
+ #endif
++#if ENABLE(SMOOTH_SCROLLING)
++#include "ScrollAnimationSmooth.h"
++#endif
+ #include "ScrollingStateOverflowScrollingNode.h"
+ #include "ScrollingTree.h"
+ 
+@@ -50,11 +53,15 @@ ScrollingTreeOverflowScrollingNodeNicosia::ScrollingTreeOverflowScrollingNodeNic
+ {
+ #if ENABLE(KINETIC_SCROLLING)
+     m_kineticAnimation = makeUnique<ScrollAnimationKinetic>(
+-        [this]() -> ScrollAnimationKinetic::ScrollExtents {
+-            return { IntPoint(minimumScrollPosition()), IntPoint(maximumScrollPosition()) };
++        [this]() -> ScrollExtents {
++            return { IntPoint(minimumScrollPosition()), IntPoint(maximumScrollPosition()), IntSize(scrollableAreaSize()) };
+         },
+         [this](FloatPoint&& position) {
+-            auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrolledContentsLayer());
++#if ENABLE(SMOOTH_SCROLLING)
++            m_smoothAnimation->setCurrentPosition(position);
++#endif
++
++            auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrollContainerLayer());
+             ASSERT(scrollLayer);
+             auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
+ 
+@@ -62,6 +69,22 @@ ScrollingTreeOverflowScrollingNodeNicosia::ScrollingTreeOverflowScrollingNodeNic
+             scrollTo(position);
+         });
+ #endif
++#if ENABLE(SMOOTH_SCROLLING)
++    m_smoothAnimation = makeUnique<ScrollAnimationSmooth>(
++        [this]() -> ScrollExtents {
++            return { IntPoint(minimumScrollPosition()), IntPoint(maximumScrollPosition()), IntSize(scrollableAreaSize()) };
++        },
++        currentScrollPosition(),
++        [this](FloatPoint&& position) {
++            auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrollContainerLayer());
++            ASSERT(scrollLayer);
++            auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
++
++            auto updateScope = compositionLayer.createUpdateScope();
++            scrollTo(position);
++        },
++        [] { });
++#endif
+ }
+ 
+ ScrollingTreeOverflowScrollingNodeNicosia::~ScrollingTreeOverflowScrollingNodeNicosia() = default;
+@@ -72,8 +95,12 @@ void ScrollingTreeOverflowScrollingNodeNicosia::commitStateAfterChildren(const S
+ 
+     const auto& overflowStateNode = downcast<ScrollingStateOverflowScrollingNode>(stateNode);
+     if (overflowStateNode.hasChangedProperty(ScrollingStateScrollingNode::RequestedScrollPosition)) {
++        stopScrollAnimations();
+         const auto& requestedScrollData = overflowStateNode.requestedScrollData();
+         scrollTo(requestedScrollData.scrollPosition, requestedScrollData.scrollType, requestedScrollData.clamping);
++#if ENABLE(SMOOTH_SCROLLING)
++        m_smoothAnimation->setCurrentPosition(currentScrollPosition());
++#endif
+     }
+ }
+ 
+@@ -104,31 +131,60 @@ WheelEventHandlingResult ScrollingTreeOverflowScrollingNodeNicosia::handleWheelE
+     if (!canHandleWheelEvent(wheelEvent))
+         return WheelEventHandlingResult::unhandled();
+ 
+-    if (wheelEvent.deltaX() || wheelEvent.deltaY()) {
+-        auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrollContainerLayer());
+-        ASSERT(scrollLayer);
+-        auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
+-
+-        auto updateScope = compositionLayer.createUpdateScope();
+-        scrollBy({ -wheelEvent.deltaX(), -wheelEvent.deltaY() });
+-    }
+-
+ #if ENABLE(KINETIC_SCROLLING)
+     m_kineticAnimation->appendToScrollHistory(wheelEvent);
+-#endif
+-
+-#if ENABLE(KINETIC_SCROLLING)
+     m_kineticAnimation->stop();
+     if (wheelEvent.isEndOfNonMomentumScroll()) {
+         m_kineticAnimation->start(currentScrollPosition(), m_kineticAnimation->computeVelocity(), canHaveHorizontalScrollbar(), canHaveVerticalScrollbar());
+         m_kineticAnimation->clearScrollHistory();
++        return WheelEventHandlingResult::handled();
+     }
+     if (wheelEvent.isTransitioningToMomentumScroll()) {
+         m_kineticAnimation->start(currentScrollPosition(), wheelEvent.swipeVelocity(), canHaveHorizontalScrollbar(), canHaveVerticalScrollbar());
+         m_kineticAnimation->clearScrollHistory();
++        return WheelEventHandlingResult::handled();
+     }
+ #endif
+ 
++    float deltaX = canHaveHorizontalScrollbar() ? wheelEvent.deltaX() : 0;
++    float deltaY = canHaveVerticalScrollbar() ? wheelEvent.deltaY() : 0;
++    if ((deltaX < 0 && currentScrollPosition().x() >= maximumScrollPosition().x())
++        || (deltaX > 0 && currentScrollPosition().x() <= minimumScrollPosition().x()))
++        deltaX = 0;
++    if ((deltaY < 0 && currentScrollPosition().y() >= maximumScrollPosition().y())
++        || (deltaY > 0 && currentScrollPosition().y() <= minimumScrollPosition().y()))
++        deltaY = 0;
++
++    if (!deltaX && !deltaY)
++        return WheelEventHandlingResult::unhandled();
++
++    if (wheelEvent.granularity() == ScrollByPageWheelEvent) {
++        if (deltaX) {
++            bool negative = deltaX < 0;
++            deltaX = Scrollbar::pageStepDelta(scrollableAreaSize().width());
++            if (negative)
++                deltaX = -deltaX;
++        }
++        if (deltaY) {
++            bool negative = deltaY < 0;
++            deltaY = Scrollbar::pageStepDelta(scrollableAreaSize().height());
++            if (negative)
++                deltaY = -deltaY;
++        }
++    }
++
++#if ENABLE(SMOOTH_SCROLLING)
++    m_smoothAnimation->scroll(HorizontalScrollbar, ScrollByPixel, 1, -deltaX);
++    m_smoothAnimation->scroll(VerticalScrollbar, ScrollByPixel, 1, -deltaY);
++#else
++    auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrollContainerLayer());
++    ASSERT(scrollLayer);
++    auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
++
++    auto updateScope = compositionLayer.createUpdateScope();
++    scrollBy({ -deltaX, -deltaY });
++#endif
++
+     return WheelEventHandlingResult::handled();
+ }
+ 
+@@ -138,6 +194,9 @@ void ScrollingTreeOverflowScrollingNodeNicosia::stopScrollAnimations()
+     m_kineticAnimation->stop();
+     m_kineticAnimation->clearScrollHistory();
+ #endif
++#if ENABLE(SMOOTH_SCROLLING)
++    m_smoothAnimation->stop();
++#endif
+ }
+ 
+ } // namespace WebCore
+diff --git a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.h b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.h
+index acdc82ac15..132b48871d 100644
+--- a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.h
++++ b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.h
+@@ -33,6 +33,7 @@
+ #include "ScrollingTreeOverflowScrollingNode.h"
+ 
+ namespace WebCore {
++class ScrollAnimation;
+ class ScrollAnimationKinetic;
+ 
+ class ScrollingTreeOverflowScrollingNodeNicosia final : public ScrollingTreeOverflowScrollingNode {
+@@ -56,6 +57,9 @@ private:
+ #if ENABLE(KINETIC_SCROLLING)
+     std::unique_ptr<ScrollAnimationKinetic> m_kineticAnimation;
+ #endif
++#if ENABLE(SMOOTH_SCROLLING)
++    std::unique_ptr<ScrollAnimation> m_smoothAnimation;
++#endif
+ };
+ 
+ } // namespace WebCore
+diff --git a/Source/WebCore/platform/ScrollAnimation.h b/Source/WebCore/platform/ScrollAnimation.h
+index f067b3cc2d..99d861bf35 100644
+--- a/Source/WebCore/platform/ScrollAnimation.h
++++ b/Source/WebCore/platform/ScrollAnimation.h
+@@ -34,6 +34,12 @@ class FloatPoint;
+ class ScrollableArea;
+ enum class ScrollClamping : bool;
+ 
++struct ScrollExtents {
++    ScrollPosition minimumScrollPosition;
++    ScrollPosition maximumScrollPosition;
++    IntSize visibleSize;
++};
++
+ class ScrollAnimation {
+     WTF_MAKE_FAST_ALLOCATED;
+ public:
+@@ -44,14 +50,6 @@ public:
+     virtual void updateVisibleLengths() { };
+     virtual void setCurrentPosition(const FloatPoint&) { };
+     virtual void serviceAnimation() { };
+-
+-protected:
+-    ScrollAnimation(ScrollableArea& scrollableArea)
+-        : m_scrollableArea(scrollableArea)
+-    {
+-    }
+-
+-    ScrollableArea& m_scrollableArea;
+ };
+ 
+ } // namespace WebCore
+diff --git a/Source/WebCore/platform/ScrollAnimationKinetic.cpp b/Source/WebCore/platform/ScrollAnimationKinetic.cpp
+index 5cca85efe3..cbceed2b09 100644
+--- a/Source/WebCore/platform/ScrollAnimationKinetic.cpp
++++ b/Source/WebCore/platform/ScrollAnimationKinetic.cpp
+@@ -28,7 +28,7 @@
+ 
+ #include "PlatformWheelEvent.h"
+ 
+-#if USE(GLIB)
++#if USE(GLIB_EVENT_LOOP)
+ #include <wtf/glib/RunLoopSourcePriority.h>
+ #endif
+ 
+@@ -114,7 +114,7 @@ ScrollAnimationKinetic::ScrollAnimationKinetic(ScrollExtentsCallback&& scrollExt
+     , m_notifyPositionChangedFunction(WTFMove(notifyPositionChangedFunction))
+     , m_animationTimer(RunLoop::current(), this, &ScrollAnimationKinetic::animationTimerFired)
+ {
+-#if USE(GLIB)
++#if USE(GLIB_EVENT_LOOP)
+     m_animationTimer.setPriority(WTF::RunLoopSourcePriority::DisplayRefreshMonitorTimer);
+ #endif
+ }
+diff --git a/Source/WebCore/platform/ScrollAnimationKinetic.h b/Source/WebCore/platform/ScrollAnimationKinetic.h
+index cf25e798cd..3e89cb48c0 100644
+--- a/Source/WebCore/platform/ScrollAnimationKinetic.h
++++ b/Source/WebCore/platform/ScrollAnimationKinetic.h
+@@ -35,8 +35,7 @@ namespace WebCore {
+ 
+ class PlatformWheelEvent;
+ 
+-class ScrollAnimationKinetic final {
+-    WTF_MAKE_FAST_ALLOCATED;
++class ScrollAnimationKinetic final : public ScrollAnimation {
+ private:
+     class PerAxisData {
+     public:
+@@ -59,11 +58,6 @@ private:
+     };
+ 
+ public:
+-    struct ScrollExtents {
+-        IntPoint minimumScrollPosition;
+-        IntPoint maximumScrollPosition;
+-    };
+-
+     using ScrollExtentsCallback = WTF::Function<ScrollExtents(void)>;
+     using NotifyPositionChangedCallback = WTF::Function<void(FloatPoint&&)>;
+ 
+@@ -75,7 +69,7 @@ public:
+     FloatPoint computeVelocity();
+ 
+     void start(const FloatPoint& initialPosition, const FloatPoint& velocity, bool mayHScroll, bool mayVScroll);
+-    void stop();
++    void stop() override;
+ 
+ private:
+     void animationTimerFired();
+diff --git a/Source/WebCore/platform/ScrollAnimationSmooth.cpp b/Source/WebCore/platform/ScrollAnimationSmooth.cpp
+index 2ca578a30f..8357305fec 100644
+--- a/Source/WebCore/platform/ScrollAnimationSmooth.cpp
++++ b/Source/WebCore/platform/ScrollAnimationSmooth.cpp
+@@ -31,6 +31,10 @@
+ #include "FloatPoint.h"
+ #include "ScrollableArea.h"
+ 
++#if USE(GLIB_EVENT_LOOP)
++#include <wtf/glib/RunLoopSourcePriority.h>
++#endif
++
+ namespace WebCore {
+ 
+ static const double frameRate = 60;
+@@ -38,25 +42,47 @@ static const Seconds tickTime = 1_s / frameRate;
+ static const Seconds minimumTimerInterval { 1_ms };
+ static const double smoothFactorForProgrammaticScroll = 5;
+ 
+-ScrollAnimationSmooth::ScrollAnimationSmooth(ScrollableArea& scrollableArea, const FloatPoint& position, WTF::Function<void (FloatPoint&&)>&& notifyPositionChangedFunction)
+-    : ScrollAnimation(scrollableArea)
++ScrollAnimationSmooth::PerAxisData::PerAxisData(ScrollbarOrientation orientation, const FloatPoint& position, ScrollExtentsCallback& extentsCallback)
++{
++    auto extents = extentsCallback();
++    switch (orientation) {
++    case HorizontalScrollbar:
++        currentPosition = position.x();
++        visibleLength = extents.visibleSize.width();
++        break;
++    case VerticalScrollbar:
++        currentPosition = position.y();
++        visibleLength = extents.visibleSize.height();
++        break;
++    }
++
++    desiredPosition = currentPosition;
++}
++
++ScrollAnimationSmooth::ScrollAnimationSmooth(ScrollExtentsCallback&& scrollExtentsFunction, const FloatPoint& position, NotifyPositionChangedCallback&& notifyPositionChangedFunction, NotifyAnimationStoppedCallback&& notifyAnimationStoppedFunction)
++    : m_scrollExtentsFunction(WTFMove(scrollExtentsFunction))
+     , m_notifyPositionChangedFunction(WTFMove(notifyPositionChangedFunction))
+-    , m_horizontalData(position.x(), scrollableArea.visibleWidth())
+-    , m_verticalData(position.y(), scrollableArea.visibleHeight())
+-    , m_animationTimer(*this, &ScrollAnimationSmooth::animationTimerFired)
++    , m_notifyAnimationStoppedFunction(WTFMove(notifyAnimationStoppedFunction))
++    , m_horizontalData(HorizontalScrollbar, position, m_scrollExtentsFunction)
++    , m_verticalData(VerticalScrollbar, position, m_scrollExtentsFunction)
++    , m_animationTimer(RunLoop::current(), this, &ScrollAnimationSmooth::animationTimerFired)
+ {
++#if USE(GLIB_EVENT_LOOP)
++    m_animationTimer.setPriority(WTF::RunLoopSourcePriority::DisplayRefreshMonitorTimer);
++#endif
+ }
+ 
+ bool ScrollAnimationSmooth::scroll(ScrollbarOrientation orientation, ScrollGranularity granularity, float step, float multiplier)
+ {
+     float minScrollPosition;
+     float maxScrollPosition;
++    auto extents = m_scrollExtentsFunction();
+     if (orientation == HorizontalScrollbar) {
+-        minScrollPosition = m_scrollableArea.minimumScrollPosition().x();
+-        maxScrollPosition = m_scrollableArea.maximumScrollPosition().x();
++        minScrollPosition = extents.minimumScrollPosition.x();
++        maxScrollPosition = extents.maximumScrollPosition.x();
+     } else {
+-        minScrollPosition = m_scrollableArea.minimumScrollPosition().y();
+-        maxScrollPosition = m_scrollableArea.maximumScrollPosition().y();
++        minScrollPosition = extents.minimumScrollPosition.y();
++        maxScrollPosition = extents.maximumScrollPosition.y();
+     }
+     bool needToScroll = updatePerAxisData(orientation == HorizontalScrollbar ? m_horizontalData : m_verticalData, granularity, step * multiplier, minScrollPosition, maxScrollPosition);
+     if (needToScroll && !animationTimerActive()) {
+@@ -69,9 +95,10 @@ bool ScrollAnimationSmooth::scroll(ScrollbarOrientation orientation, ScrollGranu
+ void ScrollAnimationSmooth::scroll(const FloatPoint& position)
+ {
+     ScrollGranularity granularity = ScrollByPage;
+-    bool needToScroll = updatePerAxisData(m_horizontalData, granularity, position.x() - m_horizontalData.currentPosition, m_scrollableArea.minimumScrollPosition().x(), m_scrollableArea.maximumScrollPosition().x(), smoothFactorForProgrammaticScroll);
++    auto extents = m_scrollExtentsFunction();
++    bool needToScroll = updatePerAxisData(m_horizontalData, granularity, position.x() - m_horizontalData.currentPosition, extents.minimumScrollPosition.x(), extents.maximumScrollPosition.x(), smoothFactorForProgrammaticScroll);
+     needToScroll |=
+-        updatePerAxisData(m_verticalData, granularity, position.y() - m_verticalData.currentPosition, m_scrollableArea.minimumScrollPosition().y(), m_scrollableArea.maximumScrollPosition().y(), smoothFactorForProgrammaticScroll);
++        updatePerAxisData(m_verticalData, granularity, position.y() - m_verticalData.currentPosition, extents.minimumScrollPosition.y(), extents.maximumScrollPosition.y(), smoothFactorForProgrammaticScroll);
+     if (needToScroll && !animationTimerActive()) {
+         m_startTime = m_horizontalData.startTime;
+         animationTimerFired();
+@@ -81,13 +108,14 @@ void ScrollAnimationSmooth::scroll(const FloatPoint& position)
+ void ScrollAnimationSmooth::stop()
+ {
+     m_animationTimer.stop();
+-    m_scrollableArea.setScrollBehaviorStatus(ScrollBehaviorStatus::NotInAnimation);
++    m_notifyAnimationStoppedFunction();
+ }
+ 
+ void ScrollAnimationSmooth::updateVisibleLengths()
+ {
+-    m_horizontalData.visibleLength = m_scrollableArea.visibleWidth();
+-    m_verticalData.visibleLength = m_scrollableArea.visibleHeight();
++    auto extents = m_scrollExtentsFunction();
++    m_horizontalData.visibleLength = extents.visibleSize.width();
++    m_verticalData.visibleLength = extents.visibleSize.height();
+ }
+ 
+ void ScrollAnimationSmooth::setCurrentPosition(const FloatPoint& position)
+@@ -411,7 +439,7 @@ void ScrollAnimationSmooth::animationTimerFired()
+     if (continueAnimation)
+         startNextTimer(std::max(minimumTimerInterval, deltaToNextFrame));
+     else
+-        m_scrollableArea.setScrollBehaviorStatus(ScrollBehaviorStatus::NotInAnimation);
++        m_notifyAnimationStoppedFunction();
+ 
+     m_notifyPositionChangedFunction(FloatPoint(m_horizontalData.currentPosition, m_verticalData.currentPosition));
+ }
+diff --git a/Source/WebCore/platform/ScrollAnimationSmooth.h b/Source/WebCore/platform/ScrollAnimationSmooth.h
+index 89eefc8fdd..d410adce63 100644
+--- a/Source/WebCore/platform/ScrollAnimationSmooth.h
++++ b/Source/WebCore/platform/ScrollAnimationSmooth.h
+@@ -27,7 +27,7 @@
+ 
+ #include "ScrollAnimation.h"
+ 
+-#include "Timer.h"
++#include <wtf/RunLoop.h>
+ 
+ namespace WebCore {
+ 
+@@ -37,7 +37,11 @@ enum class ScrollClamping : bool;
+ 
+ class ScrollAnimationSmooth final: public ScrollAnimation {
+ public:
+-    ScrollAnimationSmooth(ScrollableArea&, const FloatPoint&, WTF::Function<void (FloatPoint&&)>&& notifyPositionChangedFunction);
++    using ScrollExtentsCallback = WTF::Function<ScrollExtents(void)>;
++    using NotifyPositionChangedCallback = WTF::Function<void(FloatPoint&&)>;
++    using NotifyAnimationStoppedCallback = WTF::Function<void(void)>;
++
++    ScrollAnimationSmooth(ScrollExtentsCallback&&, const FloatPoint& position, NotifyPositionChangedCallback&&, NotifyAnimationStoppedCallback&&);
+     virtual ~ScrollAnimationSmooth();
+ 
+     enum class Curve {
+@@ -58,6 +62,8 @@ private:
+     struct PerAxisData {
+         PerAxisData() = delete;
+ 
++        PerAxisData(ScrollbarOrientation, const FloatPoint& position, ScrollExtentsCallback&);
++
+         PerAxisData(float position, int length)
+             : currentPosition(position)
+             , desiredPosition(position)
+@@ -97,13 +103,15 @@ private:
+     void animationTimerFired();
+     bool animationTimerActive() const;
+ 
+-    WTF::Function<void (FloatPoint&&)> m_notifyPositionChangedFunction;
++    ScrollExtentsCallback m_scrollExtentsFunction;
++    NotifyPositionChangedCallback m_notifyPositionChangedFunction;
++    NotifyAnimationStoppedCallback m_notifyAnimationStoppedFunction;
+ 
+     PerAxisData m_horizontalData;
+     PerAxisData m_verticalData;
+ 
+     MonotonicTime m_startTime;
+-    Timer m_animationTimer;
++    RunLoop::Timer<ScrollAnimationSmooth> m_animationTimer;
+ };
+ 
+ } // namespace WebCore
+diff --git a/Source/WebCore/platform/ScrollAnimator.cpp b/Source/WebCore/platform/ScrollAnimator.cpp
+index ee1b26f6a2..4be1631a1a 100644
+--- a/Source/WebCore/platform/ScrollAnimator.cpp
++++ b/Source/WebCore/platform/ScrollAnimator.cpp
+@@ -57,11 +57,19 @@ ScrollAnimator::ScrollAnimator(ScrollableArea& scrollableArea)
+ #if ENABLE(CSS_SCROLL_SNAP) || ENABLE(RUBBER_BANDING)
+     , m_scrollController(*this)
+ #endif
+-    , m_animationProgrammaticScroll(makeUnique<ScrollAnimationSmooth>(scrollableArea, m_currentPosition, [this](FloatPoint&& position) {
+-        FloatSize delta = position - m_currentPosition;
+-        m_currentPosition = WTFMove(position);
+-        notifyPositionChanged(delta);
+-    }))
++    , m_animationProgrammaticScroll(makeUnique<ScrollAnimationSmooth>(
++        [this]() -> ScrollExtents {
++            return { m_scrollableArea.minimumScrollPosition(), m_scrollableArea.maximumScrollPosition(), m_scrollableArea.visibleSize() };
++        },
++        m_currentPosition,
++        [this](FloatPoint&& position) {
++            FloatSize delta = position - m_currentPosition;
++            m_currentPosition = WTFMove(position);
++            notifyPositionChanged(delta);
++        },
++        [this] {
++            m_scrollableArea.setScrollBehaviorStatus(ScrollBehaviorStatus::NotInAnimation);
++        }))
+ {
+ }
+ 
+diff --git a/Source/WebCore/platform/generic/ScrollAnimatorGeneric.cpp b/Source/WebCore/platform/generic/ScrollAnimatorGeneric.cpp
+index 6a3350e3d1..c04a480d55 100644
+--- a/Source/WebCore/platform/generic/ScrollAnimatorGeneric.cpp
++++ b/Source/WebCore/platform/generic/ScrollAnimatorGeneric.cpp
+@@ -51,8 +51,8 @@ ScrollAnimatorGeneric::ScrollAnimatorGeneric(ScrollableArea& scrollableArea)
+     , m_overlayScrollbarAnimationTimer(*this, &ScrollAnimatorGeneric::overlayScrollbarAnimationTimerFired)
+ {
+     m_kineticAnimation = makeUnique<ScrollAnimationKinetic>(
+-        [this]() -> ScrollAnimationKinetic::ScrollExtents {
+-            return { m_scrollableArea.minimumScrollPosition(), m_scrollableArea.maximumScrollPosition() };
++        [this]() -> ScrollExtents {
++            return { m_scrollableArea.minimumScrollPosition(), m_scrollableArea.maximumScrollPosition(), m_scrollableArea.visibleSize() };
+         },
+         [this](FloatPoint&& position) {
+ #if ENABLE(SMOOTH_SCROLLING)
+@@ -76,9 +76,17 @@ void ScrollAnimatorGeneric::ensureSmoothScrollingAnimation()
+     if (m_smoothAnimation)
+         return;
+ 
+-    m_smoothAnimation = makeUnique<ScrollAnimationSmooth>(m_scrollableArea, m_currentPosition, [this](FloatPoint&& position) {
+-        updatePosition(WTFMove(position));
+-    });
++    m_smoothAnimation = makeUnique<ScrollAnimationSmooth>(
++        [this]() -> ScrollExtents {
++            return { m_scrollableArea.minimumScrollPosition(), m_scrollableArea.maximumScrollPosition(), m_scrollableArea.visibleSize() };
++        },
++        m_currentPosition,
++        [this](FloatPoint&& position) {
++            updatePosition(WTFMove(position));
++        },
++        [this] {
++            m_scrollableArea.setScrollBehaviorStatus(ScrollBehaviorStatus::NotInAnimation);
++        });
+ }
+ #endif
+ 
+-- 
+2.26.2
+
+
+From 83ef3d1b78d3fc807cc5f8a7ad43fbb799705cb3 Mon Sep 17 00:00:00 2001
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Wed, 7 Oct 2020 15:30:23 +0500
+Subject: [PATCH 2/2] librem5: Disable smooth scrolling for Nicosia async
+ scrolling
+
+See https://bugs.webkit.org/show_bug.cgi?id=210382#c22
+---
+ .../nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp       | 5 -----
+ .../nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp    | 5 -----
+ 2 files changed, 10 deletions(-)
+
+diff --git a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp
+index 08b5e5e4f6..d2c64de593 100644
+--- a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp
++++ b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeFrameScrollingNodeNicosia.cpp
+@@ -188,17 +188,12 @@ WheelEventHandlingResult ScrollingTreeFrameScrollingNodeNicosia::handleWheelEven
+         }
+     }
+ 
+-#if ENABLE(SMOOTH_SCROLLING)
+-    m_smoothAnimation->scroll(HorizontalScrollbar, ScrollByPixel, 1, -deltaX);
+-    m_smoothAnimation->scroll(VerticalScrollbar, ScrollByPixel, 1, -deltaY);
+-#else
+     auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrolledContentsLayer());
+     ASSERT(scrollLayer);
+     auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
+ 
+     auto updateScope = compositionLayer.createUpdateScope();
+     scrollBy({ -deltaX, -deltaY });
+-#endif
+ 
+     return WheelEventHandlingResult::handled();
+ }
+diff --git a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp
+index 069ad4f923..04dba6f68a 100644
+--- a/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp
++++ b/Source/WebCore/page/scrolling/nicosia/ScrollingTreeOverflowScrollingNodeNicosia.cpp
+@@ -173,17 +173,12 @@ WheelEventHandlingResult ScrollingTreeOverflowScrollingNodeNicosia::handleWheelE
+         }
+     }
+ 
+-#if ENABLE(SMOOTH_SCROLLING)
+-    m_smoothAnimation->scroll(HorizontalScrollbar, ScrollByPixel, 1, -deltaX);
+-    m_smoothAnimation->scroll(VerticalScrollbar, ScrollByPixel, 1, -deltaY);
+-#else
+     auto* scrollLayer = static_cast<Nicosia::PlatformLayer*>(scrollContainerLayer());
+     ASSERT(scrollLayer);
+     auto& compositionLayer = downcast<Nicosia::CompositionLayer>(*scrollLayer);
+ 
+     auto updateScope = compositionLayer.createUpdateScope();
+     scrollBy({ -deltaX, -deltaY });
+-#endif
+ 
+     return WheelEventHandlingResult::handled();
+ }
+-- 
+2.26.2
+

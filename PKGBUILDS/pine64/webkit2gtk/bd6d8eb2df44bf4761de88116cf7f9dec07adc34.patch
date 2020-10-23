@@ -1,0 +1,27 @@
+From bd6d8eb2df44bf4761de88116cf7f9dec07adc34 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 3 Dec 2019 08:06:28 +0100
+Subject: [PATCH] ScrollAnimationKinetic: Drop the deceleration friction
+
+This makes WebKitGTK more comfortable on touch screens as it avoids to
+scroll too much.
+---
+ Source/WebCore/platform/ScrollAnimationKinetic.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Source/WebCore/platform/ScrollAnimationKinetic.cpp b/Source/WebCore/platform/ScrollAnimationKinetic.cpp
+index 3ce55a1851..5cca85efe3 100644
+--- a/Source/WebCore/platform/ScrollAnimationKinetic.cpp
++++ b/Source/WebCore/platform/ScrollAnimationKinetic.cpp
+@@ -65,7 +65,7 @@
+  *   f2(x) = t exp(-mx / 2)
+  */
+ 
+-static const double decelFriction = 4;
++static const double decelFriction = 1;
+ static const double frameRate = 60;
+ static const Seconds tickTime = 1_s / frameRate;
+ static const Seconds minimumTimerInterval { 1_ms };
+-- 
+2.26.2
+

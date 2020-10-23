@@ -1,0 +1,72 @@
+# Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Eric Bélanger <eric@archlinux.org>
+
+pkgname=webkit2gtk
+pkgver=2.30.1
+pkgrel=2
+pkgdesc="GTK+ Web content engine library"
+arch=(x86_64 armv7h aarch64)
+url="https://webkitgtk.org/"
+license=(custom)
+depends=(libxt libxslt enchant gst-plugins-base-libs libsecret libwebp openjpeg2
+         harfbuzz-icu gtk3 libnotify hyphen woff2 libwpe wpebackend-fdo
+         bubblewrap xdg-dbus-proxy)
+makedepends=(gperf gobject-introspection ruby gtk-doc cmake python geoclue
+             gst-plugins-bad ninja)
+optdepends=('geoclue: Geolocation support'
+            'gst-plugins-good: media decoding'
+            'gst-plugins-bad: media decoding'
+            'gst-libav: nonfree media decoding')
+source=(https://webkitgtk.org/releases/webkitgtk-${pkgver}.tar.xz{,.asc}
+        bd6d8eb2df44bf4761de88116cf7f9dec07adc34.patch
+        48ea1c467ca2002de244cbca87134fd8e2084eda.patch
+        3.patch)
+sha256sums=('17c59dfdadb7377192e9b59bc56c8a029c9fad4f38ed732b652bf33d0bd5d6b1'
+            'SKIP'
+            '6ea731b463381b654b8ec24ebabccada54ba701027f2d3c1c2bdc5f541abedb0'
+            '24244ff2ffc714eece53c69c7cde9cb09edb8b51e296aae55ffe2c1df8f46578'
+            'f3e9f593750d2561a798b8b6e517d553af68aef8c0fcfe271737f85ec44ebfff')
+validpgpkeys=('D7FCF61CF9A2DEAB31D81BD3F3D322D0EC4582C3'
+              '5AA3BC334FD7E3369E7C77B291C559DBE4C9123B')
+
+prepare() {
+  cd webkitgtk-$pkgver
+
+  patch -p1 -N < ../bd6d8eb2df44bf4761de88116cf7f9dec07adc34.patch
+  patch -p1 -N < ../48ea1c467ca2002de244cbca87134fd8e2084eda.patch
+  patch -p1 -N < ../3.patch
+}
+
+build() {
+  CFLAGS+=" $CPPFLAGS"
+  CXXFLAGS+=" $CPPFLAGS"
+  cmake -S webkitgtk-$pkgver -B build -G Ninja \
+    -DPORT=GTK \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_SKIP_RPATH=ON \
+    -DENABLE_GTKDOC=ON \
+    -DENABLE_MINIBROWSER=ON \
+    -DENABLE_GLES2=ON \
+    -DLIBEXEC_INSTALL_DIR=/usr/lib \
+    -DLIB_INSTALL_DIR=/usr/lib
+  cmake --build build
+}
+
+package() {
+  depends+=(libwpe-1.0.so libWPEBackend-fdo-1.0.so)
+  provides+=(libjavascriptcoregtk-4.0.so libwebkit2gtk-4.0.so)
+
+  DESTDIR="$pkgdir" cmake --install build
+
+  cd webkitgtk-$pkgver
+  find Source -name 'COPYING*' -or -name 'LICENSE*' -print0 | sort -z |
+    while IFS= read -d $'\0' -r _f; do
+      echo "### $_f ###"
+      cat "$_f"
+      echo
+    done |
+    install -Dm644 /dev/stdin "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+# vim:set sw=2 et:
