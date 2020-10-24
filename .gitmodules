@@ -1,15 +1,15 @@
-[submodule "PKGBUILDS/pine64/qt5-es2-declarative"]
-	path = PKGBUILDS/pine64/qt5-es2-declarative
+[submodule "PKGBUILDS/danctnix/qt5-es2-declarative"]
+	path = PKGBUILDS/danctnix/qt5-es2-declarative
 	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-declarative.git
-[submodule "PKGBUILDS/pine64/qt5-es2-base"]
-	path = PKGBUILDS/pine64/qt5-es2-base
+[submodule "PKGBUILDS/danctnix/qt5-es2-base"]
+	path = PKGBUILDS/danctnix/qt5-es2-base
 	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-base.git
-[submodule "PKGBUILDS/pine64/qt5-es2-multimedia"]
-	path = PKGBUILDS/pine64/qt5-es2-multimedia
+[submodule "PKGBUILDS/danctnix/qt5-es2-multimedia"]
+	path = PKGBUILDS/danctnix/qt5-es2-multimedia
 	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-multimedia.git
-[submodule "PKGBUILDS/pine64/qt5-es2-wayland"]
-	path = PKGBUILDS/pine64/qt5-es2-wayland
+[submodule "PKGBUILDS/danctnix/qt5-es2-wayland"]
+	path = PKGBUILDS/danctnix/qt5-es2-wayland
 	url = https://gitlab.manjaro.org/manjaro-arm/packages/extra/qt5-es2-wayland.git
-[submodule "PKGBUILDS/pine64/ofono"]
-	path = PKGBUILDS/pine64/ofono
+[submodule "PKGBUILDS/danctnix/ofono"]
+	path = PKGBUILDS/danctnix/ofono
 	url = https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/ofono.git
