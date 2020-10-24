@@ -1,0 +1,48 @@
+# Maintainer: Jan de Groot <jgc@archlinux.org>
+
+pkgname=upower
+pkgver=0.99.11
+pkgrel=4
+pkgdesc="Abstraction for enumerating power devices, listening to device events and querying history and statistics"
+url="https://upower.freedesktop.org"
+arch=(x86_64 armv7h aarch64)
+license=(GPL)
+depends=(systemd libusb libimobiledevice libgudev)
+makedepends=(docbook-xsl gobject-introspection python git gtk-doc)
+backup=(etc/UPower/UPower.conf)
+_commit=e1548bba61206a05bbc318b3d49ae24571755ac6  # tags/UPOWER_0_99_11^0
+source=("git+https://gitlab.freedesktop.org/upower/upower.git#commit=$_commit"
+        0001-Add-torch-support.patch)
+md5sums=('SKIP'
+         '53ba2133d4dcb810a96a1467e5e56791')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed -e 's/UPOWER_//' -e 's/_/\./g' -e 's/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+
+  patch -p1 -N < ../0001-Add-torch-support.patch
+
+  sed -e 's|libplist >= 0.12|libplist-2.0 >= 2.2|' -i configure.ac # support libplist 2.2
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --libexecdir=/usr/lib \
+    --disable-static \
+    --enable-gtk-doc
+  make
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}
