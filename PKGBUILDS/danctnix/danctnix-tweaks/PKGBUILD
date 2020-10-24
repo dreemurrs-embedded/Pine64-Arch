@@ -1,0 +1,16 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=danctnix-tweaks
+pkgver=0.1
+pkgrel=1
+pkgdesc="Tweaks made to DanctNIX Mobile."
+arch=(any)
+url="https://danctnix.org"
+license=('MIT')
+source=(00-journal-size.conf)
+
+package() {
+  mkdir -p "$pkgdir"
+  install -Dm644 00-journal-size.conf $pkgdir/etc/systemd/journald.conf.d/00-journal-size.conf
+}
+md5sums=('3b3ccac2ebb5ada20d81f758c1591a19')
