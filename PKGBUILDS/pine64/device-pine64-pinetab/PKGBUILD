@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab
 pkgver=0.1
-pkgrel=4
+pkgrel=5
 pkgdesc="PineTab device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -11,18 +11,10 @@ depends=(linux-pine64
 	rtl8723bt-firmware
 	ov5640-firmware
 	alsa-ucm-pinetab)
-source=(pinetab-camera-setup.service
-	pinetab-camera-setup.sh
-	pinetab-suspend-hook.sh
+source=(pinetab-suspend-hook.sh
 	phoc.ini)
 
 package() {
-	# Setup camera
-	install -Dm644 "$srcdir"/pinetab-camera-setup.service "$pkgdir"/usr/lib/systemd/system/pinetab-camera-setup.service
-	install -Dm755 "$srcdir"/pinetab-camera-setup.sh "$pkgdir"/usr/bin/pinetab-camera-setup.sh
-	mkdir -p "$pkgdir"/usr/lib/systemd/system/multi-user.target.wants
-	ln -s ../pinetab-camera-setup.service "$pkgdir"/usr/lib/systemd/system/multi-user.target.wants/pinetab-camera-setup.service
-
 	# Current workaround for suspend
 	install -Dm755 "$srcdir"/pinetab-suspend-hook.sh "$pkgdir"/usr/lib/systemd/system-sleep/pinetab-suspend-hook.sh
 
@@ -30,7 +22,5 @@ package() {
 	install -Dm644 "$srcdir"/phoc.ini "$pkgdir"/etc/phosh/phoc.ini
 }
 
-md5sums=('cf68fc6cf6bb028a36fae9db8108534e'
-         '3dd30470fe4747b0e1192663e0663e18'
-         '2199e3df7ba331ecf4fc662f24ab7eec'
+md5sums=('2199e3df7ba331ecf4fc662f24ab7eec'
          '5b09f56730748532e169173d124f7cad')
