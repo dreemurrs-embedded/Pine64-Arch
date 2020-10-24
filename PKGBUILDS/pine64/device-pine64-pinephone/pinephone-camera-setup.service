@@ -1,9 +1,0 @@
-[Unit]
-Description=Configure PinePhone Camera
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/pinephone-camera-setup.sh
-
-[Install]
-WantedBy=multi-user.target
