@@ -2,14 +2,14 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=anbox
-pkgver=0_git20200927
+pkgver=0_git20201024
 pkgrel=1
 arch=(x86_64 armv7h aarch64)
 url="http://anbox.io/"
 license=('GPL3')
 depends=('lxc' 'sdl2_image' 'protobuf' 'libsystemd' 'boost-libs')
 makedepends=('cmake' 'git' 'glm' 'lxc' 'sdl2_image' 'protobuf' 'properties-cpp' 'boost' 'python3' 'gtest')
-_commit="170f1e029e753e782c66bffb05e91dd770d47dc3"
+_commit="f77590472ab366a1249295a1cf4675b345a0b7ec"
 _cpu_features_commit="b5c271c53759b2b15ff91df19bd0b32f2966e275"
 _sdbus_cpp_commit="3b735bf1aad65277f56e65c828a22455cbaf5245"
 source=("$pkgname-$_commit.tar.gz::https://github.com/anbox/anbox/archive/$_commit.tar.gz"
@@ -17,7 +17,6 @@ source=("$pkgname-$_commit.tar.gz::https://github.com/anbox/anbox/archive/$_comm
 	"sdbus_cpp-$_sdbus_cpp_commit.tar.gz::https://github.com/Kistler-Group/sdbus-cpp/archive/$_sdbus_cpp_commit.tar.gz"
 	'inputmethod-hack.patch'
 	'give-more-time-to-start.patch'
-	'python3.patch'
 	'anbox-container-manager.service'
 	'anbox-session-manager.service'
 	'99-anbox.rules'
@@ -38,7 +37,6 @@ prepare() {
 	patch -p1 -N < ../inputmethod-hack.patch
 
 	patch -p1 -N < ../give-more-time-to-start.patch
-	patch -p1 -N < ../python3.patch
 
 	# Don't build tests
 	truncate -s 0 cmake/FindGMock.cmake
@@ -78,12 +76,11 @@ package() {
   mkdir -p $pkgdir/usr/lib/systemd/system/multi-user.target.wants
   ln -sfv ../anbox-container-manager.service $pkgdir/usr/lib/systemd/system/multi-user.target.wants/anbox-container-manager.service
 }
-md5sums=('3127c736096e6b23aae3d73745c25f93'
+md5sums=('0844e9e8fe878a9c5adc6d67a402a71b'
          '68954a1285359f2de777a4a6aa82bcc7'
          '403b77272d205aaa2bfcdceb8fa3afa3'
          '2dc0a582de4429cd28f050f58cf1f815'
          '4ccfa0d5d1188bde722077048d02e84a'
-         '30ddec19b26469062aaa34aaee02f432'
          '654183805a524635454632712db618ed'
          '5a4356199eb722a970274e3255250399'
          'a1bb2cb220c3a24d06138ec5824d1898'
