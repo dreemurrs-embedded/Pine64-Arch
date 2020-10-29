@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64"
 pkgver=5.9.1
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -36,6 +36,8 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         '90-linux.hook'
         '0001-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch'
         '0002-revert-fbcon-remove-soft-scrollback-code.patch'
+        '0001-lcd-refreshrate.patch'
+        '0002-lcd-refreshrate.patch'
         '0001-bootsplash.patch'
         '0002-bootsplash.patch'
         '0003-bootsplash.patch'
@@ -77,6 +79,10 @@ prepare() {
 
   # Enable accelerometer on PineTab
   patch -p1 -N < ../pinetab-accelerometer.patch
+
+  # LCD refresh rate fix
+  patch -p1 -N < ../0001-lcd-refreshrate.patch
+  patch -p1 -N < ../0002-lcd-refreshrate.patch
 
   # bootsplash stuffs (took from glorious manjaro arm)
   patch -Np1 -i "${srcdir}/0001-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch"
@@ -295,6 +301,8 @@ md5sums=('0dd58f3c743ef8fc1135fc8a14419a2b'
          '3dc88030a8f2f5a5f97266d99b149f77'
          'a31a435ab6cd8e7a47601159d665ce50'
          '47f65423c4ffc7e6092c7ff2c7129942'
+         '2ab153979b7c38f4ed7e8be8efcc6328'
+         '0a9a3aa5ea5babb3dd0a3bfc2a3d3f25'
          'be5a873f638ff5c31947f8d28a824d3a'
          'b4acd66a564af83b5409738c40b4a566'
          'a6407dceae1838f5aa27450401a91be6'
