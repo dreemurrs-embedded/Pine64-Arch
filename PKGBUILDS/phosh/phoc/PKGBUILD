@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.4.3
+pkgver=0.4.4
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -15,8 +15,7 @@ _commit_wlr="7723a09a226d812aa51d1439c2b5e8e21238d45c"
 source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
         https://source.puri.sm/Librem5/wlroots/-/archive/$_commit_wlr/wlroots-$_commit_wlr.tar.gz
         0001-seat-Don-t-notify-on-key-release.patch
-        0002-seat-inhibit-touch-events-when-in-power-save-mode-or.patch
-        cde70286d67a8dc5a4a900e3c71cdcae068faafc.patch)
+        0002-seat-inhibit-touch-events-when-in-power-save-mode-or.patch)
 
 prepare() {
 	rm -r ${pkgname}-v${pkgver}/subprojects/wlroots
@@ -26,9 +25,6 @@ prepare() {
 	cd ${pkgname}-v${pkgver}
 	patch -p1 -N < ../0001-seat-Don-t-notify-on-key-release.patch
 	patch -p1 -N < ../0002-seat-inhibit-touch-events-when-in-power-save-mode-or.patch
-
-	# Upstream patches
-	patch -p1 -N < ../cde70286d67a8dc5a4a900e3c71cdcae068faafc.patch
 }
 
 build() {
@@ -47,8 +43,7 @@ package() {
 	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('f4d5a18f72b72d5c3b2a3ff57cd96a2c'
+md5sums=('2bcf83d8d2296f4c94b9c2395df42d20'
          'f643daf07d8cc9b5642381206de026c6'
          '9779076dbffbf2eab2b25aa7bc1edff4'
-         '6beda6022c1402852e2ea8afb9a8fbeb'
-         'c1561e42dd537dc3b99c6a97ad453266')
+         '6beda6022c1402852e2ea8afb9a8fbeb')
