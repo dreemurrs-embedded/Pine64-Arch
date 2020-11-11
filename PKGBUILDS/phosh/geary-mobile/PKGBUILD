@@ -4,9 +4,10 @@
 # Contributor: Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
 
 _pkgname=geary
+_tag=3.36.0+5944+gitc3b4cf42-1pureos0
 pkgname=$_pkgname-mobile
-pkgver=3.36.0.4db88830
-pkgrel=1
+pkgver=$(sed 's|[+\-]|.|g' <<< $_tag)
+pkgrel=0
 pkgdesc='Purism mobile email client for the Phosh desktop'
 arch=(aarch64)
 url='https://source.puri.sm/Librem5/geary'
@@ -14,19 +15,10 @@ license=(GPL3)
 depends=(cairo enchant folks gcr gdk-pixbuf2 glib2 gmime3 gnome-keyring gnome-online-accounts gspell gtk3 iso-codes libcanberra libhandy0 libgee libnotify libpeas libytnef libsecret libsoup libxml2 pango sqlite webkit2gtk)
 makedepends=(git appstream-glib gobject-introspection intltool itstool meson vala)
 _commit=4db88830653de2ab2a3cb56543f846245afbf47c
-source=("git+https://source.puri.sm/Librem5/geary.git#commit=$_commit"
-        0001-Don-t-use-unsupported-vala-syntax.patch)
-sha512sums=('SKIP'
-            '1ca200c67414b47b54ab33140d709d5539e34d2cec2a6fed817a54479afbf51c4ed5e283298d50a392da9c929548625e18832c84f246f47499ddd6ba904386c5')
+source=("git+https://source.puri.sm/Librem5/geary.git#commit=pureos/$_tag")
+sha512sums=('SKIP')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
-
-prepare() {
-  cd geary
-
-  # Fix compilation
-  patch -p1 -N < ../0001-Don-t-use-unsupported-vala-syntax.patch
-}
 
 build() {
   arch-meson geary build
