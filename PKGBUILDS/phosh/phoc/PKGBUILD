@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.4.4
+pkgver=0.5.0
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -11,7 +11,7 @@ depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'mutter'
 makedepends=('meson' 'ninja')
 
 # We don't want to maintain the wlroots package, so we static compile it
-_commit_wlr="7723a09a226d812aa51d1439c2b5e8e21238d45c"
+_commit_wlr="3d227f140e3c4af42d759477fc38e82a4c3dc4ef"
 source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
         https://source.puri.sm/Librem5/wlroots/-/archive/$_commit_wlr/wlroots-$_commit_wlr.tar.gz
         0001-seat-Don-t-notify-on-key-release.patch
@@ -43,7 +43,7 @@ package() {
 	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('2bcf83d8d2296f4c94b9c2395df42d20'
-         'f643daf07d8cc9b5642381206de026c6'
+md5sums=('e7dc57b97f8a077d2abf5502105ce7b4'
+         '494decd05f32711ef544454d30f3cd4d'
          '9779076dbffbf2eab2b25aa7bc1edff4'
          '6beda6022c1402852e2ea8afb9a8fbeb')
