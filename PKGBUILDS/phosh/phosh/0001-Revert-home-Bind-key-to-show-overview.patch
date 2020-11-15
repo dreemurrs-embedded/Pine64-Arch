@@ -1,15 +1,15 @@
-From cc86a2583fed7de1a2fc8ffcfc1cb54d1e3b1de7 Mon Sep 17 00:00:00 2001
+From 3a1f2f4fd7448ce1093bc08b1167ece63121371c Mon Sep 17 00:00:00 2001
 From: Danct12 <danct12@disroot.org>
 Date: Thu, 29 Oct 2020 16:00:28 +0700
 Subject: [PATCH] Revert "home: Bind key to show overview"
 
 This reverts commit f70af466ff57763bc94548e3086a3caa50c8eacc.
 ---
- src/home.c | 109 -----------------------------------------------------
- 1 file changed, 109 deletions(-)
+ src/home.c | 108 -----------------------------------------------------
+ 1 file changed, 108 deletions(-)
 
 diff --git a/src/home.c b/src/home.c
-index 417be36..1d9237c 100644
+index b8fc99e..9b3b722 100644
 --- a/src/home.c
 +++ b/src/home.c
 @@ -18,10 +18,6 @@
@@ -23,18 +23,18 @@ index 417be36..1d9237c 100644
  /**
   * SECTION:home
   * @short_description: The home surface contains the overview and
-@@ -63,10 +59,6 @@ struct _PhoshHome
-   } animation;
+@@ -65,10 +61,6 @@ struct _PhoshHome
  
    PhoshHomeState state;
--
+ 
 -  /* Keybinding */
 -  GArray         *actions;
 -  GSettings      *settings;
+-
+   /* osk button */
+   gboolean        osk_enabled;
  };
- G_DEFINE_TYPE(PhoshHome, phosh_home, PHOSH_TYPE_LAYER_SURFACE);
- 
-@@ -185,77 +177,6 @@ key_press_event_cb (PhoshHome *self, GdkEventKey *event, gpointer data)
+@@ -207,77 +199,6 @@ key_press_event_cb (PhoshHome *self, GdkEventKey *event, gpointer data)
  }
  
  
@@ -109,10 +109,10 @@ index 417be36..1d9237c 100644
 -}
 -
 -
- static void
- phosh_home_constructed (GObject *object)
+ static gboolean
+ on_idle (PhoshOskButton *self)
  {
-@@ -297,39 +218,12 @@ phosh_home_constructed (GObject *object)
+@@ -332,14 +253,6 @@ phosh_home_constructed (GObject *object)
                      G_CALLBACK (key_press_event_cb),
                      NULL);
  
@@ -124,10 +124,10 @@ index 417be36..1d9237c 100644
 -                    NULL);
 -  add_keybindings (self);
 -
-   phosh_connect_button_feedback (GTK_BUTTON (self->btn_home));
+   phosh_connect_feedback (self->btn_home);
  
--
-   G_OBJECT_CLASS (phosh_home_parent_class)->constructed (object);
+   g_idle_add ((GSourceFunc) on_idle, self);
+@@ -348,24 +261,6 @@ phosh_home_constructed (GObject *object)
  }
  
  
@@ -152,7 +152,7 @@ index 417be36..1d9237c 100644
  static void
  phosh_home_class_init (PhoshHomeClass *klass)
  {
-@@ -337,7 +231,6 @@ phosh_home_class_init (PhoshHomeClass *klass)
+@@ -373,7 +268,6 @@ phosh_home_class_init (PhoshHomeClass *klass)
    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
  
    object_class->constructed = phosh_home_constructed;
@@ -160,7 +160,7 @@ index 417be36..1d9237c 100644
  
    object_class->set_property = phosh_home_set_property;
    object_class->get_property = phosh_home_get_property;
-@@ -376,8 +269,6 @@ phosh_home_init (PhoshHome *self)
+@@ -419,8 +313,6 @@ phosh_home_init (PhoshHome *self)
  {
    self->state = PHOSH_HOME_STATE_FOLDED;
    self->animation.progress = 1.0;
@@ -170,5 +170,5 @@ index 417be36..1d9237c 100644
    gtk_widget_init_template (GTK_WIDGET (self));
  }
 -- 
-2.29.1
+2.29.2
 
