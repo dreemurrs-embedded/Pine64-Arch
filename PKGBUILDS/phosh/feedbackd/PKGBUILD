@@ -8,7 +8,7 @@ arch=('x86_64' 'armv7h' 'aarch64')
 license=('GPL')
 depends=('gobject-introspection' 'gsound' 'json-glib' 'libgudev')
 makedepends=('meson' 'vala')
-source=(https://source.puri.sm/Librem5/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.gz)
+source=(https://source.puri.sm/Librem5/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.gz 90-feedbackd.rules)
 
 build() {
 	arch-meson ${pkgname}-v${pkgver} output
@@ -17,8 +17,8 @@ build() {
 
 package() {
 	DESTDIR="$pkgdir" ninja -C output install
-	install -Dm644 "$srcdir"/${pkgname}-v${pkgver}/debian/feedbackd.udev \
+	install -Dm644 "$srcdir"/90-feedbackd.rules \
 		"$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
 }
 
-md5sums=('148fa189a5fddf916a88a8415b918f08')
+md5sums=('148fa189a5fddf916a88a8415b918f08' '1897079a2548cf3e02f31d6fd64e1fee')
