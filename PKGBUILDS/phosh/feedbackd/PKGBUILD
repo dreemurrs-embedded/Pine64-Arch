@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=feedbackd
-pkgver=0.0.0+git20200714
-pkgrel=0
+pkgver=0.0.0+git20201114
+pkgrel=1
 pkgdesc="A daemon to provide haptic (and later more) feedback on events"
 url="https://source.puri.sm/Librem5/feedbackd"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -21,4 +21,4 @@ package() {
 		"$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
 }
 
-md5sums=('148fa189a5fddf916a88a8415b918f08')
+md5sums=('ae193bc2ac849e15ca415e51fa37e58a')
