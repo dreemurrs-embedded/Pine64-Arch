@@ -4,6 +4,6 @@
 ACTION=="remove", GOTO="pinephone_led_end"
 
 # Setup the front LED for use by feedbackd
-SUBSYSTEM=="leds", DEVPATH=="*/*:indicator", ENV{FEEDBACKD_TYPE}="led", RUN+="/usr/libexec/fbd-ledctrl -p %S%p -t pattern -G video"
+SUBSYSTEM=="leds", DEVPATH=="*/*:indicator", ENV{FEEDBACKD_TYPE}="led", RUN+="/usr/lib/fbd-ledctrl -p %S%p -t pattern -G video"
 
 LABEL="pinephone_led_end"
