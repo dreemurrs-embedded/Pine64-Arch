@@ -4,7 +4,7 @@
 
 pkgbase=modemmanager
 pkgname=(modemmanager libmm-glib)
-pkgver=1.14.6
+pkgver=1.14.8
 pkgrel=1
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
@@ -13,7 +13,7 @@ license=(GPL2 LGPL2.1)
 depends=(systemd libgudev polkit ppp libqmi libmbim
          mobile-broadband-provider-info)
 makedepends=(gtk-doc gobject-introspection vala autoconf-archive git)
-_commit=5ac0d258a3d20e1bde3b1d9858f3856559ee42fa  # tags/1.14.6
+_commit=19c2266a328ce39033f8d15f5c7ff3561149b22b  # tags/1.14.8
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
         '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
 sha256sums=('SKIP'
