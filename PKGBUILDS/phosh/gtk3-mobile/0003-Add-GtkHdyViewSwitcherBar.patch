@@ -1,42 +1,41 @@
-From f8585cbb489da3b09dd6ab64fc2b5978084a99e8 Mon Sep 17 00:00:00 2001
+From d56fa0bcc9e59d22788552b5923bd10ffd7e6b95 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
-Date: Wed, 26 Jun 2019 16:53:36 +0200
-Subject: [PATCH 05/23] Add GtkHdyViewSwitcherBar
+Date: Mon, 31 Aug 2020 10:40:14 +0200
+Subject: [PATCH 03/29] Add GtkHdyViewSwitcherBar
 
-This is imported from HdyViewSwitcherBar from libhandy 0.0.10.
+This is imported from HdyViewSwitcherBar from libhandy 1.0.0.
 ---
- gtk/Makefile.am                         |   3 +
- gtk/hdy-view-switcher-bar-private.h     |  42 +++
- gtk/hdy-view-switcher-bar.c             | 436 ++++++++++++++++++++++++
- gtk/style/hdy-view-switcher-bar-box.css |   3 +
- gtk/ui/hdy-view-switcher-bar.ui         |  21 ++
- 5 files changed, 505 insertions(+)
+ gtk/Makefile.am                     |   3 +
+ gtk/hdy-view-switcher-bar-private.h |  38 +++
+ gtk/hdy-view-switcher-bar.c         | 398 ++++++++++++++++++++++++++++
+ gtk/meson.build                     |   2 +
+ gtk/ui/hdy-view-switcher-bar.ui     |  20 ++
+ 5 files changed, 461 insertions(+)
  create mode 100644 gtk/hdy-view-switcher-bar-private.h
  create mode 100644 gtk/hdy-view-switcher-bar.c
- create mode 100644 gtk/style/hdy-view-switcher-bar-box.css
  create mode 100644 gtk/ui/hdy-view-switcher-bar.ui
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 26d7f22fa8..d9317530b6 100644
+index 3f8fd45..20b8d01 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -605,6 +605,7 @@ gtk_private_h_sources =		\
+@@ -604,6 +604,7 @@ gtk_private_h_sources =		\
+ 	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
- 	hdy-style-private.h	\
- 	hdy-view-switcher-private.h	\
+ 	hdy-css-private.h	\
 +	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
+ 	hdy-view-switcher-private.h	\
  	open-type-layout.h	\
- 	language-names.h	\
-@@ -982,6 +983,7 @@ gtk_base_c_sources = 		\
- 	gtkwin32theme.c		\
+@@ -983,6 +984,7 @@ gtk_base_c_sources = 		\
  	gdkpixbufutils.c	\
+ 	hdy-css.c	\
  	hdy-view-switcher.c	\
 +	hdy-view-switcher-bar.c	\
  	hdy-view-switcher-button.c	\
  	language-names.c	\
  	script-names.c
-@@ -1238,6 +1240,7 @@ templates =				\
+@@ -1246,6 +1248,7 @@ templates =				\
  	ui/gtktooltipwindow.ui		\
  	ui/gtkvolumebutton.ui		\
  	ui/gtksidebarrow.ui		\
@@ -46,10 +45,10 @@ index 26d7f22fa8..d9317530b6 100644
  #
 diff --git a/gtk/hdy-view-switcher-bar-private.h b/gtk/hdy-view-switcher-bar-private.h
 new file mode 100644
-index 0000000000..4b4de2a4f9
+index 0000000..a1d942a
 --- /dev/null
 +++ b/gtk/hdy-view-switcher-bar-private.h
-@@ -0,0 +1,42 @@
+@@ -0,0 +1,38 @@
 +/*
 + * Copyright (C) 2019 Zander Brown <zbrown@gnome.org>
 + * Copyright (C) 2019 Purism SPC
@@ -59,29 +58,25 @@ index 0000000000..4b4de2a4f9
 +
 +#pragma once
 +
++#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
++#error "Only <gtk/gtk.h> can be included directly."
++#endif
++
 +#include "gtkbin.h"
-+#include "gtkhdytype.h"
++#include "gtkstack.h"
 +#include "hdy-view-switcher-private.h"
 +
 +G_BEGIN_DECLS
 +
 +#define GTK_TYPE_HDY_VIEW_SWITCHER_BAR (gtk_hdy_view_switcher_bar_get_type())
 +
-+struct _GtkHdyViewSwitcherBarClass {
-+  GtkBinClass parent_class;
-+};
++G_DECLARE_FINAL_TYPE (GtkHdyViewSwitcherBar, gtk_hdy_view_switcher_bar, GTK, HDY_VIEW_SWITCHER_BAR, GtkBin)
 +
-+GTK_HDY_DECLARE_DERIVABLE_TYPE (GtkHdyViewSwitcherBar, gtk_hdy_view_switcher_bar, GTK, HDY_VIEW_SWITCHER_BAR, GtkBin)
-+
-+GtkHdyViewSwitcherBar *gtk_hdy_view_switcher_bar_new (void);
++GtkWidget *gtk_hdy_view_switcher_bar_new (void);
 +
 +GtkHdyViewSwitcherPolicy gtk_hdy_view_switcher_bar_get_policy (GtkHdyViewSwitcherBar *self);
 +void                     gtk_hdy_view_switcher_bar_set_policy (GtkHdyViewSwitcherBar    *self,
 +                                                               GtkHdyViewSwitcherPolicy  policy);
-+
-+GtkIconSize gtk_hdy_view_switcher_bar_get_icon_size (GtkHdyViewSwitcherBar *self);
-+void        gtk_hdy_view_switcher_bar_set_icon_size (GtkHdyViewSwitcherBar *self,
-+                                                     GtkIconSize            icon_size);
 +
 +GtkStack *gtk_hdy_view_switcher_bar_get_stack (GtkHdyViewSwitcherBar *self);
 +void      gtk_hdy_view_switcher_bar_set_stack (GtkHdyViewSwitcherBar *self,
@@ -94,10 +89,10 @@ index 0000000000..4b4de2a4f9
 +G_END_DECLS
 diff --git a/gtk/hdy-view-switcher-bar.c b/gtk/hdy-view-switcher-bar.c
 new file mode 100644
-index 0000000000..f025556233
+index 0000000..39d2aa4
 --- /dev/null
 +++ b/gtk/hdy-view-switcher-bar.c
-@@ -0,0 +1,436 @@
+@@ -0,0 +1,398 @@
 +/*
 + * Copyright (C) 2019 Zander Brown <zbrown@gnome.org>
 + * Copyright (C) 2019 Purism SPC
@@ -109,68 +104,120 @@ index 0000000000..f025556233
 +#include <glib/gi18n-lib.h>
 +
 +#include "gtkactionbar.h"
-+#include "gtkcssprovider.h"
-+#include "gtkenums.h"
-+#include "gtkprivatetypebuiltins.h"
-+#include "gtkstylecontext.h"
 +#include "gtkrevealer.h"
-+#include "hdy-style-private.h"
++#include "gtkprivatetypebuiltins.h"
 +#include "hdy-view-switcher-bar-private.h"
-+#include "hdy-view-switcher-bar-private.h"
++#include "hdy-view-switcher-private.h"
 +
 +/**
 + * SECTION:hdy-view-switcher-bar
-+ * @short_description: An view switcher action bar
++ * @short_description: A view switcher action bar.
 + * @title: GtkHdyViewSwitcherBar
++ * @See_also: #GtkHdyViewSwitcher, #GtkHdyViewSwitcherTitle
 + *
 + * An action bar letting you switch between multiple views offered by a
-+ * #GtkStack, via a #GtkHdyViewSwitcher. It is designed to be put at the bottom of
++ * #GtkStack, via an #GtkHdyViewSwitcher. It is designed to be put at the bottom of
 + * a window and to be revealed only on really narrow windows e.g. on mobile
-+ * phones.
++ * phones. It can't be revealed if there are less than two pages.
++ *
++ * You can conveniently bind the #GtkHdyViewSwitcherBar:reveal property to
++ * #GtkHdyViewSwitcherTitle:title-visible to automatically reveal the view switcher
++ * bar when the title label is displayed in place of the view switcher.
++ *
++ * An example of the UI definition for a common use case:
++ * |[
++ * <object class="GtkWindow"/>
++ *   <child type="titlebar">
++ *     <object class="HdyHeaderBar">
++ *       <property name="centering-policy">strict</property>
++ *       <child type="title">
++ *         <object class="GtkHdyViewSwitcherTitle"
++ *                 id="view_switcher_title">
++ *           <property name="stack">stack</property>
++ *         </object>
++ *       </child>
++ *     </object>
++ *   </child>
++ *   <child>
++ *     <object class="GtkBox">
++ *       <child>
++ *         <object class="GtkStack" id="stack"/>
++ *       </child>
++ *       <child>
++ *         <object class="GtkHdyViewSwitcherBar">
++ *           <property name="stack">stack</property>
++ *           <property name="reveal"
++ *                     bind-source="view_switcher_title"
++ *                     bind-property="title-visible"
++ *                     bind-flags="sync-create"/>
++ *         </object>
++ *       </child>
++ *     </object>
++ *   </child>
++ * </object>
++ * ]|
++ *
++ * # CSS nodes
++ *
++ * #GtkHdyViewSwitcherBar has a single CSS node with name viewswitcherbar.
 + *
 + * Since: 0.0.10
 + */
 +
-+G_DEFINE_AUTOPTR_CLEANUP_FUNC(GtkCssProvider, g_object_unref)
-+
 +enum {
 +  PROP_0,
 +  PROP_POLICY,
-+  PROP_ICON_SIZE,
 +  PROP_STACK,
 +  PROP_REVEAL,
 +  LAST_PROP,
 +};
 +
-+typedef struct {
++struct _GtkHdyViewSwitcherBar
++{
++  GtkBin parent_instance;
++
 +  GtkActionBar *action_bar;
 +  GtkRevealer *revealer;
 +  GtkHdyViewSwitcher *view_switcher;
 +
 +  GtkHdyViewSwitcherPolicy policy;
-+  GtkIconSize icon_size;
 +  gboolean reveal;
-+} GtkHdyViewSwitcherBarPrivate;
++};
 +
 +static GParamSpec *props[LAST_PROP];
 +
-+G_DEFINE_TYPE_WITH_CODE (GtkHdyViewSwitcherBar, gtk_hdy_view_switcher_bar, GTK_TYPE_BIN,
-+                         G_ADD_PRIVATE (GtkHdyViewSwitcherBar))
++G_DEFINE_TYPE (GtkHdyViewSwitcherBar, gtk_hdy_view_switcher_bar, GTK_TYPE_BIN)
++
++static void
++count_children_cb (GtkWidget *widget,
++                   gint      *count)
++{
++  (*count)++;
++}
++
++static void
++update_bar_revealed (GtkHdyViewSwitcherBar *self)
++{
++  GtkStack *stack = gtk_hdy_view_switcher_get_stack (self->view_switcher);
++  gint count = 0;
++
++  if (self->reveal && stack)
++    gtk_container_foreach (GTK_CONTAINER (stack), (GtkCallback) count_children_cb, &count);
++
++  gtk_revealer_set_reveal_child (self->revealer, count > 1);
++}
 +
 +static void
 +gtk_hdy_view_switcher_bar_get_property (GObject    *object,
-+                                    guint       prop_id,
-+                                    GValue     *value,
-+                                    GParamSpec *pspec)
++                                        guint       prop_id,
++                                        GValue     *value,
++                                        GParamSpec *pspec)
 +{
 +  GtkHdyViewSwitcherBar *self = GTK_HDY_VIEW_SWITCHER_BAR (object);
 +
 +  switch (prop_id) {
 +  case PROP_POLICY:
 +    g_value_set_enum (value, gtk_hdy_view_switcher_bar_get_policy (self));
-+    break;
-+  case PROP_ICON_SIZE:
-+    g_value_set_int (value, gtk_hdy_view_switcher_bar_get_icon_size (self));
 +    break;
 +  case PROP_STACK:
 +    g_value_set_object (value, gtk_hdy_view_switcher_bar_get_stack (self));
@@ -186,18 +233,15 @@ index 0000000000..f025556233
 +
 +static void
 +gtk_hdy_view_switcher_bar_set_property (GObject      *object,
-+                                    guint         prop_id,
-+                                    const GValue *value,
-+                                    GParamSpec   *pspec)
++                                        guint         prop_id,
++                                        const GValue *value,
++                                        GParamSpec   *pspec)
 +{
 +  GtkHdyViewSwitcherBar *self = GTK_HDY_VIEW_SWITCHER_BAR (object);
 +
 +  switch (prop_id) {
 +  case PROP_POLICY:
 +    gtk_hdy_view_switcher_bar_set_policy (self, g_value_get_enum (value));
-+    break;
-+  case PROP_ICON_SIZE:
-+    gtk_hdy_view_switcher_bar_set_icon_size (self, g_value_get_int (value));
 +    break;
 +  case PROP_STACK:
 +    gtk_hdy_view_switcher_bar_set_stack (self, g_value_get_object (value));
@@ -236,21 +280,6 @@ index 0000000000..f025556233
 +                       G_PARAM_EXPLICIT_NOTIFY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 +
 +  /**
-+   * GtkHdyViewSwitcherBar:icon-size:
-+   *
-+   * Use the "icon-size" property to hint the icons to use, you almost certainly
-+   * want to leave this as %GTK_ICON_SIZE_BUTTON.
-+   *
-+   * Since: 0.0.10
-+   */
-+  props[PROP_ICON_SIZE] =
-+    g_param_spec_int ("icon-size",
-+                      _("Icon Size"),
-+                      _("Symbolic size to use for named icon"),
-+                      0, G_MAXINT, GTK_ICON_SIZE_BUTTON,
-+                      G_PARAM_EXPLICIT_NOTIFY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
-+
-+  /**
 +   * GtkHdyViewSwitcherBar:stack:
 +   *
 +   * The #GtkStack the #GtkHdyViewSwitcher controls.
@@ -280,43 +309,29 @@ index 0000000000..f025556233
 +
 +  g_object_class_install_properties (object_class, LAST_PROP, props);
 +
-+  gtk_widget_class_set_css_name (widget_class, "hdyviewswitcherbar");
++  gtk_widget_class_set_css_name (widget_class, "viewswitcherbar");
 +
 +  gtk_widget_class_set_template_from_resource (widget_class,
 +                                               "/org/gtk/libgtk/ui/hdy-view-switcher-bar.ui");
-+  gtk_widget_class_bind_template_child_private (widget_class, GtkHdyViewSwitcherBar, action_bar);
-+  gtk_widget_class_bind_template_child_private (widget_class, GtkHdyViewSwitcherBar, view_switcher);
++  gtk_widget_class_bind_template_child (widget_class, GtkHdyViewSwitcherBar, action_bar);
++  gtk_widget_class_bind_template_child (widget_class, GtkHdyViewSwitcherBar, view_switcher);
 +}
 +
 +static void
 +gtk_hdy_view_switcher_bar_init (GtkHdyViewSwitcherBar *self)
 +{
-+  GtkHdyViewSwitcherBarPrivate *priv;
-+  g_autoptr (GtkCssProvider) provider = gtk_css_provider_new ();
-+  GtkWidget *box;
-+
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
-+
 +  /* This must be initialized before the template so the embedded view switcher
 +   * can pick up the correct default value.
 +   */
-+  priv->policy = GTK_HDY_VIEW_SWITCHER_POLICY_NARROW;
-+  priv->icon_size = GTK_ICON_SIZE_BUTTON;
++  self->policy = GTK_HDY_VIEW_SWITCHER_POLICY_NARROW;
 +
 +  g_type_ensure (GTK_TYPE_HDY_VIEW_SWITCHER);
 +
 +  gtk_widget_init_template (GTK_WIDGET (self));
 +
-+  priv->revealer = GTK_REVEALER (gtk_bin_get_child (GTK_BIN (priv->action_bar)));
-+  g_object_bind_property (self, "reveal", priv->revealer, "reveal-child", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
-+  gtk_revealer_set_transition_type (priv->revealer, GTK_REVEALER_TRANSITION_TYPE_SLIDE_UP);
-+
-+  box = gtk_bin_get_child (GTK_BIN (priv->revealer));
-+
-+  gtk_css_provider_load_from_resource (provider, "/org/gtk/libgtk/style/hdy-view-switcher-bar-box.css");
-+  gtk_style_context_add_provider (gtk_widget_get_style_context (box),
-+                                  GTK_STYLE_PROVIDER (provider),
-+                                  GTK_HDY_STYLE_PROVIDER_PRIORITY);
++  self->revealer = GTK_REVEALER (gtk_bin_get_child (GTK_BIN (self->action_bar)));
++  update_bar_revealed (self);
++  gtk_revealer_set_transition_type (self->revealer, GTK_REVEALER_TRANSITION_TYPE_SLIDE_UP);
 +}
 +
 +/**
@@ -328,7 +343,7 @@ index 0000000000..f025556233
 + *
 + * Since: 0.0.10
 + */
-+GtkHdyViewSwitcherBar *
++GtkWidget *
 +gtk_hdy_view_switcher_bar_new (void)
 +{
 +  return g_object_new (GTK_TYPE_HDY_VIEW_SWITCHER_BAR, NULL);
@@ -347,13 +362,9 @@ index 0000000000..f025556233
 +GtkHdyViewSwitcherPolicy
 +gtk_hdy_view_switcher_bar_get_policy (GtkHdyViewSwitcherBar *self)
 +{
-+  GtkHdyViewSwitcherBarPrivate *priv;
-+
 +  g_return_val_if_fail (GTK_IS_HDY_VIEW_SWITCHER_BAR (self), GTK_HDY_VIEW_SWITCHER_POLICY_NARROW);
 +
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
-+
-+  return priv->policy;
++  return self->policy;
 +}
 +
 +/**
@@ -367,71 +378,18 @@ index 0000000000..f025556233
 + */
 +void
 +gtk_hdy_view_switcher_bar_set_policy (GtkHdyViewSwitcherBar    *self,
-+                                  GtkHdyViewSwitcherPolicy  policy)
++                                      GtkHdyViewSwitcherPolicy  policy)
 +{
-+  GtkHdyViewSwitcherBarPrivate *priv;
-+
 +  g_return_if_fail (GTK_IS_HDY_VIEW_SWITCHER_BAR (self));
 +
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
-+
-+  if (priv->policy == policy)
++  if (self->policy == policy)
 +    return;
 +
-+  priv->policy = policy;
++  self->policy = policy;
 +
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_POLICY]);
 +
 +  gtk_widget_queue_resize (GTK_WIDGET (self));
-+}
-+
-+/**
-+ * gtk_hdy_view_switcher_bar_get_icon_size:
-+ * @self: a #GtkHdyViewSwitcherBar
-+ *
-+ * Get the icon size of the images used in the #GtkHdyViewSwitcher.
-+ *
-+ * Returns: the icon size of the images
-+ *
-+ * Since: 0.0.10
-+ */
-+GtkIconSize
-+gtk_hdy_view_switcher_bar_get_icon_size (GtkHdyViewSwitcherBar *self)
-+{
-+  GtkHdyViewSwitcherBarPrivate *priv;
-+
-+  g_return_val_if_fail (GTK_IS_HDY_VIEW_SWITCHER_BAR (self), GTK_ICON_SIZE_BUTTON);
-+
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
-+
-+  return priv->icon_size;
-+}
-+
-+/**
-+ * gtk_hdy_view_switcher_bar_set_icon_size:
-+ * @self: a #GtkHdyViewSwitcherBar
-+ * @icon_size: the new icon size
-+ *
-+ * Change the icon size hint for the icons in a #GtkHdyViewSwitcher.
-+ *
-+ * Since: 0.0.10
-+ */
-+void
-+gtk_hdy_view_switcher_bar_set_icon_size (GtkHdyViewSwitcherBar *self,
-+                                     GtkIconSize         icon_size)
-+{
-+  GtkHdyViewSwitcherBarPrivate *priv;
-+
-+  g_return_if_fail (GTK_IS_HDY_VIEW_SWITCHER_BAR (self));
-+
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
-+
-+  if (priv->icon_size == icon_size)
-+    return;
-+
-+  priv->icon_size = icon_size;
-+
-+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ICON_SIZE]);
 +}
 +
 +/**
@@ -447,13 +405,9 @@ index 0000000000..f025556233
 +GtkStack *
 +gtk_hdy_view_switcher_bar_get_stack (GtkHdyViewSwitcherBar *self)
 +{
-+  GtkHdyViewSwitcherBarPrivate *priv;
-+
 +  g_return_val_if_fail (GTK_IS_HDY_VIEW_SWITCHER_BAR (self), NULL);
 +
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
-+
-+  return gtk_hdy_view_switcher_get_stack (priv->view_switcher);
++  return gtk_hdy_view_switcher_get_stack (self->view_switcher);
 +}
 +
 +/**
@@ -467,19 +421,29 @@ index 0000000000..f025556233
 + */
 +void
 +gtk_hdy_view_switcher_bar_set_stack (GtkHdyViewSwitcherBar *self,
-+                                 GtkStack           *stack)
++                                     GtkStack              *stack)
 +{
-+  GtkHdyViewSwitcherBarPrivate *priv;
++  GtkStack *previous_stack;
 +
 +  g_return_if_fail (GTK_IS_HDY_VIEW_SWITCHER_BAR (self));
 +  g_return_if_fail (stack == NULL || GTK_IS_STACK (stack));
 +
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
++  previous_stack = gtk_hdy_view_switcher_get_stack (self->view_switcher);
 +
-+  if (gtk_hdy_view_switcher_get_stack (priv->view_switcher) == stack)
++  if (previous_stack == stack)
 +    return;
 +
-+  gtk_hdy_view_switcher_set_stack (priv->view_switcher, stack);
++  if (previous_stack)
++    g_signal_handlers_disconnect_by_func (previous_stack, G_CALLBACK (update_bar_revealed), self);
++
++  gtk_hdy_view_switcher_set_stack (self->view_switcher, stack);
++
++  if (stack) {
++    g_signal_connect_swapped (stack, "add", G_CALLBACK (update_bar_revealed), self);
++    g_signal_connect_swapped (stack, "remove", G_CALLBACK (update_bar_revealed), self);
++  }
++
++  update_bar_revealed (self);
 +
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STACK]);
 +}
@@ -497,13 +461,9 @@ index 0000000000..f025556233
 +gboolean
 +gtk_hdy_view_switcher_bar_get_reveal (GtkHdyViewSwitcherBar *self)
 +{
-+  GtkHdyViewSwitcherBarPrivate *priv;
-+
 +  g_return_val_if_fail (GTK_IS_HDY_VIEW_SWITCHER_BAR (self), FALSE);
 +
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
-+
-+  return priv->reveal;
++  return self->reveal;
 +}
 +
 +/**
@@ -517,38 +477,46 @@ index 0000000000..f025556233
 + */
 +void
 +gtk_hdy_view_switcher_bar_set_reveal (GtkHdyViewSwitcherBar *self,
-+                                  gboolean            reveal)
++                                      gboolean               reveal)
 +{
-+  GtkHdyViewSwitcherBarPrivate *priv;
-+
 +  g_return_if_fail (GTK_IS_HDY_VIEW_SWITCHER_BAR (self));
-+
-+  priv = gtk_hdy_view_switcher_bar_get_instance_private (self);
 +
 +  reveal = !!reveal;
 +
-+  if (priv->reveal == reveal)
++  if (self->reveal == reveal)
 +    return;
 +
-+  priv->reveal = reveal;
++  self->reveal = reveal;
++  update_bar_revealed (self);
 +
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_REVEAL]);
 +}
-diff --git a/gtk/style/hdy-view-switcher-bar-box.css b/gtk/style/hdy-view-switcher-bar-box.css
-new file mode 100644
-index 0000000000..bb5af4aba5
---- /dev/null
-+++ b/gtk/style/hdy-view-switcher-bar-box.css
-@@ -0,0 +1,3 @@
-+hdyviewswitcherbar actionbar > revealer > box {
-+  padding: 0;
-+}
+diff --git a/gtk/meson.build b/gtk/meson.build
+index 0e7e7f2..0bdf438 100644
+--- a/gtk/meson.build
++++ b/gtk/meson.build
+@@ -384,6 +384,7 @@ gtk_sources = files(
+   'gtkwin32theme.c',
+   'gdkpixbufutils.c',
+   'hdy-css.c',
++  'hdy-view-switcher-bar.c',
+   'hdy-view-switcher-button.c',
+   'hdy-view-switcher.c',
+   'language-names.c',
+@@ -394,6 +395,7 @@ gtk_private_type_headers = files(
+   'gtkcsstypesprivate.h',
+   'gtktexthandleprivate.h',
+   'hdy-css-private.h',
++  'hdy-view-switcher-bar-private.h',
+   'hdy-view-switcher-button-private.h',
+   'hdy-view-switcher-private.h',
+ )
 diff --git a/gtk/ui/hdy-view-switcher-bar.ui b/gtk/ui/hdy-view-switcher-bar.ui
 new file mode 100644
-index 0000000000..a36926afe8
+index 0000000..42246e8
 --- /dev/null
 +++ b/gtk/ui/hdy-view-switcher-bar.ui
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,20 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
 +  <requires lib="gtk+" version="3.0"/>
@@ -558,7 +526,6 @@ index 0000000000..a36926afe8
 +        <property name="visible">True</property>
 +        <child type="center">
 +          <object class="GtkHdyViewSwitcher" id="view_switcher">
-+            <property name="icon-size" bind-source="GtkHdyViewSwitcherBar" bind-property="icon-size" bind-flags="sync-create|bidirectional" />
 +            <property name="margin-start">10</property>
 +            <property name="margin-end">10</property>
 +            <property name="narrow-ellipsize">end</property>
@@ -571,5 +538,5 @@ index 0000000000..a36926afe8
 +  </template>
 +</interface>
 -- 
-2.28.0
+2.29.2
 

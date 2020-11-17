@@ -1,7 +1,8 @@
-From 605ea9404a3847c88f3567a7f78fef24e7be30db Mon Sep 17 00:00:00 2001
+From 115f9777aa5eed8115a837b3e973f3c5b99b4b0d Mon Sep 17 00:00:00 2001
 From: Alexander Mikhaylenko <alexm@gnome.org>
 Date: Mon, 19 Oct 2020 14:13:56 +0500
-Subject: [PATCH] gestureswipe: Count last event when calculating velocity
+Subject: [PATCH 29/29] gestureswipe: Count last event when calculating
+ velocity
 
 The last event, matching lifting the finger/releasing the mouse button,
 is important when there's a large delay between it and the previous events,
@@ -19,7 +20,7 @@ GtkEventControllerScroll.
  1 file changed, 15 insertions(+), 5 deletions(-)
 
 diff --git a/gtk/gtkgestureswipe.c b/gtk/gtkgestureswipe.c
-index bf84eb5a3e..91bf19d999 100644
+index bf84eb5..91bf19d 100644
 --- a/gtk/gtkgestureswipe.c
 +++ b/gtk/gtkgestureswipe.c
 @@ -126,17 +126,16 @@ _gtk_gesture_swipe_clear_backlog (GtkGestureSwipe *gesture,
@@ -70,5 +71,5 @@ index bf84eb5a3e..91bf19d999 100644
    _gtk_gesture_swipe_calculate_velocity (swipe, &velocity_x, &velocity_y);
    g_signal_emit (gesture, signals[SWIPE], 0, velocity_x, velocity_y);
 -- 
-2.26.2
+2.29.2
 

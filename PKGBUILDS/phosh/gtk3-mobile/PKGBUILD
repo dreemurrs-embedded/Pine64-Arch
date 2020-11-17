@@ -4,7 +4,7 @@
 
 pkgname=gtk3-mobile
 pkgver=3.24.23
-pkgrel=3
+pkgrel=4
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -19,87 +19,108 @@ _commit=016e8c55ab924c9ef4d32c8cb06253b1dc1be60d  # tags/3.24.23^0
 source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.bz2"
         settings.ini
         gtk-query-immodules-3.0.hook
-        fix-wayland.patch
-        0001-Add-gtkhdytype.h.patch
-        0002-Support-libhandy-hardcoded-styles.patch
-        0003-Add-GtkHdyViewSwitcherButton.patch
-        0004-Add-GtkHdyViewSwitcher.patch
-        0005-Add-GtkHdyViewSwitcherBar.patch
-        0006-GtkAboutDialog-Port-to-phones.patch
-        0007-Add-the-view-sidebar-symbolic-icon.patch
-        0008-GtkFileChooserWidget-Port-to-phones.patch
-        0009-GtkMessageDialog-Pack-the-buttons-vertically.patch
-        0010-gtkscrolledwindow-Drop-the-deceleration-friction.patch
-        0011-gtkdialog-Maximize-resizable-dialogs.patch
-        0012-gtkheaderbar-Use-a-back-button-in-dialogs.patch
-        0013-gtkwindow-Maximize-resizable-windows.patch
-        0014-gtkheaderbar-Use-a-back-button-in-transient-windows.patch
-        0015-gtkwindow-Maximize-resizable-pseudo-dialogs.patch
-        0016-gtkwindow-Maximize-dialogs-when-mapping.patch
-        0017-gtkinfobar-Move-the-action-area-below.patch
-        0018-gtkfilechooserdialog-Drop-the-custom-save-entry.patch
-        0019-gtkfilechooserwidget-Expand-the-filename-entry.patch
-        0020-gtkfontchooserwidget-Reduce-the-size-request.patch
-        0021-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
-        2ef7303da3723c1430c94beb566b32aee9b5262e.patch
-        605ea9404a3847c88f3567a7f78fef24e7be30db.patch)
+        0001-gtkplacessidebar-Disconnect-and-unref-cloud_manager-.patch
+        0001-Add-GtkHdyViewSwitcherButton.patch
+        0002-Add-GtkHdyViewSwitcher.patch
+        0003-Add-GtkHdyViewSwitcherBar.patch
+        0004-Add-GtkHdySqueezer.patch
+        0005-Add-GtkHdyViewSwitcherTitle.patch
+        0006-Add-GtkHdyShadowHelper.patch
+        0007-Add-GtkHdyNavigationDirection.patch
+        0008-Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
+        0009-Add-GtkHdyStackableBox.patch
+        0010-Add-GtkHdyLeaflet.patch
+        0011-Add-GtkHdyClamp.patch
+        0012-theme-Add-libhandy-styles.patch
+        0013-Add-padding-for-HdyViewSwitcherTitle.patch
+        0014-Add-org.gtk.Settings.Purism.patch
+        0015-gtkprivate-Add-an-API-to-check-if-phone.patch
+        0016-aboutdialog-Port-to-phones.patch
+        0017-Add-the-view-sidebar-symbolic-icon.patch
+        0018-Port-file-chooser-to-phones.patch
+        0019-messagedialog-Set-orientation-based-on-device.patch
+        0020-scrolledwindow-Set-deceleration-value-based-on-the-d.patch
+        0021-dialog-Maximize-resizable-dialogs-on-phones.patch
+        0022-window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
+        0023-headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
+        0024-infobar-Move-the-action-area-below.patch
+        0025-Reduce-the-font-chooser-minimum-size.patch
+        0026-window-Disable-window-dragging-on-phones.patch
+        0027-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
+        0028-wayland-Emit-dummy-configure-event-when-resizing-whi.patch
+        0029-gestureswipe-Count-last-event-when-calculating-veloc.patch)
 sha256sums=('6e0527fd35b8c53025deca3400732848585c65876f7b0043c751e2ca5302ab7c'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
-            'aa2e08a9fb99095fa2990931baafe2862a4c1dcbbde9d500e41ca551c799d1cd'
-            '1652b400185b2ec41fa64c028d245bbf73049fa684614ed5f1ec9f3e2699bf2b'
-            '9d627045d22fda87adbf7775557d67b66ef8504b8d559c1965157ab67366cd41'
-            'f29ea6df80f91147bea95c9ced3e8b2b5e3fab1bcf3593d96a700361abb9b082'
-            '9339f8280694c29e216b9ca3ded750275ba33b5f8e2318bd538c886c43f91dbc'
-            '239c7766bfb94529bda9286be2b1a48c100f9ad9f512ef9c3dccb8ab10b7c959'
-            '8fd99193fa7212a17a2dbc20827432a98837f26cd6e72fc23a7e9267ee2610e5'
-            'ad0d6f1bff665048fc8c9a6abb258b8814d3dfaba826688f64d13c5180390f46'
-            '7944c400c857e06613c30224ded239e31ea084d363b133816b01e10469cf0652'
-            'b5b39c416d4033ec20f2ef521da5209060478c3047cabac47a710abf9a71b94f'
-            'fd4b5b6e020f9628065939f9f1d0d6dfa5349a3ecb8574904c5cea3c90bdac31'
-            '2ea248221dc371c40aaee7152706f742d12bd0955b97f081ed405f35ca279144'
-            '2a24a773de68f8af6692fc99b75065c72ada21cbbcccf1e53a509809f2bbe515'
-            '3ba9f67521340f4d0baa369d353ae8e1439f57d232ecbe199d7612ce9a3bc116'
-            '51d9b3ba91e282682a5a598ef958c799dcc7d2a1e67057ac56c14e8867556824'
-            '8a798b95f77de605109aa250271e857d1ebc4f21835947e8cd2a96f15b71078a'
-            '6e573cb458e4d9650886444dfb8a592f6d63fa397ae50622c3d7288e7969c63c'
-            '3fe7ad81968194cc01b22966b1a7be474415265077238e72c89c495bcc8c0ec8'
-            'aac5860c71de0773f7c6af28959806325433912777a0ddae1e620ed855bbcd2d'
-            '0265a6a67889b21db2e2659adaca0ca0b7456222bee940e9bcc6d1eb64be74fb'
-            '9cd476b4ddf94091dcee48bef20560bfbb3964574841cad00dbab8e1a15237e7'
-            'a6f2b7487b49a384e8403cc252a53979674362b69f6e4cdf65678a0723378a7d'
-            '84744c9682d6534232a50392c2cf9aa0cb8c3e25ac412c7aee9e99bce1fe621b'
-            '6cab7975f28144db2134741b4c137d3a3fe0891f402f4d9ecab4a3b01af4267b')
+            'd6f6bf347482553bc20a1640c1619f674520b853a5b2ade9fd56bb77bfdfe170'
+            '3b44d526e32c744f8b84e059c4b5c4f7505048f649e19f75430ee7fe4c58d964'
+            '9e2e0089737a25cfc9a332e82ee79a5efa44b5a04160e71ade3f32eca3857866'
+            '47bd2d79fb5a57caed5497d46c4c55a7732d2cb47257839f41d5ea3091734dea'
+            'c5636c88aef03081d98254c94939778f4267539d8229aa54f9ab3a34deae7bc6'
+            '17e0e9a243b3dc5ea6373718ce761a0e934fbd1b81491a052d5810ecc20577d8'
+            'a67a266311e057cef4c4722e0d2fbae10257f916e2517393dde321126f385943'
+            'e2c1de75ccedfe582d15d8fcb7fb3199a9f4b983aa76485e36f2ea240db8e84b'
+            '599bb4761078fe981be6ffbaf3b67524568b96adab45d88675aa3688d7868305'
+            '97de49403723a7b046cfadff470ad3cee190774618b02260df5c8ee77e7006e6'
+            '0e799dd158c19ba17b64ddc7af7ea35179a0852b0c1c2eb82e0526d43b80e7e4'
+            '08a0b5ac1034604ca16df2fa766067bbb8591eecf16f99f65c2734aeb3b82308'
+            'f0495f0e571614730a9df426745de1bb233fe973bf1723849f6d218979d47c2e'
+            '25c5ec5c8566966230a0446054aea8794ebec15374f59ace58d9a0a9c268f15f'
+            '8d801534c0e043363dfbb774fc7155117e15451a6e7b8a5cb4d3925e99fdaf74'
+            '3b45203f3996fa51a6ee40891f816379eebb6dc876f11581a37d6ab28141b5a1'
+            'b4761e3cb670b1ab8293722a46014cbdaca956fbf128ec54ef60a9cb9203a25b'
+            '37a7743e3d328984666928c237f40b5f10bb27252d2adaa623b80d40ac0455fa'
+            '950ec0b7f1d875d3e808eb2d66a642d7550424f164b94d3ac75796f12ab09708'
+            '81b6047d1fff165e462a5fefba40c3783042b82139f4dabc8b64986bd567e4e0'
+            'e311e6261e72226e1ddfd9a8c9fd418e982d2232be17b8e6ff1111dcf6582374'
+            '6307348853e02e9176905f46c7a21cb18a838844b148107b1c4f89c66036a1ca'
+            '5a4aa92ac9636ebed7f50c97b35653281a0b0f6d460d0b152c64cc6e9ae8d086'
+            '2e4893a589e05ed5537c385878e20b530433b0c286f2be3deecfb3b8eb11be4e'
+            'b1b122d1fc07f0f5d7812e1876bd5b9de3974231e501b0e25792fb22b3c9ef87'
+            'f9ae62b754624de1adc55531c0f88effeb6e65a339ce31ac8a7ed2c24db1c0ff'
+            'a4a5041ea6be644296e01f6469c4a2f7ba5f83a1763ac779d5d47b848e193dae'
+            '9d62601ccec00abe793ee5a4e2b6db433ae7459fd0769786fa518ecb5175620a'
+            '449e28c8ce7bfaf5431eaf6fde88332e3071c10bb17e8fad4c79a04fd41c5f05'
+            '2da927b3670d6b818e9137dbddfd56f60a9af5d2a3a574259eb558a06b50c935')
 
 prepare() {
   cd gtk-$_commit
 
-  # apply patches
-  patch -p1 -N < ../fix-wayland.patch
-  patch -p1 -N < ../0001-Add-gtkhdytype.h.patch
-  patch -p1 -N < ../0002-Support-libhandy-hardcoded-styles.patch
-  patch -p1 -N < ../0003-Add-GtkHdyViewSwitcherButton.patch
-  patch -p1 -N < ../0004-Add-GtkHdyViewSwitcher.patch
-  patch -p1 -N < ../0005-Add-GtkHdyViewSwitcherBar.patch
-  patch -p1 -N < ../0006-GtkAboutDialog-Port-to-phones.patch
-  patch -p1 -N < ../0007-Add-the-view-sidebar-symbolic-icon.patch
-  patch -p1 -N < ../0008-GtkFileChooserWidget-Port-to-phones.patch
-  patch -p1 -N < ../0009-GtkMessageDialog-Pack-the-buttons-vertically.patch
-  patch -p1 -N < ../0010-gtkscrolledwindow-Drop-the-deceleration-friction.patch
-  patch -p1 -N < ../0011-gtkdialog-Maximize-resizable-dialogs.patch
-  patch -p1 -N < ../0012-gtkheaderbar-Use-a-back-button-in-dialogs.patch
-  patch -p1 -N < ../0013-gtkwindow-Maximize-resizable-windows.patch
-  patch -p1 -N < ../0014-gtkheaderbar-Use-a-back-button-in-transient-windows.patch
-  patch -p1 -N < ../0015-gtkwindow-Maximize-resizable-pseudo-dialogs.patch
-  patch -p1 -N < ../0016-gtkwindow-Maximize-dialogs-when-mapping.patch
-  patch -p1 -N < ../0017-gtkinfobar-Move-the-action-area-below.patch
-  patch -p1 -N < ../0018-gtkfilechooserdialog-Drop-the-custom-save-entry.patch
-  patch -p1 -N < ../0019-gtkfilechooserwidget-Expand-the-filename-entry.patch
-  patch -p1 -N < ../0020-gtkfontchooserwidget-Reduce-the-size-request.patch
-  patch -p1 -N < ../0021-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
+  # apply upstream arch patches
+  msg2 "Applying upstream Arch Linux patches"
+  patch -p1 -N < ../0001-gtkplacessidebar-Disconnect-and-unref-cloud_manager-.patch
 
-  patch -p1 -N < ../2ef7303da3723c1430c94beb566b32aee9b5262e.patch
-  patch -p1 -N < ../605ea9404a3847c88f3567a7f78fef24e7be30db.patch
+  # apply phone patches
+  msg2 "Applying Purism GTK patches"
+  patch -p1 -N < ../0001-Add-GtkHdyViewSwitcherButton.patch
+  patch -p1 -N < ../0002-Add-GtkHdyViewSwitcher.patch
+  patch -p1 -N < ../0003-Add-GtkHdyViewSwitcherBar.patch
+  patch -p1 -N < ../0004-Add-GtkHdySqueezer.patch
+  patch -p1 -N < ../0005-Add-GtkHdyViewSwitcherTitle.patch
+  patch -p1 -N < ../0006-Add-GtkHdyShadowHelper.patch
+  patch -p1 -N < ../0007-Add-GtkHdyNavigationDirection.patch
+  patch -p1 -N < ../0008-Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
+  patch -p1 -N < ../0009-Add-GtkHdyStackableBox.patch
+  patch -p1 -N < ../0010-Add-GtkHdyLeaflet.patch
+  patch -p1 -N < ../0011-Add-GtkHdyClamp.patch
+  patch -p1 -N < ../0012-theme-Add-libhandy-styles.patch
+  patch -p1 -N < ../0013-Add-padding-for-HdyViewSwitcherTitle.patch
+  patch -p1 -N < ../0014-Add-org.gtk.Settings.Purism.patch
+  patch -p1 -N < ../0015-gtkprivate-Add-an-API-to-check-if-phone.patch
+  patch -p1 -N < ../0016-aboutdialog-Port-to-phones.patch
+  patch -p1 -N < ../0017-Add-the-view-sidebar-symbolic-icon.patch
+  patch -p1 -N < ../0018-Port-file-chooser-to-phones.patch
+  patch -p1 -N < ../0019-messagedialog-Set-orientation-based-on-device.patch
+  patch -p1 -N < ../0020-scrolledwindow-Set-deceleration-value-based-on-the-d.patch
+  patch -p1 -N < ../0021-dialog-Maximize-resizable-dialogs-on-phones.patch
+  patch -p1 -N < ../0022-window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
+  patch -p1 -N < ../0023-headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
+  patch -p1 -N < ../0024-infobar-Move-the-action-area-below.patch
+  patch -p1 -N < ../0025-Reduce-the-font-chooser-minimum-size.patch
+  patch -p1 -N < ../0026-window-Disable-window-dragging-on-phones.patch
+  patch -p1 -N < ../0027-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
+  patch -p1 -N < ../0028-wayland-Emit-dummy-configure-event-when-resizing-whi.patch
+  patch -p1 -N < ../0029-gestureswipe-Count-last-event-when-calculating-veloc.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
@@ -131,8 +152,8 @@ package() {
   install -Dt "$pkgdir/usr/share/gtk-3.0" -m644 settings.ini
   install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 gtk-query-immodules-3.0.hook
 
-  # split this out to use with gtk2 too
-  mv "$pkgdir/usr/bin/gtk-update-icon-cache" "$srcdir"
+  # use upstream package for this instead
+  rm "$pkgdir/usr/bin/gtk-update-icon-cache"
 }
 
 # vim:set ts=2 sw=2 et:

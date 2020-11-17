@@ -1,20 +1,21 @@
-From 4542ec60c554b37427f1d6888742f8ea2bde45e0 Mon Sep 17 00:00:00 2001
+From d0d880f2213e8752f605eb8b3fe64e5e4d83ffa0 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Mon, 1 Jul 2019 13:28:48 +0200
-Subject: [PATCH 07/23] Add the view-sidebar-symbolic icon
+Subject: [PATCH 17/29] Add the view-sidebar-symbolic icon
 
 This will be used to reveal/conceal the file chooser sidebar.
 ---
  gtk/Makefile.am                               |  2 +-
+ gtk/gen-gtk-gresources-xml.py                 |  6 ++
  .../actions/view-sidebar-symbolic.svg         | 78 +++++++++++++++++++
- 2 files changed, 79 insertions(+), 1 deletion(-)
+ 3 files changed, 85 insertions(+), 1 deletion(-)
  create mode 100644 gtk/icons/scalable/actions/view-sidebar-symbolic.svg
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index d9317530b6..d13d5199d7 100644
+index 0f43203..408d966 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -1350,7 +1350,7 @@ gtk.gresource.xml: Makefile.am inspector/Makefile.inc
+@@ -1382,7 +1382,7 @@ gtk.gresource.xml: Makefile.am inspector/Makefile.inc
  	  done; \
  	done; \
  	for s in scalable; do \
@@ -23,9 +24,26 @@ index d9317530b6..d13d5199d7 100644
  	    for f in $(srcdir)/icons/$$s/$$c/*.svg; do \
  	      test "$$f" = "$(srcdir)/icons/$$s/$$c/*.svg" && continue; \
  	      n=`basename $$f`; \
+diff --git a/gtk/gen-gtk-gresources-xml.py b/gtk/gen-gtk-gresources-xml.py
+index 6c61000..4830889 100644
+--- a/gtk/gen-gtk-gresources-xml.py
++++ b/gtk/gen-gtk-gresources-xml.py
+@@ -71,6 +71,12 @@ for s in ['16x16', '22x22', '24x24', '32x32', '48x48']:
+       for f in get_files(icons_dir, '.png'):
+         xml += '    <file>icons/{0}/{1}/{2}</file>\n'.format(s,c,f)
+ 
++for c in ['actions', 'status']:
++  icons_dir = 'icons/scalable/{0}'.format(c)
++  if os.path.exists(os.path.join(srcdir,icons_dir)):
++    for f in get_files(icons_dir, '.svg'):
++      xml += '    <file>icons/scalable/{0}/{1}</file>\n'.format(c,f)
++
+ for f in get_files('inspector', '.ui'):
+   xml += '    <file compressed=\'true\' preprocess=\'xml-stripblanks\'>inspector/{0}</file>\n'.format(f)
+ 
 diff --git a/gtk/icons/scalable/actions/view-sidebar-symbolic.svg b/gtk/icons/scalable/actions/view-sidebar-symbolic.svg
 new file mode 100644
-index 0000000000..559e11fe0f
+index 0000000..559e11f
 --- /dev/null
 +++ b/gtk/icons/scalable/actions/view-sidebar-symbolic.svg
 @@ -0,0 +1,78 @@
@@ -108,5 +126,5 @@ index 0000000000..559e11fe0f
 +  </g>
 +</svg>
 -- 
-2.28.0
+2.29.2
 

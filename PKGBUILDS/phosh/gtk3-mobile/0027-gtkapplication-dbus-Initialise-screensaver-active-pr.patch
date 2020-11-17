@@ -1,7 +1,7 @@
-From 21ecddab70544dc4421cd34247e9c7c2ef551409 Mon Sep 17 00:00:00 2001
+From 5615de8e24e7ec1c754902d2c8443ab411dadc2e Mon Sep 17 00:00:00 2001
 From: Bob Ham <bob.ham@puri.sm>
 Date: Fri, 6 Sep 2019 14:59:07 +0100
-Subject: [PATCH 21/23] gtkapplication-dbus: Initialise screensaver-active
+Subject: [PATCH 27/29] gtkapplication-dbus: Initialise screensaver-active
  property
 
 When GtkApplication starts listening to the screensaver's D-Bus
@@ -17,7 +17,7 @@ screensaver.
  1 file changed, 23 insertions(+)
 
 diff --git a/gtk/gtkapplication-dbus.c b/gtk/gtkapplication-dbus.c
-index dc141cfa5f..a270354119 100644
+index dc141cf..a270354 100644
 --- a/gtk/gtkapplication-dbus.c
 +++ b/gtk/gtkapplication-dbus.c
 @@ -329,8 +329,31 @@ gtk_application_impl_dbus_startup (GtkApplicationImpl *impl,
@@ -53,5 +53,5 @@ index dc141cfa5f..a270354119 100644
  
    g_debug ("Registering client '%s' '%s'", dbus->application_id, client_id);
 -- 
-2.28.0
+2.29.2
 

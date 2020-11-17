@@ -1,16 +1,16 @@
-From 5c2f52b9d9eeee25f7f528073074680664e13a34 Mon Sep 17 00:00:00 2001
+From b75b63120fcb5df783187a56e3ab96fb06dd1df2 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Thu, 11 Jul 2019 10:44:14 +0200
-Subject: [PATCH 12/23] gtkheaderbar: Use a back button in dialogs
+Subject: [PATCH 23/29] headerbar: Use a back button in dialogs on mobile
 
-This will allow to drop the close buttons and make the dialogs look like
-proper mobile dialogs.
+This will allow to drop the close buttons and make the dialogs and
+transient windows look like proper mobile dialogs.
 ---
- gtk/gtkheaderbar.c | 28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ gtk/gtkheaderbar.c | 29 ++++++++++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/gtk/gtkheaderbar.c b/gtk/gtkheaderbar.c
-index 0ef94e3c84..6fcc4dc0ce 100644
+index 0ef94e3..f405986 100644
 --- a/gtk/gtkheaderbar.c
 +++ b/gtk/gtkheaderbar.c
 @@ -30,6 +30,7 @@
@@ -29,14 +29,15 @@ index 0ef94e3c84..6fcc4dc0ce 100644
  
    toplevel = gtk_widget_get_toplevel (widget);
    if (!gtk_widget_is_toplevel (toplevel))
-@@ -310,7 +312,14 @@ _gtk_header_bar_update_window_buttons (GtkHeaderBar *bar)
+@@ -310,7 +312,15 @@ _gtk_header_bar_update_window_buttons (GtkHeaderBar *bar)
                  "gtk-decoration-layout", &layout_desc,
                  NULL);
  
 -  if (priv->decoration_layout_set)
-+  is_mobile_dialog = GTK_IS_DIALOG (toplevel);
++  is_mobile_dialog = GTK_IS_DIALOG (toplevel) ||
++                     (GTK_IS_WINDOW (toplevel) && !!gtk_window_get_transient_for (GTK_WINDOW (toplevel)));
 +
-+  if (is_mobile_dialog)
++  if (is_mobile_dialog && _gtk_get_is_phone ())
 +    {
 +      g_free (layout_desc);
 +      layout_desc = g_strdup ("back:");
@@ -45,7 +46,7 @@ index 0ef94e3c84..6fcc4dc0ce 100644
      {
        g_free (layout_desc);
        layout_desc = g_strdup (priv->decoration_layout);
-@@ -457,6 +466,23 @@ _gtk_header_bar_update_window_buttons (GtkHeaderBar *bar)
+@@ -457,6 +467,23 @@ _gtk_header_bar_update_window_buttons (GtkHeaderBar *bar)
                    if (GTK_IS_ACCESSIBLE (accessible))
                      atk_object_set_name (accessible, _("Close"));
                  }
@@ -70,5 +71,5 @@ index 0ef94e3c84..6fcc4dc0ce 100644
                if (button)
                  {
 -- 
-2.28.0
+2.29.2
 

@@ -1,0 +1,139 @@
+From 70acc09f62cf0fd18bca0641a21e8ee67699e564 Mon Sep 17 00:00:00 2001
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Wed, 14 Oct 2020 16:29:45 +0500
+Subject: [PATCH 07/29] Add GtkHdyNavigationDirection
+
+This is imported from HdyNavigationDirection from libhandy 1.0.0.
+---
+ gtk/Makefile.am                        |  3 +++
+ gtk/gtkprivate.h                       |  1 +
+ gtk/hdy-navigation-direction-private.h | 22 ++++++++++++++++++++++
+ gtk/hdy-navigation-direction.c         | 26 ++++++++++++++++++++++++++
+ gtk/meson.build                        |  2 ++
+ 5 files changed, 54 insertions(+)
+ create mode 100644 gtk/hdy-navigation-direction-private.h
+ create mode 100644 gtk/hdy-navigation-direction.c
+
+diff --git a/gtk/Makefile.am b/gtk/Makefile.am
+index 84ef4ab..5a5f7f1 100644
+--- a/gtk/Makefile.am
++++ b/gtk/Makefile.am
+@@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
+ gtk_private_type_h_sources =	\
+ 	gtkcsstypesprivate.h	\
+ 	gtktexthandleprivate.h	\
++	hdy-navigation-direction-private.h \
+ 	hdy-squeezer-private.h	\
+ 	hdy-view-switcher-private.h
+ 
+@@ -607,6 +608,7 @@ gtk_private_h_sources =		\
+ 	hdy-animation-private.h	\
+ 	hdy-cairo-private.h	\
+ 	hdy-css-private.h	\
++	hdy-navigation-direction-private.h	\
+ 	hdy-shadow-helper-private.h	\
+ 	hdy-squeezer-private.h	\
+ 	hdy-view-switcher-bar-private.h	\
+@@ -990,6 +992,7 @@ gtk_base_c_sources = 		\
+ 	gdkpixbufutils.c	\
+ 	hdy-animation.c	\
+ 	hdy-css.c	\
++	hdy-navigation-direction.c	\
+ 	hdy-squeezer.c	\
+ 	hdy-shadow-helper.c	\
+ 	hdy-view-switcher.c	\
+diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
+index 9b5f8bb..8322900 100644
+--- a/gtk/gtkprivate.h
++++ b/gtk/gtkprivate.h
+@@ -30,6 +30,7 @@
+ 
+ #include "gtkcsstypesprivate.h"
+ #include "gtktexthandleprivate.h"
++#include "hdy-navigation-direction-private.h"
+ #include "hdy-squeezer-private.h"
+ #include "hdy-view-switcher-private.h"
+ 
+diff --git a/gtk/hdy-navigation-direction-private.h b/gtk/hdy-navigation-direction-private.h
+new file mode 100644
+index 0000000..2f2f184
+--- /dev/null
++++ b/gtk/hdy-navigation-direction-private.h
+@@ -0,0 +1,22 @@
++/*
++ * Copyright (C) 2019 Alexander Mikhaylenko <exalm7659@gmail.com>
++ *
++ * SPDX-License-Identifier: LGPL-2.1+
++ */
++
++#pragma once
++
++#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
++#error "Only <gtk/gtk.h> can be included directly."
++#endif
++
++#include <glib.h>
++
++G_BEGIN_DECLS
++
++typedef enum {
++  GTK_HDY_NAVIGATION_DIRECTION_BACK,
++  GTK_HDY_NAVIGATION_DIRECTION_FORWARD,
++} GtkHdyNavigationDirection;
++
++G_END_DECLS
+diff --git a/gtk/hdy-navigation-direction.c b/gtk/hdy-navigation-direction.c
+new file mode 100644
+index 0000000..35b9ab4
+--- /dev/null
++++ b/gtk/hdy-navigation-direction.c
+@@ -0,0 +1,26 @@
++/*
++ * Copyright (C) 2019 Alexander Mikhaylenko <exalm7659@gmail.com>
++ *
++ * SPDX-License-Identifier: LGPL-2.1+
++ */
++
++#include "config.h"
++#include "hdy-navigation-direction-private.h"
++
++/**
++ * SECTION:gtk-hdy-navigation-direction
++ * @short_description: Swipe navigation directions.
++ * @title: GtkHdyNavigationDirection
++ * @See_also: #GtkHdyDeck, #GtkHdyLeaflet
++ */
++
++/**
++ * GtkHdyNavigationDirection:
++ * @GTK_HDY_NAVIGATION_DIRECTION_BACK: Corresponds to start or top, depending on orientation and text direction
++ * @GTK_HDY_NAVIGATION_DIRECTION_FORWARD: Corresponds to end or bottom, depending on orientation and text direction
++ *
++ * Represents direction of a swipe navigation gesture in #GtkHdyDeck and
++ * #GtkHdyLeaflet.
++ *
++ * Since: 1.0
++ */
+diff --git a/gtk/meson.build b/gtk/meson.build
+index 580be08..c951dcc 100644
+--- a/gtk/meson.build
++++ b/gtk/meson.build
+@@ -385,6 +385,7 @@ gtk_sources = files(
+   'gdkpixbufutils.c',
+   'hdy-animation.c',
+   'hdy-css.c',
++  'hdy-navigation-direction.c',
+   'hdy-shadow-helper.c',
+   'hdy-squeezer.c',
+   'hdy-view-switcher-bar.c',
+@@ -401,6 +402,7 @@ gtk_private_type_headers = files(
+   'hdy-animation-private.h',
+   'hdy-cairo-private.h',
+   'hdy-css-private.h',
++  'hdy-navigation-direction-private.h',
+   'hdy-shadow-helper-private.h',
+   'hdy-squeezer-private.h',
+   'hdy-view-switcher-bar-private.h',
+-- 
+2.29.2
+

@@ -1,15 +1,29 @@
-From d91da3baec9a7dea58d04fe74ad86643175e4575 Mon Sep 17 00:00:00 2001
+From ecb5de47e3ed2fd3fa1e2871b70ab4ce3610deec Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Sun, 25 Aug 2019 10:20:31 +0200
-Subject: [PATCH 20/23] gtkfontchooserwidget: Reduce the size request
+Subject: [PATCH 25/29] Reduce the font chooser minimum size
 
 This helps GtkfontChooserDialog fitting in mobile phone screens.
 ---
+ gtk/ui/gtkfontchooserdialog.ui | 2 ++
  gtk/ui/gtkfontchooserwidget.ui | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
+diff --git a/gtk/ui/gtkfontchooserdialog.ui b/gtk/ui/gtkfontchooserdialog.ui
+index 1067096..f787ee6 100644
+--- a/gtk/ui/gtkfontchooserdialog.ui
++++ b/gtk/ui/gtkfontchooserdialog.ui
+@@ -5,6 +5,8 @@
+     <property name="border-width">5</property>
+     <property name="title" translatable="yes">Select Font</property>
+     <property name="type-hint">dialog</property>
++    <property name="default-width">400</property>
++    <property name="default-height">500</property>
+     <child internal-child="vbox">
+       <object class="GtkBox" id="dialog-vbox1">
+         <property name="orientation">vertical</property>
 diff --git a/gtk/ui/gtkfontchooserwidget.ui b/gtk/ui/gtkfontchooserwidget.ui
-index 2d39200919..074f233bfa 100644
+index 2d39200..074f233 100644
 --- a/gtk/ui/gtkfontchooserwidget.ui
 +++ b/gtk/ui/gtkfontchooserwidget.ui
 @@ -70,8 +70,8 @@
@@ -24,5 +38,5 @@ index 2d39200919..074f233bfa 100644
                          <property name="hexpand">1</property>
                          <property name="vexpand">1</property>
 -- 
-2.28.0
+2.29.2
 

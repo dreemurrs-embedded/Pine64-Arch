@@ -1,7 +1,8 @@
-From a184b5bf51a17016cfed26d44d959642352fbb26 Mon Sep 17 00:00:00 2001
+From ab72c4f8075aa52c10e036b15e986d689944d216 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
 Date: Mon, 7 Sep 2020 17:51:23 +0200
-Subject: [PATCH] wayland: Emit dummy configure event when resizing while fixed
+Subject: [PATCH 28/29] wayland: Emit dummy configure event when resizing while
+ fixed
 
 When a fixed size is active (e.g. the window is maximized),
 gtk_window_resize() shouldn't take immediate effect, so the request was
@@ -23,7 +24,7 @@ Closes: https://gitlab.gnome.org/GNOME/gtk/-/issues/2907
  1 file changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/gdk/wayland/gdkwindow-wayland.c b/gdk/wayland/gdkwindow-wayland.c
-index c91b882c9d..045368797d 100644
+index c91b882..0453687 100644
 --- a/gdk/wayland/gdkwindow-wayland.c
 +++ b/gdk/wayland/gdkwindow-wayland.c
 @@ -3495,7 +3495,19 @@ gdk_window_wayland_move_resize (GdkWindow *window,
@@ -48,5 +49,5 @@ index c91b882c9d..045368797d 100644
  }
  
 -- 
-GitLab
+2.29.2
 
