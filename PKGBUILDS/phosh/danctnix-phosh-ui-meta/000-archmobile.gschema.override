@@ -2,8 +2,8 @@
 clock-show-weekday=false
 clock-show-date=false
 
-[org.gnome.desktop.wm.preferences]
-button-layout='appmenu:'
+[org.gnome.desktop.session]
+idle-delay=60
 
 [org.gnome.desktop.a11y.applications]
 screen-keyboard-enabled=true
@@ -38,3 +38,6 @@ ambient-enabled=false
 
 [org.gnome.software]
 download-updates=false
+
+[org.gtk.Settings.Purism]
+is-phone=true
