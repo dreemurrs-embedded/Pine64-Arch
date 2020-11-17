@@ -1,0 +1,71 @@
+From f7dfc58c156044b9434f9d1800450e8b50a51dd2 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 19 Oct 2020 16:26:55 +0200
+Subject: [PATCH] category-page: Fix the UI template
+
+It was left broken by a previous commit.
+---
+ src/gs-category-page.ui | 19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
+
+diff --git a/src/gs-category-page.ui b/src/gs-category-page.ui
+index f37e8e377..df21469bf 100644
+--- a/src/gs-category-page.ui
++++ b/src/gs-category-page.ui
+@@ -104,8 +104,7 @@
+                                 <property name="margin_start">24</property>
+                                 <property name="margin_end">24</property>
+                                 <property name="margin_top">36</property>
+-                                <property name="row_spacing">12</property>
+-                                <property name="column_spacing">9</property>
++                                <property name="spacing">9</property>
+                                 <child>
+                                   <object class="GtkLabel" id="subcats_filter_label">
+                                     <property name="visible">True</property>
+@@ -116,10 +115,6 @@
+                                       <relation target="subcats_filter_button" type="label-for"/>
+                                     </accessibility>
+                                   </object>
+-                                  <packing>
+-                                    <property name="left_attach">0</property>
+-                                    <property name="top_attach">0</property>
+-                                  </packing>
+                                 </child>
+                                 <child>
+                                   <object class="GtkMenuButton" id="subcats_filter_button">
+@@ -159,10 +154,6 @@
+                                       <class name="text-button"/>
+                                     </style>
+                                   </object>
+-                                  <packing>
+-                                    <property name="left_attach">1</property>
+-                                    <property name="top_attach">0</property>
+-                                  </packing>
+                                 </child>
+                                 <child>
+                                   <object class="GtkLabel" id="subcats_sort_label">
+@@ -174,10 +165,6 @@
+                                       <relation target="subcats_sort_button" type="label-for"/>
+                                     </accessibility>
+                                   </object>
+-                                  <packing>
+-                                    <property name="left_attach">0</property>
+-                                    <property name="top_attach">1</property>
+-                                  </packing>
+                                 </child>
+                                 <child>
+                                   <object class="GtkMenuButton" id="subcats_sort_button">
+@@ -220,10 +207,6 @@
+                                       <class name="text-button"/>
+                                     </style>
+                                   </object>
+-                                  <packing>
+-                                    <property name="left_attach">1</property>
+-                                    <property name="top_attach">1</property>
+-                                  </packing>
+                                 </child>
+                               </object>
+                             </child>
+-- 
+2.26.2
+

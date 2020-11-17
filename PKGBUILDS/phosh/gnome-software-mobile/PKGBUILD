@@ -5,7 +5,7 @@
 
 pkgname=gnome-software-mobile
 pkgver=3.36.1
-pkgrel=1
+pkgrel=2
 pkgdesc="GNOME Software Tools - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-software"
 arch=(x86_64 armv7h aarch64)
@@ -14,11 +14,14 @@ makedepends=(appstream-glib gnome-desktop libpackagekit-glib flatpak fwupd ostre
              docbook-xsl git gobject-introspection gspell gtk-doc meson valgrind
              gnome-online-accounts libxmlb libhandy)
 _commit=abc45148c37fc511baacffd3c9c9bbeb65cc77d8
-source=(https://source.puri.sm/Librem5/gnome-software/-/archive/$_commit/gnome-software-$_commit.tar.bz2)
-sha256sums=('703867c44cc6ada9a7782be77aa19e000005e0723a3465dd730b67b879064043')
+source=(https://source.puri.sm/Librem5/gnome-software/-/archive/$_commit/gnome-software-$_commit.tar.bz2
+        f7dfc58c156044b9434f9d1800450e8b50a51dd2.patch)
+sha256sums=('703867c44cc6ada9a7782be77aa19e000005e0723a3465dd730b67b879064043'
+            'b77ab9802e587f4cf7c834c49950d2ca4e26f135494e43bb140b5ea3665d6cbf')
 
 prepare() {
   cd gnome-software-$_commit
+  patch -p1 < ../f7dfc58c156044b9434f9d1800450e8b50a51dd2.patch
 }
 
 build() {
