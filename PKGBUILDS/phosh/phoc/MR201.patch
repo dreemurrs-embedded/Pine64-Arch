@@ -1,0 +1,322 @@
+From 093ab9e0aafa6027d498697cd1d0b09c309cd42e Mon Sep 17 00:00:00 2001
+From: Clayton Craft <clayton@craftyguy.net>
+Date: Tue, 20 Oct 2020 15:42:17 -0700
+Subject: [PATCH 1/5] touch: emit g_signal on touch destroy
+
+---
+ src/touch.c | 29 +++++++++++++++++++++++++++++
+ src/touch.h |  2 +-
+ 2 files changed, 30 insertions(+), 1 deletion(-)
+
+diff --git a/src/touch.c b/src/touch.c
+index 766547b..ee6bf2f 100644
+--- a/src/touch.c
++++ b/src/touch.c
+@@ -28,6 +28,12 @@ enum {
+ };
+ static GParamSpec *props[PROP_LAST_PROP];
+ 
++enum {
++  TOUCH_DESTROY,
++  N_SIGNALS
++};
++static guint signals[N_SIGNALS] = { 0 };
++
+ static void
+ phoc_touch_set_property (GObject      *object,
+                          guint         property_id,
+@@ -87,15 +93,32 @@ phoc_touch_new (struct wlr_input_device *device, struct roots_seat *seat)
+                        NULL);
+ }
+ 
++static void
++handle_touch_destroy (struct wl_listener *listener, void *data)
++{
++  PhocTouch *self = wl_container_of (listener, self, touch_destroy);
++
++  g_signal_emit (self, signals[TOUCH_DESTROY], 0);
++}
++
+ static void
+ phoc_touch_constructed (GObject *object)
+ {
++  PhocTouch *self = PHOC_TOUCH (object);
++
++  self->touch_destroy.notify = handle_touch_destroy;
++  wl_signal_add (&self->device->events.destroy, &self->touch_destroy);
++
+   G_OBJECT_CLASS (phoc_touch_parent_class)->constructed (object);
+ }
+ 
+ static void
+ phoc_touch_finalize (GObject *object)
+ {
++  PhocTouch *self = PHOC_TOUCH (object);
++
++  wl_list_remove (&self->touch_destroy.link);
++
+   G_OBJECT_CLASS (phoc_touch_parent_class)->finalize (object);
+ }
+ 
+@@ -130,4 +153,10 @@ phoc_touch_class_init (PhocTouchClass *klass)
+       "The seat object",
+       G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY);
+   g_object_class_install_properties (object_class, PROP_LAST_PROP, props);
++
++  signals[TOUCH_DESTROY] = g_signal_new ("touch-destroyed",
++                                         G_TYPE_OBJECT,
++                                         G_SIGNAL_RUN_LAST,
++                                         0, NULL, NULL, NULL, G_TYPE_NONE, 0);
++
+ }
+diff --git a/src/touch.h b/src/touch.h
+index 13f6507..c22ee04 100644
+--- a/src/touch.h
++++ b/src/touch.h
+@@ -25,7 +25,7 @@ struct _PhocTouch {
+   GObject                  parent;
+ 
+   struct wl_list           link; // seat::touch
+-  struct wl_listener       device_destroy;
++  struct wl_listener       touch_destroy;
+   struct roots_seat       *seat;
+   struct wlr_input_device *device;
+ 
+-- 
+2.26.2
+
+
+From c96c99078db59d505d2e162761136215c82870e3 Mon Sep 17 00:00:00 2001
+From: Clayton Craft <clayton@craftyguy.net>
+Date: Tue, 20 Oct 2020 15:55:19 -0700
+Subject: [PATCH 2/5] seat: use touch-destroy signal from PhocTouch
+
+---
+ src/seat.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/src/seat.c b/src/seat.c
+index 0acc0ee..77a9134 100644
+--- a/src/seat.c
++++ b/src/seat.c
+@@ -907,13 +907,13 @@ static void seat_add_switch(struct roots_seat *seat,
+ 	wl_signal_add(&switch_device->device->switch_device->events.toggle, &switch_device->toggle);
+ }
+ 
+-static void handle_touch_destroy(struct wl_listener *listener, void *data) {
+-	PhocTouch *touch = wl_container_of(listener, touch, device_destroy);
++static void
++handle_touch_destroy(PhocTouch *touch)
++{
+ 	struct roots_seat *seat = touch->seat;
+ 
+ 	wl_list_remove(&touch->link);
+ 	wlr_cursor_detach_input_device(seat->cursor->cursor, touch->device);
+-	wl_list_remove(&touch->device_destroy.link);
+ 	g_object_unref (touch);
+ 
+ 	seat_update_capabilities(seat);
+@@ -925,8 +925,9 @@ static void seat_add_touch(struct roots_seat *seat,
+ 
+ 	wl_list_insert(&seat->touch, &touch->link);
+ 
+-	touch->device_destroy.notify = handle_touch_destroy;
+-	wl_signal_add(&touch->device->events.destroy, &touch->device_destroy);
++	g_signal_connect(touch, "touch-destroyed",
++			 G_CALLBACK (handle_touch_destroy),
++			 NULL);
+ 
+ 	wlr_cursor_attach_input_device(seat->cursor->cursor, device);
+ 	roots_seat_configure_cursor(seat);
+-- 
+2.26.2
+
+
+From 5747053f7199e2c9f1f802de157f1338c102e411 Mon Sep 17 00:00:00 2001
+From: Clayton Craft <clayton@craftyguy.net>
+Date: Sat, 17 Oct 2020 19:05:32 -0700
+Subject: [PATCH 3/5] desktop: add input_output_map hash for tracking mapping
+ of input-->output
+
+This will be used initially for touch input devices that are mapped to
+specific outputs, but could be used later for other input devices too.
+---
+ src/desktop.c | 22 ++++++++++++++++++++++
+ src/desktop.h |  1 +
+ 2 files changed, 23 insertions(+)
+
+diff --git a/src/desktop.c b/src/desktop.c
+index b9222ff..086e8a7 100644
+--- a/src/desktop.c
++++ b/src/desktop.c
+@@ -445,6 +445,21 @@ void handle_xwayland_ready(struct wl_listener *listener, void *data) {
+ static void
+ handle_output_destroy (PhocOutput *destroyed_output)
+ {
++	PhocDesktop *self = destroyed_output->desktop;
++	PhocOutput *output;
++	char *input_name;
++	GHashTableIter iter;
++	g_hash_table_iter_init (&iter, self->input_output_map);
++	while (g_hash_table_iter_next (&iter, (gpointer) &input_name,
++				       (gpointer) &output)){
++		if (destroyed_output == output){
++			g_debug ("Removing mapping for input device '%s' to output '%s'",
++				 input_name, output->wlr_output->name);
++			g_hash_table_remove (self->input_output_map, input_name);
++			break;
++		}
++
++	}
+ 	g_object_unref (destroyed_output);
+ }
+ 
+@@ -656,6 +671,9 @@ phoc_desktop_finalize (GObject *object)
+   g_clear_pointer (&self->phosh, phosh_destroy);
+   g_clear_pointer (&self->gtk_shell, phoc_gtk_shell_destroy);
+ 
++  g_hash_table_remove_all (self->input_output_map);
++  g_hash_table_unref (self->input_output_map);
++
+   G_OBJECT_CLASS (phoc_desktop_parent_class)->finalize (object);
+ }
+ 
+@@ -685,6 +703,10 @@ phoc_desktop_class_init (PhocDesktopClass *klass)
+ static void
+ phoc_desktop_init (PhocDesktop *self)
+ {
++  self->input_output_map = g_hash_table_new_full (g_str_hash,
++                                                  g_str_equal,
++                                                  g_free,
++                                                  NULL);
+ }
+ 
+ 
+diff --git a/src/desktop.h b/src/desktop.h
+index 4aff94b..3a64af6 100644
+--- a/src/desktop.h
++++ b/src/desktop.h
+@@ -111,6 +111,7 @@ struct _PhocDesktop {
+ 
+ 	GSettings *settings;
+ 	gboolean maximize, scale_to_fit;
++	GHashTable *input_output_map;
+ 
+ 	/* Protocols that upstreamable implementations */
+ 	struct phosh_private *phosh;
+-- 
+2.26.2
+
+
+From 0defbef128f736cf1040f2b5dc3ccb54eb580592 Mon Sep 17 00:00:00 2001
+From: Clayton Craft <clayton@craftyguy.net>
+Date: Tue, 20 Oct 2020 16:07:57 -0700
+Subject: [PATCH 4/5] seat: create mapping of touch devices to outputs
+
+---
+ src/seat.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/seat.c b/src/seat.c
+index 77a9134..d32cd6a 100644
+--- a/src/seat.c
++++ b/src/seat.c
+@@ -490,6 +490,12 @@ void roots_seat_configure_cursor(struct roots_seat *seat) {
+ 		wl_list_for_each(touch, &seat->touch, link) {
+ 			seat_set_device_output_mappings(seat, touch->device,
+ 				output);
++			g_debug("Added mapping for touch device '%s' to output '%s'",
++				touch->device->name,
++				output->wlr_output->name);
++			g_hash_table_insert (desktop->input_output_map,
++					     g_strdup (touch->device->name),
++					     output);
+ 		}
+ 	}
+ }
+@@ -911,7 +917,11 @@ static void
+ handle_touch_destroy(PhocTouch *touch)
+ {
+ 	struct roots_seat *seat = touch->seat;
++	PhocServer *server = phoc_server_get_default ();
++	PhocDesktop *desktop = server->desktop;
+ 
++	g_debug("Removing touch device: %s", touch->device->name);
++	g_hash_table_remove (desktop->input_output_map, touch->device->name);
+ 	wl_list_remove(&touch->link);
+ 	wlr_cursor_detach_input_device(seat->cursor->cursor, touch->device);
+ 	g_object_unref (touch);
+-- 
+2.26.2
+
+
+From 8b632f5293f391a4a7f8dcf4edcbd8c84677f003 Mon Sep 17 00:00:00 2001
+From: Clayton Craft <clayton@craftyguy.net>
+Date: Sun, 18 Oct 2020 13:15:10 -0700
+Subject: [PATCH 5/5] seat: disable touch events when mapped output is disabled
+
+---
+ src/seat.c | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/src/seat.c b/src/seat.c
+index d32cd6a..f0d5373 100644
+--- a/src/seat.c
++++ b/src/seat.c
+@@ -178,9 +178,16 @@ static void handle_touch_down(struct wl_listener *listener, void *data) {
+         PhocServer *server = phoc_server_get_default ();
+ 	struct roots_cursor *cursor =
+ 		wl_container_of(listener, cursor, touch_down);
++	struct wlr_event_touch_down *event = data;
+ 	PhocDesktop *desktop = server->desktop;
++	PhocOutput *output = g_hash_table_lookup (desktop->input_output_map,
++							   event->device->name);
++	if (output && !output->wlr_output->enabled) {
++		g_debug("Touch event ignored since output '%s' is disabled.",
++			output->wlr_output->name);
++		return;
++	}
+ 	wlr_idle_notify_activity(desktop->idle, cursor->seat->seat);
+-	struct wlr_event_touch_down *event = data;
+ 	roots_cursor_handle_touch_down(cursor, event);
+ }
+ 
+@@ -188,9 +195,16 @@ static void handle_touch_up(struct wl_listener *listener, void *data) {
+         PhocServer *server = phoc_server_get_default ();
+ 	struct roots_cursor *cursor =
+ 		wl_container_of(listener, cursor, touch_up);
++	struct wlr_event_touch_up *event = data;
+ 	PhocDesktop *desktop = server->desktop;
++	PhocOutput *output = g_hash_table_lookup (desktop->input_output_map,
++							   event->device->name);
++	if (output && !output->wlr_output->enabled) {
++		g_debug("Touch event ignored since output '%s' is disabled.",
++			output->wlr_output->name);
++		return;
++	}
+ 	wlr_idle_notify_activity(desktop->idle, cursor->seat->seat);
+-	struct wlr_event_touch_up *event = data;
+ 	roots_cursor_handle_touch_up(cursor, event);
+ }
+ 
+@@ -198,9 +212,16 @@ static void handle_touch_motion(struct wl_listener *listener, void *data) {
+         PhocServer *server = phoc_server_get_default ();
+ 	struct roots_cursor *cursor =
+ 		wl_container_of(listener, cursor, touch_motion);
++	struct wlr_event_touch_motion *event = data;
+ 	PhocDesktop *desktop = server->desktop;
++	PhocOutput *output = g_hash_table_lookup (desktop->input_output_map,
++							   event->device->name);
++	if (output && !output->wlr_output->enabled) {
++		g_debug("Touch event ignored since output '%s' is disabled.",
++			output->wlr_output->name);
++		return;
++	}
+ 	wlr_idle_notify_activity(desktop->idle, cursor->seat->seat);
+-	struct wlr_event_touch_motion *event = data;
+ 	roots_cursor_handle_touch_motion(cursor, event);
+ }
+ 
+-- 
+2.26.2
+
