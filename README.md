@@ -1,10 +1,10 @@
-# Arch Linux ARM for PinePhone/PineTab
+# Arch Linux ARM on Mobile
 
-This repository contains PKGBUILDs for running ALARM on the PinePhone/PineTab.
+This repository contains PKGBUILDS that makes Arch Linux ARM runs on mobile.
 
-Compiled rootfs images can be found in "Releases"
+Currently only supports PinePhone and PineTab. Images for these can be found [here](https://github.com/dreemurrs-embedded/Pine64-Arch/releases).
 
-## Come talk to us!
- * Discord: https://discord.gg/AvtdRJ3 (#archlinux-pinephone)
- * Matrix: #archlinux-pinephone:kde.org
+## Come and talk with us!
+ * Discord: https://discord.gg/AvtdRJ3 (#arch-on-mobile)
+ * Matrix: #archmobile:kde.org
  * Telegram: @archlinux_pinephone
