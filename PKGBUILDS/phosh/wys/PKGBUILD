@@ -1,14 +1,20 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=wys
-pkgver=0.1.9
-pkgrel=0
+pkgver=0.1.10
+pkgrel=1
 pkgdesc="A daemon to bring up and take down PulseAudio loopbacks for phone call audio"
 url="https://source.puri.sm/Librem5/wys"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('glib2' 'libpulse' 'modemmanager')
 makedepends=('meson' 'ninja')
-source=("https://source.puri.sm/Librem5/wys/-/archive/v$pkgver/wys-v$pkgver.tar.gz")
+source=("https://source.puri.sm/Librem5/wys/-/archive/v$pkgver/wys-v$pkgver.tar.gz"
+        0001-meson.build-bump-version-to-0.1.10.patch)
+
+prepare() {
+    cd $pkgname-v$pkgver
+    patch -p1 < ../0001-meson.build-bump-version-to-0.1.10.patch
+}
 
 build() {
     arch-meson $pkgname-v$pkgver output
@@ -20,4 +26,5 @@ package() {
     install -Dm644 $pkgname-v$pkgver/debian/wys.user-service "$pkgdir"/usr/lib/systemd/user/wys.service
 }
 
-md5sums=('f3ba168e2414dfd70de5ee077198fce3')
+md5sums=('6ee0d623e3a23212259077a50abd9c8b'
+         'bc39bbf1b79b3efd2e86aa3317b96c78')

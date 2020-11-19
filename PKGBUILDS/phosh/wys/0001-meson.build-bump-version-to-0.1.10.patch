@@ -1,0 +1,26 @@
+From 5954737ce632fe563f89d95ce9e3c53ecdaf961b Mon Sep 17 00:00:00 2001
+From: Danct12 <danct12@disroot.org>
+Date: Thu, 19 Nov 2020 10:32:33 +0700
+Subject: [PATCH] meson.build: bump version to 0.1.10
+
+Signed-off-by: Danct12 <danct12@disroot.org>
+---
+ meson.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index 5938cec..f7daa0b 100644
+--- a/meson.build
++++ b/meson.build
+@@ -22,7 +22,7 @@
+ project (
+   'wys',
+   'c',
+-  version : '0.1.7',
++  version : '0.1.10',
+   license : 'GPLv3+',
+   meson_version : '>= 0.42.0',
+   default_options :
+-- 
+2.29.2
+
