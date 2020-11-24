@@ -1,17 +1,18 @@
-From 01ecb54a716083cd0ed4873fde548809a56a0c64 Mon Sep 17 00:00:00 2001
+From efb598c52a4aaa0b9a7bc41c8e79d86f32ebfb72 Mon Sep 17 00:00:00 2001
 From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
 Date: Mon, 6 Apr 2020 17:58:57 +0200
-Subject: [PATCH] switch-on-port-available: activate the highest available port
+Subject: [PATCH 2/2] switch-on-port-available: activate the highest available
+ port
 
 ---
  src/modules/module-switch-on-port-available.c | 20 ++++++++++---------
  1 file changed, 11 insertions(+), 9 deletions(-)
 
 diff --git a/src/modules/module-switch-on-port-available.c b/src/modules/module-switch-on-port-available.c
-index 2fa7e4d62..867038583 100644
+index 9003d279c..80b5f073b 100644
 --- a/src/modules/module-switch-on-port-available.c
 +++ b/src/modules/module-switch-on-port-available.c
-@@ -371,19 +371,21 @@ static void handle_all_unavailable(pa_core *core) {
+@@ -404,19 +404,21 @@ static void handle_all_unavailable(pa_core *core) {
  static pa_device_port *new_sink_source(pa_hashmap *ports, const char *name) {
  
      void *state;
@@ -43,5 +44,5 @@ index 2fa7e4d62..867038583 100644
  
      pa_assert_se(p = pa_device_port_find_best(ports));
 -- 
-2.20.1
+2.29.2
 

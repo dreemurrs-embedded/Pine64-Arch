@@ -1,8 +1,8 @@
-From 5a8225d24a2b0e0fd333ec5bec2e36469fd902a8 Mon Sep 17 00:00:00 2001
+From 3519e9ad3d32310943e98d9e0754dd5234ab1cbe Mon Sep 17 00:00:00 2001
 From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
 Date: Mon, 6 Apr 2020 11:53:53 +0200
-Subject: [PATCH] switch-on-port-available: only switch profile if not selected
- by user
+Subject: [PATCH 1/2] switch-on-port-available: only switch profile if not
+ selected by user
 
 When switching to/from a newly available port, pulseaudio automatically
 switches to the preferred profile if not active. However, if the current
@@ -21,11 +21,11 @@ previously selected by the user.
 
 Signed-off-by: Arnaud Ferraris <arnaud.ferraris@collabora.com>
 ---
- src/modules/module-switch-on-port-available.c | 25 ++++++++++++-------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ src/modules/module-switch-on-port-available.c | 27 ++++++++++++-------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
 diff --git a/src/modules/module-switch-on-port-available.c b/src/modules/module-switch-on-port-available.c
-index 2fa7e4d62..49715a89a 100644
+index 84b856659..9003d279c 100644
 --- a/src/modules/module-switch-on-port-available.c
 +++ b/src/modules/module-switch-on-port-available.c
 @@ -35,6 +35,7 @@ PA_MODULE_VERSION(PACKAGE_VERSION);
@@ -79,9 +79,14 @@ index 2fa7e4d62..49715a89a 100644
      pa_assert(port);
  
      if (!port->card) {
-@@ -304,10 +308,10 @@ static pa_hook_result_t port_available_hook_callback(pa_core *c, pa_device_port
+@@ -329,14 +333,14 @@ static pa_hook_result_t port_available_hook_callback(pa_core *c, pa_device_port
+             break;
+         }
  
-     switch (port->available) {
+-        switch_to_port(port);
++        switch_to_port(port, u);
+         break;
+ 
      case PA_AVAILABLE_YES:
 -        switch_to_port(port);
 +        switch_to_port(port, u);
@@ -92,7 +97,7 @@ index 2fa7e4d62..49715a89a 100644
          break;
      default:
          break;
-@@ -508,9 +512,12 @@ static pa_hook_result_t card_profile_changed_callback(pa_core *core, pa_card *ca
+@@ -537,9 +541,12 @@ static pa_hook_result_t card_profile_changed_callback(pa_core *core, pa_card *ca
  
      /* This profile change wasn't initiated by the user, so it doesn't signal
       * a change in the user's port preferences. */
@@ -106,7 +111,7 @@ index 2fa7e4d62..49715a89a 100644
      update_preferred_input_port(card, old_profile, new_profile);
      update_preferred_output_port(card, old_profile, new_profile);
  
-@@ -554,7 +561,7 @@ int pa__init(pa_module*m) {
+@@ -583,7 +590,7 @@ int pa__init(pa_module*m) {
      pa_module_hook_connect(m, &m->core->hooks[PA_CORE_HOOK_SOURCE_NEW],
                             PA_HOOK_NORMAL, (pa_hook_cb_t) source_new_hook_callback, NULL);
      pa_module_hook_connect(m, &m->core->hooks[PA_CORE_HOOK_PORT_AVAILABLE_CHANGED],
@@ -116,5 +121,5 @@ index 2fa7e4d62..49715a89a 100644
                             PA_HOOK_LATE, (pa_hook_cb_t) card_profile_available_hook_callback, NULL);
      pa_module_hook_connect(m, &m->core->hooks[PA_CORE_HOOK_CARD_PUT],
 -- 
-2.20.1
+2.29.2
 
