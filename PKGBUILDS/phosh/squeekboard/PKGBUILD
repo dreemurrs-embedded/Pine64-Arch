@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=squeekboard
-pkgver=1.11.0
+pkgver=1.11.1
 pkgrel=1
 pkgdesc="The final Phosh keyboard"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -19,4 +19,4 @@ package() {
 	DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('5425fa322002061ae4b001fb516dde12')
+md5sums=('abb49626ca88c186735830738c75839b')
