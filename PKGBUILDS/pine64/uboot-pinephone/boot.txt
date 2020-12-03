@@ -1,18 +1,36 @@
-gpio set 98
+gpio set 98 # Enable vibrator
 
-part uuid ${devtype} ${devnum}:${distro_bootpart} uuid
-setenv kernel_addr_z 0x44080000
-
-setenv bootargs loglevel=4 console=${console} console=tty0 root=PARTUUID=${uuid} rw rootwait quiet bootsplash.bootfile=bootsplash-themes/danctnix/bootsplash
-
-if load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_z} /boot/Image.gz; then
-  unzip ${kernel_addr_z} ${kernel_addr_r}
-  gpio clear 98
-  if load ${devtype} ${devnum}:${distro_bootpart} ${fdt_addr_r} /boot/dtbs/${fdtfile}; then
-    if load ${devtype} ${devnum}:${distro_bootpart} ${ramdisk_addr_r} /boot/initramfs-linux.img; then
-      booti ${kernel_addr_r} ${ramdisk_addr_r}:${filesize} ${fdt_addr_r};
-    else
-      booti ${kernel_addr_r} - ${fdt_addr_r};
-    fi;
-  fi;
+if test ${mmc_bootdev} -eq 0; then
+	echo "Booting from SD"
+	setenv linux_mmcdev 0
+else
+	echo "Booting from eMMC"
+	setenv linux_mmcdev 2
 fi
+
+# If we have at least 2 partitions, then the 1st one is /boot, and / is #2
+if part size mmc ${mmc_bootdev} 2 none; then
+	setenv rootpart 2
+else
+	setenv rootpart 1
+	setenv bootdir "/boot"
+fi
+
+setenv bootargs loglevel=4 console=${console} console=tty0 root=/dev/mmcblk${linux_mmcdev}p${rootpart} rw rootwait quiet bootsplash.bootfile=bootsplash-themes/danctnix/bootsplash
+
+echo "Loading kernel..."
+load mmc ${mmc_bootdev}:1 ${ramdisk_addr_r} ${bootdir}/Image.gz
+
+echo "Uncompressing kernel..."
+unzip ${ramdisk_addr_r} ${kernel_addr_r}
+
+echo "Loading initramfs..."
+load mmc ${mmc_bootdev}:1 ${ramdisk_addr_r} ${bootdir}/initramfs-linux.img
+setenv ramdisk_size ${filesize}
+
+echo "Loading dtb..."
+load mmc ${mmc_bootdev}:1 ${fdt_addr_r} ${bootdir}/dtbs/${fdtfile}
+
+echo "Booting..."
+gpio clear 98 # Disable vibrator
+booti ${kernel_addr_r} ${ramdisk_addr_r}:0x${ramdisk_size} ${fdt_addr_r}
