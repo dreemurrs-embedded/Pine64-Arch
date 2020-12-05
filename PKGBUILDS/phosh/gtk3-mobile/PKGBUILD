@@ -4,7 +4,7 @@
 
 pkgname=gtk3-mobile
 pkgver=3.24.23
-pkgrel=4
+pkgrel=5
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -48,7 +48,9 @@ source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.
         0026-window-Disable-window-dragging-on-phones.patch
         0027-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
         0028-wayland-Emit-dummy-configure-event-when-resizing-whi.patch
-        0029-gestureswipe-Count-last-event-when-calculating-veloc.patch)
+        0029-gestureswipe-Count-last-event-when-calculating-veloc.patch
+        0030-events-Compress-touch-update-events.patch
+        0031-theme-Fix-message-dialog-styles.patch)
 sha256sums=('6e0527fd35b8c53025deca3400732848585c65876f7b0043c751e2ca5302ab7c'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
@@ -81,7 +83,9 @@ sha256sums=('6e0527fd35b8c53025deca3400732848585c65876f7b0043c751e2ca5302ab7c'
             'a4a5041ea6be644296e01f6469c4a2f7ba5f83a1763ac779d5d47b848e193dae'
             '9d62601ccec00abe793ee5a4e2b6db433ae7459fd0769786fa518ecb5175620a'
             '449e28c8ce7bfaf5431eaf6fde88332e3071c10bb17e8fad4c79a04fd41c5f05'
-            '2da927b3670d6b818e9137dbddfd56f60a9af5d2a3a574259eb558a06b50c935')
+            '2da927b3670d6b818e9137dbddfd56f60a9af5d2a3a574259eb558a06b50c935'
+            '7dc4f66d115dec74bf5affae180e5de5e299b47410b2532473b3fb8a34aee709'
+            '4e92107e6a16b0a1486e85e0dc49ea00db4acdba94e44634bfa50ad7fdf83173')
 
 prepare() {
   cd gtk-$_commit
@@ -121,6 +125,8 @@ prepare() {
   patch -p1 -N < ../0027-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
   patch -p1 -N < ../0028-wayland-Emit-dummy-configure-event-when-resizing-whi.patch
   patch -p1 -N < ../0029-gestureswipe-Count-last-event-when-calculating-veloc.patch
+  patch -p1 -N < ../0030-events-Compress-touch-update-events.patch
+  patch -p1 -N < ../0031-theme-Fix-message-dialog-styles.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
