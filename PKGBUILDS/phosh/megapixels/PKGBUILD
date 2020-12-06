@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=megapixels
-pkgver=0.12.0
+pkgver=0.13.1
 pkgrel=1
 pkgdesc="A camera app that deal with V4L2 request"
 url="https://git.sr.ht/~martijnbraam/megapixels"
@@ -10,7 +10,7 @@ depends=('glib2' 'gtk3' 'imagemagick' 'libraw')
 makedepends=('meson' 'ninja')
 replaces=('pinhole' 'gnome-camera')
 source=("https://git.sr.ht/~martijnbraam/megapixels/archive/${pkgver}.tar.gz")
-sha256sums=('0fda6992e669223329f901e8c7529278eac209e5ba8c1477d1583f68c0c62dc4')
+sha256sums=('2968ede5734b6356f48007ce77708ef7437294a964ec789977fe58226e2a53fd')
 
 build() {
     arch-meson $pkgname-$pkgver build
