@@ -3,7 +3,7 @@
 
 pkgname=anbox
 pkgver=0_git20201130
-pkgrel=1
+pkgrel=2
 arch=(x86_64 armv7h aarch64)
 url="http://anbox.io/"
 license=('GPL3')
