@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=powersupply
-pkgver=0.3.3
-pkgrel=0
+pkgver=0.4.0
+pkgrel=1
 pkgdesc="GTK3 tool for displaying battery and power info"
 url="https://gitlab.com/MartijnBraam/powersupply"
 arch=(any)
@@ -24,4 +24,4 @@ package() {
 		"$pkgdir"/usr/share/icons/hicolor/scalable/apps/nl.brixit.powersupply.svg
 }
 
-md5sums=('ff96d01b46d67eb67bb451d97b13417b')
+md5sums=('6b62ef62d525224c656657d62de17638')
