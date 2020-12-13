@@ -4,15 +4,15 @@
 # Contributor: Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
 
 _pkgname=geary
-_tag=3.36.0+5961+git7644e034-1pureos0
+_tag=v3.38.0.1-3pureos+librem5+byz1
 pkgname=$_pkgname-mobile
-pkgver=$(sed 's|[+\-]|.|g' <<< $_tag)
+pkgver=$(sed -e 's|[+\-]|.|g' -e 's/^.//' <<< $_tag)
 pkgrel=1
 pkgdesc='Purism mobile email client for the Phosh desktop'
 arch=(aarch64)
 url='https://source.puri.sm/Librem5/geary'
 license=(GPL3)
-depends=(cairo enchant folks gcr gdk-pixbuf2 glib2 gmime3 gnome-keyring gnome-online-accounts gspell gtk3 iso-codes libcanberra libhandy libgee libnotify libpeas libytnef libsecret libsoup libxml2 pango sqlite webkit2gtk)
+depends=(cairo enchant folks gcr gdk-pixbuf2 glib2 gmime3 gnome-keyring gnome-online-accounts gspell gtk3 iso-codes libcanberra libhandy libgee libnotify libpeas libytnef libsecret libsoup libxml2 pango sqlite webkit2gtk gsound)
 makedepends=(git appstream-glib gobject-introspection intltool itstool meson vala)
 source=("git+https://source.puri.sm/Librem5/geary.git#commit=pureos/$_tag")
 sha512sums=('SKIP')
