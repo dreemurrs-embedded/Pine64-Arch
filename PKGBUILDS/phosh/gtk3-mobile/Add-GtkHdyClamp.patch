@@ -1,23 +1,22 @@
-From 168ce2e83585a0b81d55ff821912ce72ce04144c Mon Sep 17 00:00:00 2001
 From: Alexander Mikhaylenko <alexm@gnome.org>
 Date: Wed, 14 Oct 2020 19:27:32 +0500
-Subject: [PATCH 11/29] Add GtkHdyClamp
+Subject: Add GtkHdyClamp
 
 This is imported from HdyLeaflet from libhandy 1.0.0.
 ---
  gtk/Makefile.am         |   2 +
  gtk/hdy-clamp-private.h |  31 +++
- gtk/hdy-clamp.c         | 566 ++++++++++++++++++++++++++++++++++++++++
+ gtk/hdy-clamp.c         | 566 ++++++++++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build         |   2 +
  4 files changed, 601 insertions(+)
  create mode 100644 gtk/hdy-clamp-private.h
  create mode 100644 gtk/hdy-clamp.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index b3d2f2b..1f494b4 100644
+index ad8ccab..f5281fe 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -611,6 +611,7 @@ gtk_private_h_sources =		\
+@@ -610,6 +610,7 @@ gtk_private_h_sources =		\
  	gdkpixbufutilsprivate.h \
  	hdy-animation-private.h	\
  	hdy-cairo-private.h	\
@@ -25,7 +24,7 @@ index b3d2f2b..1f494b4 100644
  	hdy-css-private.h	\
  	hdy-leaflet-private.h	\
  	hdy-navigation-direction-private.h	\
-@@ -999,6 +1000,7 @@ gtk_base_c_sources = 		\
+@@ -998,6 +999,7 @@ gtk_base_c_sources = 		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
  	hdy-animation.c	\
@@ -662,6 +661,3 @@ index e83a293..455e666 100644
    'hdy-css-private.h',
    'hdy-leaflet-private.h',
    'hdy-navigation-direction-private.h',
--- 
-2.29.2
-

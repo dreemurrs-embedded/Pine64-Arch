@@ -1,7 +1,6 @@
-From f7dbdd239b5eb86374c96b2cb0de0c46fccafaf1 Mon Sep 17 00:00:00 2001
 From: Mohammed Sadiq <sadiq@sadiqpk.org>
 Date: Thu, 27 Aug 2020 14:48:11 +0530
-Subject: [PATCH 15/29] gtkprivate: Add an API to check if phone
+Subject: gtkprivate: Add an API to check if phone
 
 ---
  gtk/gtkprivate.h | 21 +++++++++++++++++++++
@@ -39,6 +38,3 @@ index 9c0a35a..3aa34cb 100644
  G_END_DECLS
  
  #endif /* __GTK_PRIVATE_H__ */
--- 
-2.29.2
-

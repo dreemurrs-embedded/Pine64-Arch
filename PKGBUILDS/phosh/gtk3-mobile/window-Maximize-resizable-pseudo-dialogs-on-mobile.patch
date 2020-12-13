@@ -1,7 +1,6 @@
-From b2efcce35c13b87b93a509d29acf3187666b777c Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Thu, 11 Jul 2019 14:18:39 +0200
-Subject: [PATCH 22/29] window: Maximize resizable pseudo-dialogs on mobile
+Subject: window: Maximize resizable pseudo-dialogs on mobile
 
 This will make them look better on phone screens.
 ---
@@ -40,6 +39,3 @@ index d9c456e..371bcc6 100644
      gdk_window_maximize (gdk_window);
    else
      gdk_window_unmaximize (gdk_window);
--- 
-2.29.2
-

@@ -1,7 +1,6 @@
-From 7765105fabcdc7355a591b36f853f36349d73326 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Sat, 13 Jul 2019 10:39:21 +0200
-Subject: [PATCH 24/29] infobar: Move the action area below
+Subject: infobar: Move the action area below
 
 This will help the infobars fit on phone screens.
 
@@ -65,6 +64,3 @@ index 0b0eaf1..9463c64 100644
              </child>
            </object>
          </child>
--- 
-2.29.2
-

@@ -1,13 +1,12 @@
-From d56fa0bcc9e59d22788552b5923bd10ffd7e6b95 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Mon, 31 Aug 2020 10:40:14 +0200
-Subject: [PATCH 03/29] Add GtkHdyViewSwitcherBar
+Subject: Add GtkHdyViewSwitcherBar
 
 This is imported from HdyViewSwitcherBar from libhandy 1.0.0.
 ---
  gtk/Makefile.am                     |   3 +
- gtk/hdy-view-switcher-bar-private.h |  38 +++
- gtk/hdy-view-switcher-bar.c         | 398 ++++++++++++++++++++++++++++
+ gtk/hdy-view-switcher-bar-private.h |  38 ++++
+ gtk/hdy-view-switcher-bar.c         | 398 ++++++++++++++++++++++++++++++++++++
  gtk/meson.build                     |   2 +
  gtk/ui/hdy-view-switcher-bar.ui     |  20 ++
  5 files changed, 461 insertions(+)
@@ -16,10 +15,10 @@ This is imported from HdyViewSwitcherBar from libhandy 1.0.0.
  create mode 100644 gtk/ui/hdy-view-switcher-bar.ui
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 3f8fd45..20b8d01 100644
+index 1e7f108..12cba66 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -604,6 +604,7 @@ gtk_private_h_sources =		\
+@@ -603,6 +603,7 @@ gtk_private_h_sources =		\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
  	hdy-css-private.h	\
@@ -27,7 +26,7 @@ index 3f8fd45..20b8d01 100644
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
  	open-type-layout.h	\
-@@ -983,6 +984,7 @@ gtk_base_c_sources = 		\
+@@ -982,6 +983,7 @@ gtk_base_c_sources = 		\
  	gdkpixbufutils.c	\
  	hdy-css.c	\
  	hdy-view-switcher.c	\
@@ -35,7 +34,7 @@ index 3f8fd45..20b8d01 100644
  	hdy-view-switcher-button.c	\
  	language-names.c	\
  	script-names.c
-@@ -1246,6 +1248,7 @@ templates =				\
+@@ -1243,6 +1245,7 @@ templates =				\
  	ui/gtktooltipwindow.ui		\
  	ui/gtkvolumebutton.ui		\
  	ui/gtksidebarrow.ui		\
@@ -537,6 +536,3 @@ index 0000000..42246e8
 +    </child>
 +  </template>
 +</interface>
--- 
-2.29.2
-

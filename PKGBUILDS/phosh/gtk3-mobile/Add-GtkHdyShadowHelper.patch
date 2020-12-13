@@ -1,23 +1,22 @@
-From 434940b49ee67c6b51ad22c060c5089a0ca0eb33 Mon Sep 17 00:00:00 2001
 From: Alexander Mikhaylenko <alexm@gnome.org>
 Date: Wed, 14 Oct 2020 16:05:39 +0500
-Subject: [PATCH 06/29] Add GtkHdyShadowHelper
+Subject: Add GtkHdyShadowHelper
 
-This is imported from HdyShadowHelper from libhandy 1.0.0.
+This is imported from HdyShadowHelper from libhandy 1.0.2.
 ---
  gtk/Makefile.am                 |   2 +
- gtk/hdy-shadow-helper-private.h |  37 +++
- gtk/hdy-shadow-helper.c         | 450 ++++++++++++++++++++++++++++++++
+ gtk/hdy-shadow-helper-private.h |  37 ++++
+ gtk/hdy-shadow-helper.c         | 453 ++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build                 |   2 +
- 4 files changed, 491 insertions(+)
+ 4 files changed, 494 insertions(+)
  create mode 100644 gtk/hdy-shadow-helper-private.h
  create mode 100644 gtk/hdy-shadow-helper.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 0c7ebcb..84ef4ab 100644
+index 96d8c10..ff8a255 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -607,6 +607,7 @@ gtk_private_h_sources =		\
+@@ -606,6 +606,7 @@ gtk_private_h_sources =		\
  	hdy-animation-private.h	\
  	hdy-cairo-private.h	\
  	hdy-css-private.h	\
@@ -25,7 +24,7 @@ index 0c7ebcb..84ef4ab 100644
  	hdy-squeezer-private.h	\
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
-@@ -990,6 +991,7 @@ gtk_base_c_sources = 		\
+@@ -989,6 +990,7 @@ gtk_base_c_sources = 		\
  	hdy-animation.c	\
  	hdy-css.c	\
  	hdy-squeezer.c	\
@@ -78,10 +77,10 @@ index 0000000..1b34ddb
 +G_END_DECLS
 diff --git a/gtk/hdy-shadow-helper.c b/gtk/hdy-shadow-helper.c
 new file mode 100644
-index 0000000..22dec0f
+index 0000000..d0fe194
 --- /dev/null
 +++ b/gtk/hdy-shadow-helper.c
-@@ -0,0 +1,450 @@
+@@ -0,0 +1,453 @@
 +/*
 + * Copyright (C) 2019 Alexander Mikhaylenko <exalm7659@gmail.com>
 + *
@@ -204,12 +203,15 @@ index 0000000..22dec0f
 +static cairo_pattern_t *
 +create_element_pattern (GtkStyleContext *context,
 +                        gint             width,
-+                        gint             height)
++                        gint             height,
++                        gint             scale)
 +{
 +  g_autoptr (cairo_surface_t) surface =
-+    cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
++    cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width * scale, height * scale);
 +  g_autoptr (cairo_t) cr = cairo_create (surface);
 +  cairo_pattern_t *pattern;
++
++  cairo_surface_set_device_scale (surface, scale, scale);
 +
 +  gtk_render_background (context, cr, 0, 0, width, height);
 +  gtk_render_frame (context, cr, 0, 0, width, height);
@@ -251,15 +253,15 @@ index 0000000..22dec0f
 +  border_size = get_element_size (border_context, direction);
 +  outline_size = get_element_size (outline_context, direction);
 +
-+  self->dimming_pattern = create_element_pattern (dim_context, width, height);
++  self->dimming_pattern = create_element_pattern (dim_context, width, height, scale);
 +  if (direction == GTK_PAN_DIRECTION_LEFT || direction == GTK_PAN_DIRECTION_RIGHT) {
-+    self->shadow_pattern = create_element_pattern (shadow_context, shadow_size, height);
-+    self->border_pattern = create_element_pattern (border_context, border_size, height);
-+    self->outline_pattern = create_element_pattern (outline_context, outline_size, height);
++    self->shadow_pattern = create_element_pattern (shadow_context, shadow_size, height, scale);
++    self->border_pattern = create_element_pattern (border_context, border_size, height, scale);
++    self->outline_pattern = create_element_pattern (outline_context, outline_size, height, scale);
 +  } else {
-+    self->shadow_pattern = create_element_pattern (shadow_context, width, shadow_size);
-+    self->border_pattern = create_element_pattern (border_context, width, border_size);
-+    self->outline_pattern = create_element_pattern (outline_context, width, outline_size);
++    self->shadow_pattern = create_element_pattern (shadow_context, width, shadow_size, scale);
++    self->border_pattern = create_element_pattern (border_context, width, border_size, scale);
++    self->outline_pattern = create_element_pattern (outline_context, width, outline_size, scale);
 +  }
 +
 +  self->border_size = border_size;
@@ -552,6 +554,3 @@ index 065140e..580be08 100644
    'hdy-squeezer-private.h',
    'hdy-view-switcher-bar-private.h',
    'hdy-view-switcher-button-private.h',
--- 
-2.29.2
-

@@ -1,21 +1,20 @@
-From 01e2b2f87e5baa239313733e7c34511c4a0c64ff Mon Sep 17 00:00:00 2001
 From: Alexander Mikhaylenko <alexm@gnome.org>
 Date: Wed, 14 Oct 2020 17:28:02 +0500
-Subject: [PATCH 09/29] Add GtkHdyStackableBox
+Subject: Add GtkHdyStackableBox
 
-This is imported from HdyStackableBox from libhandy 1.0.1.
+This is imported from HdyStackableBox from libhandy 1.0.2.
 ---
  gtk/Makefile.am                 |    3 +
  gtk/gtkprivate.h                |    1 +
  gtk/hdy-stackable-box-private.h |  135 ++
- gtk/hdy-stackable-box.c         | 3154 +++++++++++++++++++++++++++++++
+ gtk/hdy-stackable-box.c         | 3154 +++++++++++++++++++++++++++++++++++++++
  gtk/meson.build                 |    2 +
  5 files changed, 3295 insertions(+)
  create mode 100644 gtk/hdy-stackable-box-private.h
  create mode 100644 gtk/hdy-stackable-box.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index f90b5be..5bf91c9 100644
+index 09c47c0..c17a325 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -366,6 +366,7 @@ gtk_private_type_h_sources =	\
@@ -26,7 +25,7 @@ index f90b5be..5bf91c9 100644
  	hdy-swipeable-private.h \
  	hdy-swipe-tracker-private.h \
  	hdy-view-switcher-private.h
-@@ -613,6 +614,7 @@ gtk_private_h_sources =		\
+@@ -612,6 +613,7 @@ gtk_private_h_sources =		\
  	hdy-navigation-direction-private.h	\
  	hdy-shadow-helper-private.h	\
  	hdy-squeezer-private.h	\
@@ -34,7 +33,7 @@ index f90b5be..5bf91c9 100644
  	hdy-swipeable-private.h \
  	hdy-swipe-tracker-private.h \
  	hdy-view-switcher-bar-private.h	\
-@@ -999,6 +1001,7 @@ gtk_base_c_sources = 		\
+@@ -998,6 +1000,7 @@ gtk_base_c_sources = 		\
  	hdy-navigation-direction.c	\
  	hdy-squeezer.c	\
  	hdy-shadow-helper.c	\
@@ -197,7 +196,7 @@ index 0000000..64f07df
 +G_END_DECLS
 diff --git a/gtk/hdy-stackable-box.c b/gtk/hdy-stackable-box.c
 new file mode 100644
-index 0000000..f525d2a
+index 0000000..55a737b
 --- /dev/null
 +++ b/gtk/hdy-stackable-box.c
 @@ -0,0 +1,3154 @@
@@ -278,7 +277,7 @@ index 0000000..f525d2a
 +#define GTK_HDY_FOLD_FOLDED TRUE
 +#define GTK_HDY_FOLD_MAX 2
 +#define GTK_ORIENTATION_MAX 2
-+#define GTK_HDY_SWIPE_BORDER 16
++#define GTK_HDY_SWIPE_BORDER 32
 +
 +typedef struct _GtkHdyStackableBoxChildInfo GtkHdyStackableBoxChildInfo;
 +
@@ -3375,6 +3374,3 @@ index c3d5edc..9d89b56 100644
    'hdy-swipeable-private.h',
    'hdy-swipe-tracker-private.h',
    'hdy-view-switcher-bar-private.h',
--- 
-2.29.2
-

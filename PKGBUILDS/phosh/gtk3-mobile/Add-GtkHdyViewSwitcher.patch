@@ -1,7 +1,6 @@
-From 277e7c73e2acc3f19e7ea629e3db93a661fbad6c Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Mon, 31 Aug 2020 10:40:08 +0200
-Subject: [PATCH 02/29] Add GtkHdyViewSwitcher
+Subject: Add GtkHdyViewSwitcher
 
 This is imported from HdyViewSwitcher from libhandy 1.0.1.
 ---
@@ -9,8 +8,8 @@ This is imported from HdyViewSwitcher from libhandy 1.0.1.
  gtk/gtkprivate.h                |   1 +
  gtk/hdy-css-private.h           |  25 ++
  gtk/hdy-css.c                   |  74 ++++
- gtk/hdy-view-switcher-private.h |  43 ++
- gtk/hdy-view-switcher.c         | 733 ++++++++++++++++++++++++++++++++
+ gtk/hdy-view-switcher-private.h |  43 +++
+ gtk/hdy-view-switcher.c         | 733 ++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build                 |   4 +
  7 files changed, 886 insertions(+), 1 deletion(-)
  create mode 100644 gtk/hdy-css-private.h
@@ -19,7 +18,7 @@ This is imported from HdyViewSwitcher from libhandy 1.0.1.
  create mode 100644 gtk/hdy-view-switcher.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 2f7765d..3f8fd45 100644
+index a0717b9..1e7f108 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -363,7 +363,8 @@ gtk_semi_private_h_sources = \
@@ -32,7 +31,7 @@ index 2f7765d..3f8fd45 100644
  
  
  # GTK+ header files that don't get installed
-@@ -602,7 +603,9 @@ gtk_private_h_sources =		\
+@@ -601,7 +602,9 @@ gtk_private_h_sources =		\
  	gtkwindowprivate.h	\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
@@ -42,7 +41,7 @@ index 2f7765d..3f8fd45 100644
  	open-type-layout.h	\
  	language-names.h	\
  	script-names.h
-@@ -978,6 +981,8 @@ gtk_base_c_sources = 		\
+@@ -977,6 +980,8 @@ gtk_base_c_sources = 		\
  	gtkwin32draw.c		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
@@ -986,6 +985,3 @@ index 71c85dc..0e7e7f2 100644
  )
  
  gtk_gir_public_headers = files(
--- 
-2.29.2
-

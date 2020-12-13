@@ -3,8 +3,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.23
-pkgrel=5
+pkgver=3.24.24
+pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -15,118 +15,112 @@ depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2 d
 makedepends=(gobject-introspection gtk-doc git glib2-docs sassc)
 license=(LGPL)
 install=gtk3.install
-_commit=016e8c55ab924c9ef4d32c8cb06253b1dc1be60d  # tags/3.24.23^0
+_commit=de8329b3ce4b235eac9ddcbb6cd121cc83dd9e74  # tags/3.24.24^0
 source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.bz2"
         settings.ini
         gtk-query-immodules-3.0.hook
-        0001-gtkplacessidebar-Disconnect-and-unref-cloud_manager-.patch
-        0001-Add-GtkHdyViewSwitcherButton.patch
-        0002-Add-GtkHdyViewSwitcher.patch
-        0003-Add-GtkHdyViewSwitcherBar.patch
-        0004-Add-GtkHdySqueezer.patch
-        0005-Add-GtkHdyViewSwitcherTitle.patch
-        0006-Add-GtkHdyShadowHelper.patch
-        0007-Add-GtkHdyNavigationDirection.patch
-        0008-Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
-        0009-Add-GtkHdyStackableBox.patch
-        0010-Add-GtkHdyLeaflet.patch
-        0011-Add-GtkHdyClamp.patch
-        0012-theme-Add-libhandy-styles.patch
-        0013-Add-padding-for-HdyViewSwitcherTitle.patch
-        0014-Add-org.gtk.Settings.Purism.patch
-        0015-gtkprivate-Add-an-API-to-check-if-phone.patch
-        0016-aboutdialog-Port-to-phones.patch
-        0017-Add-the-view-sidebar-symbolic-icon.patch
-        0018-Port-file-chooser-to-phones.patch
-        0019-messagedialog-Set-orientation-based-on-device.patch
-        0020-scrolledwindow-Set-deceleration-value-based-on-the-d.patch
-        0021-dialog-Maximize-resizable-dialogs-on-phones.patch
-        0022-window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
-        0023-headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
-        0024-infobar-Move-the-action-area-below.patch
-        0025-Reduce-the-font-chooser-minimum-size.patch
-        0026-window-Disable-window-dragging-on-phones.patch
-        0027-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
-        0028-wayland-Emit-dummy-configure-event-when-resizing-whi.patch
-        0029-gestureswipe-Count-last-event-when-calculating-veloc.patch
-        0030-events-Compress-touch-update-events.patch
-        0031-theme-Fix-message-dialog-styles.patch)
-sha256sums=('6e0527fd35b8c53025deca3400732848585c65876f7b0043c751e2ca5302ab7c'
+        aboutdialog-Port-to-phones.patch
+        Add-GtkHdyClamp.patch
+        Add-GtkHdyLeaflet.patch
+        Add-GtkHdyNavigationDirection.patch
+        Add-GtkHdyShadowHelper.patch
+        Add-GtkHdySqueezer.patch
+        Add-GtkHdyStackableBox.patch
+        Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
+        Add-GtkHdyViewSwitcherBar.patch
+        Add-GtkHdyViewSwitcherButton.patch
+        Add-GtkHdyViewSwitcher.patch
+        Add-GtkHdyViewSwitcherTitle.patch
+        Add-org.gtk.Settings.Purism.patch
+        Add-padding-for-HdyViewSwitcherTitle.patch
+        Add-the-view-sidebar-symbolic-icon.patch
+        demos-examples-tests-Don-t-distribute-built-files.patch
+        dialog-Maximize-resizable-dialogs-on-phones.patch
+        events-Compress-touch-update-events.patch
+        gdk-Don-t-distribute-generated-files-in-tarballs.patch
+        gtkprivate-Add-an-API-to-check-if-phone.patch
+        gtk-Really-don-t-distribute-built-files.patch
+        headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
+        infobar-Move-the-action-area-below.patch
+        librem5-Drop-reftests.patch
+        messagedialog-Set-orientation-based-on-device.patch
+        Port-file-chooser-to-phones.patch
+        Reduce-the-font-chooser-minimum-size.patch
+        scrolledwindow-Set-deceleration-value-based-on-the-device.patch
+        theme-Add-libhandy-styles.patch
+        window-Don-t-allow-window-dragging-on-phones.patch
+        window-Maximize-resizable-pseudo-dialogs-on-mobile.patch)
+sha256sums=('c3cfdc9871eccf84ada47b73f060450eae9183dda1e6e296311a49a997cec23e'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
-            'd6f6bf347482553bc20a1640c1619f674520b853a5b2ade9fd56bb77bfdfe170'
-            '3b44d526e32c744f8b84e059c4b5c4f7505048f649e19f75430ee7fe4c58d964'
-            '9e2e0089737a25cfc9a332e82ee79a5efa44b5a04160e71ade3f32eca3857866'
-            '47bd2d79fb5a57caed5497d46c4c55a7732d2cb47257839f41d5ea3091734dea'
-            'c5636c88aef03081d98254c94939778f4267539d8229aa54f9ab3a34deae7bc6'
-            '17e0e9a243b3dc5ea6373718ce761a0e934fbd1b81491a052d5810ecc20577d8'
-            'a67a266311e057cef4c4722e0d2fbae10257f916e2517393dde321126f385943'
-            'e2c1de75ccedfe582d15d8fcb7fb3199a9f4b983aa76485e36f2ea240db8e84b'
-            '599bb4761078fe981be6ffbaf3b67524568b96adab45d88675aa3688d7868305'
-            '97de49403723a7b046cfadff470ad3cee190774618b02260df5c8ee77e7006e6'
-            '0e799dd158c19ba17b64ddc7af7ea35179a0852b0c1c2eb82e0526d43b80e7e4'
-            '08a0b5ac1034604ca16df2fa766067bbb8591eecf16f99f65c2734aeb3b82308'
-            'f0495f0e571614730a9df426745de1bb233fe973bf1723849f6d218979d47c2e'
-            '25c5ec5c8566966230a0446054aea8794ebec15374f59ace58d9a0a9c268f15f'
-            '8d801534c0e043363dfbb774fc7155117e15451a6e7b8a5cb4d3925e99fdaf74'
-            '3b45203f3996fa51a6ee40891f816379eebb6dc876f11581a37d6ab28141b5a1'
-            'b4761e3cb670b1ab8293722a46014cbdaca956fbf128ec54ef60a9cb9203a25b'
-            '37a7743e3d328984666928c237f40b5f10bb27252d2adaa623b80d40ac0455fa'
-            '950ec0b7f1d875d3e808eb2d66a642d7550424f164b94d3ac75796f12ab09708'
-            '81b6047d1fff165e462a5fefba40c3783042b82139f4dabc8b64986bd567e4e0'
-            'e311e6261e72226e1ddfd9a8c9fd418e982d2232be17b8e6ff1111dcf6582374'
-            '6307348853e02e9176905f46c7a21cb18a838844b148107b1c4f89c66036a1ca'
-            '5a4aa92ac9636ebed7f50c97b35653281a0b0f6d460d0b152c64cc6e9ae8d086'
-            '2e4893a589e05ed5537c385878e20b530433b0c286f2be3deecfb3b8eb11be4e'
-            'b1b122d1fc07f0f5d7812e1876bd5b9de3974231e501b0e25792fb22b3c9ef87'
-            'f9ae62b754624de1adc55531c0f88effeb6e65a339ce31ac8a7ed2c24db1c0ff'
-            'a4a5041ea6be644296e01f6469c4a2f7ba5f83a1763ac779d5d47b848e193dae'
-            '9d62601ccec00abe793ee5a4e2b6db433ae7459fd0769786fa518ecb5175620a'
-            '449e28c8ce7bfaf5431eaf6fde88332e3071c10bb17e8fad4c79a04fd41c5f05'
-            '2da927b3670d6b818e9137dbddfd56f60a9af5d2a3a574259eb558a06b50c935'
+            'f5a46311e324a21ba84378f7afcf84a6b63bf30863f87819082abaf69e07ffea'
+            '055702d2855d6f595551abf4dfd2f33166ce58a115aa6d82d95c87cbf759ad9f'
+            '738b36e213fdab145fa78df7d4c31b8d6f5ec62d5cf4fec846b970643950c4ac'
+            'f252da6b99f004ee7264d68e7a401badcdd1bbeea6f7407b60e4cfc6d08ffb44'
+            'cff8e0b66daf93a6d5b4d417b33e5e3f64932581ac2bfad6321a43b29e6756d7'
+            '91128e1f58d40bb3f82c5244a6a3a38b3aec2f32a735e0ec5bbb29345ec73dcf'
+            '33626ab49e7d214f014e70ac597ca3327878cf1c1fece7a4681a9a36a4403b24'
+            'a739aff24e3fe58c1e794a471056743f4b0ed8848b936e5ddd9078f0ebb890dc'
+            '0ab599df456629ae8769cc1f81e727264745ce5301ccf17fa4914c23a3d9f39b'
+            '669f3dec1fcee38ca7861b98f8e23a7b7478e0675bc10efeacc6b89f26b821b7'
+            '91eb025a859983815dc5587a6bb394fcb83c43c0bb765710383fd56200da5844'
+            '1717d0e5fa4329672b81c586cdd462baf9e1b0aba78d3d4d27b414ee129b350e'
+            'ffa4226a88ae1c9681fcf38724cad003716e6030509e0df8d5fb8f8ae5e8e82b'
+            'd4a44b1a7bb646b2232841372ab2f7f73b29b24f61bf8cbc6fd03d314d5bf55d'
+            '6311690f6a151ae310ad895909f1bb116fd341e7a0e3cc601a100f3e134a0847'
+            '68db37056d39785da655f680decbd669bd67a4f0b3861c2687a7c59e5a514ff9'
+            '2a19167711aa4acf675150401072686e3d5e2045c3611ded748d33a3495bdbbc'
             '7dc4f66d115dec74bf5affae180e5de5e299b47410b2532473b3fb8a34aee709'
-            '4e92107e6a16b0a1486e85e0dc49ea00db4acdba94e44634bfa50ad7fdf83173')
+            '842f5221aeeae82d0d86356dc4566bc6d57060819b57957da1c178fcab61b7c8'
+            'f21ea0945e68ad79fa833cc548e274c6dfa63ddbc5adb9fdbf0eec956a7ba435'
+            'bce0a688ba8efb4986d5e4cd756371eeaf0c40a756d9bf116db6a907336cf505'
+            'd54bddf36c652f75760ef35939d01300f3e8fda3bcc889a0d56a7be9bd2e9802'
+            '63b123a8f598a8405630a74edf8d41c31d6aad7120f8db42252ba9c1127599d9'
+            'eb23fd4fb6fdf355b3d9c8502772eb5bafc5a6c498de37b994d26354153d0c36'
+            '91d304378bd57e8b581b7982acca77f3385c2dad0ac0bdb31435b0315d32e3ae'
+            '88e7e4cab427440efcf099c1b97858a2e81385f4e2f37e758385c7a9061ba1ea'
+            '2e6b997431443c53449af401bc5d4a3645c55ba3268809cf5c28cdfbe98e379c'
+            '7c524fd9dc1d954bac76a0ec0f0b17b7e370f22e6243eaf1592b5c12b91fb060'
+            '2095abcc72a8776e12dc56e8627b0e953339664d5781c423abd6e12eed78fe1c'
+            '680a7de058d00f49ddac543392151502e9daca8f72a5ffd00543c4e93a9b6311'
+            '4298dbfb786d26162f3012b86975669a3538903eb8fc103c354385ca64dd0c15')
 
 prepare() {
   cd gtk-$_commit
 
-  # apply upstream arch patches
-  msg2 "Applying upstream Arch Linux patches"
-  patch -p1 -N < ../0001-gtkplacessidebar-Disconnect-and-unref-cloud_manager-.patch
-
   # apply phone patches
   msg2 "Applying Purism GTK patches"
-  patch -p1 -N < ../0001-Add-GtkHdyViewSwitcherButton.patch
-  patch -p1 -N < ../0002-Add-GtkHdyViewSwitcher.patch
-  patch -p1 -N < ../0003-Add-GtkHdyViewSwitcherBar.patch
-  patch -p1 -N < ../0004-Add-GtkHdySqueezer.patch
-  patch -p1 -N < ../0005-Add-GtkHdyViewSwitcherTitle.patch
-  patch -p1 -N < ../0006-Add-GtkHdyShadowHelper.patch
-  patch -p1 -N < ../0007-Add-GtkHdyNavigationDirection.patch
-  patch -p1 -N < ../0008-Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
-  patch -p1 -N < ../0009-Add-GtkHdyStackableBox.patch
-  patch -p1 -N < ../0010-Add-GtkHdyLeaflet.patch
-  patch -p1 -N < ../0011-Add-GtkHdyClamp.patch
-  patch -p1 -N < ../0012-theme-Add-libhandy-styles.patch
-  patch -p1 -N < ../0013-Add-padding-for-HdyViewSwitcherTitle.patch
-  patch -p1 -N < ../0014-Add-org.gtk.Settings.Purism.patch
-  patch -p1 -N < ../0015-gtkprivate-Add-an-API-to-check-if-phone.patch
-  patch -p1 -N < ../0016-aboutdialog-Port-to-phones.patch
-  patch -p1 -N < ../0017-Add-the-view-sidebar-symbolic-icon.patch
-  patch -p1 -N < ../0018-Port-file-chooser-to-phones.patch
-  patch -p1 -N < ../0019-messagedialog-Set-orientation-based-on-device.patch
-  patch -p1 -N < ../0020-scrolledwindow-Set-deceleration-value-based-on-the-d.patch
-  patch -p1 -N < ../0021-dialog-Maximize-resizable-dialogs-on-phones.patch
-  patch -p1 -N < ../0022-window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
-  patch -p1 -N < ../0023-headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
-  patch -p1 -N < ../0024-infobar-Move-the-action-area-below.patch
-  patch -p1 -N < ../0025-Reduce-the-font-chooser-minimum-size.patch
-  patch -p1 -N < ../0026-window-Disable-window-dragging-on-phones.patch
-  patch -p1 -N < ../0027-gtkapplication-dbus-Initialise-screensaver-active-pr.patch
-  patch -p1 -N < ../0028-wayland-Emit-dummy-configure-event-when-resizing-whi.patch
-  patch -p1 -N < ../0029-gestureswipe-Count-last-event-when-calculating-veloc.patch
-  patch -p1 -N < ../0030-events-Compress-touch-update-events.patch
-  patch -p1 -N < ../0031-theme-Fix-message-dialog-styles.patch
+  patch -p1 -N < ../gdk-Don-t-distribute-generated-files-in-tarballs.patch
+  patch -p1 -N < ../gtk-Really-don-t-distribute-built-files.patch
+  patch -p1 -N < ../demos-examples-tests-Don-t-distribute-built-files.patch
+  patch -p1 -N < ../librem5-Drop-reftests.patch
+  patch -p1 -N < ../Add-GtkHdyViewSwitcherButton.patch
+  patch -p1 -N < ../Add-GtkHdyViewSwitcher.patch
+  patch -p1 -N < ../Add-GtkHdyViewSwitcherBar.patch
+  patch -p1 -N < ../Add-GtkHdySqueezer.patch
+  patch -p1 -N < ../Add-GtkHdyViewSwitcherTitle.patch
+  patch -p1 -N < ../Add-GtkHdyShadowHelper.patch
+  patch -p1 -N < ../Add-GtkHdyNavigationDirection.patch
+  patch -p1 -N < ../Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
+  patch -p1 -N < ../Add-GtkHdyStackableBox.patch
+  patch -p1 -N < ../Add-GtkHdyLeaflet.patch
+  patch -p1 -N < ../Add-GtkHdyClamp.patch
+  patch -p1 -N < ../theme-Add-libhandy-styles.patch
+  patch -p1 -N < ../Add-padding-for-HdyViewSwitcherTitle.patch
+  patch -p1 -N < ../Add-org.gtk.Settings.Purism.patch
+  patch -p1 -N < ../gtkprivate-Add-an-API-to-check-if-phone.patch
+  patch -p1 -N < ../aboutdialog-Port-to-phones.patch
+  patch -p1 -N < ../Add-the-view-sidebar-symbolic-icon.patch
+  patch -p1 -N < ../Port-file-chooser-to-phones.patch
+  patch -p1 -N < ../messagedialog-Set-orientation-based-on-device.patch
+  patch -p1 -N < ../scrolledwindow-Set-deceleration-value-based-on-the-device.patch
+  patch -p1 -N < ../dialog-Maximize-resizable-dialogs-on-phones.patch
+  patch -p1 -N < ../window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
+  patch -p1 -N < ../headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
+  patch -p1 -N < ../infobar-Move-the-action-area-below.patch
+  patch -p1 -N < ../Reduce-the-font-chooser-minimum-size.patch
+  patch -p1 -N < ../window-Don-t-allow-window-dragging-on-phones.patch
+  patch -p1 -N < ../events-Compress-touch-update-events.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }

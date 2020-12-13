@@ -1,7 +1,6 @@
-From 2639ee39710a9d9e4f12695ac3904c20274165d7 Mon Sep 17 00:00:00 2001
 From: Mohammed Sadiq <sadiq@sadiqpk.org>
 Date: Thu, 27 Aug 2020 14:45:07 +0530
-Subject: [PATCH 14/29] Add org.gtk.Settings.Purism
+Subject: Add org.gtk.Settings.Purism
 
 ---
  gtk/Makefile.am                         |  3 ++-
@@ -11,10 +10,10 @@ Subject: [PATCH 14/29] Add org.gtk.Settings.Purism
  create mode 100644 gtk/org.gtk.Settings.Purism.gschema.xml
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 1f494b4..0f43203 100644
+index f5281fe..253f983 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -1789,7 +1789,8 @@ gsettings_SCHEMAS = \
+@@ -1788,7 +1788,8 @@ gsettings_SCHEMAS = \
  	org.gtk.Settings.FileChooser.gschema.xml \
  	org.gtk.Settings.ColorChooser.gschema.xml \
  	org.gtk.Settings.EmojiChooser.gschema.xml \
@@ -60,6 +59,3 @@ index 0000000..f5637dd
 +  </schema>
 +
 +</schemalist>
--- 
-2.29.2
-

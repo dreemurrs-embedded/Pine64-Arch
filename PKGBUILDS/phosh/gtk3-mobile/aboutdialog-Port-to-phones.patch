@@ -1,7 +1,6 @@
-From 026f71899e7b422a33be8f03e12bae376ce43afc Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Mon, 28 Jan 2019 18:52:40 +0100
-Subject: [PATCH 16/29] aboutdialog: Port to phones
+Subject: aboutdialog: Port to phones
 
 ---
  gtk/gtkaboutdialog.c     | 22 ++++++++++++++++------
@@ -185,6 +184,3 @@ index 31bb628..7d3d2a5 100644
        </object>
      </child>
    </template>
--- 
-2.29.2
-

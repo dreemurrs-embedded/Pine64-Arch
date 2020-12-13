@@ -1,7 +1,6 @@
-From b75b63120fcb5df783187a56e3ab96fb06dd1df2 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Thu, 11 Jul 2019 10:44:14 +0200
-Subject: [PATCH 23/29] headerbar: Use a back button in dialogs on mobile
+Subject: headerbar: Use a back button in dialogs on mobile
 
 This will allow to drop the close buttons and make the dialogs and
 transient windows look like proper mobile dialogs.
@@ -70,6 +69,3 @@ index 0ef94e3..f405986 100644
  
                if (button)
                  {
--- 
-2.29.2
-

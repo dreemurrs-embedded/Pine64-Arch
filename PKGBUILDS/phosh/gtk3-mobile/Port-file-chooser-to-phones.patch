@@ -1,13 +1,12 @@
-From c593e292ad45f26244286fe0150a82d2b831f562 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Mon, 24 Jun 2019 15:52:36 +0200
-Subject: [PATCH 18/29] Port file chooser to phones
+Subject: Port file chooser to phones
 
 Fixes https://source.puri.sm/Librem5/Apps_Issues/issues/99.
 ---
  gtk/gtkfilechooserdialog.c     |   2 +-
- gtk/gtkfilechooserwidget.c     | 166 ++++++++++++++++++++++++++-------
- gtk/ui/gtkfilechooserwidget.ui |  61 +++++++++---
+ gtk/gtkfilechooserwidget.c     | 166 +++++++++++++++++++++++++++++++++--------
+ gtk/ui/gtkfilechooserwidget.ui |  61 ++++++++++++---
  gtk/ui/gtkplacesview.ui        |   3 +-
  4 files changed, 185 insertions(+), 47 deletions(-)
 
@@ -600,6 +599,3 @@ index 5ede590..ef2ba91 100644
                  <property name="placeholder-text" translatable="yes">Enter server address…</property>
                  <property name="secondary-icon-name">dialog-question-symbolic</property>
                  <property name="completion">address_entry_completion</property>
--- 
-2.29.2
-

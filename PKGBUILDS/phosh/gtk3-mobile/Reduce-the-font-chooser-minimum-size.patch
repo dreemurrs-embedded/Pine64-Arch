@@ -1,7 +1,6 @@
-From ecb5de47e3ed2fd3fa1e2871b70ab4ce3610deec Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Sun, 25 Aug 2019 10:20:31 +0200
-Subject: [PATCH 25/29] Reduce the font chooser minimum size
+Subject: Reduce the font chooser minimum size
 
 This helps GtkfontChooserDialog fitting in mobile phone screens.
 ---
@@ -37,6 +36,3 @@ index 2d39200..074f233 100644
                          <property name="can-focus">1</property>
                          <property name="hexpand">1</property>
                          <property name="vexpand">1</property>
--- 
-2.29.2
-

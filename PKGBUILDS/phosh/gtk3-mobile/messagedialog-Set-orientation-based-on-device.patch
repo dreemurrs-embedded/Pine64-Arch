@@ -1,0 +1,181 @@
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 24 Jun 2019 14:49:07 +0200
+Subject: messagedialog: Set orientation based on device
+
+This makes the dialog work better with horizontally constrained screens.
+---
+ gtk/gtkmessagedialog.c                           |  7 +++++++
+ gtk/theme/Adwaita/_common.scss                   | 22 ++++++++++++++++++++--
+ gtk/theme/Adwaita/gtk-contained-dark.css         | 12 +++++++++---
+ gtk/theme/Adwaita/gtk-contained.css              | 12 +++++++++---
+ gtk/theme/HighContrast/gtk-contained-inverse.css | 12 +++++++++---
+ gtk/theme/HighContrast/gtk-contained.css         | 12 +++++++++---
+ 6 files changed, 63 insertions(+), 14 deletions(-)
+
+diff --git a/gtk/gtkmessagedialog.c b/gtk/gtkmessagedialog.c
+index e70c820..7d83345 100644
+--- a/gtk/gtkmessagedialog.c
++++ b/gtk/gtkmessagedialog.c
+@@ -36,6 +36,7 @@
+ #include "gtkimage.h"
+ #include "gtkintl.h"
+ #include "gtkprivate.h"
++#include "gtkorientable.h"
+ #include "gtktypebuiltins.h"
+ 
+ /**
+@@ -327,6 +328,12 @@ gtk_message_dialog_init (GtkMessageDialog *dialog)
+ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+   action_area = gtk_dialog_get_action_area (GTK_DIALOG (dialog));
+ G_GNUC_END_IGNORE_DEPRECATIONS
++
++  if (_gtk_get_is_phone ())
++    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_VERTICAL);
++  else
++    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_HORIZONTAL);
++
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (action_area), GTK_BUTTONBOX_EXPAND);
+ 
+   settings = gtk_widget_get_settings (GTK_WIDGET (dialog));
+diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
+index aa67595..e21ca84 100644
+--- a/gtk/theme/Adwaita/_common.scss
++++ b/gtk/theme/Adwaita/_common.scss
+@@ -3982,10 +3982,13 @@ messagedialog { // Message Dialog styling
+ 
+     .dialog-action-area button {
+       padding: 10px 14px; // labels are not vertically centered on message dialog, this is a workaround
+-      border-right-style: none;
+-      border-bottom-style: none;
+       border-radius: 0;
+       -gtk-outline-radius: 0;
++    }
++
++    .dialog-action-area.horizontal button {
++      border-right-style: none;
++      border-bottom-style: none;
+ 
+       &:first-child {
+         border-left-style: none;
+@@ -3998,6 +4001,21 @@ messagedialog { // Message Dialog styling
+         -gtk-outline-bottom-right-radius: $button_radius + 2;
+       }
+     }
++
++    .dialog-action-area.vertical button {
++      border-right-style: none;
++      border-left-style: none;
++      border-radius: 0;
++      -gtk-outline-radius: 0;
++
++      &:last-child {
++        border-bottom-style: none;
++        border-bottom-left-radius: $button_radius + 2;
++        border-bottom-right-radius: $button_radius + 2;
++        -gtk-outline-bottom-left-radius: $button_radius + 2;
++        -gtk-outline-bottom-right-radius: $button_radius + 2;
++      }
++    }
+   }
+ }
+ 
+diff --git a/gtk/theme/Adwaita/gtk-contained-dark.css b/gtk/theme/Adwaita/gtk-contained-dark.css
+index 79d2aab..4c7a442 100644
+--- a/gtk/theme/Adwaita/gtk-contained-dark.css
++++ b/gtk/theme/Adwaita/gtk-contained-dark.css
+@@ -1602,11 +1602,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
+ 
+ messagedialog.csd.background { border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; }
+ 
+-messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-right-style: none; border-bottom-style: none; border-radius: 0; -gtk-outline-radius: 0; }
++messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-radius: 0; -gtk-outline-radius: 0; }
+ 
+-messagedialog.csd .dialog-action-area button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
++messagedialog.csd .dialog-action-area.horizontal button { border-right-style: none; border-bottom-style: none; }
+ 
+-messagedialog.csd .dialog-action-area button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
++messagedialog.csd .dialog-action-area.horizontal button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
++
++messagedialog.csd .dialog-action-area.horizontal button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
++
++messagedialog.csd .dialog-action-area.vertical button { border-right-style: none; border-left-style: none; border-radius: 0; -gtk-outline-radius: 0; }
++
++messagedialog.csd .dialog-action-area.vertical button:last-child { border-bottom-style: none; border-bottom-left-radius: 7px; border-bottom-right-radius: 7px; -gtk-outline-bottom-left-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
+ 
+ filechooser .dialog-action-box { border-top: 1px solid #1b1b1b; }
+ 
+diff --git a/gtk/theme/Adwaita/gtk-contained.css b/gtk/theme/Adwaita/gtk-contained.css
+index 089e02b..b53e664 100644
+--- a/gtk/theme/Adwaita/gtk-contained.css
++++ b/gtk/theme/Adwaita/gtk-contained.css
+@@ -1618,11 +1618,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
+ 
+ messagedialog.csd.background { border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; }
+ 
+-messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-right-style: none; border-bottom-style: none; border-radius: 0; -gtk-outline-radius: 0; }
++messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-radius: 0; -gtk-outline-radius: 0; }
+ 
+-messagedialog.csd .dialog-action-area button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
++messagedialog.csd .dialog-action-area.horizontal button { border-right-style: none; border-bottom-style: none; }
+ 
+-messagedialog.csd .dialog-action-area button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
++messagedialog.csd .dialog-action-area.horizontal button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
++
++messagedialog.csd .dialog-action-area.horizontal button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
++
++messagedialog.csd .dialog-action-area.vertical button { border-right-style: none; border-left-style: none; border-radius: 0; -gtk-outline-radius: 0; }
++
++messagedialog.csd .dialog-action-area.vertical button:last-child { border-bottom-style: none; border-bottom-left-radius: 7px; border-bottom-right-radius: 7px; -gtk-outline-bottom-left-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
+ 
+ filechooser .dialog-action-box { border-top: 1px solid #cdc7c2; }
+ 
+diff --git a/gtk/theme/HighContrast/gtk-contained-inverse.css b/gtk/theme/HighContrast/gtk-contained-inverse.css
+index 8d678a2..cc5d5d4 100644
+--- a/gtk/theme/HighContrast/gtk-contained-inverse.css
++++ b/gtk/theme/HighContrast/gtk-contained-inverse.css
+@@ -1682,11 +1682,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
+ 
+ messagedialog.csd.background { border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; }
+ 
+-messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-right-style: none; border-bottom-style: none; border-radius: 0; -gtk-outline-radius: 0; }
++messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-radius: 0; -gtk-outline-radius: 0; }
+ 
+-messagedialog.csd .dialog-action-area button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
++messagedialog.csd .dialog-action-area.horizontal button { border-right-style: none; border-bottom-style: none; }
+ 
+-messagedialog.csd .dialog-action-area button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
++messagedialog.csd .dialog-action-area.horizontal button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
++
++messagedialog.csd .dialog-action-area.horizontal button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
++
++messagedialog.csd .dialog-action-area.vertical button { border-right-style: none; border-left-style: none; border-radius: 0; -gtk-outline-radius: 0; }
++
++messagedialog.csd .dialog-action-area.vertical button:last-child { border-bottom-style: none; border-bottom-left-radius: 7px; border-bottom-right-radius: 7px; -gtk-outline-bottom-left-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
+ 
+ filechooser .dialog-action-box { border-top: 1px solid #686868; }
+ 
+diff --git a/gtk/theme/HighContrast/gtk-contained.css b/gtk/theme/HighContrast/gtk-contained.css
+index 4f1415e..47a1403 100644
+--- a/gtk/theme/HighContrast/gtk-contained.css
++++ b/gtk/theme/HighContrast/gtk-contained.css
+@@ -1698,11 +1698,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
+ 
+ messagedialog.csd.background { border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; }
+ 
+-messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-right-style: none; border-bottom-style: none; border-radius: 0; -gtk-outline-radius: 0; }
++messagedialog.csd .dialog-action-area button { padding: 10px 14px; border-radius: 0; -gtk-outline-radius: 0; }
+ 
+-messagedialog.csd .dialog-action-area button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
++messagedialog.csd .dialog-action-area.horizontal button { border-right-style: none; border-bottom-style: none; }
+ 
+-messagedialog.csd .dialog-action-area button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
++messagedialog.csd .dialog-action-area.horizontal button:first-child { border-left-style: none; border-bottom-left-radius: 7px; -gtk-outline-bottom-left-radius: 7px; }
++
++messagedialog.csd .dialog-action-area.horizontal button:last-child { border-bottom-right-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
++
++messagedialog.csd .dialog-action-area.vertical button { border-right-style: none; border-left-style: none; border-radius: 0; -gtk-outline-radius: 0; }
++
++messagedialog.csd .dialog-action-area.vertical button:last-child { border-bottom-style: none; border-bottom-left-radius: 7px; border-bottom-right-radius: 7px; -gtk-outline-bottom-left-radius: 7px; -gtk-outline-bottom-right-radius: 7px; }
+ 
+ filechooser .dialog-action-box { border-top: 1px solid #877b6e; }
+ 

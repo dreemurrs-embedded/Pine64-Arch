@@ -1,7 +1,6 @@
-From 577ff683f48a16827e5739c1e52fed205c26a62f Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Thu, 11 Jul 2019 10:26:16 +0200
-Subject: [PATCH 21/29] dialog: Maximize resizable dialogs on phones
+Subject: dialog: Maximize resizable dialogs on phones
 
 This will make them look better on phone screens.
 ---
@@ -22,6 +21,3 @@ index 1905b48..e6cd4e0 100644
    focus = gtk_window_get_focus (window);
    if (!focus)
      {
--- 
-2.29.2
-

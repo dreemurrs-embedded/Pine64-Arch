@@ -1,7 +1,6 @@
-From 9b0ece7d0f35ae321b31cae78315a35162c9c643 Mon Sep 17 00:00:00 2001
 From: Alexander Mikhaylenko <alexander.mikhaylenko@puri.sm>
 Date: Wed, 4 Nov 2020 19:22:32 +0500
-Subject: [PATCH 26/29] window: Disable window dragging on phones
+Subject: window: Disable window dragging on phones
 
 See https://gitlab.gnome.org/GNOME/gtk/-/issues/3321
 
@@ -31,6 +30,3 @@ index 371bcc6..2b7ed44 100644
    switch (region)
      {
        case GTK_WINDOW_REGION_TITLE:
--- 
-2.29.2
-

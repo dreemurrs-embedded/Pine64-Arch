@@ -1,25 +1,24 @@
-From 73b2783a72c6c31fd9f4e1e484d58ec491cc9f38 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Mon, 31 Aug 2020 10:40:01 +0200
-Subject: [PATCH 01/29] Add GtkHdyViewSwitcherButton
+Subject: Add GtkHdyViewSwitcherButton
 
 This is imported from HdyViewSwitcherButton from libhandy 1.0.0.
 ---
  gtk/Makefile.am                        |   5 +-
- gtk/hdy-view-switcher-button-private.h |  51 +++
- gtk/hdy-view-switcher-button.c         | 544 +++++++++++++++++++++++++
+ gtk/hdy-view-switcher-button-private.h |  51 ++++
+ gtk/hdy-view-switcher-button.c         | 544 +++++++++++++++++++++++++++++++++
  gtk/meson.build                        |   2 +
- gtk/ui/hdy-view-switcher-button.ui     | 105 +++++
+ gtk/ui/hdy-view-switcher-button.ui     | 105 +++++++
  5 files changed, 706 insertions(+), 1 deletion(-)
  create mode 100644 gtk/hdy-view-switcher-button-private.h
  create mode 100644 gtk/hdy-view-switcher-button.c
  create mode 100644 gtk/ui/hdy-view-switcher-button.ui
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 1d22172..2f7765d 100644
+index 2b8830a..a0717b9 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -602,6 +602,7 @@ gtk_private_h_sources =		\
+@@ -601,6 +601,7 @@ gtk_private_h_sources =		\
  	gtkwindowprivate.h	\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
@@ -27,7 +26,7 @@ index 1d22172..2f7765d 100644
  	open-type-layout.h	\
  	language-names.h	\
  	script-names.h
-@@ -977,6 +978,7 @@ gtk_base_c_sources = 		\
+@@ -976,6 +977,7 @@ gtk_base_c_sources = 		\
  	gtkwin32draw.c		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
@@ -35,7 +34,7 @@ index 1d22172..2f7765d 100644
  	language-names.c	\
  	script-names.c
  
-@@ -1238,7 +1240,8 @@ templates =				\
+@@ -1235,7 +1237,8 @@ templates =				\
  	ui/gtkstatusbar.ui		\
  	ui/gtktooltipwindow.ui		\
  	ui/gtkvolumebutton.ui		\
@@ -783,6 +782,3 @@ index 0000000..6e437dc
 +    </child>
 +  </template>
 +</interface>
--- 
-2.29.2
-

@@ -1,17 +1,16 @@
-From 63f450520845377c1886e492d7ccb287a64fbe50 Mon Sep 17 00:00:00 2001
 From: Adrien Plazas <kekun.plazas@laposte.net>
 Date: Thu, 10 Sep 2020 10:46:42 +0200
-Subject: [PATCH 04/29] Add GtkHdySqueezer
+Subject: Add GtkHdySqueezer
 
-This is imported from HdySqueezer from libhandy 1.0.0.
+This is imported from HdySqueezer from libhandy 1.0.2.
 ---
  gtk/Makefile.am             |    6 +
  gtk/gtkprivate.h            |    1 +
  gtk/hdy-animation-private.h |   23 +
- gtk/hdy-animation.c         |   82 ++
+ gtk/hdy-animation.c         |   82 +++
  gtk/hdy-cairo-private.h     |   21 +
  gtk/hdy-squeezer-private.h  |   63 ++
- gtk/hdy-squeezer.c          | 1573 +++++++++++++++++++++++++++++++++++
+ gtk/hdy-squeezer.c          | 1573 +++++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build             |    5 +
  8 files changed, 1774 insertions(+)
  create mode 100644 gtk/hdy-animation-private.h
@@ -21,7 +20,7 @@ This is imported from HdySqueezer from libhandy 1.0.0.
  create mode 100644 gtk/hdy-squeezer.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 20b8d01..3f00213 100644
+index 12cba66..5150fd0 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
@@ -32,7 +31,7 @@ index 20b8d01..3f00213 100644
  	hdy-view-switcher-private.h
  
  
-@@ -603,7 +604,10 @@ gtk_private_h_sources =		\
+@@ -602,7 +603,10 @@ gtk_private_h_sources =		\
  	gtkwindowprivate.h	\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
@@ -43,7 +42,7 @@ index 20b8d01..3f00213 100644
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
-@@ -982,7 +986,9 @@ gtk_base_c_sources = 		\
+@@ -981,7 +985,9 @@ gtk_base_c_sources = 		\
  	gtkwin32draw.c		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
@@ -280,7 +279,7 @@ index 0000000..9224230
 +G_END_DECLS
 diff --git a/gtk/hdy-squeezer.c b/gtk/hdy-squeezer.c
 new file mode 100644
-index 0000000..b5ac091
+index 0000000..b36db93
 --- /dev/null
 +++ b/gtk/hdy-squeezer.c
 @@ -0,0 +1,1573 @@
@@ -1415,7 +1414,7 @@ index 0000000..b5ac091
 +  /**
 +   * GtkHdySqueezer:xalign:
 +   *
-+   * The xalign property determines the horizontal aligment of the children
++   * The xalign property determines the horizontal alignment of the children
 +   * inside the squeezer's size allocation.
 +   * Compare this to #GtkWidget:halign, which determines how the squeezer's size
 +   * allocation is positioned in the space available for the squeezer.
@@ -1437,7 +1436,7 @@ index 0000000..b5ac091
 +  /**
 +   * GtkHdySqueezer:yalign:
 +   *
-+   * The yalign property determines the vertical aligment of the children inside
++   * The yalign property determines the vertical alignment of the children inside
 +   * the squeezer's size allocation.
 +   * Compare this to #GtkWidget:valign, which determines how the squeezer's size
 +   * allocation is positioned in the space available for the squeezer.
@@ -1882,6 +1881,3 @@ index 0bdf438..852147a 100644
    'hdy-view-switcher-bar-private.h',
    'hdy-view-switcher-button-private.h',
    'hdy-view-switcher-private.h',
--- 
-2.29.2
-

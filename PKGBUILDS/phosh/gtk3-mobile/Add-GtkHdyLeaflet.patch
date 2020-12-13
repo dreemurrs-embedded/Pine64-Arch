@@ -1,21 +1,20 @@
-From aba83bafcb0f4415b8834675cb86c8316488bbc8 Mon Sep 17 00:00:00 2001
 From: Alexander Mikhaylenko <alexm@gnome.org>
 Date: Wed, 14 Oct 2020 17:43:09 +0500
-Subject: [PATCH 10/29] Add GtkHdyLeaflet
+Subject: Add GtkHdyLeaflet
 
 This is imported from HdyLeaflet from libhandy 1.0.0.
 ---
  gtk/Makefile.am           |    3 +
  gtk/gtkprivate.h          |    1 +
- gtk/hdy-leaflet-private.h |   87 +++
- gtk/hdy-leaflet.c         | 1211 +++++++++++++++++++++++++++++++++++++
+ gtk/hdy-leaflet-private.h |   87 ++++
+ gtk/hdy-leaflet.c         | 1211 +++++++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build           |    2 +
  5 files changed, 1304 insertions(+)
  create mode 100644 gtk/hdy-leaflet-private.h
  create mode 100644 gtk/hdy-leaflet.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 5bf91c9..b3d2f2b 100644
+index c17a325..ad8ccab 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
@@ -26,7 +25,7 @@ index 5bf91c9..b3d2f2b 100644
  	hdy-navigation-direction-private.h \
  	hdy-squeezer-private.h	\
  	hdy-stackable-box-private.h	\
-@@ -611,6 +612,7 @@ gtk_private_h_sources =		\
+@@ -610,6 +611,7 @@ gtk_private_h_sources =		\
  	hdy-animation-private.h	\
  	hdy-cairo-private.h	\
  	hdy-css-private.h	\
@@ -34,7 +33,7 @@ index 5bf91c9..b3d2f2b 100644
  	hdy-navigation-direction-private.h	\
  	hdy-shadow-helper-private.h	\
  	hdy-squeezer-private.h	\
-@@ -998,6 +1000,7 @@ gtk_base_c_sources = 		\
+@@ -997,6 +999,7 @@ gtk_base_c_sources = 		\
  	gdkpixbufutils.c	\
  	hdy-animation.c	\
  	hdy-css.c	\
@@ -1384,6 +1383,3 @@ index 9d89b56..e83a293 100644
    'hdy-navigation-direction-private.h',
    'hdy-shadow-helper-private.h',
    'hdy-squeezer-private.h',
--- 
-2.29.2
-

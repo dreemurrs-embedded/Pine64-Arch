@@ -1,0 +1,81 @@
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Tue, 13 Oct 2020 18:54:49 +0500
+Subject: Add padding for HdyViewSwitcherTitle
+
+Make sure it moves to the bottom on narrow sizes.
+---
+ gtk/theme/Adwaita/_common.scss                   | 5 +++++
+ gtk/theme/Adwaita/gtk-contained-dark.css         | 2 ++
+ gtk/theme/Adwaita/gtk-contained.css              | 2 ++
+ gtk/theme/HighContrast/gtk-contained-inverse.css | 2 ++
+ gtk/theme/HighContrast/gtk-contained.css         | 2 ++
+ 5 files changed, 13 insertions(+)
+
+diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
+index f46c350..aa67595 100644
+--- a/gtk/theme/Adwaita/_common.scss
++++ b/gtk/theme/Adwaita/_common.scss
+@@ -4850,6 +4850,11 @@ viewswitcher {
+     padding: 0;
+   }
+ 
++  headerbar & {
++    padding-left: 70px;
++    padding-right: 70px;
++  }
++
+   button {
+     border-radius: 0;
+     border-top: 0;
+diff --git a/gtk/theme/Adwaita/gtk-contained-dark.css b/gtk/theme/Adwaita/gtk-contained-dark.css
+index 099d26a..79d2aab 100644
+--- a/gtk/theme/Adwaita/gtk-contained-dark.css
++++ b/gtk/theme/Adwaita/gtk-contained-dark.css
+@@ -1952,6 +1952,8 @@ popover.emoji-completion .emoji:hover { background: #424242; }
+ /************ libhandy * */
+ viewswitcher, viewswitcher button { margin: 0; padding: 0; }
+ 
++headerbar viewswitcher { padding-left: 70px; padding-right: 70px; }
++
+ viewswitcher button { border-radius: 0; border-top: 0; border-bottom: 0; box-shadow: none; font-size: 1rem; }
+ 
+ viewswitcher button:not(:checked):not(:hover) { background: transparent; }
+diff --git a/gtk/theme/Adwaita/gtk-contained.css b/gtk/theme/Adwaita/gtk-contained.css
+index 27aed7a..089e02b 100644
+--- a/gtk/theme/Adwaita/gtk-contained.css
++++ b/gtk/theme/Adwaita/gtk-contained.css
+@@ -1968,6 +1968,8 @@ popover.emoji-completion .emoji:hover { background: white; }
+ /************ libhandy * */
+ viewswitcher, viewswitcher button { margin: 0; padding: 0; }
+ 
++headerbar viewswitcher { padding-left: 70px; padding-right: 70px; }
++
+ viewswitcher button { border-radius: 0; border-top: 0; border-bottom: 0; box-shadow: none; font-size: 1rem; }
+ 
+ viewswitcher button:not(:checked):not(:hover) { background: transparent; }
+diff --git a/gtk/theme/HighContrast/gtk-contained-inverse.css b/gtk/theme/HighContrast/gtk-contained-inverse.css
+index 07032d0..8d678a2 100644
+--- a/gtk/theme/HighContrast/gtk-contained-inverse.css
++++ b/gtk/theme/HighContrast/gtk-contained-inverse.css
+@@ -2032,6 +2032,8 @@ popover.emoji-completion .emoji:hover { background: #424242; }
+ /************ libhandy * */
+ viewswitcher, viewswitcher button { margin: 0; padding: 0; }
+ 
++headerbar viewswitcher { padding-left: 70px; padding-right: 70px; }
++
+ viewswitcher button { border-radius: 0; border-top: 0; border-bottom: 0; box-shadow: none; font-size: 1rem; }
+ 
+ viewswitcher button:not(:checked):not(:hover) { background: transparent; }
+diff --git a/gtk/theme/HighContrast/gtk-contained.css b/gtk/theme/HighContrast/gtk-contained.css
+index 9ebedbb..4f1415e 100644
+--- a/gtk/theme/HighContrast/gtk-contained.css
++++ b/gtk/theme/HighContrast/gtk-contained.css
+@@ -2048,6 +2048,8 @@ popover.emoji-completion .emoji:hover { background: white; }
+ /************ libhandy * */
+ viewswitcher, viewswitcher button { margin: 0; padding: 0; }
+ 
++headerbar viewswitcher { padding-left: 70px; padding-right: 70px; }
++
+ viewswitcher button { border-radius: 0; border-top: 0; border-bottom: 0; box-shadow: none; font-size: 1rem; }
+ 
+ viewswitcher button:not(:checked):not(:hover) { background: transparent; }

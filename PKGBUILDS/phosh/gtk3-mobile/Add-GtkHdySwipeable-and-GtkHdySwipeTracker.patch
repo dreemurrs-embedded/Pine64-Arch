@@ -1,24 +1,23 @@
-From 7abcd6ada2715e77e7e4962b87c10edf4f7a5fcb Mon Sep 17 00:00:00 2001
 From: Alexander Mikhaylenko <alexm@gnome.org>
 Date: Wed, 14 Oct 2020 17:10:54 +0500
-Subject: [PATCH 08/29] Add GtkHdySwipeable and GtkHdySwipeTracker
+Subject: Add GtkHdySwipeable and GtkHdySwipeTracker
 
-This is imported from HdySwipeable and HdySwipeTracker from libhandy 1.0.1.
+This is imported from HdySwipeable and HdySwipeTracker from libhandy 1.0.2.
 ---
  gtk/Makefile.am                 |    6 +
  gtk/hdy-swipe-tracker-private.h |   50 ++
- gtk/hdy-swipe-tracker.c         | 1189 +++++++++++++++++++++++++++++++
+ gtk/hdy-swipe-tracker.c         | 1208 +++++++++++++++++++++++++++++++++++++++
  gtk/hdy-swipeable-private.h     |   82 +++
- gtk/hdy-swipeable.c             |  274 +++++++
+ gtk/hdy-swipeable.c             |  274 +++++++++
  gtk/meson.build                 |    4 +
- 6 files changed, 1605 insertions(+)
+ 6 files changed, 1624 insertions(+)
  create mode 100644 gtk/hdy-swipe-tracker-private.h
  create mode 100644 gtk/hdy-swipe-tracker.c
  create mode 100644 gtk/hdy-swipeable-private.h
  create mode 100644 gtk/hdy-swipeable.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 5a5f7f1..f90b5be 100644
+index 2d0a384..09c47c0 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -366,6 +366,8 @@ gtk_private_type_h_sources =	\
@@ -30,7 +29,7 @@ index 5a5f7f1..f90b5be 100644
  	hdy-view-switcher-private.h
  
  
-@@ -611,6 +613,8 @@ gtk_private_h_sources =		\
+@@ -610,6 +612,8 @@ gtk_private_h_sources =		\
  	hdy-navigation-direction-private.h	\
  	hdy-shadow-helper-private.h	\
  	hdy-squeezer-private.h	\
@@ -39,7 +38,7 @@ index 5a5f7f1..f90b5be 100644
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
-@@ -995,6 +999,8 @@ gtk_base_c_sources = 		\
+@@ -994,6 +998,8 @@ gtk_base_c_sources = 		\
  	hdy-navigation-direction.c	\
  	hdy-squeezer.c	\
  	hdy-shadow-helper.c	\
@@ -106,10 +105,10 @@ index 0000000..61b229e
 +G_END_DECLS
 diff --git a/gtk/hdy-swipe-tracker.c b/gtk/hdy-swipe-tracker.c
 new file mode 100644
-index 0000000..4dd1ac4
+index 0000000..d72b159
 --- /dev/null
 +++ b/gtk/hdy-swipe-tracker.c
-@@ -0,0 +1,1189 @@
+@@ -0,0 +1,1208 @@
 +/*
 + * Copyright (C) 2019 Alexander Mikhaylenko <exalm7659@gmail.com>
 + *
@@ -669,6 +668,23 @@ index 0000000..4dd1ac4
 +  return parent == titlebar;
 +}
 +
++static gboolean
++has_conflicts (GtkHdySwipeTracker *self,
++               GtkWidget          *widget)
++{
++  GtkHdySwipeTracker *other;
++
++  if (widget == GTK_WIDGET (self->swipeable))
++    return TRUE;
++
++  if (!GTK_IS_HDY_SWIPEABLE (widget))
++    return FALSE;
++
++  other = gtk_hdy_swipeable_get_swipe_tracker (GTK_HDY_SWIPEABLE (widget));
++
++  return self->orientation == other->orientation;
++}
++
 +/* HACK: Since we don't have _gtk_widget_consumes_motion(), we can't do a proper
 + * check for whether we can drag from a widget or not. So we trust the widgets
 + * to propagate or stop their events. However, GtkButton stops press events,
@@ -684,7 +700,7 @@ index 0000000..4dd1ac4
 +    return FALSE;
 +
 +  parent = widget;
-+  while (parent && !GTK_IS_HDY_SWIPEABLE (parent))
++  while (parent && !has_conflicts (self, parent))
 +    parent = gtk_widget_get_parent (parent);
 +
 +  return parent == GTK_WIDGET (self->swipeable);
@@ -771,9 +787,11 @@ index 0000000..4dd1ac4
 +  if (!self->use_capture_phase && !should_force_drag (self, widget))
 +    return GDK_EVENT_PROPAGATE;
 +
-+  self->use_capture_phase = TRUE;
-+
 +  sequence = gdk_event_get_event_sequence (event);
++
++  if (gtk_gesture_handles_sequence (self->touch_gesture, sequence))
++    self->use_capture_phase = TRUE;
++
 +  retval = gtk_event_controller_handle_event (GTK_EVENT_CONTROLLER (self->touch_gesture), event);
 +  state = gtk_gesture_get_sequence_state (self->touch_gesture, sequence);
 +
@@ -1689,6 +1707,3 @@ index c951dcc..c3d5edc 100644
    'hdy-view-switcher-bar-private.h',
    'hdy-view-switcher-button-private.h',
    'hdy-view-switcher-private.h',
--- 
-2.29.2
-
