@@ -5,8 +5,8 @@ buildarch=8
 
 pkgbase=linux-pine64
 _desc="Pine64"
-pkgver=5.9.11
-pkgrel=2
+pkgver=5.9.14
+pkgrel=1
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -18,7 +18,7 @@ CROSS_COMPILE="aarch64-linux-gnu-"
 ARCH=arm64
 
 # Source
-_commit="6f2d95b9833e4e2395ca58056c1489fa77eb5810"
+_commit="46cd5d87ab9e4fc0e697c9a11761b4dd5eaeb7ce"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'wifi-power-saving.patch'
@@ -274,8 +274,8 @@ for _p in ${pkgname[@]}; do
     _package${_p#${pkgbase}}
   }"
 done
-md5sums=('7f068f1edf301fc6e9ce1dbab67171fd'
-         'a9c60d6cad3dbb262470ff0f71d099b2'
+md5sums=('b1bff80f2b25acc089c1acedc6d04e6d'
+         '7589ff5ace286297660cf8ec10476132'
          '37866c50af64b0b559278cc2bb63f021'
          '1352a07497e7992a9c093916c0b702c5'
          '979a787cf84bef9c60da78e72ec96550'
