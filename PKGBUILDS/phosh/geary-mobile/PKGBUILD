@@ -7,7 +7,7 @@ _pkgname=geary
 _tag=v3.38.0.1-3pureos+librem5+byz1
 pkgname=$_pkgname-mobile
 pkgver=$(sed -e 's|[+\-]|.|g' -e 's/^.//' <<< $_tag)
-pkgrel=1
+pkgrel=2
 pkgdesc='Purism mobile email client for the Phosh desktop'
 arch=(aarch64)
 url='https://source.puri.sm/Librem5/geary'
@@ -18,6 +18,18 @@ source=("git+https://source.puri.sm/Librem5/geary.git#commit=pureos/$_tag")
 sha512sums=('SKIP')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
+
+prepare() {
+  cd geary
+
+  # Apply patches
+  pseries=$(cat debian/patches/series | grep \.patch)
+  while IFS= read -r line
+  do
+    msg2 "Applying ${line}"
+    patch -p1 < debian/patches/"${line}"
+  done <<< "$pseries"
+}
 
 build() {
   arch-meson geary build
