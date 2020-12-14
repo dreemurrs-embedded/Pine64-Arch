@@ -3,7 +3,7 @@
 
 pkgname=anbox
 pkgver=0_git20201130
-pkgrel=2
+pkgrel=3
 arch=(x86_64 armv7h aarch64)
 url="http://anbox.io/"
 license=('GPL3')
@@ -17,6 +17,7 @@ source=("$pkgname-$_commit.tar.gz::https://github.com/anbox/anbox/archive/$_comm
 	"sdbus_cpp-$_sdbus_cpp_commit.tar.gz::https://github.com/Kistler-Group/sdbus-cpp/archive/$_sdbus_cpp_commit.tar.gz"
 	'inputmethod-hack.patch'
 	'give-more-time-to-start.patch'
+	'0001-Don-t-display-Android-apps-in-the-app-drawer.patch'
 	'anbox-container-manager.service'
 	'anbox-session-manager.service'
 	'99-anbox.rules'
@@ -37,6 +38,7 @@ prepare() {
 	patch -p1 -N < ../inputmethod-hack.patch
 
 	patch -p1 -N < ../give-more-time-to-start.patch
+	patch -p1 -N < ../0001-Don-t-display-Android-apps-in-the-app-drawer.patch
 
 	# Don't build tests
 	truncate -s 0 cmake/FindGMock.cmake
@@ -81,6 +83,7 @@ md5sums=('d755c4861ac8b6de61e1fcdab54ff9de'
          '403b77272d205aaa2bfcdceb8fa3afa3'
          '2dc0a582de4429cd28f050f58cf1f815'
          '4ccfa0d5d1188bde722077048d02e84a'
+         'da64f8005b395033419f759b5f616d0f'
          '654183805a524635454632712db618ed'
          '5a4356199eb722a970274e3255250399'
          'a1bb2cb220c3a24d06138ec5824d1898'

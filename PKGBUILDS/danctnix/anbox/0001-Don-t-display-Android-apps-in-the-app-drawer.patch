@@ -1,0 +1,31 @@
+From 7747126f7f01d6c8d740f11497da76657aec015a Mon Sep 17 00:00:00 2001
+From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Date: Tue, 27 Oct 2020 03:33:38 +0100
+Subject: [PATCH] Don't display Android apps in the app drawer
+
+---
+ src/anbox/application/launcher_storage.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/anbox/application/launcher_storage.cpp b/src/anbox/application/launcher_storage.cpp
+index d5053cf..186d4c1 100644
+--- a/src/anbox/application/launcher_storage.cpp
++++ b/src/anbox/application/launcher_storage.cpp
+@@ -98,6 +98,7 @@ void LauncherStorage::add_or_update(const Database::Item &item) {
+                  << "Exec=" << exec << std::endl
+                  << "Terminal=false" << std::endl
+                  << "Categories=Anbox;" << std::endl
++                 << "NoDisplay=true" << std::endl
+                  << "Icon=" << item_icon_path.string() << std::endl;
+   } else {
+     BOOST_THROW_EXCEPTION(std::runtime_error("Failed to create desktop item"));
+@@ -121,4 +122,4 @@ void LauncherStorage::remove(const Database::Item &item) {
+     fs::remove(item_icon_path);
+ }
+ 
+-}
+\ No newline at end of file
++}
+-- 
+2.29.2
+
