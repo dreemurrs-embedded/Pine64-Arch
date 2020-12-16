@@ -12,7 +12,7 @@
 
 pkgname=mesa-git
 pkgdesc="an open-source implementation of the OpenGL specification, git version"
-pkgver=21.0.0_devel.131251.602d4a78bc5
+pkgver=21.0.0_devel.132332.001411774d2
 pkgrel=1
 arch=('x86_64' 'aarch64')
 makedepends=('git' 'python-mako' 'xorgproto'
@@ -108,30 +108,31 @@ build() {
     arch-meson mesa _build \
     -D b_lto=true \
     -D b_ndebug=true \
-    -D platforms=x11,wayland,drm,surfaceless \
+    -D platforms=x11,wayland \
     -D dri-drivers=nouveau \
     -D gallium-drivers=freedreno,nouveau,swrast,virgl${GALLIUM} \
     -D vulkan-drivers= \
-    -D dri3=true \
-    -D egl=true \
+    -D dri3=enabled \
+    -D egl=enabled \
     -D gallium-extra-hud=true \
     -D gallium-nine=true \
     -D gallium-omx=bellagio \
-    -D gallium-va=true \
-    -D gallium-vdpau=true \
-    -D gallium-xa=false \
-    -D gallium-xvmc=false \
-    -D gbm=true \
-    -D gles1=false \
-    -D gles2=true \
+    -D gallium-va=enabled \
+    -D gallium-vdpau=enabled \
+    -D gallium-xa=disabled \
+    -D gallium-xvmc=disabled \
+    -D gbm=enabled \
+    -D gles1=disabled \
+    -D gles2=enabled \
     -D glvnd=true \
     -D glx=dri \
-    -D libunwind=false \
-    -D llvm=true \
-    -D lmsensors=true \
-    -D osmesa=gallium \
-    -D shared-glapi=true \
-    -D valgrind=false $MESON_OPT
+    -D libunwind=disabled \
+    -D llvm=enabled \
+    -D lmsensors=enabled \
+    -D osmesa=true \
+    -D shared-glapi=enabled \
+    -D valgrind=false $MESON_OPT \
+    -D microsoft-clc=disabled
        
     meson configure _build
     ninja  $NINJAFLAGS -C _build
