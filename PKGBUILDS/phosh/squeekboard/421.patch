@@ -1,0 +1,110 @@
+From 68f5b94892648c11c3ea0ed17031ce9c9b18aef4 Mon Sep 17 00:00:00 2001
+From: Dorota Czaplejewicz <dorota.czaplejewicz@puri.sm>
+Date: Tue, 15 Dec 2020 13:20:34 +0000
+Subject: [PATCH] dbus: Reset hints if text input missing
+
+---
+ src/dbus.c                   |  2 +-
+ src/server-context-service.c | 15 ++++++++++++++-
+ src/server-context-service.h |  2 +-
+ src/submission.h             |  1 +
+ src/submission.rs            | 12 ++++++++++++
+ 5 files changed, 29 insertions(+), 3 deletions(-)
+
+diff --git a/src/dbus.c b/src/dbus.c
+index 046b6bd..24bab66 100644
+--- a/src/dbus.c
++++ b/src/dbus.c
+@@ -59,7 +59,7 @@ handle_set_visible(SmPuriOSK0 *object, GDBusMethodInvocation *invocation,
+ 
+     if (service->context) {
+         if (arg_visible) {
+-            server_context_service_show_keyboard (service->context);
++            server_context_service_force_show_keyboard (service->context);
+         } else {
+             server_context_service_hide_keyboard (service->context);
+         }
+diff --git a/src/server-context-service.c b/src/server-context-service.c
+index 6923ab0..1cbf6e5 100644
+--- a/src/server-context-service.c
++++ b/src/server-context-service.c
+@@ -256,7 +256,7 @@ on_hide (ServerContextService *self)
+     return G_SOURCE_REMOVE;
+ }
+ 
+-void
++static void
+ server_context_service_show_keyboard (ServerContextService *self)
+ {
+     g_return_if_fail (SERVER_IS_CONTEXT_SERVICE(self));
+@@ -271,6 +271,19 @@ server_context_service_show_keyboard (ServerContextService *self)
+     }
+ }
+ 
++void
++server_context_service_force_show_keyboard (ServerContextService *self)
++{
++    if (!submission_hint_available(self->submission)) {
++        eekboard_context_service_set_hint_purpose(
++            self->state,
++            ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE,
++            ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL
++        );
++    }
++    server_context_service_show_keyboard(self);
++}
++
+ void
+ server_context_service_hide_keyboard (ServerContextService *self)
+ {
+diff --git a/src/server-context-service.h b/src/server-context-service.h
+index a091d0f..a94f16d 100644
+--- a/src/server-context-service.h
++++ b/src/server-context-service.h
+@@ -31,7 +31,7 @@ G_DECLARE_FINAL_TYPE (ServerContextService, server_context_service, SERVER, CONT
+ 
+ ServerContextService *server_context_service_new(EekboardContextService *self, struct submission *submission, struct squeek_layout_state *layout, struct ui_manager *uiman);
+ enum squeek_arrangement_kind server_context_service_get_layout_type(ServerContextService *);
+-void server_context_service_show_keyboard (ServerContextService *self);
++void server_context_service_force_show_keyboard (ServerContextService *self);
+ void server_context_service_hide_keyboard (ServerContextService *self);
+ void server_context_service_set_enabled (ServerContextService *self, gboolean enabled);
+ G_END_DECLS
+diff --git a/src/submission.h b/src/submission.h
+index acb2032..41bff30 100644
+--- a/src/submission.h
++++ b/src/submission.h
+@@ -15,6 +15,7 @@ struct submission* get_submission(struct zwp_input_method_manager_v2 *immanager,
+ 
+ // Defined in Rust
+ struct submission* submission_new(struct zwp_input_method_v2 *im, struct zwp_virtual_keyboard_v1 *vk, EekboardContextService *state);
++uint8_t submission_hint_available(struct submission *self);
+ void submission_set_ui(struct submission *self, ServerContextService *ui_context);
+ void submission_use_layout(struct submission *self, struct squeek_layout *layout, uint32_t time);
+ #endif
+diff --git a/src/submission.rs b/src/submission.rs
+index c256de0..b0ae13c 100644
+--- a/src/submission.rs
++++ b/src/submission.rs
+@@ -106,6 +106,18 @@ pub mod c {
+         let layout = unsafe { &*layout };
+         submission.use_layout(layout, Timestamp(time));
+     }
++
++    #[no_mangle]
++    pub extern "C"
++    fn submission_hint_available(submission: *mut Submission) -> u8 {
++        if submission.is_null() {
++            panic!("Null submission pointer");
++        }
++        let submission: &mut Submission = unsafe { &mut *submission };
++        let active = submission.imservice.as_ref()
++            .map(|imservice| imservice.is_active());
++        (Some(true) == active) as u8
++    }
+ }
+ 
+ #[derive(Clone, Copy)]
+-- 
+2.29.2
+
