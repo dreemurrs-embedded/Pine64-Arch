@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.7.0
+pkgver=0.7.1
 pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -43,7 +43,7 @@ package() {
 		"$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
-md5sums=('5a6a39dc6dd0bccc89388e8a9d7236c5'
+md5sums=('9bb95b71cdcac6d51feca877d02759de'
          'c08f04485db11997525c139346faecc8'
          '610811849fcbe27a9648d7a5a1b9c2ed'
          '6d5a0d561f8362bf91f85c236a88395d'
