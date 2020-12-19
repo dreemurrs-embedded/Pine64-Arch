@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=anbox-image-aarch64
 pkgver=0_20200520
-pkgrel=5
+pkgrel=6
 pkgdesc="Anbox image for ARM64"
 arch=(aarch64)
 url="https://anbox.postmarketos.org"
@@ -9,7 +9,7 @@ license=('custom')
 depends=(anbox)
 makedepends=(squashfs-tools)
 provides=(anbox-image)
-_fdroidver=1007051
+_fdroidver=1010050
 _fdroid="org.fdroid.fdroid_$_fdroidver.apk"
 _fdroidprivver=2110
 _fdroidpriv="org.fdroid.fdroid.privileged_$_fdroidprivver.apk"
@@ -56,7 +56,7 @@ package() {
 }
 
 md5sums=('5c2e2a5fc1e6a388f6949b3df65b5c0c'
-         'a5ba31782253a1a7c8f58faf1b75156d'
+         '3610f505b7086f2a15003c6fb50b9264'
          'b8c42726bd6c8f3931e8a01890ce47b4'
          '2c2663fc448ec1071503690893ed29c5'
          '1ef3b59fb14bbb7d17236af393d27474'
