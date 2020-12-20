@@ -1,11 +1,13 @@
-From 9a4e5a7c2da36288cd66c1500dcd0e1ba844c9cc Mon Sep 17 00:00:00 2001
+From c5552442949fd5130323b7f653e1843948e57126 Mon Sep 17 00:00:00 2001
 From: Dylan Van Assche <me@dylanvanassche.be>
 Date: Wed, 25 Nov 2020 19:58:25 +0100
-Subject: [PATCH] serial-parsers: do not fail to detect a valid response with a
- call or text incoming
+Subject: [PATCH 1/4] serial-parsers: also match OK responses that are not at
+ end of line
 
-Upstreaming at
-https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/merge_requests/406
+Do not fail to detect a valid response with a call or text incoming.
+This happens also during port probing when there's no URC parsers
+installed in the serial port. This probably will not happen when the
+serial port was managed by the modem object.
 ---
  src/mm-serial-parsers.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -24,5 +26,5 @@ index b511302e..248cc685 100644
      parser->regex_sms = g_regex_new ("\\r\\n>\\s*$", flags, 0, NULL);
      parser->regex_cme_error = g_regex_new ("\\r\\n\\+CME ERROR:\\s*(\\d+)\\r\\n$", flags, 0, NULL);
 -- 
-2.25.1
+2.29.2
 
