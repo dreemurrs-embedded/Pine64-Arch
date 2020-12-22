@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab
 pkgver=0.1
-pkgrel=6
+pkgrel=7
 pkgdesc="PineTab device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -12,7 +12,8 @@ depends=(linux-pine64
 	ov5640-firmware
 	alsa-ucm-pinetab)
 source=(pinetab-suspend-hook.sh
-	phoc.ini)
+	phoc.ini
+	machine-info)
 
 package() {
 	# Current workaround for suspend
@@ -20,7 +21,10 @@ package() {
 
 	# 1x scaling for Phosh
 	install -Dm644 "$srcdir"/phoc.ini "$pkgdir"/etc/phosh/phoc.ini
+
+	install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
 }
 
 md5sums=('b0912b95d7d810a0f161d9bd79fc162b'
-         '5b09f56730748532e169173d124f7cad')
+         '5b09f56730748532e169173d124f7cad'
+         '340993065eb26f928700733369be2d9b')
