@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephone
 pkgver=0.1
-pkgrel=12
+pkgrel=13
 pkgdesc="PinePhone device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -17,20 +17,19 @@ depends=(
 	danctnix-eg25-misc
 	)
 source=(10-proximity.rules
-	20-pinephone-led.rules
-	pinephone-suspend-hook.sh)
+	pinephone-suspend-hook.sh
+	machine-info)
 
 package() {
 	# Kanged from Mobian, this is to make iio-sensor-proxy works with proximity sensor.
 	install -Dm644 "$srcdir"/10-proximity.rules "$pkgdir"/usr/lib/udev/rules.d/10-proximity.rules
 
-	# This makes LED works on Phosh UI
-	install -Dm644 "$srcdir"/20-pinephone-led.rules "$pkgdir"/usr/lib/udev/rules.d/20-pinephone-led.rules
-
 	# Current workaround for suspend
 	install -Dm755 "$srcdir"/pinephone-suspend-hook.sh "$pkgdir"/usr/lib/systemd/system-sleep/pinephone-suspend-hook.sh
+
+	install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
 }
 
 md5sums=('b72ff096c022588f72c226283ac328bd'
-         'ff85d406611bf11c7f7a7e9cd3f628b4'
-         'b0912b95d7d810a0f161d9bd79fc162b')
+         'b0912b95d7d810a0f161d9bd79fc162b'
+         'b53781dde1d7a9a44e5076f3be463570')

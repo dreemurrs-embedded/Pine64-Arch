@@ -1,9 +1,0 @@
-#  SPDX-License-Identifier: LGPL-2.1+
-#  Taken from Mobian: https://gitlab.com/mobian1/devices/pinephone-tweaks/-/blob/master/tweaks/20-pinephone-led.rules
-
-ACTION=="remove", GOTO="pinephone_led_end"
-
-# Setup the front LED for use by feedbackd
-SUBSYSTEM=="leds", DEVPATH=="*/*:indicator", ENV{FEEDBACKD_TYPE}="led", RUN+="/usr/libexec/fbd-ledctrl -p %S%p -t pattern -G video"
-
-LABEL="pinephone_led_end"
