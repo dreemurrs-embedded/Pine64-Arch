@@ -1,0 +1,16 @@
+diff --git a/ell/missing.h b/ell/missing.h
+index 37d5586..649a5ac 100644
+--- a/ell/missing.h
++++ b/ell/missing.h
+@@ -54,11 +54,3 @@
+ #    define __NR_getrandom 0xffffffff
+ #  endif
+ #endif
+-
+-#ifndef HAVE_EXPLICIT_BZERO
+-static inline void explicit_bzero(void *s, size_t n)
+-{
+-	memset(s, 0, n);
+-	__asm__ __volatile__ ("" : : "r"(s) : "memory");
+-}
+-#endif

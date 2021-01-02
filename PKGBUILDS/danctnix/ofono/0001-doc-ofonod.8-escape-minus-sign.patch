@@ -1,0 +1,25 @@
+From 20653ec096bd0e15c09926f8dfc7771bf2036b9a Mon Sep 17 00:00:00 2001
+From: Jonny Lamb <jonny@debian.org>
+Date: Mon, 29 Nov 2010 18:04:01 +0000
+Subject: [PATCH] doc/ofonod.8: escape minus sign
+
+I'm a sucker for lintian-cleanliness!
+
+Signed-off-by: Jonny Lamb <jonny@debian.org>
+---
+ doc/ofonod.8 |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+Index: ofono-1.21/doc/ofonod.8
+===================================================================
+--- ofono-1.21.orig/doc/ofonod.8
++++ ofono-1.21/doc/ofonod.8
+@@ -18,7 +18,7 @@ is used to manage \fID-Bus\fP permission
+ .SH OPTIONS
+ .TP
+ .B --debug, -d
+-Enable debug information output. Note multiple arguments to -d can be
++Enable debug information output. Note multiple arguments to \-d can be
+ specified, colon, comma or space separated. The arguments are relative
+ source code filenames for which debugging output should be enabled;
+ output shell-style globs are accepted (e.g.: "plugins/*:src/main.c").

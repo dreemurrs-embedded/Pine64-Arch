@@ -1,0 +1,451 @@
+From fe3f13481413ea648b488c90b500e40921d79dd9 Mon Sep 17 00:00:00 2001
+From: Alexander Couzens <lynxis@fe80.eu>
+Date: Tue, 25 Jul 2017 12:42:29 +0200
+Subject: [PATCH 4/5] add call-list helper to manage voice call lists
+
+Many drivers asks the modem for a complete call list of current calls.
+These list of calls can be feeded into call-list which parse the
+list and notify ofono for new calls.
+---
+ Makefile.am                |   9 +-
+ drivers/common/call_list.c |  91 ++++++++++++++
+ drivers/common/call_list.h |  22 +++-
+ unit/test-call-list.c      | 251 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 371 insertions(+), 2 deletions(-)
+ create mode 100644 unit/test-call-list.c
+
+diff --git a/Makefile.am b/Makefile.am
+index c57f4339..0f88c65b 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -907,7 +907,8 @@ unit_tests = unit/test-common unit/test-util \
+ 				unit/test-rilmodem-cs \
+ 				unit/test-rilmodem-sms \
+ 				unit/test-rilmodem-cb \
+-				unit/test-rilmodem-gprs
++				unit/test-rilmodem-gprs \
++				unit/test-call-list
+ 
+ noinst_PROGRAMS = $(unit_tests) \
+ 			unit/test-sms-root unit/test-mux unit/test-caif
+@@ -945,6 +946,12 @@ unit_test_sms_root_SOURCES = unit/test-sms-root.c \
+ unit_test_sms_root_LDADD = @GLIB_LIBS@ $(ell_ldadd)
+ unit_objects += $(unit_test_sms_root_OBJECTS)
+ 
++unit_test_call_list_SOURCES = \
++				     src/common.c src/util.c \
++				     drivers/common/call_list.c unit/test-call-list.c
++unit_test_call_list_LDADD = @GLIB_LIBS@ $(ell_ldadd)
++unit_objects += $(unit_test_call_list_OBJECTS)
++
+ unit_test_mux_SOURCES = unit/test-mux.c $(gatchat_sources)
+ unit_test_mux_LDADD = @GLIB_LIBS@
+ unit_objects += $(unit_test_mux_OBJECTS)
+diff --git a/drivers/common/call_list.c b/drivers/common/call_list.c
+index 8b871191..bf638a21 100644
+--- a/drivers/common/call_list.c
++++ b/drivers/common/call_list.c
+@@ -27,6 +27,14 @@
+ #include <glib.h>
+ #include <ofono/types.h>
+ 
++#include <ofono/types.h>
++#include <ofono/log.h>
++#include <ofono/voicecall.h>
++
++#include "src/common.h"
++
++#include <drivers/common/call_list.h>
++
+ gint ofono_call_compare(gconstpointer a, gconstpointer b)
+ {
+ 	const struct ofono_call *ca = a;
+@@ -65,3 +73,86 @@ gint ofono_call_compare_by_id(gconstpointer a, gconstpointer b)
+ 
+ 	return 0;
+ }
++
++void ofono_call_list_dial_callback(struct ofono_voicecall *vc,
++				   GSList **call_list,
++				   const struct ofono_phone_number *ph,
++				   int call_id)
++{
++	struct ofono_call *call;
++	GSList *list;
++
++	/* check if call_id already present */
++	list = g_slist_find_custom(*call_list,
++				GINT_TO_POINTER(call_id),
++				ofono_call_compare_by_id);
++
++	if (list) {
++		return;
++	}
++
++	call = g_new0(struct ofono_call, 1);
++	call->id = call_id;
++
++	memcpy(&call->called_number, ph, sizeof(*ph));
++	call->direction = CALL_DIRECTION_MOBILE_ORIGINATED;
++	call->status = CALL_STATUS_DIALING;
++	call->type = 0; /* voice */
++
++	*call_list = g_slist_insert_sorted(*call_list,
++					    call,
++					    ofono_call_compare);
++	ofono_voicecall_notify(vc, call);
++}
++
++void ofono_call_list_notify(struct ofono_voicecall *vc,
++			    GSList **call_list,
++			    GSList *calls)
++{
++	GSList *old_calls = *call_list;
++	GSList *new_calls = calls;
++	struct ofono_call *new_call, *old_call;
++
++	while (old_calls || new_calls) {
++		old_call = old_calls ? old_calls->data : NULL;
++		new_call = new_calls ? new_calls->data : NULL;
++
++		/* we drop disconnected calls and treat them as not existent */
++		if (new_call && new_call->status == CALL_STATUS_DISCONNECTED) {
++			new_calls = new_calls->next;
++			calls = g_slist_remove(calls, new_call);
++			g_free(new_call);
++			continue;
++		}
++
++		if (old_call &&
++				(new_call == NULL ||
++				(new_call->id > old_call->id))) {
++			ofono_voicecall_disconnected(
++						vc,
++						old_call->id,
++						OFONO_DISCONNECT_REASON_UNKNOWN,
++						NULL);
++			old_calls = old_calls->next;
++		} else if (new_call &&
++			   (old_call == NULL ||
++			   (new_call->id < old_call->id))) {
++
++			/* new call, signal it */
++			if (new_call->type == 0)
++				ofono_voicecall_notify(vc, new_call);
++
++			new_calls = new_calls->next;
++		} else {
++			if (memcmp(new_call, old_call, sizeof(*new_call))
++					&& new_call->type == 0)
++				ofono_voicecall_notify(vc, new_call);
++
++			new_calls = new_calls->next;
++			old_calls = old_calls->next;
++		}
++	}
++
++	g_slist_free_full(*call_list, g_free);
++	*call_list = calls;
++}
+diff --git a/drivers/common/call_list.h b/drivers/common/call_list.h
+index a06c114f..80d4ffab 100644
+--- a/drivers/common/call_list.h
++++ b/drivers/common/call_list.h
+@@ -2,7 +2,7 @@
+  *
+  *  oFono - Open Source Telephony
+  *
+- *  Copyright (C) 2019 Alexander Couzens <lynxis@fe80.eu>
++ *  Copyright (C) 2017,2019 Alexander Couzens <lynxis@fe80.eu>
+  *
+  *  This program is free software; you can redistribute it and/or modify
+  *  it under the terms of the GNU General Public License version 2 as
+@@ -24,8 +24,28 @@
+ 
+ #include <glib.h>
+ 
++struct ofono_voicecall;
++struct ofono_phone_number;
++
+ gint ofono_call_compare(gconstpointer a, gconstpointer b);
+ gint ofono_call_compare_by_status(gconstpointer a, gconstpointer b);
+ gint ofono_call_compare_by_id(gconstpointer a, gconstpointer b);
+ 
++/*
++ * Can be called by the driver in the dialing callback,
++ * when the new call id already known
++ */
++void ofono_call_list_dial_callback(struct ofono_voicecall *vc,
++				   GSList **call_list,
++				   const struct ofono_phone_number *ph,
++				   int call_id);
++
++/*
++ * Called with a list of known calls e.g. clcc.
++ * Call list will take ownership of all ofono call within the calls.
++ */
++void ofono_call_list_notify(struct ofono_voicecall *vc,
++			    GSList **call_list,
++			    GSList *calls);
++
+ #endif /* __OFONO_DRIVER_COMMON_CALL_LIST */
+diff --git a/unit/test-call-list.c b/unit/test-call-list.c
+new file mode 100644
+index 00000000..f67178da
+--- /dev/null
++++ b/unit/test-call-list.c
+@@ -0,0 +1,251 @@
++/*
++ *
++ *  oFono - Open Source Telephony
++ *
++ *  Copyright (C) 2017 Alexander Couzens <lynxis@fe80.eu>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ */
++
++
++#include <glib.h>
++#include <string.h>
++
++
++#include "../src/common.h"
++#include <ofono/types.h>
++#include <drivers/common/call_list.h>
++
++struct voicecall {
++};
++
++struct notified {
++	unsigned int id;
++	enum call_status status;
++};
++
++static struct notified notified_list[32];
++static int notified_idx;
++static int notified_check;
++
++void reset_notified(void)
++{
++	notified_idx = 0;
++	notified_check = 0;
++	memset(&notified_list, 0, sizeof(notified_list));
++}
++
++void ofono_voicecall_notify(struct ofono_voicecall *vc,
++				struct ofono_call *call)
++{
++	notified_list[notified_idx].id = call->id;
++	notified_list[notified_idx].status = call->status;
++	notified_idx++;
++}
++
++void ofono_voicecall_disconnected(struct ofono_voicecall *vc, int id,
++				enum ofono_disconnect_reason reason,
++				const struct ofono_error *error)
++{
++	notified_list[notified_idx].id = id;
++	notified_list[notified_idx].status = CALL_STATUS_DISCONNECTED;
++	notified_idx++;
++}
++
++static GSList *create_call(
++		GSList *calls,
++		unsigned int id,
++		enum call_status status,
++		enum call_direction direction)
++{
++	struct ofono_call *call = g_new0(struct ofono_call, 1);
++
++	call->id = id;
++	call->status = status;
++	call->direction = direction;
++
++	calls = g_slist_insert_sorted(calls, call, ofono_call_compare);
++
++	return calls;
++}
++
++static void assert_notified(unsigned int call_id, int call_status)
++{
++	g_assert(notified_idx >= notified_check);
++	g_assert(notified_list[notified_check].id == call_id);
++	g_assert(notified_list[notified_check].status == call_status);
++
++	notified_check++;
++}
++
++static void test_notify_disconnected(void)
++{
++	struct ofono_voicecall *vc = NULL;
++	struct ofono_phone_number ph;
++	GSList *call_list;
++	GSList *calls;
++
++	strcpy(ph.number, "004888123456");
++	ph.type = 0;
++
++	/* reset test */
++	reset_notified();
++	call_list = NULL;
++
++	/* fill disconnected call*/
++	calls = create_call(NULL, 1, CALL_STATUS_DISCONNECTED,
++			    CALL_DIRECTION_MOBILE_TERMINATED);
++	ofono_call_list_notify(vc, &call_list, calls);
++
++	/* incoming call */
++	calls = create_call(NULL, 1, CALL_STATUS_DISCONNECTED,
++			    CALL_DIRECTION_MOBILE_TERMINATED);
++	calls = create_call(calls, 1, CALL_STATUS_ALERTING,
++			   CALL_DIRECTION_MOBILE_TERMINATED);
++	ofono_call_list_notify(vc, &call_list, calls);
++
++	/* answer call */
++	calls = create_call(NULL, 1, CALL_STATUS_ACTIVE,
++			   CALL_DIRECTION_MOBILE_TERMINATED);
++	calls = create_call(calls, 1, CALL_STATUS_DISCONNECTED,
++			    CALL_DIRECTION_MOBILE_TERMINATED);
++	ofono_call_list_notify(vc, &call_list, calls);
++
++	/* another call waiting */
++	calls = create_call(NULL, 1, CALL_STATUS_DISCONNECTED,
++			    CALL_DIRECTION_MOBILE_TERMINATED);
++	calls = create_call(calls, 1, CALL_STATUS_ACTIVE,
++			   CALL_DIRECTION_MOBILE_TERMINATED);
++	calls = create_call(calls, 2, CALL_STATUS_DISCONNECTED,
++			    CALL_DIRECTION_MOBILE_TERMINATED);
++	calls = create_call(calls, 2, CALL_STATUS_WAITING,
++				   CALL_DIRECTION_MOBILE_TERMINATED);
++	calls = create_call(calls, 2, CALL_STATUS_DISCONNECTED,
++			    CALL_DIRECTION_MOBILE_TERMINATED);
++	ofono_call_list_notify(vc, &call_list, calls);
++
++	/* end all calls */
++	ofono_call_list_notify(vc, &call_list, NULL);
++
++	/* verify call history */
++	assert_notified(1, CALL_STATUS_ALERTING);
++	assert_notified(1, CALL_STATUS_ACTIVE);
++	assert_notified(2, CALL_STATUS_WAITING);
++	assert_notified(1, CALL_STATUS_DISCONNECTED);
++	assert_notified(2, CALL_STATUS_DISCONNECTED);
++
++	g_assert(notified_check == notified_idx);
++	g_slist_free_full(call_list, g_free);
++}
++
++static void test_notify(void)
++{
++	struct ofono_voicecall *vc = NULL;
++	struct ofono_phone_number ph;
++	GSList *call_list;
++	GSList *calls;
++
++	strcpy(ph.number, "004888123456");
++	ph.type = 0;
++
++	/* reset test */
++	reset_notified();
++	call_list = NULL;
++
++	/* incoming call */
++	calls = create_call(NULL, 1, CALL_STATUS_ALERTING,
++			   CALL_DIRECTION_MOBILE_TERMINATED);
++	ofono_call_list_notify(vc, &call_list, calls);
++
++	/* answer call */
++	calls = create_call(NULL, 1, CALL_STATUS_ACTIVE,
++			   CALL_DIRECTION_MOBILE_TERMINATED);
++	ofono_call_list_notify(vc, &call_list, calls);
++
++	/* another call waiting */
++	calls = create_call(NULL, 1, CALL_STATUS_ACTIVE,
++			   CALL_DIRECTION_MOBILE_TERMINATED);
++	calls = create_call(calls, 2, CALL_STATUS_WAITING,
++				   CALL_DIRECTION_MOBILE_TERMINATED);
++	ofono_call_list_notify(vc, &call_list, calls);
++
++	/* end all calls */
++	ofono_call_list_notify(vc, &call_list, NULL);
++
++	/* verify call history */
++	assert_notified(1, CALL_STATUS_ALERTING);
++	assert_notified(1, CALL_STATUS_ACTIVE);
++	assert_notified(2, CALL_STATUS_WAITING);
++	assert_notified(1, CALL_STATUS_DISCONNECTED);
++	assert_notified(2, CALL_STATUS_DISCONNECTED);
++
++	g_assert(notified_check == notified_idx);
++	g_slist_free_full(call_list, g_free);
++}
++
++static void test_dial_callback(void)
++{
++	struct ofono_voicecall *vc = NULL;
++	struct ofono_phone_number ph;
++	struct ofono_call *call;
++	GSList *call_list;
++
++	/* reset test */
++	reset_notified();
++	call_list = NULL;
++
++	strcpy(ph.number, "0099301234567890");
++	ph.type = 0;
++
++	ofono_call_list_dial_callback(vc, &call_list, &ph, 33);
++
++	call = call_list->data;
++
++	g_assert(strcmp(call->called_number.number, ph.number) == 0);
++	g_slist_free_full(call_list, g_free);
++}
++
++static void test_dial_callback_race(void)
++{
++	struct ofono_voicecall *vc = NULL;
++	struct ofono_phone_number ph;
++	GSList *call_list, *calls;
++
++	/* reset test */
++	reset_notified();
++	call_list = NULL;
++
++	strcpy(ph.number, "0099301234567890");
++	ph.type = 0;
++
++	/* outgoing call */
++	calls = create_call(NULL, 1, CALL_STATUS_DIALING,
++			   CALL_DIRECTION_MOBILE_ORIGINATED);
++	ofono_call_list_notify(vc, &call_list, calls);
++	ofono_call_list_dial_callback(vc, &call_list, &ph, 1);
++
++	g_assert(call_list->next == NULL);
++
++	/* check how many items in the variable */
++	g_slist_free_full(call_list, g_free);
++}
++
++int main(int argc, char **argv)
++{
++	g_test_init(&argc, &argv, NULL);
++
++	g_test_add_func("/test-call-list/dial_callback", test_dial_callback);
++	g_test_add_func("/test-call-list/dial_callback_race", test_dial_callback_race);
++	g_test_add_func("/test-call-list/test_notify", test_notify);
++	g_test_add_func("/test-call-list/test_notify_disconnected",
++			test_notify_disconnected);
++	return g_test_run();
++}
+-- 
+2.24.1
+

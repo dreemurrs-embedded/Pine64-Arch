@@ -1,0 +1,86 @@
+# Maintainer: Jerome Leclanche <jerome@leclan.ch>
+
+pkgname=ofono
+pkgver=1.31
+pkgrel=5
+pkgdesc="Infrastructure for building mobile telephony (GSM/UMTS) applications"
+url="https://01.org/ofono"
+arch=('x86_64' 'aarch64')
+license=("GPL2")
+depends=("bluez" "dbus" "modemmanager" "glib2" "udev" "mobile-broadband-provider-info")
+source=(
+	"https://www.kernel.org/pub/linux/network/$pkgname/$pkgname-$pkgver.tar.xz"
+	0001-common-create-GList-helper-ofono_call_compare.patch
+	0002-common-atmodem-move-at_util_call_compare_by_status-t.patch
+	0003-common-atmodem-move-at_util_call_compare_by_id-to-dr.patch
+	0004-add-call-list-helper-to-manage-voice-call-lists.patch
+	0005-qmimodem-implement-voice-calls.patch
+	fix-explicit-bzero.patch
+	fix-TEMP_FAILURE_RETRY.patch
+	skip-broken-test.patch
+	support-smdpkt.patch
+	0001-doc-ofonod.8-escape-minus-sign.patch
+	0002-Remove-After-syslog.target-from-systemd-.service-fil.patch
+	qmimodem-correct-state-for-incoming-call.patch
+	sim-change-notification-for-pin-valies.patch
+	0001-gprs-Add-Preferred-property-to-contexts.patch
+	0002-qmimodem-Implement-data-capability-bearer-notify.patch
+	0003-qmimodem-Allow-UMTS-and-LTE-to-fallback-to-a-lower-c.patch
+	0004-qmimodem-HACK-use-fast-dormancy-calls-to-quarry-stat.patch
+	0005-qmimodem-Fix-dialing-to-an-international-number.patch
+	0001-voicecall-do-not-force-the-voice-type.patch
+)
+sha256sums=('a15c5d28096c10eb30e47a68b6dc2e7c4a5a99d7f4cfedf0b69624f33d859e9b'
+            '5514c6fa701935b343335f3d3800192b52d3bd70ea204d5a862f2a409c08064a'
+            'bbb83a6f29b4dd9c767394eccd428e9592d8598aa10ecc8919080438f49d53a8'
+            'a313001b5838e38142f44f1823ae9e8f056d89b78fbaa329d95dc08147a82293'
+            '7183c36ab736916ee69bf97e96b8c7a5b0d02a80f5caa0fab9de46481bd1b9e2'
+            'b94b7bd116caa05f4ddf8b8026697d01b07c4e28f93bf9e4c48075d55edf0a10'
+            '69223250a5cb737d9ab158b1d06837bcf0a9db0b2939432ebb6e0521d786911c'
+            '04a7c7f450eac83a76a4c572c9ed614444805bb613336a305931b16a863c959d'
+            'a8e5cffedd2d84c160973e45241ffad68db58029e4820aaa045e1ad7064b9573'
+            'c35d4631402afdd6923d17a04fcb7d5772447e01b835187ffbcdfeca437a2f63'
+            '565937a769f156501094b03f532fcaedbbf5fc4b497dde8d4aba429006d636c7'
+            '7eaa8309e7fb06491bc107afe45f6b3ebed920741fdb685c710acad5bd6119f6'
+            '2c829a7835a2f35fee5d21e23620b8ac1f39c14bcaebeabdd6940d67227966a4'
+            '8decee3f0066c1b55898d9e1e0bed525eb19fff5e452b7f92cdc0cc144b3dbd9'
+            'd78ac4a21f057cd8fa68345bebb8d9cb26f4533406b739239ef1df6d4b12cdd4'
+            '2dd0059747deeb2c0ce0222692488bd4aff68481182db02f950a7d80645fe0fc'
+            '48372d9bc61d12dd92192c28b3ab7ee7f7c2460bf59ac7515ff837a15becafa6'
+            '4de1e2f492fbec72bbb41c72529b0e4d6810c0f7c8f037643a7ba57d9a1a525e'
+            'bba39821b38316ed3517395af4cbcaa44c03e09827ddc893aa9bd5da6ccedd40'
+            'a4c16270b7434edeade489b723ab8b6f373e84a712e3a73086e9a793577420d0')
+prepare() {
+	cd "$srcdir/$pkgname-$pkgver"
+	local src
+	for src in "${source[@]}"; do
+		src="${src%%::*}"
+		src="${src##*/}"
+		[[ $src = *.patch ]] || continue
+		echo "Applying patch $src..."
+		patch -Np1 < "../$src"
+	done
+}
+
+
+build() {
+	cd "$srcdir/$pkgname-$pkgver"
+	#unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+	autoreconf -fi
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--sbindir=/usr/bin \
+		--disable-bluez4 \
+		--enable-tools
+
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+	install -Dm644 "$srcdir/$pkgname-$pkgver/src/ofono.conf" "$pkgdir/etc/dbus-1/system.d/ofono.conf"
+	install -Dm644 "$srcdir/$pkgname-$pkgver/src/ofono.service" "$pkgdir/usr/lib/systemd/system/ofono.service"
+	install -Dm755 "$srcdir/$pkgname-$pkgver/tools/auto-enable" "$pkgdir/usr/bin/ofono-auto-enable"
+}

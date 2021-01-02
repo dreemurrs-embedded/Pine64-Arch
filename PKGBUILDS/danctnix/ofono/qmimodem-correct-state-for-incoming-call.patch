@@ -1,0 +1,31 @@
+From 4457ea552d61a131d6e6cbe5e7b72d86b01fbabc Mon Sep 17 00:00:00 2001
+From: Marius Gripsgard <marius@ubports.com>
+Date: Wed, 25 Mar 2020 04:29:08 +0100
+Subject: [PATCH] [qmimodem] QMI_CALL_STATE_SETUP should be
+ CALL_STATUS_INCOMING
+
+---
+ drivers/qmimodem/voice.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/qmimodem/voice.c b/drivers/qmimodem/voice.c
+index 76ef82036..800848434 100644
+--- a/drivers/qmimodem/voice.c
++++ b/drivers/qmimodem/voice.c
+@@ -57,6 +57,7 @@ int qmi_to_ofono_status(uint8_t status, int *ret) {
+ 	case QMI_CALL_STATE_ORIG:
+ 		*ret = CALL_STATUS_DIALING;
+ 		break;
++	case QMI_CALL_STATE_SETUP:
+ 	case QMI_CALL_STATE_INCOMING:
+ 		*ret = CALL_STATUS_INCOMING;
+ 		break;
+@@ -64,8 +65,6 @@ int qmi_to_ofono_status(uint8_t status, int *ret) {
+ 		*ret = CALL_STATUS_ACTIVE;
+ 		break;
+ 	case QMI_CALL_STATE_CC_IN_PROG:
+-	case QMI_CALL_STATE_SETUP:
+-		/* FIXME: unsure if _SETUP is dialing or not */
+ 		*ret = CALL_STATUS_DIALING;
+ 		break;
+ 	case QMI_CALL_STATE_ALERTING:

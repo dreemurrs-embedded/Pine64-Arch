@@ -1,0 +1,31 @@
+From: Laurent Bigonville <bigon@bigon.be>
+Date: Sun, 29 Dec 2019 12:45:31 +0100
+Subject: Remove After=syslog.target from systemd .service files
+
+---
+ dundee/dundee.service.in | 1 -
+ src/ofono.service.in     | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/dundee/dundee.service.in b/dundee/dundee.service.in
+index 82c5ef1..561cdf1 100644
+--- a/dundee/dundee.service.in
++++ b/dundee/dundee.service.in
+@@ -1,6 +1,5 @@
+ [Unit]
+ Description=DUN service
+-After=syslog.target
+ 
+ [Service]
+ Type=dbus
+diff --git a/src/ofono.service.in b/src/ofono.service.in
+index c24ac28..25f2d77 100644
+--- a/src/ofono.service.in
++++ b/src/ofono.service.in
+@@ -1,6 +1,5 @@
+ [Unit]
+ Description=Telephony service
+-After=syslog.target
+ 
+ [Service]
+ Type=dbus
