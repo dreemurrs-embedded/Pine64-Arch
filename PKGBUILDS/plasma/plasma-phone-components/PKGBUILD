@@ -1,0 +1,37 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: dodgejcr@gmail.com
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+
+pkgname=plasma-phone-components
+pkgver=5.20.4
+pkgrel=1
+pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
+arch=('aarch64' 'x86_64')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL3')
+depends=('plasma-workspace' 'ofono' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'plasma-wayland-session')
+makedepends=('git' 'cmake' 'baloo' 'extra-cmake-modules' 'kdoctools')
+source=("https://invent.kde.org/plasma/plasma-phone-components/-/archive/v${pkgver}/plasma-phone-components-v${pkgver}.tar.gz")
+install=$pkgname.install
+sha512sums=('02563559c4ecc5679b142711ba943e88a2c2a68b28e146981e5eb48bfdb8ce57ba5fdf0b604efc77823ae6f8a0b45398ab0914d599a40a41a539fc589062049d')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-v${pkgver} \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
