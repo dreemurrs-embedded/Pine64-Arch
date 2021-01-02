@@ -1,0 +1,32 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: dodgejcr@gmail.com
+# Contributor: Bernhard Landauer <bernhard@manjaro.org>
+# Contributor: Bhushan Shah <bshah@kde.org>
+
+pkgname=libqofono-qt5
+pkgver=0.103
+pkgrel=1
+pkgdesc="A library for accessing the ofono daemon, and a declarative plugin for it. This allows accessing ofono in qtquick and friends."
+arch=('aarch64' 'x86_64')
+url="https://git.merproject.org/mer-core/libqofono"
+license=('LGPL')
+depends=('qt5-declarative' 'qt5-xmlpatterns')
+source=("https://git.merproject.org/mer-core/libqofono/-/archive/${pkgver}/libqofono-${pkgver}.tar.gz")
+md5sums=('2a738ebe372740ff5049493e84ce5ed8')
+
+prepare() {
+    cd libqofono-$pkgver
+    mkdir -p build
+}
+
+build() {
+    cd libqofono-$pkgver/build
+    qmake-qt5 PREFIX=/usr ../libqofono.pro
+	make
+}
+
+package() {
+    cd libqofono-$pkgver/build
+	make INSTALL_ROOT="$pkgdir/" install
+    rm -r "$pkgdir/usr/lib/libqofono-qt5/"
+}
