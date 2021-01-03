@@ -1,0 +1,45 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Furkan Kardame <tech@fkardame.com>
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+
+_pkgname=plasma-dialer
+pkgname=$_pkgname-git
+pkgver=0.1.r83.g25dde5b
+pkgrel=1
+pkgdesc="Phone Dialer for Plasma Mobile"
+arch=('aarch64' 'x86_64')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL3')
+depends=('ofono' 'kcontacts' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'kdbusaddons' 'knotifications')
+makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+source=("git+https://invent.kde.org/plasma-mobile/$_pkgname.git")
+install=$pkgname.install
+md5sums=('SKIP')
+
+pkgver() {
+  cd $_pkgname
+  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  mkdir -p build
+ }
+
+build() {
+  cd build
+  cmake ../$_pkgname \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
