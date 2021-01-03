@@ -1,0 +1,44 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Philip Müller <philm@manjaro.org>
+# Contributor: Bhushan Shah <bshah@kde.org>
+
+pkgname=maliit-keyboard-git
+pkgver=r2050.g432db0ea
+pkgrel=3
+pkgdesc="Maliit Keyboard"
+arch=('aarch64' 'x86_64')
+url="https://github.com/maliit/keyboard"
+license=('GPL')
+depends=('maliit-framework-git' 'qt5-feedback' 'qt5-multimedia' 'noto-fonts-emoji'
+         'hunspell' 'libchewing' 'presage-git' 'libpinyin' 'sqlite')
+makedepends=('git' 'cmake')
+source=("git+$url.git"
+        0001-Add-0001-Bring-back-LanguagePluginInterface.patch)
+md5sums=('SKIP'
+         '7daea48098bb86978e15239ca85ad879')
+
+pkgver() {
+    cd keyboard
+    printf "r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+    mkdir -p build
+}
+
+build() {
+    cd build
+    cmake ../keyboard \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+    make
+}
+
+package() {
+    cd build
+    make DESTDIR="$pkgdir/" install
+}
