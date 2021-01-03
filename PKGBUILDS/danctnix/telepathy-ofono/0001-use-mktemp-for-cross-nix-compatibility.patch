@@ -1,0 +1,26 @@
+From 2caaaa14792f191c69ce403571b270899a04ed9a Mon Sep 17 00:00:00 2001
+From: Danct12 <danct12@disroot.org>
+Date: Mon, 4 Jan 2021 01:44:13 +0700
+Subject: [PATCH] use mktemp for cross-nix compatibility
+
+Signed-off-by: Danct12 <danct12@disroot.org>
+---
+ schema/update_schema.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/schema/update_schema.sh b/schema/update_schema.sh
+index f7fef3f..b3753d0 100755
+--- a/schema/update_schema.sh
++++ b/schema/update_schema.sh
+@@ -11,7 +11,7 @@ VERSION_FILE=$3
+ VERSION="1"
+ LATEST_VERSION="1"
+ 
+-TMPFILE=`tempfile`
++TMPFILE=`mktemp`
+ 
+ SCHEMA_FILE="$SOURCE_DIR/v${VERSION}.sql"
+ while [ -e $SCHEMA_FILE ]; do
+-- 
+2.30.0
+

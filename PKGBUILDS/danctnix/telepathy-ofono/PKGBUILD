@@ -1,0 +1,43 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Dan Johansen <strit@manjaro.org>
+# Contributor: Furkan Kardame <furkan@fkardame.com>
+
+pkgname=telepathy-ofono
+pkgver=20200305
+pkgrel=1
+pkgdesc='Telepathy oFono connection manager'
+arch=('aarch64')
+url="https://github.com/TelepathyIM/telepathy-ofono"
+license=('LGPL')
+depends=('ofono' 'libofono-qt' 'qt5-feedback')
+makedepends=('cmake' 'qt5-base' 'libphonenumber' 'telepathy-qt' 'sqlite' 'telepathy-mission-control' 'libofono-qt')
+_commit="8be54bb82c33cd1a5bcea4200f9c8fdb92bb2adc"
+source=("$pkgname-$_commit.tar.gz::https://github.com/TelepathyIM/telepathy-ofono/archive/$_commit.tar.gz"
+        '0001-use-mktemp-for-cross-nix-compatibility.patch')
+md5sums=('8f6fcf10a3660ae37e3c4a21182c9045'
+         '6464a0b38d1d5e04a6ef2902b68b7584')
+
+#pkgver() {
+#  cd $pkgname-$_commit
+#  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+#}
+
+prepare() {
+  cd $pkgname-$_commit
+  patch -p1 -N < ../0001-use-mktemp-for-cross-nix-compatibility.patch
+}
+
+build() {
+  cd $pkgname-$_commit
+  cmake \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DOFONO_ON_RING=ON
+  make
+}
+
+package() {
+  cd $pkgname-$_commit
+  DESTDIR="$pkgdir" make install
+}
