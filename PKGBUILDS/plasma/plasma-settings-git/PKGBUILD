@@ -1,0 +1,43 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: dodgejcr@gmail.com
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+
+_pkgname=plasma-settings
+pkgname=$_pkgname-git
+pkgver=r839.g7ee1c05
+pkgrel=1
+pkgdesc="Settings application for Mobile Devices running Plasma"
+arch=('aarch64' 'x86_64')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL3')
+depends=('accountsservice' 'plasma-framework' 'kdelibs4support' 'libkgapi' 'kdesignerplugin')
+makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools' 'kinit')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+source=("git+https://invent.kde.org/plasma-mobile/plasma-settings.git")
+md5sums=('SKIP')
+
+pkgver() {
+  cd $_pkgname
+  printf "r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$_pkgname \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
