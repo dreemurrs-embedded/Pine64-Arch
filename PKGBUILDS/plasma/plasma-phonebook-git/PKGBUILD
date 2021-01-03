@@ -1,0 +1,43 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: dodgejcr@gmail.com
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+
+_pkgname=plasma-phonebook
+pkgname=$_pkgname-git
+pkgver=r182.gd4d87db
+pkgrel=1
+pkgdesc="Phonebook application for Mobile Devices running Plasma"
+arch=('x86_64' 'aarch64')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL3')
+depends=('kirigami2' 'kcontacts' 'kpeople' 'kpeoplevcard' 'qt5-quickcontrols2' 'qt5-svg')
+makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+source=("git+https://invent.kde.org/plasma-mobile/$_pkgname.git")
+md5sums=('SKIP')
+
+pkgver() {
+  cd $_pkgname
+  printf "r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$_pkgname \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
