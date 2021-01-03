@@ -1,0 +1,43 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Dan Johansen <strit@manjaro.org>
+
+_pkgname=plasma-angelfish
+pkgname=$_pkgname-git
+pkgver=1.6.0.r48.ga60ed71
+pkgrel=1
+pkgdesc="Plasma Demo Webbrowser for Mobile Devices"
+arch=('x86_64' 'aarch64')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL3')
+depends=('plasma-framework' 'qt5-webengine' 'purpose')
+makedepends=('git' 'cmake' 'extra-cmake-modules')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+source=("git+https://invent.kde.org/plasma-mobile/$_pkgname.git")
+install=$pkgname.install
+md5sums=('SKIP')
+
+pkgver() {
+  cd $_pkgname
+  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$_pkgname \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
