@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.10.0-3 Kernel Configuration
+# Linux/arm64 5.10.4-1 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-linux-gnu-gcc (GCC) 9.3.0"
 CONFIG_CC_IS_GCC=y
@@ -2631,7 +2631,6 @@ CONFIG_MFD_AXP20X_RSB=y
 # CONFIG_MFD_RN5T618 is not set
 # CONFIG_MFD_SEC_CORE is not set
 # CONFIG_MFD_SI476X_CORE is not set
-# CONFIG_MFD_SL28CPLD is not set
 # CONFIG_MFD_SM501 is not set
 # CONFIG_MFD_SKY81452 is not set
 # CONFIG_ABX500_CORE is not set
@@ -3361,7 +3360,6 @@ CONFIG_SND_SOC_GENERIC_DMAENGINE_PCM=y
 
 # CONFIG_SND_I2S_HI6210_I2S is not set
 # CONFIG_SND_SOC_IMG is not set
-# CONFIG_SND_SOC_INTEL_KEEMBAY is not set
 # CONFIG_SND_SOC_MTK_BTCVSD is not set
 # CONFIG_SND_SOC_SOF_TOPLEVEL is not set
 
