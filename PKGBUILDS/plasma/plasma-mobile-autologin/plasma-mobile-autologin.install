@@ -1,0 +1,3 @@
+post_install() {
+    sed -i "s/username/$(getent passwd 1000 | cut -d: -f1)/g" /usr/share/lightdm/lightdm.conf.d/60-plasma-al.conf
+}

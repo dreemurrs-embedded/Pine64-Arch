@@ -1,0 +1,17 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=plasma-mobile-autologin
+pkgver=5.20
+pkgrel=1
+pkgdesc='Auto login to Plasma Mobile on boot up'
+arch=(any)
+url='https://mobile.danctnix.org'
+depends=('lightdm' 'danctnix-pm-ui-meta')
+install="$pkgname.install"
+source=("60-plasma-al.conf")
+
+package() {
+    install -Dm644 "${srcdir}/60-plasma-al.conf" -t "${pkgdir}/usr/share/lightdm/lightdm.conf.d/"
+}
+
+md5sums=('fc0770b5d4ccb948585ff655fa72d4c5')
