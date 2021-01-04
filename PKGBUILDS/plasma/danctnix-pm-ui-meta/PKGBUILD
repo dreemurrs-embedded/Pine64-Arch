@@ -2,7 +2,7 @@
 
 pkgname=danctnix-pm-ui-meta
 pkgver=5.20
-pkgrel=1
+pkgrel=2
 pkgdesc='Meta package to install Plasma Mobile'
 arch=(any)
 url='https://mobile.danctnix.org'
@@ -13,7 +13,7 @@ depends=(noto-fonts
          kinit
          kscreen
          powerdevil
-         plasma-nm
+         plasma-mobile-nm
          plasma-pa
          xdg-desktop-portal-kde)
 optdepends=('maliit-keyboard-git: OSK for Plasma Mobile')
