@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.5.1
+pkgver=0.6.0
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -13,18 +13,11 @@ makedepends=('meson' 'ninja')
 # We don't want to maintain the wlroots package, so we static compile it
 _commit_wlr="3d227f140e3c4af42d759477fc38e82a4c3dc4ef"
 source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
-        https://source.puri.sm/Librem5/wlroots/-/archive/$_commit_wlr/wlroots-$_commit_wlr.tar.gz
-        MR215.patch
-        MR201.patch)
+        https://source.puri.sm/Librem5/wlroots/-/archive/$_commit_wlr/wlroots-$_commit_wlr.tar.gz)
 
 prepare() {
 	rm -r ${pkgname}-v${pkgver}/subprojects/wlroots
 	mv wlroots-$_commit_wlr ${pkgname}-v${pkgver}/subprojects/wlroots
-
-	# Apply patches
-	cd ${pkgname}-v${pkgver}
-	patch -p1 -N < ../MR215.patch
-	patch -p1 -N < ../MR201.patch
 }
 
 build() {
@@ -43,7 +36,5 @@ package() {
 	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('24fc2c7e87650cf1bad76c681926aa10'
-         '494decd05f32711ef544454d30f3cd4d'
-         '1001476767ef5d4cedceae0909507fc5'
-         '3ee489977293a93fc929c2661e72590f')
+md5sums=('c8e64d550246bbd486109f8b97c2036e'
+         '494decd05f32711ef544454d30f3cd4d')
