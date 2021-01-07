@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=calls
-pkgver=0.1.9
+pkgver=0.2.0
 pkgrel=1
 pkgdesc="The phone app"
 url="https://source.puri.sm/Librem5/calls"
@@ -20,4 +20,4 @@ package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('8df3c217e9b9e95e7fb952de46802c42')
+md5sums=('ff835be55a4b8fdd5f9b3304ca5afbfd')
