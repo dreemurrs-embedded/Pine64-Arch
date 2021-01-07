@@ -20,6 +20,7 @@ package() {
   make DESTDIR="$pkgdir" DISTRO="ArchMobile" install
 
   if [ ! -e /etc/profile.d/danctnix.sh ]; then
+    mkdir "$pkgdir"/etc/profile.d
     echo 'export XDG_DATA_DIRS="/usr/share/danctnix:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"' \
 	 > "$pkgdir"/etc/profile.d/danctnix.sh
   fi
