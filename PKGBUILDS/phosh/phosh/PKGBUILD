@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
 pkgver=0.7.1
-pkgrel=1
+pkgrel=2
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phosh"
@@ -12,7 +12,8 @@ makedepends=('meson' 'ninja')
 _commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
 source=("https://source.puri.sm/Librem5/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
 	"https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
-	0001-Revert-home-Bind-key-to-show-overview.patch
+	'0001-Revert-home-Bind-key-to-show-overview.patch'
+	'434.patch'
 	'pam_phosh'
 	'sm.puri.OSK0.desktop'
 	'phosh.service')
@@ -22,6 +23,9 @@ prepare() {
 
 	# gnome-shell dependency removal
 	patch -p1 -N < ../0001-Revert-home-Bind-key-to-show-overview.patch
+
+	# auto rotation
+	patch -p1 -N < ../434.patch
 
 	rm -r subprojects/gvc
 	mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
@@ -46,6 +50,7 @@ package() {
 md5sums=('9bb95b71cdcac6d51feca877d02759de'
          'c08f04485db11997525c139346faecc8'
          '610811849fcbe27a9648d7a5a1b9c2ed'
+         '8c474c0b2f735b5a1a90d8fb9e787642'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
          'efeeab2f55315f576c88e45c494edc7c')
