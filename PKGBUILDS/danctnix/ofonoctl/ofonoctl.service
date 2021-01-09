@@ -1,0 +1,11 @@
+[Unit]
+Description=Poweron-Modem
+After=ofono.service
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/sleep 15
+ExecStart=/usr/bin/ofonoctl online
+
+[Install]
+WantedBy=default.target

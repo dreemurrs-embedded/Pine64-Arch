@@ -1,0 +1,29 @@
+# Maintainer: Dan Johansen <strit@manjaro.org>
+
+pkgname=ofonoctl
+_pyname=ofonoctl
+pkgver=0.4.0
+pkgrel=5.3
+pkgdesc='test/control application for the ofono daemon'
+arch=('any')
+url="https://git.sr.ht/~martijnbraam/ofonoctl"
+license=("MIT")
+depends=('python-dbus' 'python-pip' 'python-tabulate')
+makedepends=('python-setuptools')
+_pypiprefix="${_pyname%${_pyname#?}}"
+source=("https://files.pythonhosted.org/packages/source/$_pypiprefix/$_pyname/$_pyname-$pkgver.tar.gz"
+        'ofonoctl.service')
+md5sums=('c0ac0a38f950b4b6bd10d5c4f2335d26'
+         'dc7a325752acdef6cea575085d4d8c54')
+
+build() {
+  cd $pkgname-$pkgver
+  python setup.py build
+}
+
+package() {
+  cd $pkgname-$pkgver
+  python setup.py install --prefix=/usr --root="$pkgdir"
+  install -Dm644 "${srcdir}/ofonoctl.service" -t "${pkgdir}/usr/lib/systemd/system/"
+}
+
