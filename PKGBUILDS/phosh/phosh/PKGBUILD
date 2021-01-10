@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
 pkgver=0.7.1
-pkgrel=2
+pkgrel=3
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://source.puri.sm/Librem5/phosh"
@@ -50,7 +50,7 @@ package() {
 md5sums=('9bb95b71cdcac6d51feca877d02759de'
          'c08f04485db11997525c139346faecc8'
          '610811849fcbe27a9648d7a5a1b9c2ed'
-         '8c474c0b2f735b5a1a90d8fb9e787642'
+         '6be7cbae39a54a856384ebbe14603115'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
          'efeeab2f55315f576c88e45c494edc7c')

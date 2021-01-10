@@ -278,11 +278,11 @@ index 0000000..327af07
 +  if (!g_strcmp0 ("normal", orient)) {
 +    transform = PHOSH_MONITOR_TRANSFORM_NORMAL;
 +  } else if (!g_strcmp0 ("right-up", orient)) {
-+    transform = PHOSH_MONITOR_TRANSFORM_270;
++    transform = PHOSH_MONITOR_TRANSFORM_90;
 +  } else if (!g_strcmp0 ("bottom-up", orient)) {
 +    transform = PHOSH_MONITOR_TRANSFORM_180;
 +  } else if (!g_strcmp0 ("left-up", orient)) {
-+    transform = PHOSH_MONITOR_TRANSFORM_90;
++    transform = PHOSH_MONITOR_TRANSFORM_270;
 +  } else if (!g_strcmp0 ("undefined", orient)) {
 +    return; /* just leave as is */
 +  } else {
