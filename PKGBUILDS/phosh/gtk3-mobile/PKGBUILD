@@ -4,7 +4,7 @@
 
 pkgname=gtk3-mobile
 pkgver=3.24.24
-pkgrel=1
+pkgrel=2
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -152,8 +152,8 @@ package() {
   install -Dt "$pkgdir/usr/share/gtk-3.0" -m644 settings.ini
   install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 gtk-query-immodules-3.0.hook
 
-  # use upstream package for this instead
   rm "$pkgdir/usr/bin/gtk-update-icon-cache"
+  rm "$pkgdir/usr/share/man/man1/gtk-update-icon-cache.1"
 }
 
 # vim:set ts=2 sw=2 et:
