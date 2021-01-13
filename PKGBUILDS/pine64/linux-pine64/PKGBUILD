@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-pine64
 _desc="Pine64"
-pkgver=5.10.4
+pkgver=5.10.6
 pkgrel=1
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
@@ -18,7 +18,7 @@ CROSS_COMPILE="aarch64-linux-gnu-"
 ARCH=arm64
 
 # Source
-_commit="6cbe584b73a5dcb00476b4c46dcf6ab480fc7e29"
+_commit="15fe9cd544b6ad0b1da4fb1a3b0d77b9ffee1ebc"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'panic-led.patch'
@@ -274,8 +274,8 @@ for _p in ${pkgname[@]}; do
     _package${_p#${pkgbase}}
   }"
 done
-md5sums=('6b32cdfbf3cc705ca651ea6f1e2bc959'
-         '614e0ea06eeeac88c6c23b96b3c0d8bf'
+md5sums=('deec68e13777a26dc7ef0bed036afd98'
+         '51b7af29409566e8a282db88b4ff5eee'
          '1352a07497e7992a9c093916c0b702c5'
          '979a787cf84bef9c60da78e72ec96550'
          'd251f240c3f8c5ed2a94dcee5354f5a0'
