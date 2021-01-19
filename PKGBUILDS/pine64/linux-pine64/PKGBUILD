@@ -5,8 +5,8 @@ buildarch=8
 
 pkgbase=linux-pine64
 _desc="Pine64"
-pkgver=5.10.6
-pkgrel=3
+pkgver=5.10.8
+pkgrel=1
 arch=('aarch64')
 url="https://gitlab.com/pine64-org/linux"
 license=('GPL2')
@@ -18,18 +18,19 @@ CROSS_COMPILE="aarch64-linux-gnu-"
 ARCH=arm64
 
 # Source
-_commit="15fe9cd544b6ad0b1da4fb1a3b0d77b9ffee1ebc"
+_commit="a13ef6beb717af5ba3343c3b5f25ff36d7b2a6eb"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
-        'panic-led.patch'
         'enable-hdmi-output-pinetab.patch'
-        'improve-brightness.patch'
+        'improve-pinephone-brightness.patch'
         'enable-jack-detection-pinetab.patch'
         'pinetab-bluetooth.patch'
         'pinetab-accelerometer.patch'
         'camera-added-bggr-bayer-mode.patch'
         'media-ov5640-Implement-autofocus.patch'
         '0011-dts-pinetab-hardcode-mmc-numbers.patch'
+        '0002-dts-add-pinetab-dev-old-display-panel.patch'
+        '0001-arm64-dts-allwinner-pinephone-stop-LEDs-on-suspend.patch'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
@@ -52,29 +53,21 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
 prepare() {
   cd linux-$_commit
 
-  # Enable jack detection on PineTab
-  patch -p1 -N < ../enable-jack-detection-pinetab.patch
-
-  # kernel panic led
-  patch -p1 -N < ../panic-led.patch
-
-  # Enable HDMI on PineTab
-  patch -p1 -N < ../enable-hdmi-output-pinetab.patch
-
-  # Improve brightness
-  patch -p1 -N < ../improve-brightness.patch
+  # PinePhone patches
+  patch -p1 -N < ../improve-pinephone-brightness.patch
+  patch -p1 -N < ../0001-arm64-dts-allwinner-pinephone-stop-LEDs-on-suspend.patch
 
   # camera
   patch -p1 -N < ../camera-added-bggr-bayer-mode.patch
   patch -p1 -N < ../media-ov5640-Implement-autofocus.patch
 
-  # Enable Bluetooth on PineTab
+  # PineTab patches
   patch -p1 -N < ../pinetab-bluetooth.patch
-
-  # Enable accelerometer on PineTab
   patch -p1 -N < ../pinetab-accelerometer.patch
-
   patch -p1 -N < ../0011-dts-pinetab-hardcode-mmc-numbers.patch
+  patch -p1 -N < ../0002-dts-add-pinetab-dev-old-display-panel.patch
+  patch -p1 -N < ../enable-jack-detection-pinetab.patch
+  patch -p1 -N < ../enable-hdmi-output-pinetab.patch
 
   # bootsplash stuffs (took from glorious manjaro arm)
   patch -Np1 -i "${srcdir}/0001-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch"
@@ -277,9 +270,8 @@ for _p in ${pkgname[@]}; do
     _package${_p#${pkgbase}}
   }"
 done
-md5sums=('deec68e13777a26dc7ef0bed036afd98'
+md5sums=('471ca444a9f319cc722d553af84906bc'
          '624fc01dd36880af41d91d45bbb78955'
-         '1352a07497e7992a9c093916c0b702c5'
          '979a787cf84bef9c60da78e72ec96550'
          'd251f240c3f8c5ed2a94dcee5354f5a0'
          'f79300740a7350d2d24ab5e120831b52'
@@ -288,6 +280,8 @@ md5sums=('deec68e13777a26dc7ef0bed036afd98'
          'a020d566b1b55988476b32840b204834'
          '787377044b921cecb32a23f1b0e68467'
          '2b844df5de7f662fa0faf09d1358b24d'
+         'bc674ba1b15197ba5c4b2fd8a9622545'
+         '39eea273d8df3ceb72a1590c735103af'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
