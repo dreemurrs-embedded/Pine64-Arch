@@ -4,8 +4,8 @@
 
 pkgbase=modemmanager
 pkgname=(modemmanager libmm-glib)
-pkgver=1.14.8
-pkgrel=3
+pkgver=1.14.10
+pkgrel=1
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
 url="https://www.freedesktop.org/wiki/Software/ModemManager/"
@@ -13,19 +13,11 @@ license=(GPL2 LGPL2.1)
 depends=(systemd libgudev polkit ppp libqmi libmbim
          mobile-broadband-provider-info)
 makedepends=(gtk-doc gobject-introspection vala autoconf-archive git)
-_commit=19c2266a328ce39033f8d15f5c7ff3561149b22b  # tags/1.14.8
+_commit=304a1b123fe87cf5f3b9067fb83f37c9e09e12f5  # tags/1.14.10
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
-        '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch'
-        '0001-serial-parsers-also-match-OK-responses-that-are-not-.patch'
-        '0002-tests-added-parse-OK-response-test.patch'
-        '0003-serial-parsers-also-match-ERROR-responses-that-are-n.patch'
-        '0004-tests-added-parse-ERROR-response-test.patch')
+        '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
 sha256sums=('SKIP'
-            '6272b09b59ba7a395f86502083ea2609a885ffa696c8acd20ed99cb18b6de92b'
-            'd5b1c4e88ce11e5d610d9d0b015f9192e9fdf3e143b7a87dc154f21156adb741'
-            '1a683ea8f17e8598d9cc8b79b1aa947e99400d17032b74d4119d6240fcefb337'
-            '91549aa8fdb1921861ec601c66e29df3408b8aac36b2bb4a24cf3d11ae563879'
-            '3b4e4c7d22a04a8cc9fe6eda29d8ab3cb124c8807a6f88c8767de59f6e05ed86')
+            '6272b09b59ba7a395f86502083ea2609a885ffa696c8acd20ed99cb18b6de92b')
 
 pkgver() {
   cd ModemManager
@@ -37,12 +29,6 @@ prepare() {
 
   # Improve voice capabilities detection for EG25
   patch -p1 -N < ../0001-mm-broadband-modem-improve-voice-capabilities-detect.patch
-
-  # Backport from upstream
-  patch -p1 -N < ../0001-serial-parsers-also-match-OK-responses-that-are-not-.patch
-  patch -p1 -N < ../0002-tests-added-parse-OK-response-test.patch
-  patch -p1 -N < ../0003-serial-parsers-also-match-ERROR-responses-that-are-n.patch
-  patch -p1 -N < ../0004-tests-added-parse-ERROR-response-test.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
