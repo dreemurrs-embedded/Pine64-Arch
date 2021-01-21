@@ -1,7 +1,3 @@
-[org.gnome.desktop.interface]
-clock-show-weekday=false
-clock-show-date=false
-
 [org.gnome.desktop.session]
 idle-delay=60
 
