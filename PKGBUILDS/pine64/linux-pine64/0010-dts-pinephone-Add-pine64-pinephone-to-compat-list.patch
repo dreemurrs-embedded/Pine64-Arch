@@ -1,0 +1,56 @@
+From 05044b9e4e4ae03f66e1c504d6fef57a1d135897 Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Thu, 24 Dec 2020 19:57:12 +0100
+Subject: [PATCH] dts: pinephone: Add 'pine64,pinephone' to compat list
+
+Indicates that all PinePhone models share most of the hardware with each other.
+Used for feedbackd configuration when retrieving a device specific config for
+haptic feedbackd.
+---
+ arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts | 2 +-
+ arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts | 2 +-
+ arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts
+index 0f6faa44c..2e0892b32 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts
+@@ -7,7 +7,7 @@
+ 
+ / {
+ 	model = "Pine64 PinePhone Developer Batch (1.0)";
+-	compatible = "pine64,pinephone-1.0", "allwinner,sun50i-a64";
++	compatible = "pine64,pinephone-1.0", "pine64,pinephone", "allwinner,sun50i-a64";
+ 
+ 	reg_vbus: usb0-vbus {
+ 		compatible = "regulator-fixed";
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts
+index 95a880fdc..d6bad0838 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts
+@@ -7,7 +7,7 @@
+ 
+ / {
+ 	model = "Pine64 PinePhone Braveheart (1.1)";
+-	compatible = "pine64,pinephone-1.1", "allwinner,sun50i-a64";
++	compatible = "pine64,pinephone-1.1", "pine64,pinephone", "allwinner,sun50i-a64";
+ 
+ 	reg_vbus: usb0-vbus {
+ 		compatible = "regulator-fixed";
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
+index 23ba72508..710493186 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
+@@ -7,7 +7,7 @@
+ 
+ / {
+ 	model = "Pine64 PinePhone (1.2)";
+-	compatible = "pine64,pinephone-1.2", "allwinner,sun50i-a64";
++	compatible = "pine64,pinephone-1.2", "pine64,pinephone", "allwinner,sun50i-a64";
+ };
+ 
+ &axp803 {
+-- 
+2.26.2
+
