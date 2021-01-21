@@ -1,0 +1,43 @@
+# Maintainer: Frederik Schwan <freswa at archlinux dot org>
+
+pkgname=libpurple-lurch
+pkgver=0.6.9_dev
+pkgrel=1
+pkgdesc='Plugin for libpurple (Pidgin, Adium, etc) implementing OMEMO (using axolotl)'
+arch=('x86_64' 'armv7h' 'aarch64')
+url='https://github.com/gkdr/lurch'
+license=('GPL')
+makedepends=('cmake' 'git')
+depends=('libpurple' 'mxml' 'libxml2' 'sqlite' 'libgcrypt')
+optdepends=('libpurple-carbons: message carbons support')
+_commit=6b6cdcac050bf4d41ff0e855d486ea015a271e1c # branch/dev
+source=("git+https://github.com/gkdr/lurch.git#commit=${_commit}"
+        'git+https://github.com/gkdr/axc'
+        'git+https://github.com/gkdr/libomemo'
+        'git+https://github.com/WhisperSystems/libsignal-protocol-c.git')
+b2sums=('SKIP'
+        'SKIP'
+        'SKIP'
+        'SKIP')
+
+prepare() {
+  cd ${pkgname##libpurple-}
+  git submodule init
+  git config submodule.'lib/axc'.url "${srcdir}"/axc
+  git config submodule.'lib/libomemo'.url "${srcdir}"/libomemo
+  git submodule update --recursive
+  cd lib/axc
+  git config submodule.'lib/libsignal-protocol-c'.url "${srcdir}"/libsignal-protocol-c
+  cd "${srcdir}"/${pkgname##libpurple-}
+  git submodule update --recursive
+}
+
+build() {
+  cd ${pkgname##libpurple-}
+  make
+}
+
+package() {
+  cd ${pkgname##libpurple-}
+  make DESTDIR="${pkgdir}" install
+}
