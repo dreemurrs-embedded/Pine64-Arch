@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-ui-meta
 pkgver=0.2
-pkgrel=1
+pkgrel=2
 pkgdesc="Meta package for Phosh"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -13,15 +13,9 @@ depends=(
 	phoc
 	phosh
 	feedbackd
-	calls
-	chatty
-	kgx
 	squeekboard
 	dnsmasq
-	gnome-software-mobile
 	gnome-control-center-mobile
-	gnome-contacts-mobile
-	gnome-initial-setup-mobile
 	sound-theme-librem5
 	iio-sensor-proxy
 	wys
