@@ -4,7 +4,7 @@
 buildarch=8
 
 pkgname=linux-pine64
-pkgver=5.10.10
+pkgver=5.10.11
 pkgrel=1
 pkgdesc="The Linux Kernel and modules - Pine64"
 arch=('aarch64')
@@ -20,7 +20,7 @@ backup=("etc/mkinitcpio.d/${pkgname}.preset")
 install=${pkgname}.install
 
 # Source
-_commit="5a93114de564ff6ed2243e4668fe2d79f09f4184"
+_commit="4c4fac23da8b64102ce2e666e294d32505363c9f"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'enable-hdmi-output-pinetab.patch'
@@ -178,7 +178,7 @@ package() {
     install -Dm644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/90-${pkgname}.hook"
 }
 
-md5sums=('66bb5bde4a15dfa0bed96be6d3a81eda'
+md5sums=('6a606de44ce30bc2d27ca593297af656'
          'd0b4a9c7551348df1da378e719f7e2be'
          '979a787cf84bef9c60da78e72ec96550'
          'd251f240c3f8c5ed2a94dcee5354f5a0'
