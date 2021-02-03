@@ -4,13 +4,13 @@
 
 _pkgname=plasma-dialer
 pkgname=$_pkgname-git
-pkgver=0.1.r83.g25dde5b
+pkgver=0.1.r90.ga678c6c
 pkgrel=1
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('ofono' 'kcontacts' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'kdbusaddons' 'knotifications')
+depends=('desktop-file-utils' 'ofono' 'kcontacts' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'kdbusaddons' 'knotifications')
 makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
