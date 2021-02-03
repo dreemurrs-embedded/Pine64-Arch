@@ -4,12 +4,12 @@
 
 pkgname=plasma-phone-components
 pkgver=5.20.5
-pkgrel=1
+pkgrel=2
 pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('plasma-workspace' 'ofono' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'plasma-wayland-session')
+depends=('desktop-file-utils' 'plasma-workspace' 'ofono' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'plasma-wayland-session')
 makedepends=('git' 'cmake' 'baloo' 'extra-cmake-modules' 'kdoctools')
 source=("https://invent.kde.org/plasma/plasma-phone-components/-/archive/v${pkgver}/plasma-phone-components-v${pkgver}.tar.gz")
 install=$pkgname.install
