@@ -3,12 +3,12 @@
 
 pkgname=plasma-nano
 pkgver=5.20.5
-pkgrel=1
+pkgrel=2
 pkgdesc="A minimal Plasma shell package"
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')
 url="https://invent.kde.org/kde/plasma-nano"
 license=('GPL2')
-depends=('plasma-workspace')
+depends=('desktop-file-utils' 'plasma-workspace')
 makedepends=('cmake' 'extra-cmake-modules')
 source=("https://invent.kde.org/kde/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.gz")
 install=$pkgname.install
