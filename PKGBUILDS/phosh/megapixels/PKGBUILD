@@ -10,7 +10,7 @@ depends=('glib2' 'gtk3' 'imagemagick' 'libraw')
 makedepends=('meson' 'ninja')
 replaces=('pinhole' 'gnome-camera')
 source=("https://git.sr.ht/~martijnbraam/megapixels/archive/${pkgver}.tar.gz")
-sha256sums=('0767f5dab29739df3a79fc522e78f7fcff26fac1beb27d5583146b89e886a9b8')
+sha256sums=('99e592091b1cba53e35ae9c93b610b083559d43b79ad8931e2fc1e0a1d7620b7')
 
 build() {
     arch-meson $pkgname-$pkgver build
