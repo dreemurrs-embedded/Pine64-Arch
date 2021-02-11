@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=portfolio-fm
-pkgver=0.9.5
+pkgver=0.9.9
 pkgrel=1
 pkgdesc="A minimalist file manager for those who want to use Linux mobile devices."
 url="https://github.com/tchx84/Portfolio"
@@ -21,4 +21,4 @@ package() {
     DESTDIR="${pkgdir}" ninja -C output install
 }
 
-sha512sums=('743d52f7f81eb8fbe1deb3c882e96ef6f2fc2cbb9fa6fdf1b87f997c71dd0782b66f9198e5290b79ede4cad5595fd46a687070e3243f2bf3c51161a10159085a')
+sha512sums=('f12ecd8092d9078270056743e8c003b957a434088c88d4fd7784233119af8439a7a829c51608f08b28b679f18655db775d5c52b6b60afbcf7b1ba2f9477c5ff3')
