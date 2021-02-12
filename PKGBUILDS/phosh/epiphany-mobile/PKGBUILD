@@ -3,7 +3,7 @@
 # Contributor: Jan de Groot <jgc@archlinux.org>
 
 pkgname=epiphany-mobile
-pkgver=3.38.1
+pkgver=3.38.2
 pkgrel=1
 pkgdesc="A GNOME web browser based on the WebKit rendering engine"
 url="https://wiki.gnome.org/Apps/Web"
@@ -16,7 +16,7 @@ checkdepends=(xorg-server-xvfb aspell hspell hunspell nuspell libvoikko)
 groups=(gnome)
 provides=(epiphany)
 conflicts=(epiphany)
-_commit=41b6c74a412f24b5e5e164efb28dffbfcb5e41a1  # tags/3.38.1^0
+_commit=aed85c97b9840f4f11595c8674e1efa7c5ab5ca5  # tags/3.38.2^0
 source=("$pkgname::git+https://gitlab.gnome.org/GNOME/epiphany.git#commit=$_commit"
         librem5-adblock-Stop-using-g_task_set_name.patch
         librem5-adblock-Use-GTimeVal-again-instead-of-GDateTime.patch
