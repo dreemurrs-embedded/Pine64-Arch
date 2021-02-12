@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=mobile-config-firefox
-pkgver=1.0.0
-pkgrel=0
+pkgver=2.0.0
+pkgrel=1
 pkgdesc="Mobile and privacy friendly configuration for Firefox"
 arch=(any)
 url="https://gitlab.com/postmarketOS/mobile-config-firefox"
@@ -9,21 +9,19 @@ license=('GPL3')
 depends=(firefox)
 source=($pkgname-$pkgver.tar.gz::https://gitlab.com/postmarketOS/mobile-config-firefox/-/archive/$pkgver/$pkgname-$pkgver.tar.gz
 	distro_links.html
-	firefox.desktop)
+	0001-src-prefs.js-disable-sandbox-for-non-ESR.patch)
 
 prepare() {
   cp distro_links.html $pkgname-$pkgver/src/homepage/distro_links.html
+
+  cd $pkgname-$pkgver
+  patch -p1 -N < ../0001-src-prefs.js-disable-sandbox-for-non-ESR.patch
 }
 
 package() {
   cd "$pkgname-$pkgver"
   make DESTDIR="$pkgdir" DISTRO="ArchMobile" install
-
-  echo 'export XDG_DATA_DIRS="/usr/share/danctnix:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"' \
-	>> "$pkgdir"/etc/profile.d/mobile-config-path.sh
-
-  install -Dm644 "$srcdir"/firefox.desktop "$pkgdir"/usr/share/danctnix/applications/firefox.desktop
 }
-md5sums=('e2c9db78545771490220da38d65bec35'
+md5sums=('3d26b5b171ced67768801489e1b6a743'
          'c5a8428c0e87ad1979a5f851a523d396'
-         '566ed17f73472c6d7af73ee0dc1b781f')
+         'd1713c676326389a442eb56a255e279b')
