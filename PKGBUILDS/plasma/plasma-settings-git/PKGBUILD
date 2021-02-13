@@ -4,7 +4,7 @@
 
 _pkgname=plasma-settings
 pkgname=$_pkgname-git
-pkgver=r839.g7ee1c05
+pkgver=r853.g734c8c1
 pkgrel=1
 pkgdesc="Settings application for Mobile Devices running Plasma"
 arch=('aarch64' 'x86_64')
