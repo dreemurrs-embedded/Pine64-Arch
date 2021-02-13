@@ -3,7 +3,7 @@
 
 _pkgname=plasma-angelfish
 pkgname=$_pkgname-git
-pkgver=1.7.1.r9.g064f7d9
+pkgver=1.7.1.r11.gc278469
 pkgrel=1
 pkgdesc="Plasma Demo Webbrowser for Mobile Devices"
 arch=('x86_64' 'aarch64')
