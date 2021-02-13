@@ -4,16 +4,16 @@ Subject: messagedialog: Set orientation based on device
 
 This makes the dialog work better with horizontally constrained screens.
 ---
- gtk/gtkmessagedialog.c                           |  7 +++++++
- gtk/theme/Adwaita/_common.scss                   | 22 ++++++++++++++++++++--
- gtk/theme/Adwaita/gtk-contained-dark.css         | 12 +++++++++---
- gtk/theme/Adwaita/gtk-contained.css              | 12 +++++++++---
- gtk/theme/HighContrast/gtk-contained-inverse.css | 12 +++++++++---
- gtk/theme/HighContrast/gtk-contained.css         | 12 +++++++++---
- 6 files changed, 63 insertions(+), 14 deletions(-)
+ gtk/gtkmessagedialog.c                           | 39 ++++++++++++++++++++++++
+ gtk/theme/Adwaita/_common.scss                   | 22 +++++++++++--
+ gtk/theme/Adwaita/gtk-contained-dark.css         | 12 ++++++--
+ gtk/theme/Adwaita/gtk-contained.css              | 12 ++++++--
+ gtk/theme/HighContrast/gtk-contained-inverse.css | 12 ++++++--
+ gtk/theme/HighContrast/gtk-contained.css         | 12 ++++++--
+ 6 files changed, 95 insertions(+), 14 deletions(-)
 
 diff --git a/gtk/gtkmessagedialog.c b/gtk/gtkmessagedialog.c
-index e70c820..7d83345 100644
+index e70c820..e3a6659 100644
 --- a/gtk/gtkmessagedialog.c
 +++ b/gtk/gtkmessagedialog.c
 @@ -36,6 +36,7 @@
@@ -24,21 +24,74 @@ index e70c820..7d83345 100644
  #include "gtktypebuiltins.h"
  
  /**
-@@ -327,6 +328,12 @@ gtk_message_dialog_init (GtkMessageDialog *dialog)
- G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-   action_area = gtk_dialog_get_action_area (GTK_DIALOG (dialog));
- G_GNUC_END_IGNORE_DEPRECATIONS
+@@ -108,6 +109,8 @@ struct _GtkMessageDialogPrivate
+   guint          has_primary_markup : 1;
+   guint          has_secondary_text : 1;
+   guint          message_type       : 3;
++
++  GSettings     *settings;
+ };
+ 
+ static void gtk_message_dialog_style_updated (GtkWidget       *widget);
+@@ -144,6 +147,31 @@ G_DEFINE_TYPE_WITH_CODE (GtkMessageDialog, gtk_message_dialog, GTK_TYPE_DIALOG,
+ 
+ static GtkBuildableIface *parent_buildable_iface;
+ 
++static void
++update_orientation (GtkMessageDialog *dialog)
++{
++  GtkWidget *action_area;
++
++  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
++  action_area = gtk_dialog_get_action_area (GTK_DIALOG (dialog));
++G_GNUC_END_IGNORE_DEPRECATIONS
 +
 +  if (_gtk_get_is_phone ())
 +    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_VERTICAL);
 +  else
 +    gtk_orientable_set_orientation (GTK_ORIENTABLE (action_area), GTK_ORIENTATION_HORIZONTAL);
++}
++
++static void
++gtk_message_dialog_destroy (GtkWidget *widget)
++{
++  GtkMessageDialog *dialog = GTK_MESSAGE_DIALOG (widget);
++
++  g_clear_object (&dialog->priv->settings);
++
++  GTK_WIDGET_CLASS (gtk_message_dialog_parent_class)->destroy (widget);
++}
++
+ static void
+ gtk_message_dialog_buildable_interface_init (GtkBuildableIface *iface)
+ {
+@@ -162,6 +190,7 @@ gtk_message_dialog_class_init (GtkMessageDialogClass *class)
+   gobject_class = G_OBJECT_CLASS (class);
+   
+   widget_class->style_updated = gtk_message_dialog_style_updated;
++  widget_class->destroy = gtk_message_dialog_destroy;
+ 
+   gtk_widget_class_set_accessible_role (widget_class, ATK_ROLE_ALERT);
+ 
+@@ -327,6 +356,16 @@ gtk_message_dialog_init (GtkMessageDialog *dialog)
+ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+   action_area = gtk_dialog_get_action_area (GTK_DIALOG (dialog));
+ G_GNUC_END_IGNORE_DEPRECATIONS
++
++  priv->settings = _gtk_get_purism_settings ();
++
++  if (priv->settings)
++    g_signal_connect_object (priv->settings, "changed::is-phone",
++                             G_CALLBACK (update_orientation), dialog,
++                             G_CONNECT_SWAPPED);
++
++  update_orientation (dialog);
 +
    gtk_button_box_set_layout (GTK_BUTTON_BOX (action_area), GTK_BUTTONBOX_EXPAND);
  
    settings = gtk_widget_get_settings (GTK_WIDGET (dialog));
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index aa67595..e21ca84 100644
+index 2b2f5de..8539ed9 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
 @@ -3982,10 +3982,13 @@ messagedialog { // Message Dialog styling
@@ -80,7 +133,7 @@ index aa67595..e21ca84 100644
  }
  
 diff --git a/gtk/theme/Adwaita/gtk-contained-dark.css b/gtk/theme/Adwaita/gtk-contained-dark.css
-index 79d2aab..4c7a442 100644
+index 58c4f90..827083e 100644
 --- a/gtk/theme/Adwaita/gtk-contained-dark.css
 +++ b/gtk/theme/Adwaita/gtk-contained-dark.css
 @@ -1602,11 +1602,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
@@ -105,7 +158,7 @@ index 79d2aab..4c7a442 100644
  filechooser .dialog-action-box { border-top: 1px solid #1b1b1b; }
  
 diff --git a/gtk/theme/Adwaita/gtk-contained.css b/gtk/theme/Adwaita/gtk-contained.css
-index 089e02b..b53e664 100644
+index 0a8eff2..55bf5cd 100644
 --- a/gtk/theme/Adwaita/gtk-contained.css
 +++ b/gtk/theme/Adwaita/gtk-contained.css
 @@ -1618,11 +1618,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
@@ -130,7 +183,7 @@ index 089e02b..b53e664 100644
  filechooser .dialog-action-box { border-top: 1px solid #cdc7c2; }
  
 diff --git a/gtk/theme/HighContrast/gtk-contained-inverse.css b/gtk/theme/HighContrast/gtk-contained-inverse.css
-index 8d678a2..cc5d5d4 100644
+index 3a10224..fdaffe9 100644
 --- a/gtk/theme/HighContrast/gtk-contained-inverse.css
 +++ b/gtk/theme/HighContrast/gtk-contained-inverse.css
 @@ -1682,11 +1682,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
@@ -155,7 +208,7 @@ index 8d678a2..cc5d5d4 100644
  filechooser .dialog-action-box { border-top: 1px solid #686868; }
  
 diff --git a/gtk/theme/HighContrast/gtk-contained.css b/gtk/theme/HighContrast/gtk-contained.css
-index 4f1415e..47a1403 100644
+index c20b50f..e006471 100644
 --- a/gtk/theme/HighContrast/gtk-contained.css
 +++ b/gtk/theme/HighContrast/gtk-contained.css
 @@ -1698,11 +1698,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c

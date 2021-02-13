@@ -3,34 +3,47 @@ Date: Thu, 27 Aug 2020 14:48:11 +0530
 Subject: gtkprivate: Add an API to check if phone
 
 ---
- gtk/gtkprivate.h | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ gtk/gtkprivate.h | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
-index 9c0a35a..3aa34cb 100644
+index 91d63e2..1066b97 100644
 --- a/gtk/gtkprivate.h
 +++ b/gtk/gtkprivate.h
-@@ -126,6 +126,27 @@ guint gtk_get_display_debug_flags (GdkDisplay *display);
+@@ -125,6 +125,40 @@ guint gtk_get_display_debug_flags (GdkDisplay *display);
  
  #endif /* G_ENABLE_DEBUG */
  
-+static inline gboolean
-+_gtk_get_is_phone (void)
++static inline GSettings *
++_gtk_get_purism_settings (void)
 +{
 +  GSettings *gsettings;
 +  GSettingsSchema *schema;
-+  gboolean is_phone;
 +
 +  schema = g_settings_schema_source_lookup (g_settings_schema_source_get_default (),
 +                                            "org.gtk.Settings.Purism", TRUE);
 +
 +  if (!schema)
-+    return FALSE;
++    return NULL;
 +
 +  gsettings = g_settings_new_full (schema, NULL, NULL);
++
++  g_settings_schema_unref (schema);
++
++  return gsettings;
++}
++
++static inline gboolean
++_gtk_get_is_phone (void)
++{
++  GSettings *gsettings = _gtk_get_purism_settings ();
++  gboolean is_phone;
++
++  if (!gsettings)
++    return FALSE;
++
 +  is_phone = g_settings_get_boolean (gsettings, "is-phone");
 +  g_object_unref (gsettings);
-+  g_settings_schema_unref (schema);
 +
 +  return is_phone;
 +}

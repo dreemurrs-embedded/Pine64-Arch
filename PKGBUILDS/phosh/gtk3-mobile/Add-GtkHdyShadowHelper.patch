@@ -77,7 +77,7 @@ index 0000000..1b34ddb
 +G_END_DECLS
 diff --git a/gtk/hdy-shadow-helper.c b/gtk/hdy-shadow-helper.c
 new file mode 100644
-index 0000000..d0fe194
+index 0000000..69583c4
 --- /dev/null
 +++ b/gtk/hdy-shadow-helper.c
 @@ -0,0 +1,453 @@
@@ -427,7 +427,7 @@ index 0000000..d0fe194
 +  gdouble remaining_distance, shadow_opacity;
 +  gint shadow_size, border_size, outline_size, distance;
 +
-+  if (progress <= 0 || progress >= 1)
++  if (progress >= 1)
 +    return;
 +
 +  cache_shadow (self, width, height, direction);

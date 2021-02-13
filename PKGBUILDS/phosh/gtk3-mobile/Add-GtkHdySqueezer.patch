@@ -4,23 +4,19 @@ Subject: Add GtkHdySqueezer
 
 This is imported from HdySqueezer from libhandy 1.0.2.
 ---
- gtk/Makefile.am             |    6 +
- gtk/gtkprivate.h            |    1 +
- gtk/hdy-animation-private.h |   23 +
- gtk/hdy-animation.c         |   82 +++
- gtk/hdy-cairo-private.h     |   21 +
- gtk/hdy-squeezer-private.h  |   63 ++
- gtk/hdy-squeezer.c          | 1573 +++++++++++++++++++++++++++++++++++++++++++
- gtk/meson.build             |    5 +
- 8 files changed, 1774 insertions(+)
- create mode 100644 gtk/hdy-animation-private.h
- create mode 100644 gtk/hdy-animation.c
+ gtk/Makefile.am            |    4 +
+ gtk/gtkprivate.h           |    1 +
+ gtk/hdy-cairo-private.h    |   21 +
+ gtk/hdy-squeezer-private.h |   63 ++
+ gtk/hdy-squeezer.c         | 1573 ++++++++++++++++++++++++++++++++++++++++++++
+ gtk/meson.build            |    3 +
+ 6 files changed, 1665 insertions(+)
  create mode 100644 gtk/hdy-cairo-private.h
  create mode 100644 gtk/hdy-squeezer-private.h
  create mode 100644 gtk/hdy-squeezer.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 12cba66..5150fd0 100644
+index ef9c90a..5150fd0 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
@@ -31,22 +27,19 @@ index 12cba66..5150fd0 100644
  	hdy-view-switcher-private.h
  
  
-@@ -602,7 +603,10 @@ gtk_private_h_sources =		\
- 	gtkwindowprivate.h	\
+@@ -603,7 +604,9 @@ gtk_private_h_sources =		\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
-+	hdy-animation-private.h	\
+ 	hdy-animation-private.h	\
 +	hdy-cairo-private.h	\
  	hdy-css-private.h	\
 +	hdy-squeezer-private.h	\
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
-@@ -981,7 +985,9 @@ gtk_base_c_sources = 		\
- 	gtkwin32draw.c		\
- 	gtkwin32theme.c		\
+@@ -984,6 +987,7 @@ gtk_base_c_sources = 		\
  	gdkpixbufutils.c	\
-+	hdy-animation.c	\
+ 	hdy-animation.c	\
  	hdy-css.c	\
 +	hdy-squeezer.c	\
  	hdy-view-switcher.c	\
@@ -64,123 +57,6 @@ index b470e62..9b5f8bb 100644
  #include "hdy-view-switcher-private.h"
  
  G_BEGIN_DECLS
-diff --git a/gtk/hdy-animation-private.h b/gtk/hdy-animation-private.h
-new file mode 100644
-index 0000000..1c6b513
---- /dev/null
-+++ b/gtk/hdy-animation-private.h
-@@ -0,0 +1,23 @@
-+/*
-+ * Copyright (C) 2019 Purism SPC
-+ *
-+ * SPDX-License-Identifier: LGPL-2.1+
-+ */
-+
-+#pragma once
-+
-+#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
-+#error "Only <gtk/gtk.h> can be included directly."
-+#endif
-+
-+#include "gtkwidget.h"
-+
-+G_BEGIN_DECLS
-+
-+gboolean gtk_hdy_get_enable_animations (GtkWidget *widget);
-+
-+gdouble gtk_hdy_lerp (gdouble a, gdouble b, gdouble t);
-+
-+gdouble gtk_hdy_ease_out_cubic (gdouble t);
-+
-+G_END_DECLS
-diff --git a/gtk/hdy-animation.c b/gtk/hdy-animation.c
-new file mode 100644
-index 0000000..d1c4db2
---- /dev/null
-+++ b/gtk/hdy-animation.c
-@@ -0,0 +1,82 @@
-+/*
-+ * Copyright (C) 2019 Purism SPC
-+ *
-+ * SPDX-License-Identifier: LGPL-2.1+
-+ */
-+
-+#include "config.h"
-+
-+#include "hdy-animation-private.h"
-+
-+/**
-+ * SECTION:hdy-animation
-+ * @short_description: Animation helpers
-+ * @title: Animation Helpers
-+ *
-+ * Animation helpers.
-+ *
-+ * Since: 0.0.11
-+ */
-+
-+/**
-+ * gtk_hdy_get_enable_animations:
-+ * @widget: a #GtkWidget
-+ *
-+ * Returns whether animations are enabled for that widget. This should be used
-+ * when implementing an animated widget to know whether to animate it or not.
-+ *
-+ * Returns: %TRUE if animations are enabled for @widget.
-+ *
-+ * Since: 0.0.11
-+ */
-+gboolean
-+gtk_hdy_get_enable_animations (GtkWidget *widget)
-+{
-+  gboolean enable_animations = TRUE;
-+
-+  g_assert (GTK_IS_WIDGET (widget));
-+
-+  g_object_get (gtk_widget_get_settings (widget),
-+                "gtk-enable-animations", &enable_animations,
-+                NULL);
-+
-+  return enable_animations;
-+}
-+
-+/**
-+ * gtk_hdy_lerp: (skip)
-+ * @a: the start
-+ * @b: the end
-+ * @t: the interpolation rate
-+ *
-+ * Computes the linear interpolation between @a and @b for @t.
-+ *
-+ * Returns: the linear interpolation between @a and @b for @t.
-+ *
-+ * Since: 0.0.11
-+ */
-+gdouble
-+gtk_hdy_lerp (gdouble a, gdouble b, gdouble t)
-+{
-+  return a * (1.0 - t) + b * t;
-+}
-+/* From clutter-easing.c, based on Robert Penner's
-+ * infamous easing equations, MIT license.
-+ */
-+
-+/**
-+ * gtk_hdy_ease_out_cubic:
-+ * @t: the term
-+ *
-+ * Computes the ease out for @t.
-+ *
-+ * Returns: the ease out for @t.
-+ *
-+ * Since: 0.0.11
-+ */
-+gdouble
-+gtk_hdy_ease_out_cubic (gdouble t)
-+{
-+  gdouble p = t - 1;
-+  return p * p * p + 1;
-+}
 diff --git a/gtk/hdy-cairo-private.h b/gtk/hdy-cairo-private.h
 new file mode 100644
 index 0000000..4226ec8
@@ -1857,24 +1733,21 @@ index 0000000..b36db93
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_YALIGN]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 0bdf438..852147a 100644
+index 3c97a01..852147a 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
-@@ -383,7 +383,9 @@ gtk_sources = files(
-   'gtkwin32draw.c',
-   'gtkwin32theme.c',
+@@ -385,6 +385,7 @@ gtk_sources = files(
    'gdkpixbufutils.c',
-+  'hdy-animation.c',
+   'hdy-animation.c',
    'hdy-css.c',
 +  'hdy-squeezer.c',
    'hdy-view-switcher-bar.c',
    'hdy-view-switcher-button.c',
    'hdy-view-switcher.c',
-@@ -394,7 +396,10 @@ gtk_sources = files(
- gtk_private_type_headers = files(
+@@ -396,7 +397,9 @@ gtk_private_type_headers = files(
    'gtkcsstypesprivate.h',
    'gtktexthandleprivate.h',
-+  'hdy-animation-private.h',
+   'hdy-animation-private.h',
 +  'hdy-cairo-private.h',
    'hdy-css-private.h',
 +  'hdy-squeezer-private.h',

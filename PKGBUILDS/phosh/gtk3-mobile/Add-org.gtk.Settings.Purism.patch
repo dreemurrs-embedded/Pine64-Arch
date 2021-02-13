@@ -10,10 +10,10 @@ Subject: Add org.gtk.Settings.Purism
  create mode 100644 gtk/org.gtk.Settings.Purism.gschema.xml
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index f5281fe..253f983 100644
+index d8e215f..8e42a20 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -1788,7 +1788,8 @@ gsettings_SCHEMAS = \
+@@ -1785,7 +1785,8 @@ gsettings_SCHEMAS = \
  	org.gtk.Settings.FileChooser.gschema.xml \
  	org.gtk.Settings.ColorChooser.gschema.xml \
  	org.gtk.Settings.EmojiChooser.gschema.xml \
@@ -24,10 +24,10 @@ index f5281fe..253f983 100644
  @GSETTINGS_RULES@
  
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 455e666..8c3a809 100644
+index 03f4c9f..0e31a40 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
-@@ -962,6 +962,7 @@ gtk_settings_schemas = [
+@@ -960,6 +960,7 @@ gtk_settings_schemas = [
    'org.gtk.Settings.ColorChooser.gschema.xml',
    'org.gtk.Settings.EmojiChooser.gschema.xml',
    'org.gtk.Settings.Debug.gschema.xml',

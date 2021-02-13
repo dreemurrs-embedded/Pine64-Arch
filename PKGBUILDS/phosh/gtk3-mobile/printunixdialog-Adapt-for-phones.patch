@@ -1,0 +1,492 @@
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Mon, 12 Oct 2020 18:07:07 +0500
+Subject: printunixdialog: Adapt for phones
+
+This makes the dialog work better with horizontally constrained screens.
+---
+ gtk/gtkprinteroptionwidget.c |  40 ++++++++++++++++
+ gtk/gtkprintunixdialog.c     |  76 +++++++++++++++++++++++++++--
+ gtk/ui/gtkprintunixdialog.ui | 111 +++++++++++++++++++++++++++++--------------
+ 3 files changed, 186 insertions(+), 41 deletions(-)
+
+diff --git a/gtk/gtkprinteroptionwidget.c b/gtk/gtkprinteroptionwidget.c
+index e4bf137..2465581 100644
+--- a/gtk/gtkprinteroptionwidget.c
++++ b/gtk/gtkprinteroptionwidget.c
+@@ -69,6 +69,8 @@ struct GtkPrinterOptionWidgetPrivate
+ 
+   /* the last location for save to file, that the user selected */
+   gchar *last_location;
++
++  GSettings *settings;
+ };
+ 
+ enum {
+@@ -96,6 +98,17 @@ static void gtk_printer_option_widget_get_property (GObject      *object,
+ static gboolean gtk_printer_option_widget_mnemonic_activate (GtkWidget *widget,
+ 							     gboolean   group_cycling);
+ 
++static void
++gtk_printer_option_widget_destroy (GtkWidget *widget)
++{
++  GtkPrinterOptionWidget *powidget = GTK_PRINTER_OPTION_WIDGET (widget);
++  GtkPrinterOptionWidgetPrivate *priv = powidget->priv;
++
++  g_clear_object (&priv->settings);
++
++  GTK_WIDGET_CLASS (gtk_printer_option_widget_parent_class)->destroy (widget);
++}
++
+ static void
+ gtk_printer_option_widget_class_init (GtkPrinterOptionWidgetClass *class)
+ {
+@@ -109,6 +122,7 @@ gtk_printer_option_widget_class_init (GtkPrinterOptionWidgetClass *class)
+   object_class->set_property = gtk_printer_option_widget_set_property;
+   object_class->get_property = gtk_printer_option_widget_get_property;
+ 
++  widget_class->destroy = gtk_printer_option_widget_destroy;
+   widget_class->mnemonic_activate = gtk_printer_option_widget_mnemonic_activate;
+ 
+   signals[CHANGED] =
+@@ -748,6 +762,22 @@ alternative_append (GtkWidget              *box,
+   return gtk_radio_button_get_group (GTK_RADIO_BUTTON (button));
+ }
+ 
++static void
++update_is_phone (GtkPrinterOptionWidget *widget)
++{
++  GtkPrinterOptionWidgetPrivate *priv = widget->priv;
++  gboolean is_phone;
++
++  if (!priv->box)
++    return;
++
++  is_phone = _gtk_get_is_phone ();
++
++  gtk_box_set_spacing (GTK_BOX (priv->box), is_phone ? 6 : 12);
++  gtk_orientable_set_orientation (GTK_ORIENTABLE (priv->box),
++                                  is_phone ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
++}
++
+ static void
+ construct_widgets (GtkPrinterOptionWidget *widget)
+ {
+@@ -822,6 +852,16 @@ construct_widgets (GtkPrinterOptionWidget *widget)
+     case GTK_PRINTER_OPTION_TYPE_ALTERNATIVE:
+       group = NULL;
+       priv->box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
++
++      priv->settings = _gtk_get_purism_settings ();
++
++      if (priv->settings)
++        g_signal_connect_object (priv->settings, "changed::is-phone",
++                                 G_CALLBACK (update_is_phone), widget,
++                                 G_CONNECT_SWAPPED);
++
++      update_is_phone (widget);
++
+       gtk_widget_set_valign (priv->box, GTK_ALIGN_BASELINE);
+       gtk_widget_show (priv->box);
+       gtk_box_pack_start (GTK_BOX (widget), priv->box, TRUE, TRUE, 0);
+diff --git a/gtk/gtkprintunixdialog.c b/gtk/gtkprintunixdialog.c
+index 936bbef..f2eaec4 100644
+--- a/gtk/gtkprintunixdialog.c
++++ b/gtk/gtkprintunixdialog.c
+@@ -263,6 +263,7 @@ struct GtkPrintUnixDialogPrivate
+ {
+   GtkWidget *notebook;
+ 
++  GtkWidget *printer_swin;
+   GtkWidget *printer_treeview;
+   GtkTreeViewColumn *printer_icon_column;
+   GtkTreeViewColumn *printer_name_column;
+@@ -368,6 +369,8 @@ struct GtkPrintUnixDialogPrivate
+   gchar *format_for_printer;
+ 
+   gint current_page;
++
++  GSettings *settings;
+ };
+ 
+ G_DEFINE_TYPE_WITH_CODE (GtkPrintUnixDialog, gtk_print_unix_dialog, GTK_TYPE_DIALOG,
+@@ -480,6 +483,7 @@ gtk_print_unix_dialog_class_init (GtkPrintUnixDialogClass *class)
+ 					       "/org/gtk/libgtk/ui/gtkprintunixdialog.ui");
+ 
+   /* GtkTreeView / GtkTreeModel */
++  gtk_widget_class_bind_template_child_private (widget_class, GtkPrintUnixDialog, printer_swin);
+   gtk_widget_class_bind_template_child_private (widget_class, GtkPrintUnixDialog, printer_treeview);
+   gtk_widget_class_bind_template_child_private (widget_class, GtkPrintUnixDialog, printer_list);
+   gtk_widget_class_bind_template_child_private (widget_class, GtkPrintUnixDialog, printer_list_filter);
+@@ -712,6 +716,44 @@ G_GNUC_END_IGNORE_DEPRECATIONS
+   return FALSE;
+ }
+ 
++static void
++update_is_phone (GtkPrintUnixDialog *dialog)
++{
++  GtkPrintUnixDialogPrivate *priv = gtk_print_unix_dialog_get_instance_private (dialog);
++  gboolean is_phone = _gtk_get_is_phone ();
++  GtkPrintCapabilities caps;
++  GtkWidget *button;
++  GList *children, *l;
++
++  gtk_orientable_set_orientation (GTK_ORIENTABLE (priv->extension_point),
++                                  is_phone ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
++
++  caps = priv->manual_capabilities | priv->printer_capabilities;
++  button = gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_APPLY);
++  gtk_widget_set_visible (button, (caps & GTK_PRINT_CAPABILITY_PREVIEW) != 0 && !is_phone);
++
++  children = gtk_container_get_children (GTK_CONTAINER (priv->extension_point));
++  l = g_list_last (children);
++  if (l && l != children)
++    gtk_widget_set_halign (GTK_WIDGET (l->data),
++                           is_phone ? GTK_ALIGN_FILL : GTK_ALIGN_END);
++
++  for (l = children; l && l->data; l = l->next)
++    {
++      GtkWidget *hbox = l->data;
++      GtkWidget *widget = g_object_get_data (G_OBJECT (l->data), "gtk-external-label");
++
++      if (!widget)
++        continue;
++
++      gtk_orientable_set_orientation (GTK_ORIENTABLE (hbox),
++                                      is_phone ? GTK_ORIENTATION_VERTICAL : GTK_ORIENTATION_HORIZONTAL);
++      gtk_widget_set_margin_start (widget, is_phone ? 12 : 0);
++    }
++
++  g_list_free (children);
++}
++
+ static void
+ gtk_print_unix_dialog_init (GtkPrintUnixDialog *dialog)
+ {
+@@ -805,6 +847,15 @@ gtk_print_unix_dialog_init (GtkPrintUnixDialog *dialog)
+ 
+   gtk_css_node_set_name (gtk_widget_get_css_node (priv->collate_image), I_("paper"));
+   gtk_css_node_set_name (gtk_widget_get_css_node (priv->page_layout_preview), I_("paper"));
++
++  priv->settings = _gtk_get_purism_settings ();
++
++  if (priv->settings)
++    g_signal_connect_object (priv->settings, "changed::is-phone",
++                             G_CALLBACK (update_is_phone), dialog,
++                             G_CONNECT_SWAPPED);
++
++  update_is_phone (dialog);
+ }
+ 
+ static void
+@@ -838,6 +889,8 @@ gtk_print_unix_dialog_destroy (GtkWidget *widget)
+   /* Make sure we don't destroy custom widgets owned by the backends */
+   clear_per_printer_ui (dialog);
+ 
++  g_clear_object (&dialog->priv->settings);
++
+   GTK_WIDGET_CLASS (gtk_print_unix_dialog_parent_class)->destroy (widget);
+ }
+ 
+@@ -1359,6 +1412,15 @@ add_option_to_extension_point (GtkPrinterOption *option,
+       gtk_box_pack_start (GTK_BOX (hbox), widget, FALSE, FALSE, 0);
+       gtk_widget_show (hbox);
+ 
++      g_object_set_data (G_OBJECT (hbox), "gtk-external-label", widget);
++
++      if (_gtk_get_is_phone ())
++        {
++          gtk_orientable_set_orientation (GTK_ORIENTABLE (hbox),
++                                          GTK_ORIENTATION_VERTICAL);
++          gtk_widget_set_margin_start (widget, 12);
++        }
++
+       gtk_box_pack_start (GTK_BOX (extension_point), hbox, TRUE, TRUE, 0);
+     }
+   else
+@@ -1600,7 +1662,7 @@ update_dialog_from_settings (GtkPrintUnixDialog *dialog)
+    */
+   children = gtk_container_get_children (GTK_CONTAINER (priv->extension_point));
+   l = g_list_last (children);
+-  if (l && l != children)
++  if (l && l != children && !_gtk_get_is_phone ())
+     gtk_widget_set_halign (GTK_WIDGET (l->data), GTK_ALIGN_END);
+   g_list_free (children);
+ 
+@@ -1660,7 +1722,6 @@ update_dialog_from_capabilities (GtkPrintUnixDialog *dialog)
+   GtkPrintUnixDialogPrivate *priv = dialog->priv;
+   gboolean can_collate;
+   const gchar *copies;
+-  GtkWidget *button;
+ 
+   copies = gtk_entry_get_text (GTK_ENTRY (priv->copies_spin));
+   can_collate = (*copies != '\0' && atoi (copies) > 1);
+@@ -1681,9 +1742,7 @@ update_dialog_from_capabilities (GtkPrintUnixDialog *dialog)
+   gtk_widget_set_sensitive (GTK_WIDGET (priv->pages_per_sheet),
+                             caps & GTK_PRINT_CAPABILITY_NUMBER_UP);
+ 
+-  button = gtk_dialog_get_widget_for_response (GTK_DIALOG (dialog), GTK_RESPONSE_APPLY);
+-  gtk_widget_set_visible (button, (caps & GTK_PRINT_CAPABILITY_PREVIEW) != 0);
+-
++  update_is_phone (dialog);
+   update_collate_icon (NULL, dialog);
+ 
+   gtk_tree_model_filter_refilter (priv->printer_list_filter);
+@@ -3749,6 +3808,13 @@ gtk_print_unix_dialog_add_custom_tab (GtkPrintUnixDialog *dialog,
+                                       GtkWidget          *child,
+                                       GtkWidget          *tab_label)
+ {
++  GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
++
++  gtk_container_add (GTK_CONTAINER (scrolled_window), child);
++  gtk_widget_show (child);
++
++  child = scrolled_window;
++
+   gtk_notebook_insert_page (GTK_NOTEBOOK (dialog->priv->notebook),
+                             child, tab_label, 2);
+   gtk_widget_show (child);
+diff --git a/gtk/ui/gtkprintunixdialog.ui b/gtk/ui/gtkprintunixdialog.ui
+index e4e552a..e2ba70b 100644
+--- a/gtk/ui/gtkprintunixdialog.ui
++++ b/gtk/ui/gtkprintunixdialog.ui
+@@ -50,6 +50,8 @@
+   <template class="GtkPrintUnixDialog" parent="GtkDialog">
+     <property name="can-focus">False</property>
+     <property name="type-hint">dialog</property>
++    <property name="default-width">660</property>
++    <property name="default-height">480</property>
+     <signal name="notify::page-setup" handler="redraw_page_layout_preview" swapped="no"/>
+     <signal name="response" handler="error_dialogs" swapped="no"/>
+     <child internal-child="vbox">
+@@ -69,6 +71,11 @@
+                 <property name="visible">1</property>
+                 <property name="can-focus">1</property>
+                 <property name="show-border">0</property>
++                <property name="scrollable">1</property>
++                <child>
++                  <object class="GtkScrolledWindow">
++                    <property name="visible">1</property>
++                    <property name="hscrollbar-policy">never</property>
+                 <child>
+                   <object class="GtkBox" id="general_main_box">
+                     <property name="visible">1</property>
+@@ -85,6 +92,7 @@
+                             <property name="visible">1</property>
+                             <property name="can-focus">1</property>
+                             <property name="shadow-type">in</property>
++                            <property name="vscrollbar-policy">never</property>
+                             <child>
+                               <object class="GtkTreeView" id="printer_treeview">
+                                 <property name="visible">1</property>
+@@ -165,9 +173,16 @@
+                       </packing>
+                     </child>
+                     <child>
+-                      <object class="GtkBox" id="box3">
++                      <object class="GtkFlowBox">
+                         <property name="visible">1</property>
+-                        <property name="spacing">18</property>
++                        <property name="row-spacing">18</property>
++                        <property name="column-spacing">18</property>
++                        <property name="max-children-per-line">2</property>
++                        <property name="selection-mode">none</property>
++                        <child>
++                          <object class="GtkFlowBoxChild">
++                            <property name="visible">1</property>
++                            <property name="can-focus">0</property>
+                         <child>
+                           <object class="GtkBox" id="frame_template1">
+                             <property name="visible">1</property>
+@@ -294,10 +309,13 @@
+                               </packing>
+                             </child>
+                           </object>
+-                          <packing>
+-                            <property name="expand">1</property>
+-                          </packing>
+                         </child>
++                          </object>
++                        </child>
++                        <child>
++                          <object class="GtkFlowBoxChild">
++                            <property name="visible">1</property>
++                            <property name="can-focus">0</property>
+                         <child>
+                           <object class="GtkBox" id="frame_template2">
+                             <property name="visible">1</property>
+@@ -407,10 +425,8 @@
+                               </packing>
+                             </child>
+                           </object>
+-                          <packing>
+-                            <property name="expand">1</property>
+-                            <property name="position">1</property>
+-                          </packing>
++                        </child>
++                          </object>
+                         </child>
+                       </object>
+                       <packing>
+@@ -419,6 +435,8 @@
+                       </packing>
+                     </child>
+                   </object>
++                </child>
++                  </object>
+                 </child>
+                 <child type="tab">
+                   <object class="GtkLabel" id="label1">
+@@ -429,6 +447,10 @@
+                     <property name="tab-fill">0</property>
+                   </packing>
+                 </child>
++                <child>
++                  <object class="GtkScrolledWindow">
++                    <property name="visible">1</property>
++                    <property name="hscrollbar-policy">never</property>
+                 <child>
+                   <object class="GtkBox" id="page_setup_main_box">
+                     <property name="visible">1</property>
+@@ -436,9 +458,16 @@
+                     <property name="orientation">vertical</property>
+                     <property name="spacing">18</property>
+                     <child>
+-                      <object class="GtkBox" id="box4">
++                      <object class="GtkFlowBox">
+                         <property name="visible">1</property>
+-                        <property name="spacing">18</property>
++                        <property name="row-spacing">18</property>
++                        <property name="column-spacing">18</property>
++                        <property name="max-children-per-line">2</property>
++                        <property name="selection-mode">none</property>
++                        <child>
++                          <object class="GtkFlowBoxChild">
++                            <property name="visible">1</property>
++                            <property name="can-focus">0</property>
+                         <child>
+                           <object class="GtkBox" id="frame_template3">
+                             <property name="visible">1</property>
+@@ -632,10 +661,13 @@
+                               </packing>
+                             </child>
+                           </object>
+-                          <packing>
+-                            <property name="expand">1</property>
+-                          </packing>
++                        </child>
++                          </object>
+                         </child>
++                        <child>
++                          <object class="GtkFlowBoxChild">
++                            <property name="visible">1</property>
++                            <property name="can-focus">0</property>
+                         <child>
+                           <object class="GtkBox" id="frame_template4">
+                             <property name="visible">1</property>
+@@ -760,7 +792,9 @@
+                                     <property name="model">page_setup_list</property>
+                                     <property name="valign">baseline</property>
+                                     <child>
+-                                      <object class="GtkCellRendererText" id="paper_size_renderer"/>
++                                      <object class="GtkCellRendererText" id="paper_size_renderer">
++                                        <property name="ellipsize">end</property>
++                                      </object>
+                                     </child>
+                                   </object>
+                                   <packing>
+@@ -812,16 +846,10 @@
+                               </packing>
+                             </child>
+                           </object>
+-                          <packing>
+-                            <property name="expand">1</property>
+-                            <property name="padding">6</property>
+-                            <property name="position">1</property>
+-                          </packing>
+                         </child>
+                       </object>
+-                      <packing>
+-                        <property name="fill">0</property>
+-                      </packing>
++                    </child>
++                      </object>
+                     </child>
+                     <child>
+                       <object class="GtkBox" id="box6">
+@@ -847,6 +875,8 @@
+                   <packing>
+                     <property name="position">1</property>
+                   </packing>
++                </child>
++                  </object>
+                 </child>
+                 <child type="tab">
+                   <object class="GtkLabel" id="label2">
+@@ -859,10 +889,17 @@
+                   </packing>
+                 </child>
+                 <child>
+-                  <object class="GtkGrid" id="job_page">
++                  <object class="GtkFlowBox" id="job_page">
+                     <property name="border-width">12</property>
+                     <property name="row-spacing">18</property>
+                     <property name="column-spacing">18</property>
++                    <property name="max-children-per-line">2</property>
++                    <property name="selection-mode">none</property>
++                    <property name="valign">start</property>
++                    <child>
++                      <object class="GtkFlowBoxChild">
++                        <property name="visible">True</property>
++                        <property name="can-focus">False</property>
+                     <child>
+                       <object class="GtkBox" id="frame_template5">
+                         <property name="visible">1</property>
+@@ -949,11 +986,13 @@
+                           </packing>
+                         </child>
+                       </object>
+-                      <packing>
+-                        <property name="left-attach">0</property>
+-                        <property name="top-attach">0</property>
+-                      </packing>
+                     </child>
++                      </object>
++                    </child>
++                    <child>
++                      <object class="GtkFlowBoxChild">
++                        <property name="visible">True</property>
++                        <property name="can-focus">False</property>
+                     <child>
+                       <object class="GtkBox" id="frame_template6">
+                         <property name="visible">1</property>
+@@ -1074,11 +1113,13 @@
+                           </packing>
+                         </child>
+                       </object>
+-                      <packing>
+-                        <property name="left-attach">0</property>
+-                        <property name="top-attach">1</property>
+-                      </packing>
++                    </child>
++                      </object>
+                     </child>
++                    <child>
++                      <object class="GtkFlowBoxChild">
++                        <property name="visible">True</property>
++                        <property name="can-focus">False</property>
+                     <child>
+                       <object class="GtkBox" id="frame_template7">
+                         <property name="visible">1</property>
+@@ -1165,10 +1206,8 @@
+                           </packing>
+                         </child>
+                       </object>
+-                      <packing>
+-                        <property name="left-attach">1</property>
+-                        <property name="top-attach">0</property>
+-                      </packing>
++                    </child>
++                      </object>
+                     </child>
+                   </object>
+                   <packing>

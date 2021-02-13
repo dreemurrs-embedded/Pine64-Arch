@@ -12,7 +12,7 @@ Make sure it moves to the bottom on narrow sizes.
  5 files changed, 13 insertions(+)
 
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index f46c350..aa67595 100644
+index 9aa8860..2b2f5de 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
 @@ -4850,6 +4850,11 @@ viewswitcher {
@@ -28,7 +28,7 @@ index f46c350..aa67595 100644
      border-radius: 0;
      border-top: 0;
 diff --git a/gtk/theme/Adwaita/gtk-contained-dark.css b/gtk/theme/Adwaita/gtk-contained-dark.css
-index 099d26a..79d2aab 100644
+index 504ca02..58c4f90 100644
 --- a/gtk/theme/Adwaita/gtk-contained-dark.css
 +++ b/gtk/theme/Adwaita/gtk-contained-dark.css
 @@ -1952,6 +1952,8 @@ popover.emoji-completion .emoji:hover { background: #424242; }
@@ -41,7 +41,7 @@ index 099d26a..79d2aab 100644
  
  viewswitcher button:not(:checked):not(:hover) { background: transparent; }
 diff --git a/gtk/theme/Adwaita/gtk-contained.css b/gtk/theme/Adwaita/gtk-contained.css
-index 27aed7a..089e02b 100644
+index e38176c..0a8eff2 100644
 --- a/gtk/theme/Adwaita/gtk-contained.css
 +++ b/gtk/theme/Adwaita/gtk-contained.css
 @@ -1968,6 +1968,8 @@ popover.emoji-completion .emoji:hover { background: white; }
@@ -54,7 +54,7 @@ index 27aed7a..089e02b 100644
  
  viewswitcher button:not(:checked):not(:hover) { background: transparent; }
 diff --git a/gtk/theme/HighContrast/gtk-contained-inverse.css b/gtk/theme/HighContrast/gtk-contained-inverse.css
-index 07032d0..8d678a2 100644
+index c3dee8d..3a10224 100644
 --- a/gtk/theme/HighContrast/gtk-contained-inverse.css
 +++ b/gtk/theme/HighContrast/gtk-contained-inverse.css
 @@ -2032,6 +2032,8 @@ popover.emoji-completion .emoji:hover { background: #424242; }
@@ -67,7 +67,7 @@ index 07032d0..8d678a2 100644
  
  viewswitcher button:not(:checked):not(:hover) { background: transparent; }
 diff --git a/gtk/theme/HighContrast/gtk-contained.css b/gtk/theme/HighContrast/gtk-contained.css
-index 9ebedbb..4f1415e 100644
+index 0684091..c20b50f 100644
 --- a/gtk/theme/HighContrast/gtk-contained.css
 +++ b/gtk/theme/HighContrast/gtk-contained.css
 @@ -2048,6 +2048,8 @@ popover.emoji-completion .emoji:hover { background: white; }

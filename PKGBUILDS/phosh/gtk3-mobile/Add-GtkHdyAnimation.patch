@@ -1,0 +1,369 @@
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Wed, 16 Dec 2020 18:54:47 +0500
+Subject: Add GtkHdyAnimation
+
+This is imported from HdyAnimation from libhandy 1.0.2.
+---
+ gtk/Makefile.am             |   2 +
+ gtk/hdy-animation-private.h |  53 ++++++++++
+ gtk/hdy-animation.c         | 250 ++++++++++++++++++++++++++++++++++++++++++++
+ gtk/meson.build             |   2 +
+ 4 files changed, 307 insertions(+)
+ create mode 100644 gtk/hdy-animation-private.h
+ create mode 100644 gtk/hdy-animation.c
+
+diff --git a/gtk/Makefile.am b/gtk/Makefile.am
+index 12cba66..ef9c90a 100644
+--- a/gtk/Makefile.am
++++ b/gtk/Makefile.am
+@@ -602,6 +602,7 @@ gtk_private_h_sources =		\
+ 	gtkwindowprivate.h	\
+ 	gtktreemenu.h		\
+ 	gdkpixbufutilsprivate.h \
++	hdy-animation-private.h	\
+ 	hdy-css-private.h	\
+ 	hdy-view-switcher-bar-private.h	\
+ 	hdy-view-switcher-button-private.h	\
+@@ -981,6 +982,7 @@ gtk_base_c_sources = 		\
+ 	gtkwin32draw.c		\
+ 	gtkwin32theme.c		\
+ 	gdkpixbufutils.c	\
++	hdy-animation.c	\
+ 	hdy-css.c	\
+ 	hdy-view-switcher.c	\
+ 	hdy-view-switcher-bar.c	\
+diff --git a/gtk/hdy-animation-private.h b/gtk/hdy-animation-private.h
+new file mode 100644
+index 0000000..6816f6e
+--- /dev/null
++++ b/gtk/hdy-animation-private.h
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) 2019 Purism SPC
++ *
++ * SPDX-License-Identifier: LGPL-2.1+
++ */
++
++#pragma once
++
++#if !defined (__GTK_H_INSIDE__) && !defined (GTK_COMPILATION)
++#error "Only <gtk/gtk.h> can be included directly."
++#endif
++
++#include "gtkwidget.h"
++
++G_BEGIN_DECLS
++
++#define GTK_TYPE_HDY_ANIMATION (gtk_hdy_animation_get_type())
++
++typedef struct _GtkHdyAnimation GtkHdyAnimation;
++
++typedef void   (*GtkHdyAnimationValueCallback) (gdouble  value,
++                                                gpointer user_data);
++typedef void   (*GtkHdyAnimationDoneCallback)  (gpointer user_data);
++typedef double (*GtkHdyAnimationEasingFunc)    (gdouble  t);
++
++GType            gtk_hdy_animation_get_type  (void) G_GNUC_CONST;
++
++GtkHdyAnimation *gtk_hdy_animation_new       (GtkWidget                    *widget,
++                                              gdouble                       from,
++                                              gdouble                       to,
++                                              gint64                        duration,
++                                              GtkHdyAnimationEasingFunc     easing_func,
++                                              GtkHdyAnimationValueCallback  value_cb,
++                                              GtkHdyAnimationDoneCallback   done_cb,
++                                              gpointer                      user_data);
++
++GtkHdyAnimation *gtk_hdy_animation_ref       (GtkHdyAnimation *self);
++void             gtk_hdy_animation_unref     (GtkHdyAnimation *self);
++
++void             gtk_hdy_animation_start     (GtkHdyAnimation *self);
++void             gtk_hdy_animation_stop      (GtkHdyAnimation *self);
++
++gdouble          gtk_hdy_animation_get_value (GtkHdyAnimation *self);
++
++G_DEFINE_AUTOPTR_CLEANUP_FUNC (GtkHdyAnimation, gtk_hdy_animation_unref)
++
++gboolean gtk_hdy_get_enable_animations (GtkWidget *widget);
++
++gdouble gtk_hdy_lerp (gdouble a, gdouble b, gdouble t);
++
++gdouble gtk_hdy_ease_out_cubic (gdouble t);
++
++G_END_DECLS
+diff --git a/gtk/hdy-animation.c b/gtk/hdy-animation.c
+new file mode 100644
+index 0000000..0de1128
+--- /dev/null
++++ b/gtk/hdy-animation.c
+@@ -0,0 +1,250 @@
++/*
++ * Copyright (C) 2019-2020 Purism SPC
++ *
++ * SPDX-License-Identifier: LGPL-2.1+
++ */
++
++#include "config.h"
++
++#include "hdy-animation-private.h"
++
++/**
++ * SECTION:hdy-animation
++ * @short_description: Animation helpers
++ * @title: Animation Helpers
++ *
++ * Animation helpers.
++ *
++ * Since: 0.0.11
++ */
++
++G_DEFINE_BOXED_TYPE (GtkHdyAnimation, gtk_hdy_animation, gtk_hdy_animation_ref, gtk_hdy_animation_unref)
++
++struct _GtkHdyAnimation
++{
++  gatomicrefcount ref_count;
++
++  GtkWidget *widget;
++
++  gdouble value;
++
++  gdouble value_from;
++  gdouble value_to;
++  gint64 duration; /* ms */
++
++  gint64 start_time; /* ms */
++  guint tick_cb_id;
++
++  GtkHdyAnimationEasingFunc easing_func;
++  GtkHdyAnimationValueCallback value_cb;
++  GtkHdyAnimationDoneCallback done_cb;
++  gpointer user_data;
++};
++
++static void
++set_value (GtkHdyAnimation *self,
++           gdouble          value)
++{
++  self->value = value;
++  self->value_cb (value, self->user_data);
++}
++
++static gboolean
++tick_cb (GtkWidget       *widget,
++         GdkFrameClock   *frame_clock,
++         GtkHdyAnimation *self)
++{
++  gint64 frame_time = gdk_frame_clock_get_frame_time (frame_clock) / 1000; /* ms */
++  gdouble t = (gdouble) (frame_time - self->start_time) / self->duration;
++
++  if (t >= 1) {
++    self->tick_cb_id = 0;
++
++    set_value (self, self->value_to);
++
++    g_signal_handlers_disconnect_by_func (self->widget, gtk_hdy_animation_stop, self);
++
++    self->done_cb (self->user_data);
++
++    return G_SOURCE_REMOVE;
++  }
++
++  set_value (self, gtk_hdy_lerp (self->value_from, self->value_to, self->easing_func (t)));
++
++  return G_SOURCE_CONTINUE;
++}
++
++static void
++gtk_hdy_animation_free (GtkHdyAnimation *self)
++{
++  gtk_hdy_animation_stop (self);
++
++  g_slice_free (GtkHdyAnimation, self);
++}
++
++GtkHdyAnimation *
++gtk_hdy_animation_new (GtkWidget                    *widget,
++                       gdouble                       from,
++                       gdouble                       to,
++                       gint64                        duration,
++                       GtkHdyAnimationEasingFunc     easing_func,
++                       GtkHdyAnimationValueCallback  value_cb,
++                       GtkHdyAnimationDoneCallback   done_cb,
++                       gpointer                      user_data)
++{
++  GtkHdyAnimation *self;
++
++  g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
++  g_return_val_if_fail (easing_func != NULL, NULL);
++  g_return_val_if_fail (value_cb != NULL, NULL);
++  g_return_val_if_fail (done_cb != NULL, NULL);
++
++  self = g_slice_new0 (GtkHdyAnimation);
++
++  g_atomic_ref_count_init (&self->ref_count);
++
++  self->widget = widget;
++  self->value_from = from;
++  self->value_to = to;
++  self->duration = duration;
++  self->easing_func = easing_func;
++  self->value_cb = value_cb;
++  self->done_cb = done_cb;
++  self->user_data = user_data;
++
++  self->value = from;
++
++  return self;
++}
++
++GtkHdyAnimation *
++gtk_hdy_animation_ref (GtkHdyAnimation *self)
++{
++  g_return_val_if_fail (self != NULL, NULL);
++
++  g_atomic_ref_count_inc (&self->ref_count);
++
++  return self;
++}
++
++void
++gtk_hdy_animation_unref (GtkHdyAnimation *self)
++{
++  g_return_if_fail (self != NULL);
++
++  if (g_atomic_ref_count_dec (&self->ref_count))
++    gtk_hdy_animation_free (self);
++}
++
++void
++gtk_hdy_animation_start (GtkHdyAnimation *self)
++{
++  g_return_if_fail (self != NULL);
++
++  if (!gtk_hdy_get_enable_animations (self->widget) ||
++      !gtk_widget_get_mapped (self->widget) ||
++      self->duration <= 0) {
++    set_value (self, self->value_to);
++
++    self->done_cb (self->user_data);
++
++    return;
++  }
++
++  self->start_time = gdk_frame_clock_get_frame_time (gtk_widget_get_frame_clock (self->widget)) / 1000;
++
++  if (self->tick_cb_id)
++    return;
++
++  g_signal_connect_swapped (self->widget, "unmap",
++                            G_CALLBACK (gtk_hdy_animation_stop), self);
++  self->tick_cb_id = gtk_widget_add_tick_callback (self->widget, (GtkTickCallback) tick_cb, self, NULL);
++}
++
++void
++gtk_hdy_animation_stop (GtkHdyAnimation *self)
++{
++  g_return_if_fail (self != NULL);
++
++  if (!self->tick_cb_id)
++    return;
++
++  gtk_widget_remove_tick_callback (self->widget, self->tick_cb_id);
++  self->tick_cb_id = 0;
++
++  g_signal_handlers_disconnect_by_func (self->widget, gtk_hdy_animation_stop, self);
++
++  self->done_cb (self->user_data);
++}
++
++gdouble
++gtk_hdy_animation_get_value (GtkHdyAnimation *self)
++{
++  g_return_val_if_fail (self != NULL, 0.0);
++
++  return self->value;
++}
++
++/**
++ * gtk_hdy_get_enable_animations:
++ * @widget: a #GtkWidget
++ *
++ * Returns whether animations are enabled for that widget. This should be used
++ * when implementing an animated widget to know whether to animate it or not.
++ *
++ * Returns: %TRUE if animations are enabled for @widget.
++ *
++ * Since: 0.0.11
++ */
++gboolean
++gtk_hdy_get_enable_animations (GtkWidget *widget)
++{
++  gboolean enable_animations = TRUE;
++
++  g_assert (GTK_IS_WIDGET (widget));
++
++  g_object_get (gtk_widget_get_settings (widget),
++                "gtk-enable-animations", &enable_animations,
++                NULL);
++
++  return enable_animations;
++}
++
++/**
++ * gtk_hdy_lerp: (skip)
++ * @a: the start
++ * @b: the end
++ * @t: the interpolation rate
++ *
++ * Computes the linear interpolation between @a and @b for @t.
++ *
++ * Returns: the linear interpolation between @a and @b for @t.
++ *
++ * Since: 0.0.11
++ */
++gdouble
++gtk_hdy_lerp (gdouble a, gdouble b, gdouble t)
++{
++  return a * (1.0 - t) + b * t;
++}
++
++/* From clutter-easing.c, based on Robert Penner's
++ * infamous easing equations, MIT license.
++ */
++
++/**
++ * gtk_hdy_ease_out_cubic:
++ * @t: the term
++ *
++ * Computes the ease out for @t.
++ *
++ * Returns: the ease out for @t.
++ *
++ * Since: 0.0.11
++ */
++gdouble
++gtk_hdy_ease_out_cubic (gdouble t)
++{
++  gdouble p = t - 1;
++  return p * p * p + 1;
++}
+diff --git a/gtk/meson.build b/gtk/meson.build
+index 0bdf438..3c97a01 100644
+--- a/gtk/meson.build
++++ b/gtk/meson.build
+@@ -383,6 +383,7 @@ gtk_sources = files(
+   'gtkwin32draw.c',
+   'gtkwin32theme.c',
+   'gdkpixbufutils.c',
++  'hdy-animation.c',
+   'hdy-css.c',
+   'hdy-view-switcher-bar.c',
+   'hdy-view-switcher-button.c',
+@@ -394,6 +395,7 @@ gtk_sources = files(
+ gtk_private_type_headers = files(
+   'gtkcsstypesprivate.h',
+   'gtktexthandleprivate.h',
++  'hdy-animation-private.h',
+   'hdy-css-private.h',
+   'hdy-view-switcher-bar-private.h',
+   'hdy-view-switcher-button-private.h',

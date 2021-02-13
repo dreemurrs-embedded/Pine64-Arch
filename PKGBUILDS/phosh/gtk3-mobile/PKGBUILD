@@ -4,7 +4,7 @@
 
 pkgname=gtk3-mobile
 pkgver=3.24.24
-pkgrel=2
+pkgrel=3
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -21,19 +21,20 @@ source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.
         gtk-query-immodules-3.0.hook
         aboutdialog-Port-to-phones.patch
         Add-GtkHdyClamp.patch
-        Add-GtkHdyLeaflet.patch
+        Add-GtkHdyFlap.patch
         Add-GtkHdyNavigationDirection.patch
         Add-GtkHdyShadowHelper.patch
         Add-GtkHdySqueezer.patch
-        Add-GtkHdyStackableBox.patch
         Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
         Add-GtkHdyViewSwitcherBar.patch
         Add-GtkHdyViewSwitcherButton.patch
         Add-GtkHdyViewSwitcher.patch
+        Add-GtkHdyAnimation.patch
         Add-GtkHdyViewSwitcherTitle.patch
         Add-org.gtk.Settings.Purism.patch
         Add-padding-for-HdyViewSwitcherTitle.patch
         Add-the-view-sidebar-symbolic-icon.patch
+        hdy-flap-Use-natural-size-for-folding-instead-of-minimum.patch
         demos-examples-tests-Don-t-distribute-built-files.patch
         dialog-Maximize-resizable-dialogs-on-phones.patch
         events-Compress-touch-update-events.patch
@@ -41,47 +42,50 @@ source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.
         gtkprivate-Add-an-API-to-check-if-phone.patch
         gtk-Really-don-t-distribute-built-files.patch
         headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
-        infobar-Move-the-action-area-below.patch
+        infobar-Move-the-action-area-below-on-the-phone.patch
         librem5-Drop-reftests.patch
+        printunixdialog-Adapt-for-phones.patch
         messagedialog-Set-orientation-based-on-device.patch
         Port-file-chooser-to-phones.patch
         Reduce-the-font-chooser-minimum-size.patch
         scrolledwindow-Set-deceleration-value-based-on-the-device.patch
         theme-Add-libhandy-styles.patch
-        window-Don-t-allow-window-dragging-on-phones.patch
+        window-Disable-window-dragging-on-phones.patch
         window-Maximize-resizable-pseudo-dialogs-on-mobile.patch)
 sha256sums=('c3cfdc9871eccf84ada47b73f060450eae9183dda1e6e296311a49a997cec23e'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
             'f5a46311e324a21ba84378f7afcf84a6b63bf30863f87819082abaf69e07ffea'
-            '055702d2855d6f595551abf4dfd2f33166ce58a115aa6d82d95c87cbf759ad9f'
-            '738b36e213fdab145fa78df7d4c31b8d6f5ec62d5cf4fec846b970643950c4ac'
+            '98320be2cebe9becdb8e80f06b202ed241ac42f97fed26cfc2138d857bfb4cd8'
+            'e83b3065efb402fac20d61cbcb4f9e9ead0b1ae8d401b1d1f369de9fdb1d579f'
             'f252da6b99f004ee7264d68e7a401badcdd1bbeea6f7407b60e4cfc6d08ffb44'
-            'cff8e0b66daf93a6d5b4d417b33e5e3f64932581ac2bfad6321a43b29e6756d7'
-            '91128e1f58d40bb3f82c5244a6a3a38b3aec2f32a735e0ec5bbb29345ec73dcf'
-            '33626ab49e7d214f014e70ac597ca3327878cf1c1fece7a4681a9a36a4403b24'
-            'a739aff24e3fe58c1e794a471056743f4b0ed8848b936e5ddd9078f0ebb890dc'
+            'c8c008a26770f2bf6f5f09a697d77c6d1d945866c4031218d75782c77bad0ce1'
+            '6d4dfdca4ea36a2e4a0427d794de007d1f6b97395a47ff5e85911a5772bbb966'
+            'f3ea4002c6be62129b7a4ef71c3ae3b0d3e7327badaab8e0466bb39e1a36ccc1'
             '0ab599df456629ae8769cc1f81e727264745ce5301ccf17fa4914c23a3d9f39b'
             '669f3dec1fcee38ca7861b98f8e23a7b7478e0675bc10efeacc6b89f26b821b7'
             '91eb025a859983815dc5587a6bb394fcb83c43c0bb765710383fd56200da5844'
+            '6a42a7153661778eeeffa505dccb6d68342329a8c06b1c42f7e525e841767111'
             '1717d0e5fa4329672b81c586cdd462baf9e1b0aba78d3d4d27b414ee129b350e'
-            'ffa4226a88ae1c9681fcf38724cad003716e6030509e0df8d5fb8f8ae5e8e82b'
-            'd4a44b1a7bb646b2232841372ab2f7f73b29b24f61bf8cbc6fd03d314d5bf55d'
-            '6311690f6a151ae310ad895909f1bb116fd341e7a0e3cc601a100f3e134a0847'
+            '22be9fdc7105b9504be6744a11fa41428e722177678af38ed8d32ed3dc129fc1'
+            '84a99ae34534bf52c6b8b98cb80bd1aa515b1e12e957ae26dbb27da852e8c736'
+            '51a95d6064bdfd89527d9a9a1e057db2e4a3c79aabdbc5f906b6be910eb05eec'
+            'dd45a31922dd3f991510231db2b6bba177b6bba87391359cb3c0f952efe35e8d'
             '68db37056d39785da655f680decbd669bd67a4f0b3861c2687a7c59e5a514ff9'
             '2a19167711aa4acf675150401072686e3d5e2045c3611ded748d33a3495bdbbc'
             '7dc4f66d115dec74bf5affae180e5de5e299b47410b2532473b3fb8a34aee709'
             '842f5221aeeae82d0d86356dc4566bc6d57060819b57957da1c178fcab61b7c8'
-            'f21ea0945e68ad79fa833cc548e274c6dfa63ddbc5adb9fdbf0eec956a7ba435'
+            'ff47029358fba059bb8ea7206638dbc5ea1162ea54177359348c14bb142dfc61'
             'bce0a688ba8efb4986d5e4cd756371eeaf0c40a756d9bf116db6a907336cf505'
-            'd54bddf36c652f75760ef35939d01300f3e8fda3bcc889a0d56a7be9bd2e9802'
-            '63b123a8f598a8405630a74edf8d41c31d6aad7120f8db42252ba9c1127599d9'
+            '5a1bd1b7a6398f941a2c5a2f106f8e58ba94ff7f0dba8f96fb9e74551e821177'
+            '1ddc7c6d1416acc7fd115791641340f7235f43cb8193458a5b4f5ad7d6041f69'
             'eb23fd4fb6fdf355b3d9c8502772eb5bafc5a6c498de37b994d26354153d0c36'
-            '91d304378bd57e8b581b7982acca77f3385c2dad0ac0bdb31435b0315d32e3ae'
-            '88e7e4cab427440efcf099c1b97858a2e81385f4e2f37e758385c7a9061ba1ea'
+            'f81d536f84b589fa2bdf516c7f7a07083da5a0729467203a918fb8f715b366a7'
+            'acfc8b2d8a4820eb7b98a7fcc0e7b7d998fd789fc28afbe257d6fd0f5a190184'
+            '3ed0c8ffe5bed8a26cb0d4534728ca4c2acdcc660efb2dd2b06a2795b1e5c05b'
             '2e6b997431443c53449af401bc5d4a3645c55ba3268809cf5c28cdfbe98e379c'
             '7c524fd9dc1d954bac76a0ec0f0b17b7e370f22e6243eaf1592b5c12b91fb060'
-            '2095abcc72a8776e12dc56e8627b0e953339664d5781c423abd6e12eed78fe1c'
+            'dc7f02d63d11c28bd2c1e930754cf4c3fa8375556198d5c0744e53f25b17621b'
             '680a7de058d00f49ddac543392151502e9daca8f72a5ffd00543c4e93a9b6311'
             '4298dbfb786d26162f3012b86975669a3538903eb8fc103c354385ca64dd0c15')
 
@@ -97,14 +101,14 @@ prepare() {
   patch -p1 -N < ../Add-GtkHdyViewSwitcherButton.patch
   patch -p1 -N < ../Add-GtkHdyViewSwitcher.patch
   patch -p1 -N < ../Add-GtkHdyViewSwitcherBar.patch
+  patch -p1 -N < ../Add-GtkHdyAnimation.patch
   patch -p1 -N < ../Add-GtkHdySqueezer.patch
   patch -p1 -N < ../Add-GtkHdyViewSwitcherTitle.patch
   patch -p1 -N < ../Add-GtkHdyShadowHelper.patch
   patch -p1 -N < ../Add-GtkHdyNavigationDirection.patch
   patch -p1 -N < ../Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
-  patch -p1 -N < ../Add-GtkHdyStackableBox.patch
-  patch -p1 -N < ../Add-GtkHdyLeaflet.patch
   patch -p1 -N < ../Add-GtkHdyClamp.patch
+  patch -p1 -N < ../Add-GtkHdyFlap.patch
   patch -p1 -N < ../theme-Add-libhandy-styles.patch
   patch -p1 -N < ../Add-padding-for-HdyViewSwitcherTitle.patch
   patch -p1 -N < ../Add-org.gtk.Settings.Purism.patch
@@ -112,14 +116,16 @@ prepare() {
   patch -p1 -N < ../aboutdialog-Port-to-phones.patch
   patch -p1 -N < ../Add-the-view-sidebar-symbolic-icon.patch
   patch -p1 -N < ../Port-file-chooser-to-phones.patch
+  patch -p1 -N < ../hdy-flap-Use-natural-size-for-folding-instead-of-minimum.patch
   patch -p1 -N < ../messagedialog-Set-orientation-based-on-device.patch
   patch -p1 -N < ../scrolledwindow-Set-deceleration-value-based-on-the-device.patch
   patch -p1 -N < ../dialog-Maximize-resizable-dialogs-on-phones.patch
   patch -p1 -N < ../window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
   patch -p1 -N < ../headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
-  patch -p1 -N < ../infobar-Move-the-action-area-below.patch
+  patch -p1 -N < ../infobar-Move-the-action-area-below-on-the-phone.patch
   patch -p1 -N < ../Reduce-the-font-chooser-minimum-size.patch
-  patch -p1 -N < ../window-Don-t-allow-window-dragging-on-phones.patch
+  patch -p1 -N < ../printunixdialog-Adapt-for-phones.patch
+  patch -p1 -N < ../window-Disable-window-dragging-on-phones.patch
   patch -p1 -N < ../events-Compress-touch-update-events.patch
 
   NOCONFIGURE=1 ./autogen.sh

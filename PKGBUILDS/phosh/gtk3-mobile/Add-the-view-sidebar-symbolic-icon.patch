@@ -11,10 +11,10 @@ This will be used to reveal/conceal the file chooser sidebar.
  create mode 100644 gtk/icons/scalable/actions/view-sidebar-symbolic.svg
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 253f983..f11da51 100644
+index 8e42a20..b70f8b9 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -1379,7 +1379,7 @@ gtk.gresource.xml: Makefile.am inspector/Makefile.inc
+@@ -1376,7 +1376,7 @@ gtk.gresource.xml: Makefile.am inspector/Makefile.inc
  	  done; \
  	done; \
  	for s in scalable; do \

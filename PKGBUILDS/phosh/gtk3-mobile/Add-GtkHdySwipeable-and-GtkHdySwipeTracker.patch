@@ -5,12 +5,12 @@ Subject: Add GtkHdySwipeable and GtkHdySwipeTracker
 This is imported from HdySwipeable and HdySwipeTracker from libhandy 1.0.2.
 ---
  gtk/Makefile.am                 |    6 +
- gtk/hdy-swipe-tracker-private.h |   50 ++
- gtk/hdy-swipe-tracker.c         | 1208 +++++++++++++++++++++++++++++++++++++++
+ gtk/hdy-swipe-tracker-private.h |   52 ++
+ gtk/hdy-swipe-tracker.c         | 1246 +++++++++++++++++++++++++++++++++++++++
  gtk/hdy-swipeable-private.h     |   82 +++
  gtk/hdy-swipeable.c             |  274 +++++++++
  gtk/meson.build                 |    4 +
- 6 files changed, 1624 insertions(+)
+ 6 files changed, 1664 insertions(+)
  create mode 100644 gtk/hdy-swipe-tracker-private.h
  create mode 100644 gtk/hdy-swipe-tracker.c
  create mode 100644 gtk/hdy-swipeable-private.h
@@ -49,10 +49,10 @@ index 2d0a384..09c47c0 100644
  	hdy-view-switcher-button.c	\
 diff --git a/gtk/hdy-swipe-tracker-private.h b/gtk/hdy-swipe-tracker-private.h
 new file mode 100644
-index 0000000..61b229e
+index 0000000..c886734
 --- /dev/null
 +++ b/gtk/hdy-swipe-tracker-private.h
-@@ -0,0 +1,50 @@
+@@ -0,0 +1,52 @@
 +/*
 + * Copyright (C) 2019 Alexander Mikhaylenko <exalm7659@gmail.com>
 + *
@@ -69,6 +69,8 @@ index 0000000..61b229e
 +#include "hdy-swipeable-private.h"
 +
 +G_BEGIN_DECLS
++
++#define GTK_HDY_SWIPE_BORDER 32
 +
 +#define GTK_TYPE_HDY_SWIPE_TRACKER (gtk_hdy_swipe_tracker_get_type())
 +
@@ -105,10 +107,10 @@ index 0000000..61b229e
 +G_END_DECLS
 diff --git a/gtk/hdy-swipe-tracker.c b/gtk/hdy-swipe-tracker.c
 new file mode 100644
-index 0000000..d72b159
+index 0000000..9c8161b
 --- /dev/null
 +++ b/gtk/hdy-swipe-tracker.c
-@@ -0,0 +1,1208 @@
+@@ -0,0 +1,1246 @@
 +/*
 + * Copyright (C) 2019 Alexander Mikhaylenko <exalm7659@gmail.com>
 + *
@@ -223,6 +225,45 @@ index 0000000..d72b159
 +
 +static guint signals[SIGNAL_LAST_SIGNAL];
 +
++static gboolean
++get_widget_coordinates (GtkHdySwipeTracker *self,
++                        GdkEvent           *event,
++                        gdouble            *x,
++                        gdouble            *y)
++{
++  GdkWindow *window = gdk_event_get_window (event);
++  gdouble tx, ty, out_x = -1, out_y = -1;
++
++  if (!gdk_event_get_coords (event, &tx, &ty))
++    goto out;
++
++  while (window && window != gtk_widget_get_window (GTK_WIDGET (self->swipeable))) {
++    gint window_x, window_y;
++
++    gdk_window_get_position (window, &window_x, &window_y);
++
++    tx += window_x;
++    ty += window_y;
++
++    window = gdk_window_get_parent (window);
++  }
++
++  if (window) {
++    out_x = tx;
++    out_y = ty;
++    goto out;
++  }
++
++out:
++  if (x)
++    *x = out_x;
++
++  if (y)
++    *y = out_y;
++
++  return out_x >= 0 && out_y >= 0;
++}
++
 +static void
 +reset (GtkHdySwipeTracker *self)
 +{
@@ -292,7 +333,7 @@ index 0000000..d72b159
 +static void
 +gesture_begin (GtkHdySwipeTracker *self)
 +{
-+  GdkEvent *event;
++  g_autoptr (GdkEvent) event = NULL;
 +
 +  if (self->state != GTK_HDY_SWIPE_TRACKER_STATE_PENDING)
 +    return;
@@ -308,7 +349,7 @@ index 0000000..d72b159
 +gesture_update (GtkHdySwipeTracker *self,
 +                gdouble             delta)
 +{
-+  GdkEvent *event;
++  g_autoptr (GdkEvent) event = NULL;
 +  guint32 time;
 +  gdouble progress;
 +  gdouble first_point, last_point;
@@ -595,13 +636,12 @@ index 0000000..d72b159
 +
 +    if (is_vertical == is_delta_vertical) {
 +      if (!capture) {
-+        GtkWidget *widget = gtk_get_event_widget (event);
 +        gdouble event_x, event_y;
 +
-+        gdk_event_get_coords (event, &event_x, &event_y);
-+        gtk_widget_translate_coordinates (widget, GTK_WIDGET (self->swipeable),
-+                                          event_x, event_y,
-+                                          &self->start_x, &self->start_y);
++        get_widget_coordinates (self, event, &event_x, &event_y);
++
++        self->start_x = (gint) round (event_x);
++        self->start_y = (gint) round (event_y);
 +
 +        gesture_prepare (self, delta > 0 ? GTK_HDY_NAVIGATION_DIRECTION_FORWARD : GTK_HDY_NAVIGATION_DIRECTION_BACK, FALSE);
 +      }

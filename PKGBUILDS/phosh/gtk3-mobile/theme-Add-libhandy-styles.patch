@@ -14,7 +14,7 @@ This is imported from libhandy 1.0.0.
  7 files changed, 466 insertions(+)
 
 diff --git a/gtk/theme/Adwaita/_colors.scss b/gtk/theme/Adwaita/_colors.scss
-index 32dd762..6799f22 100644
+index 32dd762..79ef3ca 100644
 --- a/gtk/theme/Adwaita/_colors.scss
 +++ b/gtk/theme/Adwaita/_colors.scss
 @@ -75,3 +75,9 @@ $progress_border_color: $selected_borders_color;
@@ -22,13 +22,13 @@ index 32dd762..6799f22 100644
  $checkradio_fg_color: $selected_fg_color;
  $checkradio_borders_color: if($variant == 'light', darken($checkradio_bg_color,20%), darken($checkradio_bg_color,40%));
 +
-+// HdyLeaflet
++// HdyFlap
 +
-+$leaflet_dimming: rgba(0, 0, 0, if($variant == 'light', 0.12, 0.24));
-+$leaflet_border: rgba(0, 0, 0, if($variant == 'light', 0.05, 0.2));
-+$leaflet_outline: rgba(255, 255, 255, if($variant == 'light', 0.2, 0.05));
++$flap_dimming: rgba(0, 0, 0, if($variant == 'light', 0.12, 0.24));
++$flap_border: rgba(0, 0, 0, if($variant == 'light', 0.05, 0.2));
++$flap_outline: rgba(255, 255, 255, if($variant == 'light', 0.2, 0.05));
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index fd993fc..f46c350 100644
+index fd993fc..9aa8860 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
 @@ -4837,3 +4837,190 @@ popover.emoji-completion contents row box {
@@ -181,7 +181,7 @@ index fd993fc..f46c350 100644
 +  padding: 0;
 +}
 +
-+// HdyLeaflet
++// HdyFlap
 +
 +@mixin background-shadow($direction) {
 +  background-image:
@@ -195,15 +195,15 @@ index fd993fc..f46c350 100644
 +                    rgba(0, 0, 0, 0) 24px);
 +}
 +
-+leaflet {
++flap {
 +  > dimming {
-+    background: $leaflet_dimming;
++    background: $flap_dimming;
 +  }
 +
 +  > border {
 +    min-width: 1px;
 +    min-height: 1px;
-+    background: $leaflet_border;
++    background: $flap_border;
 +  }
 +
 +  > shadow {
@@ -219,11 +219,11 @@ index fd993fc..f46c350 100644
 +  > outline {
 +    min-width: 1px;
 +    min-height: 1px;
-+    background: $leaflet_outline;
++    background: $flap_outline;
 +  }
 +}
 diff --git a/gtk/theme/Adwaita/gtk-contained-dark.css b/gtk/theme/Adwaita/gtk-contained-dark.css
-index 00b0f57..099d26a 100644
+index 00b0f57..504ca02 100644
 --- a/gtk/theme/Adwaita/gtk-contained-dark.css
 +++ b/gtk/theme/Adwaita/gtk-contained-dark.css
 @@ -1949,6 +1949,73 @@ popover.emoji-completion contents row box { padding: 2px 10px; }
@@ -281,27 +281,27 @@ index 00b0f57..099d26a 100644
 +
 +viewswitcherbar actionbar > revealer > box { padding: 0; }
 +
-+leaflet > dimming { background: rgba(0, 0, 0, 0.24); }
++flap > dimming { background: rgba(0, 0, 0, 0.24); }
 +
-+leaflet > border { min-width: 1px; min-height: 1px; background: rgba(0, 0, 0, 0.2); }
++flap > border { min-width: 1px; min-height: 1px; background: rgba(0, 0, 0, 0.2); }
 +
-+leaflet > shadow { min-width: 56px; min-height: 56px; }
++flap > shadow { min-width: 56px; min-height: 56px; }
 +
-+leaflet > shadow.left { background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to right, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.left { background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to right, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.right { background-image: linear-gradient(to left, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to left, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.right { background-image: linear-gradient(to left, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to left, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.up { background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to bottom, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.up { background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to bottom, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.down { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to top, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.down { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to top, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > outline { min-width: 1px; min-height: 1px; background: rgba(255, 255, 255, 0.05); }
++flap > outline { min-width: 1px; min-height: 1px; background: rgba(255, 255, 255, 0.05); }
 +
  /* GTK NAMED COLORS ---------------- use responsibly! */
  /*
  widget text/foreground color */
 diff --git a/gtk/theme/Adwaita/gtk-contained.css b/gtk/theme/Adwaita/gtk-contained.css
-index e7098f5..27aed7a 100644
+index e7098f5..e38176c 100644
 --- a/gtk/theme/Adwaita/gtk-contained.css
 +++ b/gtk/theme/Adwaita/gtk-contained.css
 @@ -1965,6 +1965,73 @@ popover.emoji-completion contents row box { padding: 2px 10px; }
@@ -359,27 +359,27 @@ index e7098f5..27aed7a 100644
 +
 +viewswitcherbar actionbar > revealer > box { padding: 0; }
 +
-+leaflet > dimming { background: rgba(0, 0, 0, 0.12); }
++flap > dimming { background: rgba(0, 0, 0, 0.12); }
 +
-+leaflet > border { min-width: 1px; min-height: 1px; background: rgba(0, 0, 0, 0.05); }
++flap > border { min-width: 1px; min-height: 1px; background: rgba(0, 0, 0, 0.05); }
 +
-+leaflet > shadow { min-width: 56px; min-height: 56px; }
++flap > shadow { min-width: 56px; min-height: 56px; }
 +
-+leaflet > shadow.left { background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to right, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.left { background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to right, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.right { background-image: linear-gradient(to left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to left, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.right { background-image: linear-gradient(to left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to left, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.up { background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to bottom, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.up { background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to bottom, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.down { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to top, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.down { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to top, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > outline { min-width: 1px; min-height: 1px; background: rgba(255, 255, 255, 0.2); }
++flap > outline { min-width: 1px; min-height: 1px; background: rgba(255, 255, 255, 0.2); }
 +
  /* GTK NAMED COLORS ---------------- use responsibly! */
  /*
  widget text/foreground color */
 diff --git a/gtk/theme/HighContrast/_colors-hc.scss b/gtk/theme/HighContrast/_colors-hc.scss
-index f9c038b..1aa4c32 100644
+index f9c038b..1ce6f24 100644
 --- a/gtk/theme/HighContrast/_colors-hc.scss
 +++ b/gtk/theme/HighContrast/_colors-hc.scss
 @@ -14,3 +14,8 @@ $alt_borders_color: if($variant == 'light', darken($alt_borders_color, 33%), lig
@@ -387,12 +387,12 @@ index f9c038b..1aa4c32 100644
  $insensitive_bg_color: mix($bg_color, $base_color, 60%);
  $insensitive_borders_color: mix($borders_color, $bg_color, 80%);
 +
-+// HdyLeaflet
++// HdyFlap
 +
-+$leaflet_border: $borders_color;
-+$leaflet_outline: transparent;
++$flap_border: $borders_color;
++$flap_outline: transparent;
 diff --git a/gtk/theme/HighContrast/gtk-contained-inverse.css b/gtk/theme/HighContrast/gtk-contained-inverse.css
-index 10115a8..07032d0 100644
+index 10115a8..c3dee8d 100644
 --- a/gtk/theme/HighContrast/gtk-contained-inverse.css
 +++ b/gtk/theme/HighContrast/gtk-contained-inverse.css
 @@ -2028,3 +2028,70 @@ popover.emoji-completion arrow { border: none; background: none; }
@@ -451,23 +451,23 @@ index 10115a8..07032d0 100644
 +
 +viewswitcherbar actionbar > revealer > box { padding: 0; }
 +
-+leaflet > dimming { background: rgba(0, 0, 0, 0.24); }
++flap > dimming { background: rgba(0, 0, 0, 0.24); }
 +
-+leaflet > border { min-width: 1px; min-height: 1px; background: #686868; }
++flap > border { min-width: 1px; min-height: 1px; background: #686868; }
 +
-+leaflet > shadow { min-width: 56px; min-height: 56px; }
++flap > shadow { min-width: 56px; min-height: 56px; }
 +
-+leaflet > shadow.left { background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to right, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.left { background-image: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to right, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.right { background-image: linear-gradient(to left, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to left, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.right { background-image: linear-gradient(to left, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to left, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.up { background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to bottom, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.up { background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to bottom, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.down { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to top, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.down { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.02) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to top, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.02) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > outline { min-width: 1px; min-height: 1px; background: transparent; }
++flap > outline { min-width: 1px; min-height: 1px; background: transparent; }
 diff --git a/gtk/theme/HighContrast/gtk-contained.css b/gtk/theme/HighContrast/gtk-contained.css
-index 5d95105..9ebedbb 100644
+index 5d95105..0684091 100644
 --- a/gtk/theme/HighContrast/gtk-contained.css
 +++ b/gtk/theme/HighContrast/gtk-contained.css
 @@ -2044,3 +2044,70 @@ popover.emoji-completion arrow { border: none; background: none; }
@@ -526,18 +526,18 @@ index 5d95105..9ebedbb 100644
 +
 +viewswitcherbar actionbar > revealer > box { padding: 0; }
 +
-+leaflet > dimming { background: rgba(0, 0, 0, 0.12); }
++flap > dimming { background: rgba(0, 0, 0, 0.12); }
 +
-+leaflet > border { min-width: 1px; min-height: 1px; background: #877b6e; }
++flap > border { min-width: 1px; min-height: 1px; background: #877b6e; }
 +
-+leaflet > shadow { min-width: 56px; min-height: 56px; }
++flap > shadow { min-width: 56px; min-height: 56px; }
 +
-+leaflet > shadow.left { background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to right, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.left { background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to right, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.right { background-image: linear-gradient(to left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to left, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.right { background-image: linear-gradient(to left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to left, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.up { background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to bottom, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.up { background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to bottom, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > shadow.down { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to top, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
++flap > shadow.down { background-image: linear-gradient(to top, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.01) 40px, rgba(0, 0, 0, 0) 56px), linear-gradient(to top, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.01) 7px, rgba(0, 0, 0, 0) 24px); }
 +
-+leaflet > outline { min-width: 1px; min-height: 1px; background: transparent; }
++flap > outline { min-width: 1px; min-height: 1px; background: transparent; }

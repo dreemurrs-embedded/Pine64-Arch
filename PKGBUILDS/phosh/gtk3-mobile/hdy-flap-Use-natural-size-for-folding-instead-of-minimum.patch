@@ -1,0 +1,51 @@
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Wed, 23 Dec 2020 16:33:24 +0500
+Subject: hdy-flap: Use natural size for folding instead of minimum
+
+See https://gitlab.gnome.org/GNOME/libhandy/-/issues/390#note_991319
+---
+ gtk/hdy-flap.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
+
+diff --git a/gtk/hdy-flap.c b/gtk/hdy-flap.c
+index 8735ad9..1b4504d 100644
+--- a/gtk/hdy-flap.c
++++ b/gtk/hdy-flap.c
+@@ -962,21 +962,29 @@ gtk_hdy_flap_size_allocate (GtkWidget     *widget,
+                             alloc->x, alloc->y, alloc->width, alloc->height);
+ 
+   if (self->fold_policy == GTK_HDY_FLAP_FOLD_POLICY_AUTO) {
+-    GtkRequisition flap_min = { 0, 0 };
+-    GtkRequisition content_min = { 0, 0 };
+-    GtkRequisition separator_min = { 0, 0 };
++    GtkRequisition flap_size = { 0, 0 };
++    GtkRequisition content_size = { 0, 0 };
++    GtkRequisition separator_size = { 0, 0 };
++    gboolean flap_expand, content_expand;
++
++    flap_expand = gtk_widget_compute_expand (self->flap.widget, self->orientation);
++    content_expand = gtk_widget_compute_expand (self->content.widget, self->orientation);
+ 
+     if (self->flap.widget)
+-      gtk_widget_get_preferred_size (self->flap.widget, &flap_min, NULL);
++      gtk_widget_get_preferred_size (self->flap.widget,
++                                     content_expand ? &flap_size : NULL,
++                                     content_expand ? NULL : &flap_size);
+     if (self->content.widget)
+-      gtk_widget_get_preferred_size (self->content.widget, &content_min, NULL);
++      gtk_widget_get_preferred_size (self->content.widget,
++                                     flap_expand ? &content_size : NULL,
++                                     flap_expand ? NULL : &content_size);
+     if (self->separator.widget)
+-      gtk_widget_get_preferred_size (self->separator.widget, &separator_min, NULL);
++      gtk_widget_get_preferred_size (self->separator.widget, &separator_size, NULL);
+ 
+     if (self->orientation == GTK_ORIENTATION_HORIZONTAL)
+-      set_folded (self, alloc->width < content_min.width + flap_min.width + separator_min.width);
++      set_folded (self, alloc->width < content_size.width + flap_size.width + separator_size.width);
+     else
+-      set_folded (self, alloc->height < content_min.height + flap_min.height + separator_min.height);
++      set_folded (self, alloc->height < content_size.height + flap_size.height + separator_size.height);
+   }
+ 
+   compute_allocation (self,

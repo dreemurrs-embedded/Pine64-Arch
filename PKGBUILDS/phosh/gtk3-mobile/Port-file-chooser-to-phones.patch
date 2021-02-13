@@ -5,10 +5,10 @@ Subject: Port file chooser to phones
 Fixes https://source.puri.sm/Librem5/Apps_Issues/issues/99.
 ---
  gtk/gtkfilechooserdialog.c     |   2 +-
- gtk/gtkfilechooserwidget.c     | 166 +++++++++++++++++++++++++++++++++--------
- gtk/ui/gtkfilechooserwidget.ui |  61 ++++++++++++---
+ gtk/gtkfilechooserwidget.c     | 130 ++++++++++++++++++++++++++++++-----------
+ gtk/ui/gtkfilechooserwidget.ui |  88 ++++++++++++++++++++--------
  gtk/ui/gtkplacesview.ui        |   3 +-
- 4 files changed, 185 insertions(+), 47 deletions(-)
+ 4 files changed, 163 insertions(+), 60 deletions(-)
 
 diff --git a/gtk/gtkfilechooserdialog.c b/gtk/gtkfilechooserdialog.c
 index db1d8f6..cf4229a 100644
@@ -24,7 +24,7 @@ index db1d8f6..cf4229a 100644
        GtkWidget *box;
        GtkWidget *label;
 diff --git a/gtk/gtkfilechooserwidget.c b/gtk/gtkfilechooserwidget.c
-index d75a3f7..135975c 100644
+index d75a3f7..cfbe15b 100644
 --- a/gtk/gtkfilechooserwidget.c
 +++ b/gtk/gtkfilechooserwidget.c
 @@ -31,6 +31,7 @@
@@ -40,7 +40,7 @@ index d75a3f7..135975c 100644
  #include "gtkmodelbutton.h"
  #include "gtkgesturelongpress.h"
 +#include "hdy-clamp-private.h"
-+#include "hdy-leaflet-private.h"
++#include "hdy-flap-private.h"
  
  #include <cairo-gobject.h>
  
@@ -49,20 +49,12 @@ index d75a3f7..135975c 100644
  
    /* The file browsing widgets */
 -  GtkWidget *browse_widgets_hpaned;
-+  GtkWidget *leaflet;
++  GtkWidget *flap;
 +  GtkWidget *browse_box;
    GtkWidget *browse_header_revealer;
    GtkWidget *browse_header_stack;
    GtkWidget *browse_files_stack;
-@@ -266,6 +270,7 @@ struct _GtkFileChooserWidgetPrivate {
- 
-   GtkWidget *places_sidebar;
-   GtkWidget *places_view;
-+  GtkWidget *reveal_sidebar_button;
-   StartupMode startup_mode;
- 
-   /* OPERATION_MODE_SEARCH */
-@@ -425,6 +430,7 @@ enum {
+@@ -425,6 +429,7 @@ enum {
    MODEL_COL_TIME_TEXT,
    MODEL_COL_LOCATION_TEXT,
    MODEL_COL_ELLIPSIZE,
@@ -70,7 +62,7 @@ index d75a3f7..135975c 100644
    MODEL_COL_NUM_COLUMNS
  };
  
-@@ -444,7 +450,8 @@ enum {
+@@ -444,7 +449,8 @@ enum {
          G_TYPE_STRING,            /* MODEL_COL_DATE_TEXT */     \
          G_TYPE_STRING,            /* MODEL_COL_TIME_TEXT */     \
          G_TYPE_STRING,            /* MODEL_COL_LOCATION_TEXT */ \
@@ -80,12 +72,13 @@ index d75a3f7..135975c 100644
  
  #define DEFAULT_RECENT_FILES_LIMIT 50
  
-@@ -1288,6 +1295,8 @@ places_sidebar_open_location_cb (GtkPlacesSidebar     *sidebar,
+@@ -1288,6 +1294,9 @@ places_sidebar_open_location_cb (GtkPlacesSidebar     *sidebar,
      operation_mode_set (impl, OPERATION_MODE_RECENT);
    else
      change_folder_and_display_error (impl, location, clear_entry);
 +
-+  gtk_hdy_leaflet_set_visible_child (GTK_HDY_LEAFLET (priv->leaflet), priv->browse_box);
++  if (gtk_hdy_flap_get_folded (GTK_HDY_FLAP (priv->flap)))
++    gtk_hdy_flap_set_reveal_flap (GTK_HDY_FLAP (priv->flap), FALSE);
  }
  
  /* Callback used when the places sidebar needs us to display an error message */
@@ -147,12 +140,12 @@ index d75a3f7..135975c 100644
 -  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 12);
 -  gtk_style_context_add_class (gtk_widget_get_style_context (vbox), "search-bar");
 +  vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-+
+ 
+-  gtk_container_set_border_width (GTK_CONTAINER (vbox), 0);
 +  clamp = gtk_hdy_clamp_new ();
 +  gtk_widget_show (clamp);
 +  gtk_container_add (GTK_CONTAINER (vbox), clamp);
- 
--  gtk_container_set_border_width (GTK_CONTAINER (vbox), 0);
++
 +  separator = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
 +  gtk_widget_show (separator);
 +  gtk_container_add (GTK_CONTAINER (vbox), separator);
@@ -165,26 +158,27 @@ index d75a3f7..135975c 100644
    gtk_widget_show (priv->save_widgets_table);
    gtk_grid_set_row_spacing (GTK_GRID (priv->save_widgets_table), 12);
    gtk_grid_set_column_spacing (GTK_GRID (priv->save_widgets_table), 12);
-@@ -2874,6 +2884,8 @@ places_sidebar_show_other_locations_with_flags_cb (GtkPlacesSidebar     *sidebar
+@@ -2874,6 +2884,9 @@ places_sidebar_show_other_locations_with_flags_cb (GtkPlacesSidebar     *sidebar
    update_preview_widget_visibility (impl);
  
    operation_mode_set (impl, OPERATION_MODE_OTHER_LOCATIONS);
 +
-+  gtk_hdy_leaflet_set_visible_child (GTK_HDY_LEAFLET (priv->leaflet), priv->browse_box);
++  if (gtk_hdy_flap_get_folded (GTK_HDY_FLAP (priv->flap)))
++    gtk_hdy_flap_set_reveal_flap (GTK_HDY_FLAP (priv->flap), FALSE);
  }
  
  static void
-@@ -2936,7 +2948,8 @@ update_extra_and_filters (GtkFileChooserWidget *impl)
+@@ -2936,7 +2949,8 @@ update_extra_and_filters (GtkFileChooserWidget *impl)
  {
    gtk_widget_set_visible (impl->priv->extra_and_filters,
                            gtk_widget_get_visible (impl->priv->extra_align) ||
 -                          gtk_widget_get_visible (impl->priv->filter_combo_hbox));
 +                          gtk_widget_get_visible (impl->priv->filter_combo_hbox) ||
-+                          gtk_hdy_leaflet_get_folded (GTK_HDY_LEAFLET (impl->priv->leaflet)));
++                          gtk_hdy_flap_get_folded (GTK_HDY_FLAP (impl->priv->flap)));
  }
  
  /* Sets the extra_widget by packing it in the appropriate place */
-@@ -3751,7 +3764,7 @@ change_icon_theme (GtkFileChooserWidget *impl)
+@@ -3751,7 +3765,7 @@ change_icon_theme (GtkFileChooserWidget *impl)
  
    profile_start ("start", NULL);
  
@@ -193,7 +187,7 @@ index d75a3f7..135975c 100644
      priv->icon_size = MAX (width, height);
    else
      priv->icon_size = FALLBACK_ICON_SIZE;
-@@ -3884,7 +3897,6 @@ settings_load (GtkFileChooserWidget *impl)
+@@ -3884,7 +3898,6 @@ settings_load (GtkFileChooserWidget *impl)
    gint sort_column;
    GtkSortType sort_order;
    StartupMode startup_mode;
@@ -201,7 +195,7 @@ index d75a3f7..135975c 100644
    GSettings *settings;
  
    settings = _gtk_file_chooser_get_settings_for_widget (GTK_WIDGET (impl));
-@@ -3894,7 +3906,6 @@ settings_load (GtkFileChooserWidget *impl)
+@@ -3894,7 +3907,6 @@ settings_load (GtkFileChooserWidget *impl)
    show_type_column = g_settings_get_boolean (settings, SETTINGS_KEY_SHOW_TYPE_COLUMN);
    sort_column = g_settings_get_enum (settings, SETTINGS_KEY_SORT_COLUMN);
    sort_order = g_settings_get_enum (settings, SETTINGS_KEY_SORT_ORDER);
@@ -209,7 +203,7 @@ index d75a3f7..135975c 100644
    startup_mode = g_settings_get_enum (settings, SETTINGS_KEY_STARTUP_MODE);
    sort_directories_first = g_settings_get_boolean (settings, SETTINGS_KEY_SORT_DIRECTORIES_FIRST);
    date_format = g_settings_get_enum (settings, SETTINGS_KEY_DATE_FORMAT);
-@@ -3903,9 +3914,10 @@ settings_load (GtkFileChooserWidget *impl)
+@@ -3903,9 +3915,10 @@ settings_load (GtkFileChooserWidget *impl)
    if (!priv->show_hidden_set)
      set_show_hidden (impl, show_hidden);
    priv->show_size_column = show_size_column;
@@ -222,7 +216,7 @@ index d75a3f7..135975c 100644
  
    priv->sort_column = sort_column;
    priv->sort_order = sort_order;
-@@ -3920,7 +3932,6 @@ settings_load (GtkFileChooserWidget *impl)
+@@ -3920,7 +3933,6 @@ settings_load (GtkFileChooserWidget *impl)
     */
  
    update_time_renderer_visible (impl);
@@ -230,7 +224,7 @@ index d75a3f7..135975c 100644
  }
  
  static void
-@@ -3941,8 +3952,6 @@ settings_save (GtkFileChooserWidget *impl)
+@@ -3941,8 +3953,6 @@ settings_save (GtkFileChooserWidget *impl)
    g_settings_set_boolean (settings, SETTINGS_KEY_SORT_DIRECTORIES_FIRST, priv->sort_directories_first);
    g_settings_set_enum (settings, SETTINGS_KEY_SORT_COLUMN, priv->sort_column);
    g_settings_set_enum (settings, SETTINGS_KEY_SORT_ORDER, priv->sort_order);
@@ -239,7 +233,7 @@ index d75a3f7..135975c 100644
    g_settings_set_enum (settings, SETTINGS_KEY_DATE_FORMAT, priv->show_time ? DATE_FORMAT_WITH_TIME : DATE_FORMAT_REGULAR);
    g_settings_set_enum (settings, SETTINGS_KEY_TYPE_FORMAT, priv->type_format);
  
-@@ -4413,11 +4422,7 @@ update_columns (GtkFileChooserWidget *impl,
+@@ -4413,11 +4423,7 @@ update_columns (GtkFileChooserWidget *impl,
    GtkFileChooserWidgetPrivate *priv = impl->priv;
    gboolean need_resize = FALSE;
  
@@ -252,7 +246,7 @@ index d75a3f7..135975c 100644
  
    if (g_strcmp0 (gtk_tree_view_column_get_title (priv->list_time_column), time_title) != 0)
      {
-@@ -5299,6 +5304,47 @@ file_system_model_set (GtkFileSystemModel *model,
+@@ -5299,6 +5305,47 @@ file_system_model_set (GtkFileSystemModel *model,
          g_object_unref (home_location);
        }
        break;
@@ -290,7 +284,7 @@ index d75a3f7..135975c 100644
 +
 +        metadata[i] = NULL;
 +        metadata_str = g_strjoinv (" · ", &metadata[1]);
-+        g_value_take_string (value, g_strdup_printf ("%s\n<span size=\"smaller\">%s</span>", metadata[0], metadata_str));
++        g_value_take_string (value, g_strdup_printf ("%s\n<span size=\"smaller\" alpha=\"55%%\">%s</span>", metadata[0], metadata_str));
 +
 +        while (i > 0)
 +          g_free (metadata[--i]);
@@ -300,7 +294,7 @@ index d75a3f7..135975c 100644
      default:
        g_assert_not_reached ();
        break;
-@@ -8110,7 +8156,7 @@ update_cell_renderer_attributes (GtkFileChooserWidget *impl)
+@@ -8110,7 +8157,7 @@ update_cell_renderer_attributes (GtkFileChooserWidget *impl)
                                         NULL);
    gtk_tree_view_column_set_attributes (priv->list_name_column,
                                         priv->list_name_renderer,
@@ -309,7 +303,7 @@ index d75a3f7..135975c 100644
                                         "ellipsize", MODEL_COL_ELLIPSIZE,
                                         "sensitive", MODEL_COL_IS_SENSITIVE,
                                         NULL);
-@@ -8684,12 +8730,13 @@ gtk_file_chooser_widget_class_init (GtkFileChooserWidgetClass *class)
+@@ -8684,12 +8731,13 @@ gtk_file_chooser_widget_class_init (GtkFileChooserWidgetClass *class)
                                                 "/org/gtk/libgtk/ui/gtkfilechooserwidget.ui");
  
    /* A *lot* of widgets that we need to handle .... */
@@ -319,20 +313,12 @@ index d75a3f7..135975c 100644
    gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, places_view);
    gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, browse_files_tree_view);
    gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, browse_files_swin);
-+  gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, leaflet);
++  gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, flap);
 +  gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, browse_box);
    gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, browse_header_revealer);
    gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, browse_header_stack);
    gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, browse_new_folder_button);
-@@ -8701,6 +8748,7 @@ gtk_file_chooser_widget_class_init (GtkFileChooserWidgetClass *class)
-   gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, extra_align);
-   gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, extra_and_filters);
-   gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, location_entry_box);
-+  gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, reveal_sidebar_button);
-   gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, search_entry);
-   gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, search_spinner);
-   gtk_widget_class_bind_template_child_private (widget_class, GtkFileChooserWidget, list_name_column);
-@@ -8751,10 +8799,40 @@ gtk_file_chooser_widget_class_init (GtkFileChooserWidgetClass *class)
+@@ -8751,6 +8799,7 @@ gtk_file_chooser_widget_class_init (GtkFileChooserWidgetClass *class)
    gtk_widget_class_bind_template_callback (widget_class, rename_file_name_changed);
    gtk_widget_class_bind_template_callback (widget_class, rename_file_rename_clicked);
    gtk_widget_class_bind_template_callback (widget_class, rename_file_end);
@@ -340,40 +326,7 @@ index d75a3f7..135975c 100644
  
    gtk_widget_class_set_css_name (widget_class, "filechooser");
  }
- 
-+static gboolean
-+active_to_visible_child (GBinding     *binding,
-+                         const GValue *from_value,
-+                         GValue       *to_value,
-+                         gpointer      user_data)
-+{
-+  GtkFileChooserWidget *impl = user_data;
-+
-+  g_value_set_object (to_value, g_value_get_boolean (from_value) ?
-+                                impl->priv->places_sidebar :
-+                                impl->priv->browse_box);
-+
-+  return TRUE;
-+}
-+
-+static gboolean
-+visible_child_to_active (GBinding     *binding,
-+                         const GValue *from_value,
-+                         GValue       *to_value,
-+                         gpointer      user_data)
-+{
-+  GtkFileChooserWidget *impl = user_data;
-+
-+  g_value_set_boolean (to_value,
-+                       g_value_get_object (from_value) == impl->priv->places_sidebar);
-+
-+  return TRUE;
-+}
-+
- static void
- post_process_ui (GtkFileChooserWidget *impl)
- {
-@@ -8826,6 +8904,26 @@ post_process_ui (GtkFileChooserWidget *impl)
+@@ -8826,6 +8875,19 @@ post_process_ui (GtkFileChooserWidget *impl)
    gtk_popover_set_relative_to (GTK_POPOVER (impl->priv->rename_file_popover), impl->priv->browse_files_tree_view);
  
    add_actions (impl);
@@ -389,65 +342,62 @@ index d75a3f7..135975c 100644
 +                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 +  }
 +
-+  g_object_bind_property_full (impl->priv->reveal_sidebar_button, "active",
-+                               impl->priv->leaflet, "visible-child",
-+                               G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL,
-+                               active_to_visible_child,
-+                               visible_child_to_active,
-+                               impl, NULL);
-+
 +  update_extra_and_filters (impl);
  }
  
  void
-@@ -8883,6 +8981,8 @@ gtk_file_chooser_widget_init (GtkFileChooserWidget *impl)
+@@ -8883,6 +8945,8 @@ gtk_file_chooser_widget_init (GtkFileChooserWidget *impl)
    /* Ensure GTK+ private types used by the template
     * definition before calling gtk_widget_init_template()
     */
 +  g_type_ensure (GTK_TYPE_HDY_CLAMP);
-+  g_type_ensure (GTK_TYPE_HDY_LEAFLET);
++  g_type_ensure (GTK_TYPE_HDY_FLAP);
    g_type_ensure (GTK_TYPE_PATH_BAR);
    g_type_ensure (GTK_TYPE_PLACES_VIEW);
  
 diff --git a/gtk/ui/gtkfilechooserwidget.ui b/gtk/ui/gtkfilechooserwidget.ui
-index 01d4075..5c9773d 100644
+index 01d4075..8868fde 100644
 --- a/gtk/ui/gtkfilechooserwidget.ui
 +++ b/gtk/ui/gtkfilechooserwidget.ui
-@@ -9,11 +9,16 @@
+@@ -9,14 +9,20 @@
          <property name="visible">1</property>
          <property name="orientation">vertical</property>
          <child>
 -          <object class="GtkPaned" id="browse_widgets_hpaned">
-+          <object class="GtkHdyLeaflet" id="leaflet">
++          <object class="GtkHdyFlap" id="flap">
              <property name="visible">1</property>
-+            <property name="can-swipe-back">1</property>
-+            <property name="can-swipe-forward">1</property>
-+            <property name="transition-type">under</property>
+-            <child>
++            <property name="swipe-to-open">0</property>
++            <property name="swipe-to-close" bind-source="flap" bind-property="folded" bind-flags="sync-create"/>
 +            <signal name="notify::folded" handler="update_extra_and_filters" swapped="yes"/>
-             <child>
++            <child type="flap">
                <object class="GtkPlacesSidebar" id="places_sidebar">
                  <property name="visible">1</property>
 +                <property name="hexpand-set">1</property>
                  <property name="hscrollbar-policy">never</property>
                  <property name="local-only">1</property>
                  <property name="show-other-locations">1</property>
-@@ -24,13 +29,20 @@
++                <property name="propagate-natural-width">1</property>
++                <property name="width-request">200</property>
+                 <style>
+                   <class name="sidebar"/>
+                 </style>
+@@ -24,13 +30,17 @@
                  <signal name="show-error-message" handler="places_sidebar_show_error_message_cb" swapped="no"/>
                  <signal name="show-other-locations-with-flags" handler="places_sidebar_show_other_locations_with_flags_cb" swapped="no"/>
                </object>
+-              <packing>
+-                <property name="resize">0</property>
+-                <property name="shrink">0</property>
+-              </packing>
 +            </child>
-+            <child>
++            <child type="separator">
 +              <object class="GtkSeparator">
 +                <property name="visible">1</property>
 +                <style>
 +                  <class name="sidebar"/>
 +                </style>
 +              </object>
-               <packing>
--                <property name="resize">0</property>
--                <property name="shrink">0</property>
-+                <property name="navigatable">0</property>
-               </packing>
              </child>
              <child>
 -              <object class="GtkBox">
@@ -455,7 +405,7 @@ index 01d4075..5c9773d 100644
                  <property name="visible">1</property>
                  <property name="orientation">vertical</property>
                  <child>
-@@ -90,6 +102,9 @@
+@@ -90,6 +100,9 @@
                                  <property name="name">pathbar</property>
                                </packing>
                              </child>
@@ -465,7 +415,7 @@ index 01d4075..5c9773d 100644
                              <child>
                                <object class="GtkBox" id="location_entry_box">
                                  <property name="visible">1</property>
-@@ -97,20 +112,25 @@
+@@ -97,20 +110,25 @@
                                  <property name="spacing">6</property>
                                  <property name="border-width">6</property>
                                </object>
@@ -493,7 +443,7 @@ index 01d4075..5c9773d 100644
                                      <signal name="search-changed" handler="search_entry_activate_cb" swapped="yes"/>
                                      <signal name="stop-search" handler="search_entry_stop_cb" swapped="yes"/>
                                    </object>
-@@ -124,6 +144,8 @@
+@@ -124,6 +142,8 @@
                                    </packing>
                                  </child>
                                </object>
@@ -502,7 +452,25 @@ index 01d4075..5c9773d 100644
                                <packing>
                                  <property name="name">search</property>
                                </packing>
-@@ -163,6 +185,7 @@
+@@ -141,9 +161,15 @@
+                   </packing>
+                 </child>
+                 <child>
+-                  <object class="GtkBox" id="list_and_preview_box">
++                  <object class="GtkHdyFlap" id="list_and_preview_box">
+                     <property name="visible">1</property>
+-                    <property name="spacing">12</property>
++                    <property name="flap-position">end</property>
++                    <property name="fold-policy">never</property>
++                    <property name="modal">False</property>
++                    <property name="swipe-to-open">False</property>
++                    <property name="swipe-to-close">False</property>
++                    <property name="transition-type">slide</property>
++                    <property name="reveal-flap" bind-source="flap" bind-property="folded" bind-flags="invert-boolean|sync-create"/>
+                     <child>
+                       <object class="GtkStack" id="browse_files_stack">
+                         <property name="visible">1</property>
+@@ -163,6 +189,7 @@
                                    <object class="GtkTreeView" id="browse_files_tree_view">
                                      <property name="visible">1</property>
                                      <property name="has-tooltip">1</property>
@@ -510,7 +478,7 @@ index 01d4075..5c9773d 100644
                                      <property name="enable-search">0</property>
                                      <child internal-child="accessible">
                                        <object class="AtkObject" id="browse_files_tree_view-atkobject">
-@@ -193,6 +216,7 @@
+@@ -193,6 +220,7 @@
                                          <child>
                                            <object class="GtkCellRendererPixbuf" id="list_pixbuf_renderer">
                                              <property name="xpad">6</property>
@@ -518,7 +486,7 @@ index 01d4075..5c9773d 100644
                                            </object>
                                          </child>
                                          <child>
-@@ -321,6 +345,8 @@
+@@ -321,6 +349,8 @@
                                <object class="GtkLabel">
                                  <property name="visible">1</property>
                                  <property name="label" translatable="yes">No Results Found</property>
@@ -527,7 +495,7 @@ index 01d4075..5c9773d 100644
                                  <attributes>
                                    <attribute name="weight" value="bold"/>
                                    <attribute name="scale" value="1.44"/>
-@@ -335,6 +361,8 @@
+@@ -335,6 +365,8 @@
                                <object class="GtkLabel">
                                  <property name="visible">1</property>
                                  <property name="label" translatable="yes">Try a different search</property>
@@ -536,6 +504,30 @@ index 01d4075..5c9773d 100644
                                  <style>
                                    <class name="dim-label"/>
                                  </style>
+@@ -350,19 +382,15 @@
+                           </packing>
+                         </child>
+                       </object>
+-                      <packing>
+-                        <property name="expand">1</property>
+-                      </packing>
+                     </child>
+-                    <child>
++                    <child type="flap">
+                       <object class="GtkBox" id="preview_box">
+                         <property name="orientation">vertical</property>
+                         <property name="spacing">12</property>
++                        <style>
++                          <class name="background"/>
++                        </style>
+                       </object>
+-                      <packing>
+-                        <property name="fill">0</property>
+-                        <property name="position">1</property>
+-                      </packing>
+                     </child>
+                   </object>
+                   <packing>
 @@ -371,9 +399,6 @@
                    </packing>
                  </child>
@@ -546,13 +538,14 @@ index 01d4075..5c9773d 100644
              </child>
            </object>
            <packing>
-@@ -389,15 +414,29 @@
+@@ -389,15 +414,30 @@
      <child>
        <object class="GtkActionBar" id="extra_and_filters">
          <property name="no-show-all">1</property>
 +        <child>
 +          <object class="GtkToggleButton" id="reveal_sidebar_button">
-+            <property name="visible" bind-source="leaflet" bind-property="folded" bind-flags="sync-create"/>
++            <property name="visible" bind-source="flap" bind-property="folded" bind-flags="sync-create"/>
++            <property name="active" bind-source="flap" bind-property="reveal-flap" bind-flags="sync-create|bidirectional"/>
 +            <property name="tooltip-text" translatable="yes">Show locations</property>
 +            <property name="use-underline">1</property>
 +            <property name="can-default">1</property>

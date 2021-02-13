@@ -13,25 +13,25 @@ This is imported from HdyLeaflet from libhandy 1.0.0.
  create mode 100644 gtk/hdy-clamp.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index ad8ccab..f5281fe 100644
+index 09c47c0..6a0738a 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -610,6 +610,7 @@ gtk_private_h_sources =		\
+@@ -608,6 +608,7 @@ gtk_private_h_sources =		\
  	gdkpixbufutilsprivate.h \
  	hdy-animation-private.h	\
  	hdy-cairo-private.h	\
 +	hdy-clamp-private.h	\
  	hdy-css-private.h	\
- 	hdy-leaflet-private.h	\
  	hdy-navigation-direction-private.h	\
-@@ -998,6 +999,7 @@ gtk_base_c_sources = 		\
+ 	hdy-shadow-helper-private.h	\
+@@ -994,6 +995,7 @@ gtk_base_c_sources = 		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
  	hdy-animation.c	\
 +	hdy-clamp.c	\
  	hdy-css.c	\
- 	hdy-leaflet.c	\
  	hdy-navigation-direction.c	\
+ 	hdy-squeezer.c	\
 diff --git a/gtk/hdy-clamp-private.h b/gtk/hdy-clamp-private.h
 new file mode 100644
 index 0000000..b41278f
@@ -642,7 +642,7 @@ index 0000000..8b287dc
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_TIGHTENING_THRESHOLD]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index e83a293..455e666 100644
+index c3d5edc..22e0371 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -384,6 +384,7 @@ gtk_sources = files(
@@ -651,13 +651,13 @@ index e83a293..455e666 100644
    'hdy-animation.c',
 +  'hdy-clamp.c',
    'hdy-css.c',
-   'hdy-leaflet.c',
    'hdy-navigation-direction.c',
-@@ -405,6 +406,7 @@ gtk_private_type_headers = files(
+   'hdy-shadow-helper.c',
+@@ -403,6 +404,7 @@ gtk_private_type_headers = files(
    'gtktexthandleprivate.h',
    'hdy-animation-private.h',
    'hdy-cairo-private.h',
 +  'hdy-clamp-private.h',
    'hdy-css-private.h',
-   'hdy-leaflet-private.h',
    'hdy-navigation-direction-private.h',
+   'hdy-shadow-helper-private.h',
