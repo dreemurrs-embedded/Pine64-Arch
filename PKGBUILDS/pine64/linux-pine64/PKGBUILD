@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=linux-pine64
 pkgver=5.10.13
-pkgrel=1
+pkgrel=2
 pkgdesc="The Linux Kernel and modules - Pine64"
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -34,6 +34,7 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         '0002-dts-add-pinetab-dev-old-display-panel.patch'
         '0001-arm64-dts-allwinner-pinephone-stop-LEDs-on-suspend.patch'
         '0010-dts-pinephone-Add-pine64-pinephone-to-compat-list.patch'
+        '0013-fix-pogopin-i2c.patch'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
@@ -60,6 +61,7 @@ prepare() {
   patch -p1 -N < ../improve-pinephone-brightness.patch
   patch -p1 -N < ../0001-arm64-dts-allwinner-pinephone-stop-LEDs-on-suspend.patch
   patch -p1 -N < ../0010-dts-pinephone-Add-pine64-pinephone-to-compat-list.patch
+  patch -p1 -N < ../0013-fix-pogopin-i2c.patch
 
   # camera
   patch -p1 -N < ../media-ov5640-Implement-autofocus.patch
@@ -191,6 +193,7 @@ md5sums=('832f490b9389db1396113dccba0161db'
          'bc674ba1b15197ba5c4b2fd8a9622545'
          '39eea273d8df3ceb72a1590c735103af'
          '9e0e7e39c51fe5196778030e51a37771'
+         'c2b0ee1805e10cba7072cbcae67830b2'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
