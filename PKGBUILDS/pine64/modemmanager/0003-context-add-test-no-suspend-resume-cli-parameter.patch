@@ -1,0 +1,100 @@
+From f5ce1ae2282e6164efa6b1f9b973ff61e44a30ff Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Sun, 31 Jan 2021 15:38:31 +0100
+Subject: [PATCH 1/2] context: add test-no-suspend-resume cli parameter
+
+Disables suspend/resume support at runtime.
+This is useful for modems which are never turned off
+or suspended when the host suspends.
+---
+ src/main.c       | 10 +++++++---
+ src/mm-context.c | 18 ++++++++++++++++++
+ src/mm-context.h |  9 ++++++---
+ 3 files changed, 31 insertions(+), 6 deletions(-)
+
+diff --git a/src/main.c b/src/main.c
+index 9963c7cc..928078a3 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -195,9 +195,13 @@ main (int argc, char *argv[])
+     {
+         MMSleepMonitor *sleep_monitor;
+ 
+-        sleep_monitor = mm_sleep_monitor_get ();
+-        g_signal_connect (sleep_monitor, MM_SLEEP_MONITOR_SLEEPING, G_CALLBACK (sleeping_cb), NULL);
+-        g_signal_connect (sleep_monitor, MM_SLEEP_MONITOR_RESUMING, G_CALLBACK (resuming_cb), NULL);
++        if (mm_context_get_test_no_suspend_resume())
++            mm_dbg ("Suspend/resume support disabled at runtime");
++        else {
++            sleep_monitor = mm_sleep_monitor_get ();
++            g_signal_connect (sleep_monitor, MM_SLEEP_MONITOR_SLEEPING, G_CALLBACK (sleeping_cb), NULL);
++            g_signal_connect (sleep_monitor, MM_SLEEP_MONITOR_RESUMING, G_CALLBACK (resuming_cb), NULL);
++        }
+     }
+ #endif
+ 
+diff --git a/src/mm-context.c b/src/mm-context.c
+index 8f20d2e8..6d25c1bd 100644
+--- a/src/mm-context.c
++++ b/src/mm-context.c
+@@ -222,6 +222,9 @@ mm_context_get_log_relative_timestamps (void)
+ static gboolean  test_session;
+ static gboolean  test_enable;
+ static gchar    *test_plugin_dir;
++#if defined WITH_SYSTEMD_SUSPEND_RESUME
++static gboolean  test_no_suspend_resume;
++#endif
+ 
+ static const GOptionEntry test_entries[] = {
+     {
+@@ -239,6 +242,13 @@ static const GOptionEntry test_entries[] = {
+         "Path to look for plugins",
+         "[PATH]"
+     },
++#if defined WITH_SYSTEMD_SUSPEND_RESUME
++    {
++        "test-no-suspend-resume", 0, 0, G_OPTION_ARG_NONE, &test_no_suspend_resume,
++        "Disable suspend/resume support at runtime even if available",
++        NULL
++    },
++#endif
+     { NULL }
+ };
+ 
+@@ -274,6 +284,14 @@ mm_context_get_test_plugin_dir (void)
+     return test_plugin_dir ? test_plugin_dir : PLUGINDIR;
+ }
+ 
++#if defined WITH_SYSTEMD_SUSPEND_RESUME
++gboolean
++mm_context_get_test_no_suspend_resume (void)
++{
++    return test_no_suspend_resume;
++}
++#endif
++
+ /*****************************************************************************/
+ 
+ static void
+diff --git a/src/mm-context.h b/src/mm-context.h
+index ff5f1343..5a9be51f 100644
+--- a/src/mm-context.h
++++ b/src/mm-context.h
+@@ -43,8 +43,11 @@ gboolean     mm_context_get_log_timestamps          (void);
+ gboolean     mm_context_get_log_relative_timestamps (void);
+ 
+ /* Testing support */
+-gboolean     mm_context_get_test_session    (void);
+-gboolean     mm_context_get_test_enable     (void);
+-const gchar *mm_context_get_test_plugin_dir (void);
++gboolean     mm_context_get_test_session           (void);
++gboolean     mm_context_get_test_enable            (void);
++const gchar *mm_context_get_test_plugin_dir        (void);
++#if defined WITH_SYSTEMD_SUSPEND_RESUME
++gboolean     mm_context_get_test_no_suspend_resume (void);
++#endif
+ 
+ #endif /* MM_CONTEXT_H */
+-- 
+2.30.0
+

@@ -1,0 +1,28 @@
+From 9a4e5a7c2da36288cd66c1500dcd0e1ba844c9cc Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Wed, 25 Nov 2020 19:58:25 +0100
+Subject: [PATCH] serial-parsers: do not fail to detect a valid response with a
+ call or text incoming
+
+Upstreaming at
+https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/merge_requests/406
+---
+ src/mm-serial-parsers.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/mm-serial-parsers.c b/src/mm-serial-parsers.c
+index b511302e..248cc685 100644
+--- a/src/mm-serial-parsers.c
++++ b/src/mm-serial-parsers.c
+@@ -108,7 +108,7 @@ mm_serial_parser_v1_new (void)
+ 
+     parser = g_slice_new (MMSerialParserV1);
+ 
+-    parser->regex_ok = g_regex_new ("\\r\\nOK(\\r\\n)+$", flags, 0, NULL);
++    parser->regex_ok = g_regex_new ("\\r\\nOK(\\r\\n)+", flags, 0, NULL);
+     parser->regex_connect = g_regex_new ("\\r\\nCONNECT.*\\r\\n", flags, 0, NULL);
+     parser->regex_sms = g_regex_new ("\\r\\n>\\s*$", flags, 0, NULL);
+     parser->regex_cme_error = g_regex_new ("\\r\\n\\+CME ERROR:\\s*(\\d+)\\r\\n$", flags, 0, NULL);
+-- 
+2.25.1
+

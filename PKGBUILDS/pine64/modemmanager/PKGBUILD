@@ -5,7 +5,7 @@
 pkgbase=modemmanager
 pkgname=(modemmanager libmm-glib)
 pkgver=1.14.10
-pkgrel=1
+pkgrel=2
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
 url="https://www.freedesktop.org/wiki/Software/ModemManager/"
@@ -15,9 +15,15 @@ depends=(systemd libgudev polkit ppp libqmi libmbim
 makedepends=(gtk-doc gobject-introspection vala autoconf-archive git)
 _commit=304a1b123fe87cf5f3b9067fb83f37c9e09e12f5  # tags/1.14.10
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
-        '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
+        '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch'
+        '0002-serial-parsers-do-not-fail-to-detect-a-valid-respons.patch'
+        '0003-context-add-test-no-suspend-resume-cli-parameter.patch'
+        '0004-mm-broadband-modem-qmi-Add-ID_MM_QMI_MESSAGING_AT_FA.patch')
 sha256sums=('SKIP'
-            '6272b09b59ba7a395f86502083ea2609a885ffa696c8acd20ed99cb18b6de92b')
+            '6272b09b59ba7a395f86502083ea2609a885ffa696c8acd20ed99cb18b6de92b'
+            '0f3977b70d58a4dc211913dd9cdd33399d19aacaae8fd8cfe48f1a73e0656c5c'
+            '5b1406723172f409d099c1fd9f5a45584755d401bfaf4c0cda99366cf9783baa'
+            'bfecf8d20e10b4e0b0153f27d5eab312d140dc4485e07b2035a688c628acfc63')
 
 pkgver() {
   cd ModemManager
@@ -27,8 +33,11 @@ pkgver() {
 prepare() {
   cd ModemManager
 
-  # Improve voice capabilities detection for EG25
+  # PinePhone Patches
   patch -p1 -N < ../0001-mm-broadband-modem-improve-voice-capabilities-detect.patch
+  patch -p1 -N < ../0002-serial-parsers-do-not-fail-to-detect-a-valid-respons.patch
+  patch -p1 -N < ../0003-context-add-test-no-suspend-resume-cli-parameter.patch
+  patch -p1 -N < ../0004-mm-broadband-modem-qmi-Add-ID_MM_QMI_MESSAGING_AT_FA.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
@@ -66,6 +75,10 @@ package_modemmanager() {
   make DESTDIR="$pkgdir" install
   make DESTDIR="$pkgdir" -C libmm-glib uninstall
   make DESTDIR="$pkgdir" -C vapi uninstall
+
+  # Disable suspend/resume hooks for the EG25-G modem in the PinePhone
+  sed -i -e 's|bin/ModemManager|bin/ModemManager --test-no-suspend-resume|g' \
+        "$pkgdir/usr/lib/systemd/system/ModemManager.service"
 
   # Some stuff to move is left over
   mv "$pkgdir/usr/include" ..
