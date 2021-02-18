@@ -1,7 +1,7 @@
 # Maintainer: Gustavo Castro < gustawho [ at ] gmail [ dot ] com >
 
 pkgname=kirigami-addons-git
-pkgver=r22.6c01964
+pkgver=r23.3307628
 pkgrel=1
 pkgdesc="Add-ons for the Kirigami framework"
 arch=(x86_64 armv7h aarch64)
