@@ -1,0 +1,43 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: dodgejcr@gmail.com
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+
+_pkgname=calindori
+pkgname=$_pkgname-git
+pkgver=1.3.r68.g5d17254
+pkgrel=1
+pkgdesc="Calendar application for Mobile Devices running Plasma"
+arch=('x86_64' 'aarch64')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL3')
+depends=('plasma-framework' 'kcalendarcore' 'kpeople')
+makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdelibs4support' 'kdoctools')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+source=("git+https://invent.kde.org/kde/$_pkgname.git")
+md5sums=('SKIP')
+
+pkgver() {
+  cd $_pkgname
+  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$_pkgname \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
