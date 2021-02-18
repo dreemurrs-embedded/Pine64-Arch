@@ -3,13 +3,13 @@
 
 _pkgname=plasma-angelfish
 pkgname=$_pkgname-git
-pkgver=1.7.1.r11.gc278469
+pkgver=1.7.1.r18.g5838d09
 pkgrel=1
 pkgdesc="Plasma Demo Webbrowser for Mobile Devices"
 arch=('x86_64' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('desktop-file-utils' 'plasma-framework' 'qt5-webengine' 'purpose')
+depends=('desktop-file-utils' 'plasma-framework' 'qt5-webengine' 'purpose' 'corrosion')
 makedepends=('git' 'cmake' 'extra-cmake-modules')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
