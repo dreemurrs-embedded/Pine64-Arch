@@ -1,0 +1,42 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: dodgejcr@gmail.com
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+pkgname=plasma-samegame-git
+pkgver=r11.9ccb7dc
+pkgrel=1
+pkgdesc="Samegame clone suitable for mobile devices"
+arch=('any')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL')
+depends=('plasma-framework')
+makedepends=('git' 'cmake' 'extra-cmake-modules')
+provides=('plasma-samegame')
+source=(git+https://invent.kde.org/plasma-mobile/plasma-samegame.git)
+md5sums=('SKIP')
+
+_gitname="plasma-samegame"
+
+pkgver() {
+  cd plasma-samegame
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../plasma-samegame \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
