@@ -1,0 +1,39 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Bernhard Landauer <bernhard@manjaro.org>
+
+_pkgname=kalk
+pkgname=$_pkgname-git
+pkgver=0.1.r87.g33677dc
+pkgrel=1
+pkgdesc="Cross-platfrom calculator built with the Kirigami framework"
+arch=('x86_64' 'aarch64')
+url="https://invent.kde.org/plasma-mobile/$_pkgname"
+license=('GPL3')
+depends=('ki18n' 'kconfig' 'kcoreaddons' 'knotifications' 'kirigami2' 'kunitconversion' 'kdbusaddons' 'plasma-framework')
+makedepends=('git' 'qt5-tools' 'extra-cmake-modules')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+source=("git+$url.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd $_pkgname
+  git describe --long | sed 's/^V//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  mkdir build
+}
+
+build() {
+  cd build
+  cmake ../$_pkgname \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}
