@@ -5,7 +5,7 @@
 
 _pkgname=kclock
 pkgname=$_pkgname-git
-pkgver=0.2.2.r9.g2e06176
+pkgver=0.3.0.r14.gb83c699
 pkgrel=1
 
 pkgdesc="Simple Clock application for Mobile Devices running Plasma"
