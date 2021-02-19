@@ -2,7 +2,7 @@
 # Contributor: Bernhard Landauer <oberon@manjaro.org>
 
 pkgname=plasma-mobile-settings
-pkgver=20210104
+pkgver=20210219
 pkgrel=1
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
@@ -18,7 +18,9 @@ source=('applications-blacklistrc'
     'plasmamobile.json'
     'Breeze.json'
     'BreezeDark.json'
-    'settings.ini')
+    'settings.ini'
+    'powerdevil.hook'
+    '90-plasma-flashlight.rules')
 sha256sums=('bcbe9a3e44016c71811c4323d14dbd79f259b93bae0830cfc26ebfdfdf6e1381'
             'f7621041edd8dde4a2d15110c5c1d902a78ac1f57a4de6ceb250e12da5db7417'
             '68bc1f74168a8d4f9c3418b37b9373d5a46d3fe550c3d5357dd3d737114abdcf'
@@ -27,7 +29,9 @@ sha256sums=('bcbe9a3e44016c71811c4323d14dbd79f259b93bae0830cfc26ebfdfdf6e1381'
             '42db6e099ab56aa4f6c01107fe83897a059bc371a389379cd3c260d4ab8fd2bc'
             '40000a44b03e7b9a4ffa61eb8cdaf194b21ccb2609fb0aa6386aa14ed3aadb9d'
             '1677f6b5b54ea43780b8683d36032f1bb3603d5072a51e058be8619e777c8790'
-            'e3e671c730f7a4ed54011a1152a54e5ce11e6092850c379deb5641d88b5463bd')
+            'e3e671c730f7a4ed54011a1152a54e5ce11e6092850c379deb5641d88b5463bd'
+            '42c4de4c9310904ada1c84e23a34e42fcf20f8318a5f798372468381965dbd18'
+            'd90fbbc46520d7f757d7650976039dabd7342856f3868e41c7d3ed60f515640d')
 
 pkgver() {
     date +%Y%m%d
@@ -44,4 +48,7 @@ package() {
     install -Dm644 "${srcdir}/settings.ini" -t "${pkgdir}/etc/skel/.config/gtk-3.0/"
     install -Dm644 "${srcdir}/Breeze.json" -t "${pkgdir}/usr/share/maliit/keyboard2/themes/"
     install -Dm644 "${srcdir}/BreezeDark.json" -t "${pkgdir}/usr/share/maliit/keyboard2/themes/"
+    install -Dm644 "${srcdir}/90-plasma-flashlight.rules" "${pkgdir}/usr/lib/udev/rules.d/90-plasma-flashlight.rules"
+    # install alpm hook
+    install -Dm644 "${srcdir}/powerdevil.hook" "${pkgdir}/usr/share/libalpm/hooks/90-powerdevil.hook"
 }
