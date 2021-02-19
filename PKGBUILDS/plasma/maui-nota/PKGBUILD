@@ -1,0 +1,28 @@
+# TEMP, forked due to 404 icon
+
+pkgname=maui-nota
+_pkgname=nota
+pkgver=1.2.0
+pkgrel=2
+pkgdesc="Multi-platform text editor"
+url="https://mauikit.org/"
+arch=(x86_64 armv7h aarch64)
+license=(GPL3)
+depends=(mauikit hicolor-icon-theme)
+makedepends=(extra-cmake-modules qt5-webengine)
+groups=(maui)
+source=(https://invent.kde.org/maui/$_pkgname/-/archive/v$pkgver/$_pkgname-v$pkgver.tar.gz)
+sha256sums=('0793208b9388bb2e2d835cab9ff4af187c9cba22de3f639326d48deb63d50a2a')
+
+build() {
+  cmake -B build -S $_pkgname-v$pkgver
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+
+  # 404 icon fix
+  mv $pkgdir/usr/share/icons/hicolor/scalable/apps/nota.svg \
+    $pkgdir/usr/share/icons/hicolor/scalable/apps/maui-nota.svg
+}
