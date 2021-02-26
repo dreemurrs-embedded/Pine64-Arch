@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=uboot-pinephone
 pkgver=v2020.10_rc3
-pkgrel=3
+pkgrel=4
 pkgdesc="U-Boot for Pine64 - CRUST EDITION"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -23,14 +23,14 @@ source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/ar
         '0001-ATF-set-fno-stack-protector.patch'
         '0001-configs-Add-Pinetab-configuration.patch'
         'boot.txt'
-        'mkscr'
+        'mkubootcfg'
         'scp.bin')
 md5sums=('96ca5597c63d724b245315ca88589a21'
          'ec70813ae71f978f07795cde13ba42c0'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
          '90caaaf7c972240e2992c5c46102b2e9'
-         '021623a04afd29ac3f368977140cfbfd'
+         '846a082ccd5420f5fc1902d358f6635c'
          'af8268d4f7c026d375e60044fdf12691')
 
 prepare() {
@@ -118,5 +118,6 @@ package() {
   cp u-boot-sunxi-with-spl-pinetab{-624,-552,-492}.bin "${pkgdir}"/boot
   cp u-boot-sunxi-with-spl-pinephone{-624,-552,-492}.bin "${pkgdir}"/boot
 
-  cp ../boot.txt ../mkscr "${pkgdir}"/boot
+  install -Dm755 -t "$pkgdir/usr/bin/" "$srcdir/mkubootcfg"
+  install -Dm600 -t "$pkgdir/boot" "$srcdir/boot.txt"
 }

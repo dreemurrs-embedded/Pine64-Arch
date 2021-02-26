@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -eu
+
+mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d /boot/boot.txt /boot/boot.scr
