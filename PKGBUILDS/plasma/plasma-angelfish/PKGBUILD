@@ -1,26 +1,18 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 # Contributor: Dan Johansen <strit@manjaro.org>
 
-_pkgname=plasma-angelfish
-pkgname=$_pkgname-git
-pkgver=1.7.1.r18.g5838d09
+pkgname=plasma-angelfish
+pkgver=1.8.0
 pkgrel=1
-pkgdesc="Plasma Demo Webbrowser for Mobile Devices"
+pkgdesc="Plasma Webbrowser for Mobile Devices"
 arch=('x86_64' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
 depends=('desktop-file-utils' 'plasma-framework' 'qt5-webengine' 'purpose' 'corrosion')
 makedepends=('git' 'cmake' 'extra-cmake-modules')
-provides=("$_pkgname")
-conflicts=("$_pkgname")
-source=("git+https://invent.kde.org/plasma-mobile/$_pkgname.git")
+source=("https://invent.kde.org/plasma-mobile/angelfish/-/archive/v$pkgver/angelfish-v$pkgver.tar.gz")
 install=$pkgname.install
-md5sums=('SKIP')
-
-pkgver() {
-  cd $_pkgname
-  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
+md5sums=('9609703a7d973fc36273c64ce3151175')
 
 prepare() {
   mkdir -p build
@@ -28,7 +20,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../$_pkgname \
+  cmake ../angelfish-v${pkgver} \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_TESTING=OFF \
     -DLIB_INSTALL_DIR=lib \
