@@ -3,9 +3,8 @@
 # Contributor: Furkan K. <furkan@fkardame.com>
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
-_pkgname=kweather
-pkgname=$_pkgname-git
-pkgver=0.4.r0.g5a1a93c
+pkgname=kweather
+pkgver=0.4
 pkgrel=1
 pkgdesc="Simple Weather application for Mobile Devices running Plasma"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -13,15 +12,8 @@ url="https://invent.kde.org/plasma-mobile/$_pkgname"
 license=('GPL-2.0-or-later')
 depends=('kconfig' 'kcoreaddons' 'ki18n' 'kirigami2' 'knotifications' 'plasma-framework' 'kquickcharts' 'qt5-charts' 'qt5-quickcontrols2' 'qt5-declarative')
 makedepends=('git' 'cmake' 'extra-cmake-modules' 'qt5-svg')
-provides=("$_pkgname")
-conflicts=("$_pkgname")
-source=("git+$url.git")
+source=("https://invent.kde.org/plasma-mobile/kweather/-/archive/$pkgver/kweather-$pkgver.tar.gz")
 md5sums=('SKIP')
-
-pkgver() {
-  cd $_pkgname
-  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
 
 prepare() {
     mkdir build
@@ -29,7 +21,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../$_pkgname \
+  cmake ../kweather-$pkgver \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib
