@@ -2,9 +2,8 @@
 # Contributor: dodgejcr@gmail.com
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
-_pkgname=plasma-phonebook
-pkgname=$_pkgname-git
-pkgver=r182.gd4d87db
+pkgname=plasma-phonebook
+pkgver=0.1
 pkgrel=1
 pkgdesc="Phonebook application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
@@ -12,15 +11,8 @@ url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
 depends=('kirigami2' 'kcontacts' 'kpeople' 'kpeoplevcard' 'qt5-quickcontrols2' 'qt5-svg')
 makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools')
-provides=("$_pkgname")
-conflicts=("$_pkgname")
-source=("git+https://invent.kde.org/plasma-mobile/$_pkgname.git")
-md5sums=('SKIP')
-
-pkgver() {
-  cd $_pkgname
-  printf "r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-}
+source=("https://invent.kde.org/plasma-mobile/plasma-phonebook/-/archive/v$pkgver/plasma-phonebook-v$pkgver.tar.gz")
+md5sums=('0d35c1fbe48dff7c69a81c24e66d4eb7')
 
 prepare() {
   mkdir -p build
@@ -28,7 +20,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../$_pkgname \
+  cmake ../plasma-phonebook-v$pkgver \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_TESTING=OFF \
     -DLIB_INSTALL_DIR=lib \
