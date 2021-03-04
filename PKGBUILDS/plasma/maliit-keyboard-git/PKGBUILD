@@ -3,8 +3,8 @@
 # Contributor: Bhushan Shah <bshah@kde.org>
 
 pkgname=maliit-keyboard-git
-pkgver=r2050.g432db0ea
-pkgrel=3
+pkgver=r2059.g77fe50ac
+pkgrel=1
 pkgdesc="Maliit Keyboard"
 arch=('aarch64' 'x86_64')
 url="https://github.com/maliit/keyboard"
