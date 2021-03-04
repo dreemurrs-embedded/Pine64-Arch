@@ -2,9 +2,8 @@
 # Contributor: Furkan Kardame <tech@fkardame.com>
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
-_pkgname=plasma-dialer
-pkgname=$_pkgname-git
-pkgver=0.1.r95.g98d1571
+pkgname=plasma-dialer
+pkgver=0.2
 pkgrel=1
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
@@ -12,16 +11,9 @@ url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
 depends=('desktop-file-utils' 'ofono' 'kcontacts' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'kdbusaddons' 'knotifications' 'telepathy-ofono' 'telepathy-mission-control')
 makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools')
-provides=("$_pkgname")
-conflicts=("$_pkgname")
-source=("git+https://invent.kde.org/plasma-mobile/$_pkgname.git")
+source=("https://invent.kde.org/plasma-mobile/plasma-dialer/-/archive/v$pkgver/plasma-dialer-v$pkgver.tar.gz")
 install=$pkgname.install
-md5sums=('SKIP')
-
-pkgver() {
-  cd $_pkgname
-  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
+md5sums=('ae35f82288009db2210f0bd46f1b2af3')
 
 prepare() {
   mkdir -p build
@@ -29,7 +21,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../$_pkgname \
+  cmake ../plasma-dialer-v$pkgver \
     -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_TESTING=OFF \
