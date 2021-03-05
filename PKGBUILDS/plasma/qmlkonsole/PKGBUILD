@@ -1,9 +1,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 # Contributor: Dan Johansen <strit@manjaro.org>
 
-_pkgname=qmlkonsole
-pkgname=$_pkgname-git
-pkgver=r72.g50f8fb3
+pkgname=qmlkonsole
+pkgver=0.1
 pkgrel=1
 pkgdesc="Terminal app for Plasma Mobile"
 arch=('aarch64' 'x86_64')
@@ -11,18 +10,13 @@ url="https://invent.kde.org/jbbgameich/qmlkonsole.git"
 license=('GPL3')
 depends=('qmltermwidget' 'kirigami2' 'ki18n' 'kconfig')
 makedepends=('git' 'extra-cmake-modules' 'qt5-base' 'qt5-declarative' 'qt5-svg' 'qt5-quickcontrols2')
-source=("git+https://invent.kde.org/jbbgameich/qmlkonsole.git")
-sha256sums=('SKIP')
-
-pkgver() {
-  cd $_pkgname
-  printf "r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-}
+source=("https://download.kde.org/unstable/qmlkonsole/$pkgver/qmlkonsole-$pkgver.tar.xz")
+sha256sums=('42b0a46c777e5d24e8a88c2605ba7b85eb1600026f2b5858392cfe8f548520dc')
 
 build() {
   mkdir -p build
   cd build
-  cmake ${srcdir}/$_pkgname \
+  cmake ${srcdir}/qmlkonsole-$pkgver \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_INSTALL_LIBDIR=lib
@@ -32,6 +26,5 @@ build() {
 
 package() {
   cd build
-	DESTDIR="$pkgdir" make install
-
+  DESTDIR="$pkgdir" make install
 } 
