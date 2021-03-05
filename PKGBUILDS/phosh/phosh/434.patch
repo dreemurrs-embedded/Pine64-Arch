@@ -1,4 +1,4 @@
-From 6937406b65fb2e11b8e8e375ca31a181728295a8 Mon Sep 17 00:00:00 2001
+From 68a8a01e712e2a0284d14712c1eff54b7480e691 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Wed, 5 Aug 2020 16:07:16 +0200
 Subject: [PATCH 01/12] rotateinfo: Fix indentation
@@ -12,7 +12,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/rotateinfo.c b/src/rotateinfo.c
-index 5cd3ccf..b673fa3 100644
+index 5cd3ccf7..b673fa3d 100644
 --- a/src/rotateinfo.c
 +++ b/src/rotateinfo.c
 @@ -59,7 +59,7 @@ set_state (PhoshRotateInfo *self)
@@ -25,9 +25,10 @@ index 5cd3ccf..b673fa3 100644
      phosh_status_icon_set_icon_name (PHOSH_STATUS_ICON (self), "screen-rotation-portrait-symbolic");
      phosh_status_icon_set_info (PHOSH_STATUS_ICON (self), _("Portrait"));
 -- 
-2.30.0
+2.26.2
 
-From ce10930ff4b5acdafb6abc5cfee3dbba9ebbf4f9 Mon Sep 17 00:00:00 2001
+
+From 40f33cf5e8428af913b653f38664c0c177b49b9f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 16:39:12 +0100
 Subject: [PATCH 02/12] shell: Create sensor-manager early
@@ -44,7 +45,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/src/shell.c b/src/shell.c
-index 1056189..c56edf9 100644
+index 1056189f..c56edf9b 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -453,6 +453,8 @@ setup_idle_cb (PhoshShell *self)
@@ -71,9 +72,10 @@ index 1056189..c56edf9 100644
  
    phosh_session_manager_register (priv->session_manager,
 -- 
-2.30.0
+2.26.2
 
-From dfc85a0e8997ca09d97d7efea962c6f912b9340a Mon Sep 17 00:00:00 2001
+
+From 2d2e3721f0b9230b8f5c50d8628f7355fc99cf18 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 16:36:12 +0100
 Subject: [PATCH 03/12] shell: Don't bother with accelerometer
@@ -89,7 +91,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 7 deletions(-)
 
 diff --git a/src/shell.c b/src/shell.c
-index c56edf9..0ace88a 100644
+index c56edf9b..0ace88a2 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -326,13 +326,6 @@ phosh_shell_dispose (GObject *object)
@@ -107,9 +109,10 @@ index c56edf9..0ace88a 100644
    g_clear_pointer (&priv->faders, g_ptr_array_unref);
  
 -- 
-2.30.0
+2.26.2
 
-From 5ffa2b5af5d593927231f8ec7a12e7aff7e048b5 Mon Sep 17 00:00:00 2001
+
+From 3de17848cb71963c8529da6ec062937807d64470 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:05:57 +0200
 Subject: [PATCH 04/12] Add rotation-manager
@@ -140,7 +143,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  create mode 100644 src/rotation-manager.h
 
 diff --git a/docs/phosh-docs.xml b/docs/phosh-docs.xml
-index 508cd62..82916ea 100644
+index cbe0e7d5..6a790d9a 100644
 --- a/docs/phosh-docs.xml
 +++ b/docs/phosh-docs.xml
 @@ -95,6 +95,7 @@
@@ -152,18 +155,18 @@ index 508cd62..82916ea 100644
        <xi:include href="xml/sensor-proxy-manager.xml"/>
        <xi:include href="xml/session-manager.xml"/>
 diff --git a/src/meson.build b/src/meson.build
-index 6be87a7..c3b656f 100644
+index 04e25586..60747b7b 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -21,6 +21,7 @@ phosh_enum_headers = [
-   'notifications/notification.h',
+@@ -24,6 +24,7 @@ phosh_enum_headers = [
    'notifications/notify-manager.h',
    'phosh-wayland.h',
+   'shell.h',
 +  'rotation-manager.h',
  ] + schema_enum_headers
  
  phosh_enums = gnome.mkenums('phosh-enums',
-@@ -143,6 +144,8 @@ libphosh_sources = [
+@@ -146,6 +147,8 @@ libphosh_sources = [
    'polkit-auth-prompt.h',
    'proximity.h',
    'proximity.c',
@@ -172,26 +175,21 @@ index 6be87a7..c3b656f 100644
    'sensor-proxy-manager.c',
    'sensor-proxy-manager.h',
    'rotateinfo.c',
-@@ -229,4 +232,3 @@ phosh = executable('phosh', ['main.c', libphosh_sources],
-   dependencies: phosh_tool_dep,
-   install: true,
-   install_dir: libexecdir)
--
 diff --git a/src/phosh-enums.c.in b/src/phosh-enums.c.in
-index 8be5151..00f5cf5 100644
+index 8be51516..00f5cf51 100644
 --- a/src/phosh-enums.c.in
 +++ b/src/phosh-enums.c.in
-@@ -9,6 +9,7 @@
- #include "notifications/notification.h"
+@@ -12,6 +12,7 @@
  #include "notifications/notify-manager.h"
  #include "phosh-wayland.h"
+ #include "shell.h"
 +#include "rotation-manager.h"
  #include "wwan/phosh-wwan-backend.h"
  
  #include "phosh-enums.h"
 diff --git a/src/rotation-manager.c b/src/rotation-manager.c
 new file mode 100644
-index 0000000..a2e469e
+index 00000000..327af071
 --- /dev/null
 +++ b/src/rotation-manager.c
 @@ -0,0 +1,449 @@
@@ -646,7 +644,7 @@ index 0000000..a2e469e
 +}
 diff --git a/src/rotation-manager.h b/src/rotation-manager.h
 new file mode 100644
-index 0000000..b505cf8
+index 00000000..b505cf8e
 --- /dev/null
 +++ b/src/rotation-manager.h
 @@ -0,0 +1,39 @@
@@ -690,17 +688,17 @@ index 0000000..b505cf8
 +
 +G_END_DECLS
 diff --git a/src/shell.c b/src/shell.c
-index 0ace88a..0f96c72 100644
+index 0ace88a2..3d65854c 100644
 --- a/src/shell.c
 +++ b/src/shell.c
-@@ -53,6 +53,7 @@
- #include "phosh-wayland.h"
- #include "polkit-auth-agent.h"
+@@ -55,6 +55,7 @@
  #include "proximity.h"
-+#include "rotation-manager.h"
  #include "quick-setting.h"
  #include "rotateinfo.h"
++#include "rotation-manager.h"
  #include "sensor-proxy-manager.h"
+ #include "screen-saver-manager.h"
+ #include "session-manager.h"
 @@ -122,6 +123,7 @@ typedef struct
    /* sensors */
    PhoshSensorProxyManager *sensor_proxy_manager;
@@ -744,7 +742,7 @@ index 0ace88a..0f96c72 100644
   * Returns the usable area in pixels usable by a client on the phone
   * display
 diff --git a/src/shell.h b/src/shell.h
-index 9aec069..3bdcacd 100644
+index 9aec0699..3bdcacd7 100644
 --- a/src/shell.h
 +++ b/src/shell.h
 @@ -15,6 +15,7 @@
@@ -764,9 +762,10 @@ index 9aec069..3bdcacd 100644
  PhoshDockedManager  *phosh_shell_get_docked_manager (PhoshShell *self);
  PhoshSessionManager *phosh_shell_get_session_manager (PhoshShell *self);
 -- 
-2.30.0
+2.26.2
 
-From e7f13492a5f8b9979e47443d1b829dc38342bf91 Mon Sep 17 00:00:00 2001
+
+From 2ae87ad367c7872f49a7c4eea7472176c488d7df Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:08:53 +0200
 Subject: [PATCH 05/12] rotateinfo: Display either rotation lock or orientation
@@ -785,7 +784,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  2 files changed, 76 insertions(+), 22 deletions(-)
 
 diff --git a/src/rotateinfo.c b/src/rotateinfo.c
-index b673fa3..1227d65 100644
+index b673fa3d..1227d65d 100644
 --- a/src/rotateinfo.c
 +++ b/src/rotateinfo.c
 @@ -15,28 +15,35 @@
@@ -917,7 +916,7 @@ index b673fa3..1227d65 100644
 +  on_mode_changed (self);
  }
 diff --git a/src/rotateinfo.h b/src/rotateinfo.h
-index 2e05f81..1195fed 100644
+index 2e05f818..1195fed6 100644
 --- a/src/rotateinfo.h
 +++ b/src/rotateinfo.h
 @@ -11,10 +11,24 @@
@@ -947,9 +946,10 @@ index 2e05f81..1195fed 100644
  
  G_END_DECLS
 -- 
-2.30.0
+2.26.2
 
-From 534312e5de97964a453c57962533a7e262f5aea9 Mon Sep 17 00:00:00 2001
+
+From c42a44ef4f1d6ac214f5f855f8f5ad618d24b91f Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Tue, 23 Jun 2020 14:10:38 +0200
 Subject: [PATCH 06/12] settings: Add orientation lock to rotate quick setting
@@ -966,17 +966,17 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  2 files changed, 51 insertions(+), 4 deletions(-)
 
 diff --git a/src/settings.c b/src/settings.c
-index b574409..a40fd7f 100644
+index 28db9c2f..2ef72004 100644
 --- a/src/settings.c
 +++ b/src/settings.c
-@@ -17,6 +17,7 @@
- #include "settings/brightness.h"
- #include "settings/gvc-channel-bar.h"
- #include "wwan/phosh-wwan-mm.h"
-+#include "rotateinfo.h"
+@@ -20,6 +20,7 @@
  #include "feedback-manager.h"
  #include "notifications/notify-manager.h"
  #include "notifications/notification-frame.h"
++#include "rotateinfo.h"
+ 
+ #include <pulse/pulseaudio.h>
+ #include "gvc-mixer-control.h"
 @@ -82,16 +83,60 @@ static void
  rotation_setting_clicked_cb (PhoshSettings *self)
  {
@@ -1042,7 +1042,7 @@ index b574409..a40fd7f 100644
  static void
  feedback_setting_clicked_cb (PhoshSettings *self)
  {
-@@ -477,6 +522,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
+@@ -469,6 +514,7 @@ phosh_settings_class_init (PhoshSettingsClass *klass)
    gtk_widget_class_bind_template_callback (widget_class, feedback_setting_long_pressed_cb);
    gtk_widget_class_bind_template_callback (widget_class, on_media_player_raised);
    gtk_widget_class_bind_template_callback (widget_class, rotation_setting_clicked_cb);
@@ -1051,7 +1051,7 @@ index b574409..a40fd7f 100644
    gtk_widget_class_bind_template_callback (widget_class, wifi_setting_clicked_cb);
    gtk_widget_class_bind_template_callback (widget_class, wwan_setting_clicked_cb);
 diff --git a/src/ui/settings-menu.ui b/src/ui/settings-menu.ui
-index da19680..af7ee9c 100644
+index c9d2976b..6596c5f4 100644
 --- a/src/ui/settings-menu.ui
 +++ b/src/ui/settings-menu.ui
 @@ -95,6 +95,7 @@
@@ -1063,9 +1063,10 @@ index da19680..af7ee9c 100644
                        <object class="PhoshRotateInfo" id="rotateinfo">
                          <property name="visible">True</property>
 -- 
-2.30.0
+2.26.2
 
-From 2a3f9ae328d4a0684ac8f32ce6106ff7bd238f74 Mon Sep 17 00:00:00 2001
+
+From 49419fca37aba394d88522a499cbd1c51f916e39 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 20:32:06 +0100
 Subject: [PATCH 07/12] shell: Decryft builtin monitor setup
@@ -1081,7 +1082,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 29 insertions(+), 16 deletions(-)
 
 diff --git a/src/shell.c b/src/shell.c
-index 0f96c72..f3412c5 100644
+index 3d65854c..532acadc 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -589,6 +589,32 @@ on_monitor_removed (PhoshShell *self, PhoshMonitor *monitor)
@@ -1155,9 +1156,10 @@ index 0f96c72..f3412c5 100644
  
  
 -- 
-2.30.0
+2.26.2
 
-From 864385e07a200f991d289163a98ae8e87cb09b0b Mon Sep 17 00:00:00 2001
+
+From e766105ae88d9c4a26c92ab1b3ff146594d35c14 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 20:32:32 +0100
 Subject: [PATCH 08/12] shell: Decruft primary monitor getter
@@ -1174,7 +1176,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 2 insertions(+), 9 deletions(-)
 
 diff --git a/src/shell.c b/src/shell.c
-index f3412c5..4d84738 100644
+index 532acadc..adda9733 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -826,19 +826,12 @@ PhoshMonitor *
@@ -1200,9 +1202,10 @@ index f3412c5..4d84738 100644
  
  
 -- 
-2.30.0
+2.26.2
 
-From dcd36a366f887e2b7dce3af5bba4aa2338b5deab Mon Sep 17 00:00:00 2001
+
+From 80c37a72b2f280cafb00c9fd12a896b882236fb0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 20:33:52 +0100
 Subject: [PATCH 09/12] shell: Abort if we don't find any monitors
@@ -1218,7 +1221,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 13 insertions(+), 14 deletions(-)
 
 diff --git a/src/shell.c b/src/shell.c
-index 4d84738..eda18eb 100644
+index adda9733..3d376924 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -637,20 +637,19 @@ phosh_shell_constructed (GObject *object)
@@ -1256,9 +1259,10 @@ index 4d84738..eda18eb 100644
    gtk_icon_theme_add_resource_path (gtk_icon_theme_get_default (),
                                      "/sm/puri/phosh/icons");
 -- 
-2.30.0
+2.26.2
 
-From 16b1557ed6b20f0fa35f3e5aa12ddbd3033f100b Mon Sep 17 00:00:00 2001
+
+From 12e2e3d1179b5e709ac68a4afd9bc0f9264c0884 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 20:17:11 +0100
 Subject: [PATCH 10/12] shell: Rotate built-in not primary display
@@ -1277,7 +1281,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  2 files changed, 11 insertions(+), 23 deletions(-)
 
 diff --git a/src/rotateinfo.c b/src/rotateinfo.c
-index 1227d65..f94a535 100644
+index 1227d65d..f94a535a 100644
 --- a/src/rotateinfo.c
 +++ b/src/rotateinfo.c
 @@ -36,7 +36,7 @@ static void
@@ -1290,7 +1294,7 @@ index 1227d65..f94a535 100644
    gboolean portrait;
  
 diff --git a/src/shell.c b/src/shell.c
-index eda18eb..03ea545 100644
+index 3d376924..38647b0d 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -307,7 +307,7 @@ phosh_shell_get_property (GObject *object,
@@ -1388,9 +1392,10 @@ index eda18eb..03ea545 100644
    /* Move panels to the new monitor by recreating the layer shell surfaces */
    panels_dispose (self);
 -- 
-2.30.0
+2.26.2
 
-From 1cb8a7754226f6b84397ceabf4fe967d4f6009ef Mon Sep 17 00:00:00 2001
+
+From a932fbac1fae2faa89d2dc53ee1f6e6f384fc476 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 20:58:40 +0100
 Subject: [PATCH 11/12] docked-manager: Simplify - we always have a builtin
@@ -1405,7 +1410,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/src/docked-manager.c b/src/docked-manager.c
-index c887426..bd4b338 100644
+index c8874267..bd4b3385 100644
 --- a/src/docked-manager.c
 +++ b/src/docked-manager.c
 @@ -309,8 +309,7 @@ phosh_docked_manager_set_enabled (PhoshDockedManager *self, gboolean enable)
@@ -1419,9 +1424,10 @@ index c887426..bd4b338 100644
    g_debug ("Docked mode %sabled", self->enabled ? "en" : "dis");
  }
 -- 
-2.30.0
+2.26.2
 
-From 31947db9e12dc51624b88539487ad5452eb10e1f Mon Sep 17 00:00:00 2001
+
+From b42be1191d8f7da5bcb3e770e0e0e7d97e1de8f3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Thu, 7 Jan 2021 21:18:53 +0100
 Subject: [PATCH 12/12] rotation-manager: Use power save mode of builtin
@@ -1440,7 +1446,7 @@ Signed-off-by: Guido Günther <guido.gunther@puri.sm>
  3 files changed, 40 insertions(+), 35 deletions(-)
 
 diff --git a/src/rotation-manager.c b/src/rotation-manager.c
-index a2e469e..844e88f 100644
+index 327af071..af4b08d2 100644
 --- a/src/rotation-manager.c
 +++ b/src/rotation-manager.c
 @@ -22,16 +22,15 @@
@@ -1611,7 +1617,7 @@ index a2e469e..844e88f 100644
  }
  
 diff --git a/src/rotation-manager.h b/src/rotation-manager.h
-index b505cf8..54cb18e 100644
+index b505cf8e..54cb18e8 100644
 --- a/src/rotation-manager.h
 +++ b/src/rotation-manager.h
 @@ -5,8 +5,8 @@
@@ -1634,7 +1640,7 @@ index b505cf8..54cb18e 100644
                                                                       gboolean              locked);
  gboolean              phosh_rotation_manager_get_orientation_locked (PhoshRotationManager *self);
 diff --git a/src/shell.c b/src/shell.c
-index 03ea545..0aec07b 100644
+index 38647b0d..6cccf921 100644
 --- a/src/shell.c
 +++ b/src/shell.c
 @@ -1018,7 +1018,7 @@ phosh_shell_get_rotation_manager (PhoshShell *self)
@@ -1647,5 +1653,5 @@ index 03ea545..0aec07b 100644
    g_return_val_if_fail (PHOSH_IS_ROTATION_MANAGER (priv->rotation_manager), NULL);
  
 -- 
-2.30.0
+2.26.2
 
