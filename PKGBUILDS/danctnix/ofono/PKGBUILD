@@ -2,7 +2,7 @@
 
 pkgname=ofono
 pkgver=1.31
-pkgrel=5
+pkgrel=6
 pkgdesc="Infrastructure for building mobile telephony (GSM/UMTS) applications"
 url="https://01.org/ofono"
 arch=('x86_64' 'aarch64')
@@ -28,6 +28,8 @@ source=(
 	0003-qmimodem-Allow-UMTS-and-LTE-to-fallback-to-a-lower-c.patch
 	0004-qmimodem-HACK-use-fast-dormancy-calls-to-quarry-stat.patch
 	0005-qmimodem-Fix-dialing-to-an-international-number.patch
+	0006-qmimodem-implement-dtmf.patch
+	0007-qmimodem_Add_USSD_indication_support.patch
 	0001-voicecall-do-not-force-the-voice-type.patch
 )
 sha256sums=('a15c5d28096c10eb30e47a68b6dc2e7c4a5a99d7f4cfedf0b69624f33d859e9b'
@@ -49,6 +51,8 @@ sha256sums=('a15c5d28096c10eb30e47a68b6dc2e7c4a5a99d7f4cfedf0b69624f33d859e9b'
             '48372d9bc61d12dd92192c28b3ab7ee7f7c2460bf59ac7515ff837a15becafa6'
             '4de1e2f492fbec72bbb41c72529b0e4d6810c0f7c8f037643a7ba57d9a1a525e'
             'bba39821b38316ed3517395af4cbcaa44c03e09827ddc893aa9bd5da6ccedd40'
+            '2f1ada8c050de77a0d8ebb72b4e941294548fb5d58b1b3d9ac6ab15555fae0e0'
+            '9834a58b7107f7b3bd7df70fac557b0913ad905e39438c3c52cf390b227ea626'
             'a4c16270b7434edeade489b723ab8b6f373e84a712e3a73086e9a793577420d0')
 prepare() {
 	cd "$srcdir/$pkgname-$pkgver"
@@ -71,6 +75,7 @@ build() {
 		--prefix=/usr \
 		--sysconfdir=/etc \
 		--sbindir=/usr/bin \
+		--localstatedir=/var \
 		--disable-bluez4 \
 		--enable-tools
 
