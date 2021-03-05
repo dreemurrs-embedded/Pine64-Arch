@@ -4,7 +4,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=spacebar
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 pkgdesc="SMS and messaging application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
@@ -20,8 +20,8 @@ depends=('kcontacts'
 makedepends=('cmake'
     'extra-cmake-modules'
     'git')
-source=("https://invent.kde.org/plasma-mobile/spacebar/-/archive/v$pkgver/spacebar-v$pkgver.tar.gz")
-md5sums=('0f58ea6767303f66d79d4d21944188f0')
+source=("https://download.kde.org/stable/spacebar/$pkgver/spacebar-$pkgver.tar.xz")
+md5sums=('621409d00138fb19a2d3d1bfe5a967a1')
 
 prepare() {
   mkdir -p build
@@ -29,7 +29,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../spacebar-v$pkgver \
+  cmake ../spacebar-$pkgver \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_TESTING=OFF \
     -DLIB_INSTALL_DIR=lib \
