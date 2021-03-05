@@ -3,26 +3,17 @@
 # Contributor: Furkan K. <furkan@fkardame.com>
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
-_pkgname=kclock
-pkgname=$_pkgname-git
-pkgver=0.3.0.r14.gb83c699
+pkgname=kclock
+pkgver=0.4.0
 pkgrel=1
-
 pkgdesc="Simple Clock application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
-url="https://invent.kde.org/plasma-mobile/$_pkgname"
+url="https://invent.kde.org/plasma-mobile/kclock"
 license=('GPL-2.0-or-later')
 depends=('kdbusaddons' 'kirigami-addons' 'knotifications' 'plasma-framework' 'qt5-quickcontrols2' 'qt5-declarative' 'qt5-multimedia')
 makedepends=('git' 'cmake' 'extra-cmake-modules' 'qt5-svg')
-provides=("$_pkgname")
-conflicts=("$_pkgname")
-source=("git+$url.git")
-md5sums=('SKIP')
-
-pkgver() {
-  cd $_pkgname
-  git describe --long | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
+source=("https://download.kde.org/unstable/kclock/${pkgver%.*}/kclock-$pkgver.tar.xz")
+md5sums=('bc85e7fb015979daeb951983efe181c4')
 
 prepare() {
   mkdir -p build
@@ -30,7 +21,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../$_pkgname \
+  cmake ../kclock-$pkgver \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib
