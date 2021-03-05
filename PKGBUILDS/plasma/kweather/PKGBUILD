@@ -5,15 +5,15 @@
 
 pkgname=kweather
 pkgver=0.4
-pkgrel=1
+pkgrel=2
 pkgdesc="Simple Weather application for Mobile Devices running Plasma"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://invent.kde.org/plasma-mobile/$_pkgname"
+url="https://invent.kde.org/plasma-mobile/kweather"
 license=('GPL-2.0-or-later')
 depends=('kconfig' 'kcoreaddons' 'ki18n' 'kirigami2' 'knotifications' 'plasma-framework' 'kquickcharts' 'qt5-charts' 'qt5-quickcontrols2' 'qt5-declarative')
 makedepends=('git' 'cmake' 'extra-cmake-modules' 'qt5-svg')
-source=("https://invent.kde.org/plasma-mobile/kweather/-/archive/$pkgver/kweather-$pkgver.tar.gz")
-md5sums=('SKIP')
+source=("https://download.kde.org/unstable/kweather/$pkgver/kweather-$pkgver.tar.xz")
+md5sums=('bdc7945cc0e3ae8632d4303380ff278c')
 
 prepare() {
     mkdir build
