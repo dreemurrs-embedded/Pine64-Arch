@@ -1,0 +1,31 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Bernhard Landauer <bernhard@manjaro.org>
+
+pkgname=krecorder
+pkgver=0.1
+pkgrel=1
+pkgdesc="Cross-platfrom calculator built with the Kirigami framework"
+arch=('x86_64' 'aarch64')
+url="https://invent.kde.org/plasma-mobile/kalk"
+license=('GPL3')
+depends=('ki18n' 'kconfig' 'kirigami2' 'qt5-multimedia')
+makedepends=('qt5-tools' 'extra-cmake-modules')
+source=("https://download.kde.org/unstable/krecorder/$pkgver/krecorder-$pkgver.tar.xz")
+sha256sums=('74a6ac2601536feb42893ef4fd3a62cf6b9d9ee7562ba5785257a25d8f21a44a')
+
+prepare() {
+  mkdir build
+}
+
+build() {
+  cd build
+  cmake ../krecorder-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}
