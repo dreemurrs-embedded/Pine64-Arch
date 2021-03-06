@@ -4,13 +4,13 @@
 
 _pkgname=plasma-settings
 pkgname=$_pkgname-git
-pkgver=r853.g734c8c1
+pkgver=r863.gea65387
 pkgrel=1
 pkgdesc="Settings application for Mobile Devices running Plasma"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('accountsservice' 'plasma-framework' 'kdelibs4support' 'libkgapi' 'kdesignerplugin')
+depends=('accountsservice' 'plasma-framework' 'kdelibs4support' 'libkgapi' 'kdesignerplugin' 'kcmutils')
 makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools' 'kinit')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
