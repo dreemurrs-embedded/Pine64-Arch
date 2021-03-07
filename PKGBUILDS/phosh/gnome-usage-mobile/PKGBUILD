@@ -3,22 +3,27 @@
 
 pkgname=gnome-usage-mobile
 _pkgname=gnome-usage
-pkgver=3.33.2+28+g05741cb
-pkgrel=3
+pkgver=3.38.0
+pkgrel=1
 pkgdesc="GNOME application to view information about use of system resources"
 arch=(aarch64)
 url="https://wiki.gnome.org/Apps/Usage"
 license=(GPL3)
-depends=(gtk3 libgtop libdazzle tracker libhandy0 gtherm)
-makedepends=(git meson vala)
-optdepends=('accountsservice: show user tags for processes')
+depends=(gtk3 libgtop libdazzle tracker libhandy gtherm)
+makedepends=(git meson vala accountsservice gamemode)
+optdepends=('accountsservice: show user tags for processes'
+            'gamemode: show processes requesting game mode')
 provides=("$_pkgname=$pkgver")
 conflicts=("$_pkgname")
-_commit=05741cbf3e2dfd13eefbef4a71c6e6935764995d  # tags/v3.33.2
-source=("git+https://source.puri.sm/Librem5/gnome-usage.git#commit=$_commit"
-        '0001-Add-initial-thermal-view.patch')
+_commit=9f1a9b3c74ee42d2cd917aa0ef2e7938f4389003  # tags/3.38.0^0
+source=("git+https://gitlab.gnome.org/GNOME/gnome-usage.git#commit=$_commit"
+        '0001-Add-libgtherm-dependency.patch'
+        '0002-Add-initial-thermal-view.patch'
+        'Revert-Port-to-Tracker-3.patch')
 sha256sums=('SKIP'
-            'cc93935908de44f6559515b7e588d2b1d687b69ea81199e1f5d4695c7ba15958')
+            'b7845a5717334e043171401188165bd5050f672fac3c73b9624b750217a6d377'
+            '0caa915c6d9044d57af44e9723efcfb6be1052e8b360b2c3f35dc2ef8499f38c'
+            'caee17d5e8d5adc04bfe6fcdc08e39ec8174b2e97982dbd48a75c20656b5984e')
 
 pkgver() {
   cd $_pkgname
@@ -33,7 +38,7 @@ prepare() {
     src="${src%%::*}"
     src="${src##*/}"
     [[ $src = *.patch ]] || continue
-    echo "Applying patch $src..."
+    msg2 "Applying patch $src..."
     patch -Np1 < "../$src"
   done
 }

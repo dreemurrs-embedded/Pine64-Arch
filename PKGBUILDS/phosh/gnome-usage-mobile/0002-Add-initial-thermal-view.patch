@@ -1,7 +1,7 @@
-From 023f3fc82029fc4dbbea2366f0bf29542fb3a591 Mon Sep 17 00:00:00 2001
+From f3c54d6ac42c7131c095205c7a46ccce375f8d18 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Mon, 28 Oct 2019 11:05:50 +0100
-Subject: [PATCH 25/27] Add initial thermal view
+Subject: [PATCH 2/2] Add initial thermal view
 
 Just thermal zone temperature for now, no cooling devices
 ---
@@ -9,10 +9,9 @@ Just thermal zone temperature for now, no cooling devices
  data/org.gnome.Usage.gresource.xml    |   3 +
  data/ui/no-gthd-view.ui               |  41 +++++++++++
  data/ui/thermal-row.ui                |  60 +++++++++++++++
- data/ui/thermal-view.ui               |  61 +++++++++++++++
- meson.build                           |   3 +
+ data/ui/thermal-view.ui               |  60 +++++++++++++++
  src/graph-switcher-button.vala        |   6 ++
- src/meson.build                       |  10 +++
+ src/meson.build                       |   9 +++
  src/no-gthd-view.vala                 |  23 ++++++
  src/system-monitor.vala               |  14 ++++
  src/thermal-graph-model.vala          |  57 ++++++++++++++
@@ -24,7 +23,7 @@ Just thermal zone temperature for now, no cooling devices
  src/thermal-sub-view.vala             |  85 +++++++++++++++++++++
  src/thermal-view.vala                 |  59 +++++++++++++++
  src/window.vala                       |   1 +
- 19 files changed, 807 insertions(+)
+ 18 files changed, 802 insertions(+)
  create mode 100644 data/ui/no-gthd-view.ui
  create mode 100644 data/ui/thermal-row.ui
  create mode 100644 data/ui/thermal-view.ui
@@ -39,33 +38,33 @@ Just thermal zone temperature for now, no cooling devices
  create mode 100644 src/thermal-view.vala
 
 diff --git a/data/meson.build b/data/meson.build
-index a4400e5..c6f8fcb 100644
+index 03b5f3c..e0a99b9 100644
 --- a/data/meson.build
 +++ b/data/meson.build
-@@ -3,6 +3,7 @@ resource_data = files(
+@@ -2,6 +2,7 @@ resource_data = files(
+   'interface/adwaita.css',
    'ui/primary-menu.ui',
-   'ui/header-bar.ui',
    'ui/memory-speedometer.ui',
 +  'ui/no-gthd-view.ui',
    'ui/no-results-found-view.ui',
    'ui/performance-view.ui',
    'ui/process-row.ui',
 diff --git a/data/org.gnome.Usage.gresource.xml b/data/org.gnome.Usage.gresource.xml
-index ace1cd8..e8fa617 100644
+index d980239..d7449af 100644
 --- a/data/org.gnome.Usage.gresource.xml
 +++ b/data/org.gnome.Usage.gresource.xml
 @@ -6,6 +6,7 @@
          <file preprocess="xml-stripblanks">ui/primary-menu.ui</file>
-         <file preprocess="xml-stripblanks">ui/header-bar.ui</file>
+         <file preprocess="xml-stripblanks">ui/loading-notification.ui</file>
          <file preprocess="xml-stripblanks">ui/memory-speedometer.ui</file>
 +        <file preprocess="xml-stripblanks">ui/no-gthd-view.ui</file>
          <file preprocess="xml-stripblanks">ui/no-results-found-view.ui</file>
          <file preprocess="xml-stripblanks">ui/performance-view.ui</file>
          <file preprocess="xml-stripblanks">ui/quit-process-dialog.ui</file>
-@@ -14,5 +15,7 @@
-         <file preprocess="xml-stripblanks">ui/storage-view.ui</file>
+@@ -17,5 +18,7 @@
          <file preprocess="xml-stripblanks">ui/process-row.ui</file>
          <file preprocess="xml-stripblanks">ui/swap-speedometer.ui</file>
+         <file preprocess="xml-stripblanks">ui/window.ui</file>
 +        <file preprocess="xml-stripblanks">ui/thermal-row.ui</file>
 +        <file preprocess="xml-stripblanks">ui/thermal-view.ui</file>
      </gresource>
@@ -185,10 +184,10 @@ index 0000000..b6c4202
 +</interface>
 diff --git a/data/ui/thermal-view.ui b/data/ui/thermal-view.ui
 new file mode 100644
-index 0000000..d05498d
+index 0000000..7df8e00
 --- /dev/null
 +++ b/data/ui/thermal-view.ui
-@@ -0,0 +1,61 @@
+@@ -0,0 +1,60 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
 +  <!-- interface-requires gtk+ 3.9 -->
@@ -201,7 +200,6 @@ index 0000000..d05498d
 +      <object class="HdyLeaflet" id="leaflet">
 +        <property name="visible">True</property>
 +        <property name="orientation">horizontal</property>
-+        <property name="mode-transition-type">slide</property>
 +        <property name="visible-child">content_box</property>
 +
 +        <child>
@@ -226,13 +224,13 @@ index 0000000..d05498d
 +                <property name="visible">True</property>
 +                <property name="vexpand">True</property>
 +                <child>
-+                  <object class="HdyColumn">
++                  <object class="HdyClamp">
 +                    <property name="visible">True</property>
 +                    <property name="margin-start">12</property>
 +                    <property name="margin-end">12</property>
 +                    <property name="expand">True</property>
-+                    <property name="maximum-width">600</property>
-+                    <property name="linear-growth-width">400</property>
++                    <property name="maximum-size">600</property>
++                    <property name="tightening-threshold">400</property>
 +                    <child>
 +                      <object class="GtkBox" id="thermal_content">
 +                        <property name="visible">True</property>
@@ -250,20 +248,6 @@ index 0000000..d05498d
 +    </child>
 +  </template>
 +</interface>
-diff --git a/meson.build b/meson.build
-index 78ab17f..7958b45 100644
---- a/meson.build
-+++ b/meson.build
-@@ -16,7 +16,8 @@ gtk_dep = dependency('gtk+-3.0', version
- libdazzle_dep = dependency('libdazzle-1.0', version : '>=3.30')
- libgtop_dep = dependency('libgtop-2.0', version : '>= 2.34.0')
- libhandy_dep = dependency('libhandy-0.0', version : '>=0.0.11', required: false)
--tracker_dep = dependency('tracker-sparql-2.0')
-+tracker_dep = dependency('tracker-sparql-2.0')
-+gtherm_dep = dependency('libgtherm-0.0')
- 
- if not libhandy_dep.found()
-   libhandy_subproj = subproject(
 diff --git a/src/graph-switcher-button.vala b/src/graph-switcher-button.vala
 index f0863c4..798786d 100644
 --- a/src/graph-switcher-button.vala
@@ -282,19 +266,19 @@ index f0863c4..798786d 100644
          {
              graph.height_request = 80;
 diff --git a/src/meson.build b/src/meson.build
-index 447aad5..7e62a9a 100644
+index 0c29986..712841e 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -19,6 +19,7 @@ vala_sources = [
+@@ -20,6 +20,7 @@ vala_sources = [
    'memory-speedometer.vala',
    'memory-sub-view.vala',
    'monitor.vala',
 +  'no-gthd-view.vala',
    'no-results-found-view.vala',
+   'notification-bar.vala',
    'performance-view.vala',
-   'pie-chart.vala',
-@@ -39,6 +40,14 @@ vala_sources = [
-   'storage-worker.vala',
+@@ -42,6 +43,14 @@ vala_sources = [
+   'storage/tracker-worker.vala',
    'swap-speedometer.vala',
    'system-monitor.vala',
 +  'thermal-list-box.vala',
@@ -308,14 +292,6 @@ index 447aad5..7e62a9a 100644
    'utils.vala',
    'view.vala',
    'window.vala'
-@@ -48,6 +57,7 @@ deps = [
-   gio_dep,
-   glib_dep,
-   gobject_dep,
-+  gtherm_dep,
-   gtk_dep,
-   dependency('libgtop-2.0', version : '>= 2.34.0'),
-   libdazzle_dep,
 diff --git a/src/no-gthd-view.vala b/src/no-gthd-view.vala
 new file mode 100644
 index 0000000..23bac1a
@@ -346,7 +322,7 @@ index 0000000..23bac1a
 +    public class NoGthdView : View { }
 +}
 diff --git a/src/system-monitor.vala b/src/system-monitor.vala
-index 30f9d37..748b3e5 100644
+index aa8cd88..c406a27 100644
 --- a/src/system-monitor.vala
 +++ b/src/system-monitor.vala
 @@ -23,6 +23,7 @@ namespace Usage
@@ -357,7 +333,7 @@ index 30f9d37..748b3e5 100644
          public double cpu_load { get; private set; }
          public double[] x_cpu_load { get; private set; }
          public uint64 ram_usage { get; private set; }
-@@ -30,9 +31,11 @@ namespace Usage
+@@ -30,10 +31,12 @@ namespace Usage
          public uint64 swap_usage { get; private set; }
          public uint64 swap_total { get; private set; }
          public bool group_system_apps { get; set; default = true; }
@@ -365,10 +341,11 @@ index 30f9d37..748b3e5 100644
  
          private CpuMonitor cpu_monitor;
          private MemoryMonitor memory_monitor;
-+        private ThermalMonitor thermal_monitor;
          private GameMode.PidList gamemode_pids;
++        private ThermalMonitor thermal_monitor;
  
          private HashTable<string, AppItem> app_table;
+         private HashTable<GLib.Pid, Process> process_table;
 @@ -58,6 +61,12 @@ namespace Usage
              return app_table.get(name);
          }
@@ -382,14 +359,14 @@ index 30f9d37..748b3e5 100644
          public SystemMonitor()
          {
              GTop.init();
-@@ -65,6 +74,7 @@ namespace Usage
- 
+@@ -66,6 +75,7 @@ namespace Usage
              cpu_monitor = new CpuMonitor();
              memory_monitor = new MemoryMonitor();
-+            thermal_monitor = new ThermalMonitor();
              gamemode_pids = new GameMode.PidList();
++            thermal_monitor = new ThermalMonitor();
  
              app_table = new HashTable<string, AppItem>(str_hash, str_equal);
+             process_table = new HashTable<GLib.Pid, Process>(direct_hash, direct_equal);
 @@ -84,6 +94,7 @@ namespace Usage
              var settings = Settings.get_default();
              app_table.remove_all();
@@ -1055,10 +1032,10 @@ index 0000000..c2fadb5
 +    }
 +}
 diff --git a/src/window.vala b/src/window.vala
-index 7e85f3a..207645f 100644
+index 819162a..0fda7b3 100644
 --- a/src/window.vala
 +++ b/src/window.vala
-@@ -58,6 +58,7 @@ namespace Usage
+@@ -80,6 +80,7 @@ namespace Usage
              {
                  new PerformanceView(),
                  new StorageView(),
@@ -1067,5 +1044,5 @@ index 7e85f3a..207645f 100644
  
              foreach(var view in views) {
 -- 
-2.26.2
+2.30.0
 

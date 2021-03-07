@@ -1,0 +1,97 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Mon, 14 Sep 2020 12:00:00 +0200
+Subject: Revert "Port to Tracker 3"
+
+This reverts commit 4ec99363c9783f95f57be2af814cf8431bd74eaf.
+
+Debian doesn't include tracker-3 yet, and the diff is small enough that
+we can still maintain a tracker-2 version
+---
+ meson.build                    |  2 +-
+ org.gnome.Usage.json           | 23 ++++++++++++++++++++++-
+ src/storage/query-builder.vala |  2 +-
+ src/storage/storage-view.vala  |  4 ++--
+ 4 files changed, 26 insertions(+), 5 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index d2f40ac..f5f8b29 100644
+--- a/meson.build
++++ b/meson.build
+@@ -16,7 +16,7 @@ gtk_dep = dependency('gtk+-3.0', version : '>=3.20.10')
+ libdazzle_dep = dependency('libdazzle-1.0', version : '>=3.30')
+ libgtop_dep = dependency('libgtop-2.0', version : '>= 2.34.0')
+ libhandy_dep = dependency('libhandy-1', version : '>= 1.0.0', required: false)
+-tracker_dep = dependency('tracker-sparql-3.0')
++tracker_dep = dependency('tracker-sparql-2.0')
+ 
+ if not libhandy_dep.found()
+   libhandy_subproj = subproject(
+diff --git a/org.gnome.Usage.json b/org.gnome.Usage.json
+index b8de5b2..b768b76 100644
+--- a/org.gnome.Usage.json
++++ b/org.gnome.Usage.json
+@@ -10,7 +10,7 @@
+         "--share=ipc", "--socket=x11",
+         "--socket=wayland",
+         "--share=network",
+-        "--add-policy=Tracker3.dbus:org.freedesktop.Tracker3.Miner.Files=tracker:FileSystem",
++        "--talk-name=org.freedesktop.Tracker1",
+         "--filesystem=xdg-run/dconf", "--filesystem=~/.config/dconf:ro",
+         "--talk-name=ca.desrt.dconf", "--env=DCONF_USER_CONFIG_DIR=.config/dconf"
+     ],
+@@ -20,6 +20,27 @@
+                 "/share/vala",
+                 "*.la", "*.a"],
+     "modules": [
++        {
++            "name": "tracker",
++            "buildsystem": "meson",
++            "cleanup": [ "/bin", "/etc", "/libexec" ],
++            "config-opts":[
++               "--libdir=lib",
++               "-Ddocs=false",
++               "-Dfunctional_tests=false",
++               "-Djournal=false",
++               "-Dnetwork_manager=disabled",
++               "-Dstemmer=disabled",
++               "-Dbash_completion=no",
++               "-Dsystemd_user_services=no"],
++            "sources": [
++                {
++                    "type": "git",
++                    "branch": "tracker-2.3",
++                    "url": "https://gitlab.gnome.org/GNOME/tracker.git"
++                }
++            ]
++        },
+         {
+             "name": "libgtop-2.0",
+             "sources": [
+diff --git a/src/storage/query-builder.vala b/src/storage/query-builder.vala
+index 6768d9e..4ca82cb 100644
+--- a/src/storage/query-builder.vala
++++ b/src/storage/query-builder.vala
+@@ -27,6 +27,6 @@ public class Usage.StorageQueryBuilder {
+             filter = @"tracker:uri-is-parent ('$uri', ?uri)";
+         }
+ 
+-        return @"SELECT ?uri rdf:type(?u) FROM tracker:FileSystem { ?u nie:url ?uri . FILTER($filter) }";
++        return @"SELECT ?uri rdf:type(?u) { ?u nie:url ?uri . FILTER($filter) }";
+     }
+ }
+diff --git a/src/storage/storage-view.vala b/src/storage/storage-view.vala
+index 8b4dabb..6e11780 100644
+--- a/src/storage/storage-view.vala
++++ b/src/storage/storage-view.vala
+@@ -79,9 +79,9 @@ public class Usage.StorageView : Usage.View {
+         icon_name = "drive-harddisk-symbolic";
+ 
+         try {
+-            connection = Sparql.Connection.bus_new ("org.freedesktop.Tracker3.Miner.Files", null, null);
++            connection = Sparql.Connection.get ();
+         } catch (GLib.Error error) {
+-            critical ("Failed to connect to Tracker Miner FS: %s", error.message);
++            critical ("Failed to connect to Tracker: %s", error.message);
+         }
+ 
+         query_builder = new StorageQueryBuilder ();
