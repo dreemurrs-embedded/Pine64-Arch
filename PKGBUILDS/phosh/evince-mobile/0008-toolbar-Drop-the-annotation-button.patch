@@ -1,0 +1,26 @@
+From 5f731d3349be6db66398d51aa6345ec7732cbb23 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 11 Dec 2019 15:17:10 +0100
+Subject: [PATCH 08/12] toolbar: Drop the annotation button
+
+Annotation editing doesn't work well on phones.
+---
+ shell/ev-toolbar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/shell/ev-toolbar.c b/shell/ev-toolbar.c
+index 987f9e1e..b5058306 100644
+--- a/shell/ev-toolbar.c
++++ b/shell/ev-toolbar.c
+@@ -364,7 +364,7 @@ ev_toolbar_set_mode (EvToolbar     *ev_toolbar,
+                 gtk_widget_hide (priv->zoom_action);
+                 gtk_widget_hide (priv->page_selector);
+                 gtk_widget_show (priv->find_button);
+-                gtk_widget_show (priv->annots_button);
++                gtk_widget_hide (priv->annots_button);
+                 gtk_widget_hide (priv->open_button);
+                 break;
+ 	case EV_TOOLBAR_MODE_RECENT_VIEW:
+-- 
+2.30.1
+

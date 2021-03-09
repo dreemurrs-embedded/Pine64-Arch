@@ -1,0 +1,29 @@
+From 26c323c8fba0f5d1ba820e1e1c78541bc558737e Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 11 Dec 2019 14:02:14 +0100
+Subject: [PATCH 01/12] menus: Drop printing
+
+The dialog doesn't fit the phone yet.
+---
+ shell/evince-menus.ui | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/shell/evince-menus.ui b/shell/evince-menus.ui
+index 26b0a06f..66de0261 100644
+--- a/shell/evince-menus.ui
++++ b/shell/evince-menus.ui
+@@ -21,11 +21,6 @@
+   <menu id="action-menu">
+     <section>
+       <attribute name="display-hint">horizontal-buttons</attribute>
+-      <item>
+-        <attribute name="label" translatable="yes">Print…</attribute>
+-        <attribute name="action">win.print</attribute>
+-        <attribute name="verb-icon">printer-symbolic</attribute>
+-      </item>
+       <item>
+         <attribute name="label" translatable="yes">Fullscreen</attribute>
+         <attribute name="action">win.fullscreen</attribute>
+-- 
+2.30.1
+

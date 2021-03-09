@@ -1,0 +1,52 @@
+From 66d50d2e2091e12492638b903ea85219badfd34b Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 11 Dec 2019 16:24:31 +0100
+Subject: [PATCH 11/12] toolbar: Allow to toggle the sidebar button
+
+This will allow updating the button's state when gestures will allow
+closing the sidebar in the next commit.
+---
+ shell/ev-toolbar.c | 15 +++++++++++++++
+ shell/ev-toolbar.h |  3 +++
+ 2 files changed, 18 insertions(+)
+
+diff --git a/shell/ev-toolbar.c b/shell/ev-toolbar.c
+index b5058306..f692be5b 100644
+--- a/shell/ev-toolbar.c
++++ b/shell/ev-toolbar.c
+@@ -390,3 +390,18 @@ ev_toolbar_get_mode (EvToolbar *ev_toolbar)
+ 
+         return priv->toolbar_mode;
+ }
++
++void
++ev_toolbar_set_sidebar_visible (EvToolbar *ev_toolbar,
++                                gboolean   visible)
++{
++	EvToolbarPrivate *priv;
++
++	g_return_if_fail (EV_IS_TOOLBAR (ev_toolbar));
++
++	priv = GET_PRIVATE (ev_toolbar);
++	visible = !!visible;
++
++	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->sidebar_button), visible);
++}
++
+diff --git a/shell/ev-toolbar.h b/shell/ev-toolbar.h
+index b278e9dc..eccd25a4 100644
+--- a/shell/ev-toolbar.h
++++ b/shell/ev-toolbar.h
+@@ -59,6 +59,9 @@ void          ev_toolbar_set_mode           (EvToolbar     *ev_toolbar,
+ 					     EvToolbarMode  mode);
+ EvToolbarMode ev_toolbar_get_mode           (EvToolbar     *ev_toolbar);
+ 
++void ev_toolbar_set_sidebar_visible (EvToolbar *ev_toolbar,
++                                     gboolean   visible);
++
+ G_END_DECLS
+ 
+ #endif /* __EV_TOOLBAR_H__ */
+-- 
+2.30.1
+

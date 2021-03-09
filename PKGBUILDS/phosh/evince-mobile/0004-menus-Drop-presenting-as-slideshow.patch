@@ -1,0 +1,30 @@
+From 187b38f59d653694b2f3f5468b47891951afa5b1 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 11 Dec 2019 14:10:48 +0100
+Subject: [PATCH 04/12] menus: Drop presenting as slideshow
+
+We con't exit the slideshow on phones yet.
+---
+ shell/evince-menus.ui | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/shell/evince-menus.ui b/shell/evince-menus.ui
+index 17d4c14f..17c2aca3 100644
+--- a/shell/evince-menus.ui
++++ b/shell/evince-menus.ui
+@@ -41,12 +41,6 @@
+         <attribute name="action">win.save-as</attribute>
+       </item>
+     </section>
+-    <section>
+-      <item>
+-        <attribute name="label" translatable="yes">Present as _Slideshow</attribute>
+-        <attribute name="action">win.presentation</attribute>
+-      </item>
+-    </section>
+     <section>
+       <item>
+         <attribute name="label" translatable="yes">_Continuous</attribute>
+-- 
+2.30.1
+

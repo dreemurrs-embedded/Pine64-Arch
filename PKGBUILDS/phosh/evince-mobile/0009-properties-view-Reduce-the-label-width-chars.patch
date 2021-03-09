@@ -1,0 +1,26 @@
+From c8170dedfbc46b6a1419c9206ae473e80cff60da Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 11 Dec 2019 14:48:15 +0100
+Subject: [PATCH 09/12] properties-view: Reduce the label width chars
+
+This allows the window to fit phones.
+---
+ properties/ev-properties-view.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/properties/ev-properties-view.c b/properties/ev-properties-view.c
+index 707e172f..22993771 100644
+--- a/properties/ev-properties-view.c
++++ b/properties/ev-properties-view.c
+@@ -209,7 +209,7 @@ set_property (EvPropertiesView *properties,
+ 
+ 		g_object_set (G_OBJECT (value_label),
+ 			      "xalign", 0.0,
+-			      "width_chars", 25,
++			      "width_chars", 20,
+ 			      "selectable", TRUE,
+ 			      "ellipsize", PANGO_ELLIPSIZE_END,
+ 			      "hexpand", TRUE,
+-- 
+2.30.1
+
