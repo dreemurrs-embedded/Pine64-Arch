@@ -1,0 +1,30 @@
+From a6599706345a398376e003bd1a4a57679a4f2b95 Mon Sep 17 00:00:00 2001
+From: Aleksander Morgado <aleksander@aleksander.es>
+Date: Thu, 4 Mar 2021 18:52:04 +0100
+Subject: [PATCH] broadband-modem-qmi: update EPS/5GS reg state when
+ idle/searching
+
+Fixes https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/issues/317
+---
+ src/mm-broadband-modem-qmi.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/mm-broadband-modem-qmi.c b/src/mm-broadband-modem-qmi.c
+index 71607f506..85e33f882 100644
+--- a/src/mm-broadband-modem-qmi.c
++++ b/src/mm-broadband-modem-qmi.c
+@@ -2670,6 +2670,11 @@ common_process_serving_system_3gpp (MMBroadbandModemQmi *self,
+ 
+         mm_iface_modem_3gpp_update_cs_registration_state (MM_IFACE_MODEM_3GPP (self), reg_state_3gpp);
+         mm_iface_modem_3gpp_update_ps_registration_state (MM_IFACE_MODEM_3GPP (self), reg_state_3gpp);
++        if (mm_iface_modem_is_3gpp_lte (MM_IFACE_MODEM (self)))
++            mm_iface_modem_3gpp_update_eps_registration_state (MM_IFACE_MODEM_3GPP (self), reg_state_3gpp);
++        if (mm_iface_modem_is_3gpp_5gnr (MM_IFACE_MODEM (self)))
++            mm_iface_modem_3gpp_update_5gs_registration_state (MM_IFACE_MODEM_3GPP (self), reg_state_3gpp);
++
+         mm_iface_modem_3gpp_update_access_technologies (MM_IFACE_MODEM_3GPP (self), MM_MODEM_ACCESS_TECHNOLOGY_UNKNOWN);
+         mm_iface_modem_3gpp_update_location (MM_IFACE_MODEM_3GPP (self), 0, 0, 0);
+         /* request to reload operator info explicitly, so that the new
+-- 
+GitLab
+
