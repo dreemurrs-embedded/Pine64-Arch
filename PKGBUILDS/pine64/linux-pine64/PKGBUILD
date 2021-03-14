@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=linux-pine64
 pkgver=5.10.19
-pkgrel=1
+pkgrel=2
 pkgdesc="The Linux Kernel and modules - Pine64"
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -181,7 +181,7 @@ package() {
 }
 
 md5sums=('cd8a63df0bfcd4b7fffadf95cab65f7a'
-         'ceb2d3589af5abdd801477a569550a38'
+         '7d2be08b786f609cffca7f96044c62d6'
          '979a787cf84bef9c60da78e72ec96550'
          'd251f240c3f8c5ed2a94dcee5354f5a0'
          'f79300740a7350d2d24ab5e120831b52'
