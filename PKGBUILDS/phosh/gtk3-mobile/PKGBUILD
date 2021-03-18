@@ -3,8 +3,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.24
-pkgrel=3
+pkgver=3.24.27
+pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -15,7 +15,7 @@ depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2 d
 makedepends=(gobject-introspection gtk-doc git glib2-docs sassc)
 license=(LGPL)
 install=gtk3.install
-_commit=de8329b3ce4b235eac9ddcbb6cd121cc83dd9e74  # tags/3.24.24^0
+_commit=c7df3b9e9790012e6c5fbad6a4f4519bcf75561f  # tags/3.24.27^0
 source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.bz2"
         settings.ini
         gtk-query-immodules-3.0.hook
@@ -52,7 +52,7 @@ source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.
         theme-Add-libhandy-styles.patch
         window-Disable-window-dragging-on-phones.patch
         window-Maximize-resizable-pseudo-dialogs-on-mobile.patch)
-sha256sums=('c3cfdc9871eccf84ada47b73f060450eae9183dda1e6e296311a49a997cec23e'
+sha256sums=('755d24b0990fc5e590115fcd9a23e70e35f0bfa28faa740e106e9ca1dc57f6be'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
             'f5a46311e324a21ba84378f7afcf84a6b63bf30863f87819082abaf69e07ffea'
