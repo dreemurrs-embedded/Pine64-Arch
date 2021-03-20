@@ -1,0 +1,1747 @@
+From b455a5b948d50bd2f3daf90d1494f9124ea6d532 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 16 Mar 2021 22:33:35 -0700
+Subject: [PATCH 1/3] lima: rename *_shader_state to *_compiled_shader
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ src/gallium/drivers/lima/ir/gp/gpir.h         |  4 +--
+ src/gallium/drivers/lima/ir/gp/nir.c          |  2 +-
+ src/gallium/drivers/lima/ir/lima_ir.h         |  8 +++---
+ src/gallium/drivers/lima/ir/pp/nir.c          |  2 +-
+ src/gallium/drivers/lima/ir/pp/ppir.h         |  4 +--
+ src/gallium/drivers/lima/lima_context.h       |  8 +++---
+ src/gallium/drivers/lima/lima_draw.c          | 10 +++----
+ src/gallium/drivers/lima/lima_program.c       | 28 +++++++++----------
+ .../lima/standalone/lima_compiler_cmdline.c   |  4 +--
+ 9 files changed, 35 insertions(+), 35 deletions(-)
+
+diff --git a/src/gallium/drivers/lima/ir/gp/gpir.h b/src/gallium/drivers/lima/ir/gp/gpir.h
+index 0e9c64a48b5..63f74caa0ed 100644
+--- a/src/gallium/drivers/lima/ir/gp/gpir.h
++++ b/src/gallium/drivers/lima/ir/gp/gpir.h
+@@ -384,7 +384,7 @@ typedef struct {
+    gpir_node *cond;
+ } gpir_branch_node;
+ 
+-struct lima_vs_shader_state;
++struct lima_vs_compiled_shader;
+ 
+ #define GPIR_VECTOR_SSA_VIEWPORT_SCALE  0
+ #define GPIR_VECTOR_SSA_VIEWPORT_OFFSET 1
+@@ -419,7 +419,7 @@ typedef struct gpir_compiler {
+       gpir_node *nodes[4];
+    } vector_ssa[GPIR_VECTOR_SSA_NUM];
+ 
+-   struct lima_vs_shader_state *prog;
++   struct lima_vs_compiled_shader *prog;
+    int constant_base;
+ 
+    /* shaderdb */
+diff --git a/src/gallium/drivers/lima/ir/gp/nir.c b/src/gallium/drivers/lima/ir/gp/nir.c
+index afb43e51435..a11bc1aaff0 100644
+--- a/src/gallium/drivers/lima/ir/gp/nir.c
++++ b/src/gallium/drivers/lima/ir/gp/nir.c
+@@ -447,7 +447,7 @@ static void gpir_print_shader_db(struct nir_shader *nir, gpir_compiler *comp,
+    free(shaderdb);
+ }
+ 
+-bool gpir_compile_nir(struct lima_vs_shader_state *prog, struct nir_shader *nir,
++bool gpir_compile_nir(struct lima_vs_compiled_shader *prog, struct nir_shader *nir,
+                       struct pipe_debug_callback *debug)
+ {
+    nir_function_impl *func = nir_shader_get_entrypoint(nir);
+diff --git a/src/gallium/drivers/lima/ir/lima_ir.h b/src/gallium/drivers/lima/ir/lima_ir.h
+index 2817e7d5639..60d574a640c 100644
+--- a/src/gallium/drivers/lima/ir/lima_ir.h
++++ b/src/gallium/drivers/lima/ir/lima_ir.h
+@@ -49,16 +49,16 @@
+ 
+ 
+ struct ra_regs;
+-struct lima_vs_shader_state;
+-struct lima_fs_shader_state;
++struct lima_vs_compiled_shader;
++struct lima_fs_compiled_shader;
+ 
+ /* gpir interface */
+-bool gpir_compile_nir(struct lima_vs_shader_state *prog, struct nir_shader *nir,
++bool gpir_compile_nir(struct lima_vs_compiled_shader *prog, struct nir_shader *nir,
+                       struct pipe_debug_callback *debug);
+ 
+ 
+ /* ppir interface */
+-bool ppir_compile_nir(struct lima_fs_shader_state *prog, struct nir_shader *nir,
++bool ppir_compile_nir(struct lima_fs_compiled_shader *prog, struct nir_shader *nir,
+                       struct ra_regs *ra,
+                       struct pipe_debug_callback *debug);
+ struct ra_regs *ppir_regalloc_init(void *mem_ctx);
+diff --git a/src/gallium/drivers/lima/ir/pp/nir.c b/src/gallium/drivers/lima/ir/pp/nir.c
+index 78f97a75dd4..8790ec49142 100644
+--- a/src/gallium/drivers/lima/ir/pp/nir.c
++++ b/src/gallium/drivers/lima/ir/pp/nir.c
+@@ -874,7 +874,7 @@ static void ppir_add_write_after_read_deps(ppir_compiler *comp)
+    }
+ }
+ 
+-bool ppir_compile_nir(struct lima_fs_shader_state *prog, struct nir_shader *nir,
++bool ppir_compile_nir(struct lima_fs_compiled_shader *prog, struct nir_shader *nir,
+                       struct ra_regs *ra,
+                       struct pipe_debug_callback *debug)
+ {
+diff --git a/src/gallium/drivers/lima/ir/pp/ppir.h b/src/gallium/drivers/lima/ir/pp/ppir.h
+index 8fce4fd0f4e..8e6fe570f07 100644
+--- a/src/gallium/drivers/lima/ir/pp/ppir.h
++++ b/src/gallium/drivers/lima/ir/pp/ppir.h
+@@ -369,7 +369,7 @@ typedef struct {
+ } ppir_branch_node;
+ 
+ struct ra_regs;
+-struct lima_fs_shader_state;
++struct lima_fs_compiled_shader;
+ 
+ typedef struct ppir_compiler {
+    struct list_head block_list;
+@@ -385,7 +385,7 @@ typedef struct ppir_compiler {
+    unsigned reg_base;
+ 
+    struct ra_regs *ra;
+-   struct lima_fs_shader_state *prog;
++   struct lima_fs_compiled_shader *prog;
+    bool uses_discard;
+ 
+    /* for scheduler */
+diff --git a/src/gallium/drivers/lima/lima_context.h b/src/gallium/drivers/lima/lima_context.h
+index 87c25b7e89a..5bc9775921d 100644
+--- a/src/gallium/drivers/lima/lima_context.h
++++ b/src/gallium/drivers/lima/lima_context.h
+@@ -43,7 +43,7 @@ struct lima_depth_stencil_alpha_state {
+    struct pipe_depth_stencil_alpha_state base;
+ };
+ 
+-struct lima_fs_shader_state {
++struct lima_fs_compiled_shader {
+    void *shader;
+    int shader_size;
+    int stack_size;
+@@ -70,7 +70,7 @@ struct lima_varying_info {
+    int offset;
+ };
+ 
+-struct lima_vs_shader_state {
++struct lima_vs_compiled_shader {
+    void *shader;
+    int shader_size;
+    int prefetch;
+@@ -208,8 +208,8 @@ struct lima_context {
+    struct lima_context_viewport_state viewport;
+    struct pipe_scissor_state scissor;
+    struct pipe_scissor_state clipped_scissor;
+-   struct lima_vs_shader_state *vs;
+-   struct lima_fs_shader_state *fs;
++   struct lima_vs_compiled_shader *vs;
++   struct lima_fs_compiled_shader *fs;
+    struct lima_vs_bind_state *bind_vs;
+    struct lima_fs_bind_state *bind_fs;
+    struct lima_vertex_element_state *vertex_elements;
+diff --git a/src/gallium/drivers/lima/lima_draw.c b/src/gallium/drivers/lima/lima_draw.c
+index 69ef3e3b1b8..11b853c56d9 100644
+--- a/src/gallium/drivers/lima/lima_draw.c
++++ b/src/gallium/drivers/lima/lima_draw.c
+@@ -270,7 +270,7 @@ lima_pack_vs_cmd(struct lima_context *ctx, const struct pipe_draw_info *info,
+ {
+    struct lima_context_constant_buffer *ccb =
+       ctx->const_buffer + PIPE_SHADER_VERTEX;
+-   struct lima_vs_shader_state *vs = ctx->vs;
++   struct lima_vs_compiled_shader *vs = ctx->vs;
+    struct lima_job *job = lima_job_get(ctx);
+ 
+    VS_CMD_BEGIN(&job->vs_cmd_array, 24);
+@@ -317,7 +317,7 @@ static void
+ lima_pack_plbu_cmd(struct lima_context *ctx, const struct pipe_draw_info *info,
+                    const struct pipe_draw_start_count *draw)
+ {
+-   struct lima_vs_shader_state *vs = ctx->vs;
++   struct lima_vs_compiled_shader *vs = ctx->vs;
+    struct pipe_scissor_state *cscissor = &ctx->clipped_scissor;
+    struct lima_job *job = lima_job_get(ctx);
+    PLBU_CMD_BEGIN(&job->plbu_cmd_array, 32);
+@@ -602,7 +602,7 @@ lima_calculate_depth_test(struct pipe_depth_stencil_alpha_state *depth,
+ static void
+ lima_pack_render_state(struct lima_context *ctx, const struct pipe_draw_info *info)
+ {
+-   struct lima_fs_shader_state *fs = ctx->fs;
++   struct lima_fs_compiled_shader *fs = ctx->fs;
+    struct lima_render_state *render =
+       lima_ctx_buff_alloc(ctx, lima_ctx_buff_pp_plb_rsw,
+                           sizeof(*render));
+@@ -842,7 +842,7 @@ lima_update_gp_uniform(struct lima_context *ctx)
+ {
+    struct lima_context_constant_buffer *ccb =
+       ctx->const_buffer + PIPE_SHADER_VERTEX;
+-   struct lima_vs_shader_state *vs = ctx->vs;
++   struct lima_vs_compiled_shader *vs = ctx->vs;
+    int uniform_size = MIN2(vs->uniform_size, ccb->size);
+ 
+    int size = uniform_size + vs->constant_size + 32;
+@@ -922,7 +922,7 @@ lima_update_varying(struct lima_context *ctx, const struct pipe_draw_info *info,
+ {
+    struct lima_job *job = lima_job_get(ctx);
+    struct lima_screen *screen = lima_screen(ctx->base.screen);
+-   struct lima_vs_shader_state *vs = ctx->vs;
++   struct lima_vs_compiled_shader *vs = ctx->vs;
+    uint32_t gp_output_size;
+    unsigned num = info->index_size ? (ctx->max_index - ctx->min_index + 1) : draw->count;
+ 
+diff --git a/src/gallium/drivers/lima/lima_program.c b/src/gallium/drivers/lima/lima_program.c
+index fd08eacc628..d4beb8e123a 100644
+--- a/src/gallium/drivers/lima/lima_program.c
++++ b/src/gallium/drivers/lima/lima_program.c
+@@ -273,7 +273,7 @@ lima_program_optimize_fs_nir(struct nir_shader *s,
+ static bool
+ lima_fs_compile_shader(struct lima_context *ctx,
+                        struct lima_fs_key *key,
+-                       struct lima_fs_shader_state *fs)
++                       struct lima_fs_compiled_shader *fs)
+ {
+    struct lima_screen *screen = lima_screen(ctx->base.screen);
+    nir_shader *nir = nir_shader_clone(fs, key->shader_state->base.ir.nir);
+@@ -314,7 +314,7 @@ lima_fs_compile_shader(struct lima_context *ctx,
+    return true;
+ }
+ 
+-static struct lima_fs_shader_state *
++static struct lima_fs_compiled_shader *
+ lima_get_compiled_fs(struct lima_context *ctx,
+                      struct lima_fs_key *key)
+ {
+@@ -329,7 +329,7 @@ lima_get_compiled_fs(struct lima_context *ctx,
+       return entry->data;
+ 
+    /* not on cache, compile and insert into the cache */
+-   struct lima_fs_shader_state *fs = rzalloc(NULL, struct lima_fs_shader_state);
++   struct lima_fs_compiled_shader *fs = rzalloc(NULL, struct lima_fs_compiled_shader);
+    if (!fs)
+       return NULL;
+ 
+@@ -401,7 +401,7 @@ lima_delete_fs_state(struct pipe_context *pctx, void *hwcso)
+    hash_table_foreach(ctx->fs_cache, entry) {
+       const struct lima_fs_key *key = entry->key;
+       if (key->shader_state == so) {
+-         struct lima_fs_shader_state *fs = entry->data;
++         struct lima_fs_compiled_shader *fs = entry->data;
+          _mesa_hash_table_remove(ctx->fs_cache, entry);
+          if (fs->bo)
+             lima_bo_unreference(fs->bo);
+@@ -420,7 +420,7 @@ lima_delete_fs_state(struct pipe_context *pctx, void *hwcso)
+ static bool
+ lima_vs_compile_shader(struct lima_context *ctx,
+                        struct lima_vs_key *key,
+-                       struct lima_vs_shader_state *vs)
++                       struct lima_vs_compiled_shader *vs)
+ {
+    nir_shader *nir = nir_shader_clone(vs, key->shader_state->base.ir.nir);
+ 
+@@ -450,7 +450,7 @@ lima_vs_compile_shader(struct lima_context *ctx,
+    return true;
+ }
+ 
+-static struct lima_vs_shader_state *
++static struct lima_vs_compiled_shader *
+ lima_get_compiled_vs(struct lima_context *ctx,
+                      struct lima_vs_key *key)
+ {
+@@ -465,7 +465,7 @@ lima_get_compiled_vs(struct lima_context *ctx,
+       return entry->data;
+ 
+    /* not on cache, compile and insert into the cache */
+-   struct lima_vs_shader_state *vs = rzalloc(NULL, struct lima_vs_shader_state);
++   struct lima_vs_compiled_shader *vs = rzalloc(NULL, struct lima_vs_compiled_shader);
+    if (!vs)
+       return NULL;
+ 
+@@ -492,9 +492,9 @@ lima_update_vs_state(struct lima_context *ctx)
+    memset(key, 0, sizeof(*key));
+    key->shader_state = ctx->bind_vs;
+ 
+-   struct lima_vs_shader_state *old_vs = ctx->vs;
++   struct lima_vs_compiled_shader *old_vs = ctx->vs;
+ 
+-   struct lima_vs_shader_state *vs = lima_get_compiled_vs(ctx, key);
++   struct lima_vs_compiled_shader *vs = lima_get_compiled_vs(ctx, key);
+    if (!vs)
+       return false;
+ 
+@@ -532,9 +532,9 @@ lima_update_fs_state(struct lima_context *ctx)
+    for (int i = lima_tex->num_textures; i < ARRAY_SIZE(key->tex); i++)
+       memcpy(key->tex[i].swizzle, identity, 4);
+ 
+-   struct lima_fs_shader_state *old_fs = ctx->fs;
++   struct lima_fs_compiled_shader *old_fs = ctx->fs;
+ 
+-   struct lima_fs_shader_state *fs = lima_get_compiled_fs(ctx, key);
++   struct lima_fs_compiled_shader *fs = lima_get_compiled_fs(ctx, key);
+    if (!fs)
+       return false;
+ 
+@@ -599,7 +599,7 @@ lima_delete_vs_state(struct pipe_context *pctx, void *hwcso)
+    hash_table_foreach(ctx->vs_cache, entry) {
+       const struct lima_vs_key *key = entry->key;
+       if (key->shader_state == so) {
+-         struct lima_vs_shader_state *vs = entry->data;
++         struct lima_vs_compiled_shader *vs = entry->data;
+          _mesa_hash_table_remove(ctx->vs_cache, entry);
+          if (vs->bo)
+             lima_bo_unreference(vs->bo);
+@@ -660,7 +660,7 @@ void
+ lima_program_fini(struct lima_context *ctx)
+ {
+    hash_table_foreach(ctx->vs_cache, entry) {
+-      struct lima_vs_shader_state *vs = entry->data;
++      struct lima_vs_compiled_shader *vs = entry->data;
+       if (vs->bo)
+          lima_bo_unreference(vs->bo);
+       ralloc_free(vs);
+@@ -668,7 +668,7 @@ lima_program_fini(struct lima_context *ctx)
+    }
+ 
+    hash_table_foreach(ctx->fs_cache, entry) {
+-      struct lima_fs_shader_state *fs = entry->data;
++      struct lima_fs_compiled_shader *fs = entry->data;
+       if (fs->bo)
+          lima_bo_unreference(fs->bo);
+       ralloc_free(fs);
+diff --git a/src/gallium/drivers/lima/standalone/lima_compiler_cmdline.c b/src/gallium/drivers/lima/standalone/lima_compiler_cmdline.c
+index f510e731052..f3e1fa68397 100644
+--- a/src/gallium/drivers/lima/standalone/lima_compiler_cmdline.c
++++ b/src/gallium/drivers/lima/standalone/lima_compiler_cmdline.c
+@@ -224,7 +224,7 @@ main(int argc, char **argv)
+ 
+       nir_print_shader(nir, stdout);
+ 
+-      struct lima_vs_shader_state *vs = ralloc(nir, struct lima_vs_shader_state);
++      struct lima_vs_compiled_shader *vs = ralloc(nir, struct lima_vs_compiled_shader);
+       gpir_compile_nir(vs, nir, NULL);
+       break;
+    case MESA_SHADER_FRAGMENT:
+@@ -232,7 +232,7 @@ main(int argc, char **argv)
+ 
+       nir_print_shader(nir, stdout);
+ 
+-      struct lima_fs_shader_state *so = rzalloc(NULL, struct lima_fs_shader_state);
++      struct lima_fs_compiled_shader *so = rzalloc(NULL, struct lima_fs_compiled_shader);
+       struct ra_regs *ra = ppir_regalloc_init(NULL);
+       ppir_compile_nir(so, nir, ra, NULL);
+       break;
+-- 
+GitLab
+
+
+From 74272a1230a3066b010b278d6b9220681e653526 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 16 Mar 2021 22:57:28 -0700
+Subject: [PATCH 2/3] lima: rename lima_{fs,vs}_bind_state to
+ lima_{fs,vs}_uncompiled_shader
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ src/gallium/drivers/lima/lima_context.h  | 12 +++++-----
+ src/gallium/drivers/lima/lima_draw.c     |  2 +-
+ src/gallium/drivers/lima/lima_program.c  | 28 ++++++++++++------------
+ src/gallium/drivers/lima/lima_resource.c |  4 ++--
+ 4 files changed, 23 insertions(+), 23 deletions(-)
+
+diff --git a/src/gallium/drivers/lima/lima_context.h b/src/gallium/drivers/lima/lima_context.h
+index 5bc9775921d..bcdf724ce8a 100644
+--- a/src/gallium/drivers/lima/lima_context.h
++++ b/src/gallium/drivers/lima/lima_context.h
+@@ -51,12 +51,12 @@ struct lima_fs_compiled_shader {
+    struct lima_bo *bo;
+ };
+ 
+-struct lima_fs_bind_state {
++struct lima_fs_uncompiled_shader {
+    struct pipe_shader_state base;
+ };
+ 
+ struct lima_fs_key {
+-   struct lima_fs_bind_state *shader_state;
++   struct lima_fs_uncompiled_shader *uncomp_shader;
+    struct {
+       uint8_t swizzle[4];
+    } tex[PIPE_MAX_SAMPLERS];
+@@ -89,12 +89,12 @@ struct lima_vs_compiled_shader {
+    struct lima_bo *bo;
+ };
+ 
+-struct lima_vs_bind_state {
++struct lima_vs_uncompiled_shader {
+    struct pipe_shader_state base;
+ };
+ 
+ struct lima_vs_key {
+-   struct lima_vs_bind_state *shader_state;
++   struct lima_vs_uncompiled_shader *uncomp_shader;
+ };
+ 
+ struct lima_rasterizer_state {
+@@ -210,8 +210,8 @@ struct lima_context {
+    struct pipe_scissor_state clipped_scissor;
+    struct lima_vs_compiled_shader *vs;
+    struct lima_fs_compiled_shader *fs;
+-   struct lima_vs_bind_state *bind_vs;
+-   struct lima_fs_bind_state *bind_fs;
++   struct lima_vs_uncompiled_shader *uncomp_vs;
++   struct lima_fs_uncompiled_shader *uncomp_fs;
+    struct lima_vertex_element_state *vertex_elements;
+    struct lima_context_vertex_buffer vertex_buffers;
+    struct lima_rasterizer_state *rasterizer;
+diff --git a/src/gallium/drivers/lima/lima_draw.c b/src/gallium/drivers/lima/lima_draw.c
+index 11b853c56d9..5f1ea4a2644 100644
+--- a/src/gallium/drivers/lima/lima_draw.c
++++ b/src/gallium/drivers/lima/lima_draw.c
+@@ -1153,7 +1153,7 @@ lima_draw_vbo(struct pipe_context *pctx,
+ 
+    struct lima_context *ctx = lima_context(pctx);
+ 
+-   if (!ctx->bind_fs || !ctx->bind_vs) {
++   if (!ctx->uncomp_fs || !ctx->uncomp_vs) {
+       debug_warn_once("no shader, skip draw\n");
+       return;
+    }
+diff --git a/src/gallium/drivers/lima/lima_program.c b/src/gallium/drivers/lima/lima_program.c
+index d4beb8e123a..6f823a962c1 100644
+--- a/src/gallium/drivers/lima/lima_program.c
++++ b/src/gallium/drivers/lima/lima_program.c
+@@ -276,7 +276,7 @@ lima_fs_compile_shader(struct lima_context *ctx,
+                        struct lima_fs_compiled_shader *fs)
+ {
+    struct lima_screen *screen = lima_screen(ctx->base.screen);
+-   nir_shader *nir = nir_shader_clone(fs, key->shader_state->base.ir.nir);
++   nir_shader *nir = nir_shader_clone(fs, key->uncomp_shader->base.ir.nir);
+ 
+    struct nir_lower_tex_options tex_options = {
+       .lower_txp = ~0u,
+@@ -349,7 +349,7 @@ lima_create_fs_state(struct pipe_context *pctx,
+                      const struct pipe_shader_state *cso)
+ {
+    struct lima_context *ctx = lima_context(pctx);
+-   struct lima_fs_bind_state *so = rzalloc(NULL, struct lima_fs_bind_state);
++   struct lima_fs_uncompiled_shader *so = rzalloc(NULL, struct lima_fs_uncompiled_shader);
+ 
+    if (!so)
+       return NULL;
+@@ -371,7 +371,7 @@ lima_create_fs_state(struct pipe_context *pctx,
+    if (lima_debug & LIMA_DEBUG_PRECOMPILE) {
+       /* Trigger initial compilation with default settings */
+       struct lima_fs_key key = {
+-         .shader_state = so,
++         .uncomp_shader = so,
+       };
+       for (int i = 0; i < ARRAY_SIZE(key.tex); i++) {
+          for (int j = 0; j < 4; j++)
+@@ -388,7 +388,7 @@ lima_bind_fs_state(struct pipe_context *pctx, void *hwcso)
+ {
+    struct lima_context *ctx = lima_context(pctx);
+ 
+-   ctx->bind_fs = hwcso;
++   ctx->uncomp_fs = hwcso;
+    ctx->dirty |= LIMA_CONTEXT_DIRTY_UNCOMPILED_FS;
+ }
+ 
+@@ -396,11 +396,11 @@ static void
+ lima_delete_fs_state(struct pipe_context *pctx, void *hwcso)
+ {
+    struct lima_context *ctx = lima_context(pctx);
+-   struct lima_fs_bind_state *so = hwcso;
++   struct lima_fs_uncompiled_shader *so = hwcso;
+ 
+    hash_table_foreach(ctx->fs_cache, entry) {
+       const struct lima_fs_key *key = entry->key;
+-      if (key->shader_state == so) {
++      if (key->uncomp_shader == so) {
+          struct lima_fs_compiled_shader *fs = entry->data;
+          _mesa_hash_table_remove(ctx->fs_cache, entry);
+          if (fs->bo)
+@@ -422,7 +422,7 @@ lima_vs_compile_shader(struct lima_context *ctx,
+                        struct lima_vs_key *key,
+                        struct lima_vs_compiled_shader *vs)
+ {
+-   nir_shader *nir = nir_shader_clone(vs, key->shader_state->base.ir.nir);
++   nir_shader *nir = nir_shader_clone(vs, key->uncomp_shader->base.ir.nir);
+ 
+    lima_program_optimize_vs_nir(nir);
+ 
+@@ -490,7 +490,7 @@ lima_update_vs_state(struct lima_context *ctx)
+    struct lima_vs_key local_key;
+    struct lima_vs_key *key = &local_key;
+    memset(key, 0, sizeof(*key));
+-   key->shader_state = ctx->bind_vs;
++   key->uncomp_shader = ctx->uncomp_vs;
+ 
+    struct lima_vs_compiled_shader *old_vs = ctx->vs;
+ 
+@@ -518,7 +518,7 @@ lima_update_fs_state(struct lima_context *ctx)
+    struct lima_fs_key local_key;
+    struct lima_fs_key *key = &local_key;
+    memset(key, 0, sizeof(*key));
+-   key->shader_state = ctx->bind_fs;
++   key->uncomp_shader = ctx->uncomp_fs;
+ 
+    for (int i = 0; i < lima_tex->num_textures; i++) {
+       struct lima_sampler_view *sampler = lima_sampler_view(lima_tex->textures[i]);
+@@ -551,7 +551,7 @@ lima_create_vs_state(struct pipe_context *pctx,
+                      const struct pipe_shader_state *cso)
+ {
+    struct lima_context *ctx = lima_context(pctx);
+-   struct lima_vs_bind_state *so = rzalloc(NULL, struct lima_vs_bind_state);
++   struct lima_vs_uncompiled_shader *so = rzalloc(NULL, struct lima_vs_uncompiled_shader);
+ 
+    if (!so)
+       return NULL;
+@@ -573,7 +573,7 @@ lima_create_vs_state(struct pipe_context *pctx,
+    if (lima_debug & LIMA_DEBUG_PRECOMPILE) {
+       /* Trigger initial compilation with default settings */
+       struct lima_vs_key key = {
+-         .shader_state = so,
++         .uncomp_shader = so,
+       };
+       lima_get_compiled_vs(ctx, &key);
+    }
+@@ -586,7 +586,7 @@ lima_bind_vs_state(struct pipe_context *pctx, void *hwcso)
+ {
+    struct lima_context *ctx = lima_context(pctx);
+ 
+-   ctx->bind_vs = hwcso;
++   ctx->uncomp_vs = hwcso;
+    ctx->dirty |= LIMA_CONTEXT_DIRTY_UNCOMPILED_VS;
+ }
+ 
+@@ -594,11 +594,11 @@ static void
+ lima_delete_vs_state(struct pipe_context *pctx, void *hwcso)
+ {
+    struct lima_context *ctx = lima_context(pctx);
+-   struct lima_vs_bind_state *so = hwcso;
++   struct lima_vs_uncompiled_shader *so = hwcso;
+ 
+    hash_table_foreach(ctx->vs_cache, entry) {
+       const struct lima_vs_key *key = entry->key;
+-      if (key->shader_state == so) {
++      if (key->uncomp_shader == so) {
+          struct lima_vs_compiled_shader *vs = entry->data;
+          _mesa_hash_table_remove(ctx->vs_cache, entry);
+          if (vs->bo)
+diff --git a/src/gallium/drivers/lima/lima_resource.c b/src/gallium/drivers/lima/lima_resource.c
+index 2c2c1a3cd5d..7eef8d8e7fe 100644
+--- a/src/gallium/drivers/lima/lima_resource.c
++++ b/src/gallium/drivers/lima/lima_resource.c
+@@ -718,8 +718,8 @@ lima_util_blitter_save_states(struct lima_context *ctx)
+    util_blitter_save_depth_stencil_alpha(ctx->blitter, (void *)ctx->zsa);
+    util_blitter_save_stencil_ref(ctx->blitter, &ctx->stencil_ref);
+    util_blitter_save_rasterizer(ctx->blitter, (void *)ctx->rasterizer);
+-   util_blitter_save_fragment_shader(ctx->blitter, ctx->bind_fs);
+-   util_blitter_save_vertex_shader(ctx->blitter, ctx->bind_vs);
++   util_blitter_save_fragment_shader(ctx->blitter, ctx->uncomp_fs);
++   util_blitter_save_vertex_shader(ctx->blitter, ctx->uncomp_vs);
+    util_blitter_save_viewport(ctx->blitter,
+                               &ctx->viewport.transform);
+    util_blitter_save_scissor(ctx->blitter, &ctx->scissor);
+-- 
+GitLab
+
+
+From c5fa8dafa5f0e07c917e03021fad1489d8a49747 Mon Sep 17 00:00:00 2001
+From: Vasily Khoruzhick <anarsoul@gmail.com>
+Date: Tue, 16 Mar 2021 23:54:42 -0700
+Subject: [PATCH 3/3] lima: implement shader disk cache
+
+Wire up disk cache routines and change fs and vs keys to use nir_sha1
+instead of pointer to uncompiled shader to be able to reuse them for
+disk cache.
+
+Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
+---
+ src/gallium/drivers/lima/Android.mk        |   2 +
+ src/gallium/drivers/lima/ir/gp/codegen.c   |   4 +-
+ src/gallium/drivers/lima/ir/gp/lower.c     |   2 +-
+ src/gallium/drivers/lima/ir/gp/nir.c       |  18 +-
+ src/gallium/drivers/lima/ir/pp/codegen.c   |   2 +-
+ src/gallium/drivers/lima/ir/pp/regalloc.c  |  10 +-
+ src/gallium/drivers/lima/lima_context.h    |  43 +++--
+ src/gallium/drivers/lima/lima_disk_cache.c | 205 +++++++++++++++++++++
+ src/gallium/drivers/lima/lima_disk_cache.h |  57 ++++++
+ src/gallium/drivers/lima/lima_draw.c       |  70 +++----
+ src/gallium/drivers/lima/lima_program.c    | 165 +++++++++++++----
+ src/gallium/drivers/lima/lima_screen.c     |  14 ++
+ src/gallium/drivers/lima/lima_screen.h     |   4 +
+ src/gallium/drivers/lima/meson.build       |   2 +
+ 14 files changed, 487 insertions(+), 111 deletions(-)
+ create mode 100644 src/gallium/drivers/lima/lima_disk_cache.c
+ create mode 100644 src/gallium/drivers/lima/lima_disk_cache.h
+
+diff --git a/src/gallium/drivers/lima/Android.mk b/src/gallium/drivers/lima/Android.mk
+index 9973862d640..09487d9dce9 100644
+--- a/src/gallium/drivers/lima/Android.mk
++++ b/src/gallium/drivers/lima/Android.mk
+@@ -56,6 +56,8 @@ LOCAL_SRC_FILES := \
+ 	lima_bo.h \
+ 	lima_context.c \
+ 	lima_context.h \
++	lima_disk_cache.c \
++	lima_disk_cache.h \
+ 	lima_draw.c \
+ 	lima_fence.c \
+ 	lima_fence.h \
+diff --git a/src/gallium/drivers/lima/ir/gp/codegen.c b/src/gallium/drivers/lima/ir/gp/codegen.c
+index ae01c4556a3..63254cc7904 100644
+--- a/src/gallium/drivers/lima/ir/gp/codegen.c
++++ b/src/gallium/drivers/lima/ir/gp/codegen.c
+@@ -600,11 +600,11 @@ bool gpir_codegen_prog(gpir_compiler *comp)
+ 
+    for (int i = 0; i < num_instr; i++) {
+       if (code[i].register0_attribute)
+-         comp->prog->prefetch = i;
++         comp->prog->state.prefetch = i;
+    }
+ 
+    comp->prog->shader = code;
+-   comp->prog->shader_size = num_instr * sizeof(gpir_codegen_instr);
++   comp->prog->state.shader_size = num_instr * sizeof(gpir_codegen_instr);
+ 
+    if (lima_debug & LIMA_DEBUG_GP) {
+       gpir_codegen_print_prog(comp);
+diff --git a/src/gallium/drivers/lima/ir/gp/lower.c b/src/gallium/drivers/lima/ir/gp/lower.c
+index 76a73bb4e21..890078458e9 100644
+--- a/src/gallium/drivers/lima/ir/gp/lower.c
++++ b/src/gallium/drivers/lima/ir/gp/lower.c
+@@ -47,7 +47,7 @@ static bool gpir_lower_const(gpir_compiler *comp)
+          return false;
+ 
+       comp->prog->constant = constant;
+-      comp->prog->constant_size = num_constant * sizeof(union fi);
++      comp->prog->state.constant_size = num_constant * sizeof(union fi);
+ 
+       int index = 0;
+       list_for_each_entry(gpir_block, block, &comp->block_list, list) {
+diff --git a/src/gallium/drivers/lima/ir/gp/nir.c b/src/gallium/drivers/lima/ir/gp/nir.c
+index a11bc1aaff0..6334f6f4f49 100644
+--- a/src/gallium/drivers/lima/ir/gp/nir.c
++++ b/src/gallium/drivers/lima/ir/gp/nir.c
+@@ -456,9 +456,9 @@ bool gpir_compile_nir(struct lima_vs_compiled_shader *prog, struct nir_shader *n
+       return false;
+ 
+    comp->constant_base = nir->num_uniforms;
+-   prog->uniform_size = nir->num_uniforms * 16;
+-   prog->gl_pos_idx = 0;
+-   prog->point_size_idx = -1;
++   prog->state.uniform_size = nir->num_uniforms * 16;
++   prog->state.gl_pos_idx = 0;
++   prog->state.point_size_idx = -1;
+ 
+    if (!gpir_emit_function(comp, func))
+       goto err_out0;
+@@ -489,7 +489,7 @@ bool gpir_compile_nir(struct lima_vs_compiled_shader *prog, struct nir_shader *n
+ 
+    /* initialize to support accumulating below */
+    nir_foreach_shader_out_variable(var, nir) {
+-      struct lima_varying_info *v = prog->varying + var->data.driver_location;
++      struct lima_varying_info *v = prog->state.varying + var->data.driver_location;
+       v->components = 0;
+    }
+ 
+@@ -497,21 +497,21 @@ bool gpir_compile_nir(struct lima_vs_compiled_shader *prog, struct nir_shader *n
+       bool varying = true;
+       switch (var->data.location) {
+       case VARYING_SLOT_POS:
+-         prog->gl_pos_idx = var->data.driver_location;
++         prog->state.gl_pos_idx = var->data.driver_location;
+          varying = false;
+          break;
+       case VARYING_SLOT_PSIZ:
+-         prog->point_size_idx = var->data.driver_location;
++         prog->state.point_size_idx = var->data.driver_location;
+          varying = false;
+          break;
+       }
+ 
+-      struct lima_varying_info *v = prog->varying + var->data.driver_location;
++      struct lima_varying_info *v = prog->state.varying + var->data.driver_location;
+       if (!v->components) {
+          v->component_size = gpir_glsl_type_size(glsl_get_base_type(var->type));
+-         prog->num_outputs++;
++         prog->state.num_outputs++;
+          if (varying)
+-            prog->num_varyings++;
++            prog->state.num_varyings++;
+       }
+ 
+       v->components += glsl_get_components(var->type);
+diff --git a/src/gallium/drivers/lima/ir/pp/codegen.c b/src/gallium/drivers/lima/ir/pp/codegen.c
+index 11d4e1a3857..dc5c02245f7 100644
+--- a/src/gallium/drivers/lima/ir/pp/codegen.c
++++ b/src/gallium/drivers/lima/ir/pp/codegen.c
+@@ -813,7 +813,7 @@ bool ppir_codegen_prog(ppir_compiler *comp)
+       ralloc_free(comp->prog->shader);
+ 
+    comp->prog->shader = prog;
+-   comp->prog->shader_size = size * sizeof(uint32_t);
++   comp->prog->state.shader_size = size * sizeof(uint32_t);
+ 
+    if (lima_debug & LIMA_DEBUG_PP)
+       ppir_codegen_print_prog(comp);
+diff --git a/src/gallium/drivers/lima/ir/pp/regalloc.c b/src/gallium/drivers/lima/ir/pp/regalloc.c
+index 18f527c074b..4ed09a909d3 100644
+--- a/src/gallium/drivers/lima/ir/pp/regalloc.c
++++ b/src/gallium/drivers/lima/ir/pp/regalloc.c
+@@ -271,7 +271,7 @@ static bool ppir_update_spilled_src(ppir_compiler *comp, ppir_block *block,
+ 
+    ppir_load_node *load = ppir_node_to_load(load_node);
+ 
+-   load->index = -comp->prog->stack_size; /* index sizes are negative */
++   load->index = -comp->prog->state.stack_size; /* index sizes are negative */
+    load->num_components = num_components;
+ 
+    ppir_dest *ld_dest = &load->dest;
+@@ -356,7 +356,7 @@ static bool ppir_update_spilled_dest_load(ppir_compiler *comp, ppir_block *block
+ 
+    ppir_load_node *load = ppir_node_to_load(load_node);
+ 
+-   load->index = -comp->prog->stack_size; /* index sizes are negative */
++   load->index = -comp->prog->state.stack_size; /* index sizes are negative */
+    load->num_components = num_components;
+ 
+    load->dest.type = ppir_target_pipeline;
+@@ -416,7 +416,7 @@ static bool ppir_update_spilled_dest(ppir_compiler *comp, ppir_block *block,
+ 
+    ppir_store_node *store = ppir_node_to_store(store_node);
+ 
+-   store->index = -comp->prog->stack_size; /* index sizes are negative */
++   store->index = -comp->prog->state.stack_size; /* index sizes are negative */
+ 
+    ppir_node_target_assign(&store->src, node);
+    store->num_components = reg->num_components;
+@@ -678,7 +678,7 @@ static bool ppir_regalloc_prog_try(ppir_compiler *comp, bool *spilled)
+          /* stack_size will be used to assemble the frame reg in lima_draw.
+           * It is also be used in the spilling code, as negative indices
+           * starting from -1, to create stack addresses. */
+-         comp->prog->stack_size++;
++         comp->prog->state.stack_size++;
+          if (!ppir_regalloc_spill_reg(comp, chosen))
+             goto err_out;
+          /* Ask the outer loop to call back in. */
+@@ -715,7 +715,7 @@ err_out:
+ bool ppir_regalloc_prog(ppir_compiler *comp)
+ {
+    bool spilled = false;
+-   comp->prog->stack_size = 0;
++   comp->prog->state.stack_size = 0;
+ 
+    /* Set from an environment variable to force spilling
+     * for debugging purposes, see lima_screen.c */
+diff --git a/src/gallium/drivers/lima/lima_context.h b/src/gallium/drivers/lima/lima_context.h
+index bcdf724ce8a..86a668cb4dc 100644
+--- a/src/gallium/drivers/lima/lima_context.h
++++ b/src/gallium/drivers/lima/lima_context.h
+@@ -44,19 +44,22 @@ struct lima_depth_stencil_alpha_state {
+ };
+ 
+ struct lima_fs_compiled_shader {
+-   void *shader;
+-   int shader_size;
+-   int stack_size;
+-   bool uses_discard;
+    struct lima_bo *bo;
++   void *shader;
++   struct {
++      int shader_size;
++      int stack_size;
++      bool uses_discard;
++   } state;
+ };
+ 
+ struct lima_fs_uncompiled_shader {
+    struct pipe_shader_state base;
++   unsigned char nir_sha1[20];
+ };
+ 
+ struct lima_fs_key {
+-   struct lima_fs_uncompiled_shader *uncomp_shader;
++   unsigned char nir_sha1[20];
+    struct {
+       uint8_t swizzle[4];
+    } tex[PIPE_MAX_SAMPLERS];
+@@ -71,30 +74,30 @@ struct lima_varying_info {
+ };
+ 
+ struct lima_vs_compiled_shader {
++   struct lima_bo *bo;
+    void *shader;
+-   int shader_size;
+-   int prefetch;
+-
+-   int uniform_size;
+    void *constant;
+-   int constant_size;
+-
+-   struct lima_varying_info varying[LIMA_MAX_VARYING_NUM];
+-   int varying_stride;
+-   int num_outputs;
+-   int num_varyings;
+-   int gl_pos_idx;
+-   int point_size_idx;
+-
+-   struct lima_bo *bo;
++   struct {
++      int shader_size;
++      int prefetch;
++      int uniform_size;
++      int constant_size;
++      struct lima_varying_info varying[LIMA_MAX_VARYING_NUM];
++      int varying_stride;
++      int num_outputs;
++      int num_varyings;
++      int gl_pos_idx;
++      int point_size_idx;
++   } state;
+ };
+ 
+ struct lima_vs_uncompiled_shader {
+    struct pipe_shader_state base;
++   unsigned char nir_sha1[20];
+ };
+ 
+ struct lima_vs_key {
+-   struct lima_vs_uncompiled_shader *uncomp_shader;
++   unsigned char nir_sha1[20];
+ };
+ 
+ struct lima_rasterizer_state {
+diff --git a/src/gallium/drivers/lima/lima_disk_cache.c b/src/gallium/drivers/lima/lima_disk_cache.c
+new file mode 100644
+index 00000000000..0c3bef74eed
+--- /dev/null
++++ b/src/gallium/drivers/lima/lima_disk_cache.c
+@@ -0,0 +1,205 @@
++/*
++ * Copyright © 2018 Intel Corporation
++ * Copyright (c) 2021 Lima Project
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sub license,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the
++ * next paragraph) shall be included in all copies or substantial portions
++ * of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ */
++
++#include "compiler/nir/nir.h"
++#include "util/blob.h"
++#include "util/build_id.h"
++#include "util/disk_cache.h"
++#include "util/mesa-sha1.h"
++
++#include "lima_context.h"
++#include "lima_screen.h"
++#include "lima_disk_cache.h"
++
++void
++lima_vs_disk_cache_store(struct disk_cache *cache,
++                         const struct lima_vs_key *key,
++                         const struct lima_vs_compiled_shader *shader)
++{
++   if (!cache)
++      return;
++
++   cache_key cache_key;
++   disk_cache_compute_key(cache, key, sizeof(*key), cache_key);
++
++   if (lima_debug & LIMA_DEBUG_DISK_CACHE) {
++      char sha1[41];
++      _mesa_sha1_format(sha1, cache_key);
++      fprintf(stderr, "[mesa disk cache] storing %s\n", sha1);
++   }
++
++   struct blob blob;
++   blob_init(&blob);
++
++   blob_write_bytes(&blob, &shader->state, sizeof(shader->state));
++   blob_write_bytes(&blob, shader->shader, shader->state.shader_size);
++   blob_write_bytes(&blob, shader->constant, shader->state.constant_size);
++
++   disk_cache_put(cache, cache_key, blob.data, blob.size, NULL);
++   blob_finish(&blob);
++}
++
++void
++lima_fs_disk_cache_store(struct disk_cache *cache,
++                         const struct lima_fs_key *key,
++                         const struct lima_fs_compiled_shader *shader)
++{
++   if (!cache)
++      return;
++
++   cache_key cache_key;
++   disk_cache_compute_key(cache, key, sizeof(*key), cache_key);
++
++   if (lima_debug & LIMA_DEBUG_DISK_CACHE) {
++      char sha1[41];
++      _mesa_sha1_format(sha1, cache_key);
++      fprintf(stderr, "[mesa disk cache] storing %s\n", sha1);
++   }
++
++   struct blob blob;
++   blob_init(&blob);
++
++   blob_write_bytes(&blob, &shader->state, sizeof(shader->state));
++   blob_write_bytes(&blob, shader->shader, shader->state.shader_size);
++
++   disk_cache_put(cache, cache_key, blob.data, blob.size, NULL);
++   blob_finish(&blob);
++}
++
++struct lima_vs_compiled_shader *
++lima_vs_disk_cache_retrieve(struct disk_cache *cache,
++                            struct lima_vs_key *key)
++{
++   struct lima_vs_compiled_shader *shader = NULL;
++
++   if (!cache)
++      return NULL;
++
++   cache_key cache_key;
++   disk_cache_compute_key(cache, key, sizeof(*key), cache_key);
++
++   if (lima_debug & LIMA_DEBUG_DISK_CACHE) {
++      char sha1[41];
++      _mesa_sha1_format(sha1, cache_key);
++      fprintf(stderr, "[mesa disk cache] retrieving %s: ", sha1);
++   }
++
++   size_t size;
++   void *buffer = disk_cache_get(cache, cache_key, &size);
++
++   if (lima_debug & LIMA_DEBUG_DISK_CACHE)
++      fprintf(stderr, "%s\n", buffer ? "found" : "missing");
++
++   if (!buffer)
++      return NULL;
++
++   shader = rzalloc(NULL, struct lima_vs_compiled_shader);
++   if (!shader)
++      goto out;
++
++   struct blob_reader blob;
++   blob_reader_init(&blob, buffer, size);
++   blob_copy_bytes(&blob, &shader->state, sizeof(shader->state));
++   shader->shader = rzalloc_size(shader, shader->state.shader_size);
++   if (!shader->shader)
++      goto err;
++   blob_copy_bytes(&blob, shader->shader, shader->state.shader_size);
++   shader->constant = rzalloc_size(shader, shader->state.constant_size);
++   if (!shader->constant)
++      goto err;
++   blob_copy_bytes(&blob, shader->constant, shader->state.constant_size);
++
++out:
++   free(buffer);
++   return shader;
++
++err:
++   ralloc_free(shader);
++   return NULL;
++}
++
++struct lima_fs_compiled_shader *
++lima_fs_disk_cache_retrieve(struct disk_cache *cache,
++                            struct lima_fs_key *key)
++{
++   struct lima_fs_compiled_shader *shader = NULL;
++
++   if (!cache)
++      return NULL;
++
++   cache_key cache_key;
++   disk_cache_compute_key(cache, key, sizeof(*key), cache_key);
++
++   if (lima_debug & LIMA_DEBUG_DISK_CACHE) {
++      char sha1[41];
++      _mesa_sha1_format(sha1, cache_key);
++      fprintf(stderr, "[mesa disk cache] retrieving %s: ", sha1);
++   }
++
++   size_t size;
++   void *buffer = disk_cache_get(cache, cache_key, &size);
++
++   if (lima_debug & LIMA_DEBUG_DISK_CACHE)
++      fprintf(stderr, "%s\n", buffer ? "found" : "missing");
++
++   if (!buffer)
++      return NULL;
++
++   shader = rzalloc(NULL, struct lima_fs_compiled_shader);
++   if (!shader)
++      goto out;
++
++   struct blob_reader blob;
++   blob_reader_init(&blob, buffer, size);
++   blob_copy_bytes(&blob, &shader->state, sizeof(shader->state));
++   shader->shader = rzalloc_size(shader, shader->state.shader_size);
++   if (!shader->shader)
++      goto err;
++   blob_copy_bytes(&blob, shader->shader, shader->state.shader_size);
++
++out:
++   free(buffer);
++   return shader;
++
++err:
++   ralloc_free(shader);
++   return NULL;
++}
++
++void
++lima_disk_cache_init(struct lima_screen *screen)
++{
++   const struct build_id_note *note =
++      build_id_find_nhdr_for_addr(lima_disk_cache_init);
++   assert(note && build_id_length(note) == 20); /* sha1 */
++
++   const uint8_t *id_sha1 = build_id_data(note);
++   assert(id_sha1);
++
++   char timestamp[41];
++   _mesa_sha1_format(timestamp, id_sha1);
++
++   screen->disk_cache = disk_cache_create(screen->base.get_name(&screen->base), timestamp, 0);
++}
+diff --git a/src/gallium/drivers/lima/lima_disk_cache.h b/src/gallium/drivers/lima/lima_disk_cache.h
+new file mode 100644
+index 00000000000..551227ba39a
+--- /dev/null
++++ b/src/gallium/drivers/lima/lima_disk_cache.h
+@@ -0,0 +1,57 @@
++/*
++ * Copyright © 2018 Intel Corporation
++ * Copyright (c) 2021 Lima Project
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sub license,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the
++ * next paragraph) shall be included in all copies or substantial portions
++ * of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ */
++
++#ifndef H_LIMA_DISK_CACHE
++#define H_LIMA_DISK_CACHE
++
++struct disk_cache;
++struct lima_screen;
++struct lima_vs_key;
++struct lima_fs_key;
++struct lima_vs_compiled_shader;
++struct lima_fs_compiled_shader;
++
++void
++lima_disk_cache_init(struct lima_screen *screen);
++
++struct lima_vs_compiled_shader *
++lima_vs_disk_cache_retrieve(struct disk_cache *cache,
++                            struct lima_vs_key *key);
++
++struct lima_fs_compiled_shader *
++lima_fs_disk_cache_retrieve(struct disk_cache *cache,
++                            struct lima_fs_key *key);
++
++void
++lima_vs_disk_cache_store(struct disk_cache *cache,
++                         const struct lima_vs_key *key,
++                         const struct lima_vs_compiled_shader *shader);
++
++void
++lima_fs_disk_cache_store(struct disk_cache *cache,
++                         const struct lima_fs_key *key,
++                         const struct lima_fs_compiled_shader *shader);
++
++#endif
+diff --git a/src/gallium/drivers/lima/lima_draw.c b/src/gallium/drivers/lima/lima_draw.c
+index 5f1ea4a2644..951e83d1fe8 100644
+--- a/src/gallium/drivers/lima/lima_draw.c
++++ b/src/gallium/drivers/lima/lima_draw.c
+@@ -279,17 +279,17 @@ lima_pack_vs_cmd(struct lima_context *ctx, const struct pipe_draw_info *info,
+       VS_CMD_ARRAYS_SEMAPHORE_BEGIN_1();
+       VS_CMD_ARRAYS_SEMAPHORE_BEGIN_2();
+    }
+-   int uniform_size = MIN2(vs->uniform_size, ccb->size);
++   int uniform_size = MIN2(vs->state.uniform_size, ccb->size);
+ 
+-   int size = uniform_size + vs->constant_size + 32;
++   int size = uniform_size + vs->state.constant_size + 32;
+    VS_CMD_UNIFORMS_ADDRESS(
+       lima_ctx_buff_va(ctx, lima_ctx_buff_gp_uniform),
+       align(size, 16));
+ 
+-   VS_CMD_SHADER_ADDRESS(ctx->vs->bo->va, ctx->vs->shader_size);
+-   VS_CMD_SHADER_INFO(ctx->vs->prefetch, ctx->vs->shader_size);
++   VS_CMD_SHADER_ADDRESS(ctx->vs->bo->va, ctx->vs->state.shader_size);
++   VS_CMD_SHADER_INFO(ctx->vs->state.prefetch, ctx->vs->state.shader_size);
+ 
+-   int num_outputs = ctx->vs->num_outputs;
++   int num_outputs = ctx->vs->state.num_outputs;
+    int num_attributes = ctx->vertex_elements->num_elements;
+    VS_CMD_VARYING_ATTRIBUTE_COUNT(num_outputs, MAX2(1, num_attributes));
+ 
+@@ -343,7 +343,7 @@ lima_pack_plbu_cmd(struct lima_context *ctx, const struct pipe_draw_info *info,
+    }
+ 
+    /* Specify point size with PLBU command if shader doesn't write */
+-   if (info->mode == PIPE_PRIM_POINTS && ctx->vs->point_size_idx == -1)
++   if (info->mode == PIPE_PRIM_POINTS && ctx->vs->state.point_size_idx == -1)
+       force_point_size = true;
+ 
+    /* Specify line width with PLBU command for lines */
+@@ -372,7 +372,7 @@ lima_pack_plbu_cmd(struct lima_context *ctx, const struct pipe_draw_info *info,
+    PLBU_CMD_DEPTH_RANGE_NEAR(fui(ctx->viewport.near));
+    PLBU_CMD_DEPTH_RANGE_FAR(fui(ctx->viewport.far));
+ 
+-   if ((info->mode == PIPE_PRIM_POINTS && ctx->vs->point_size_idx == -1) ||
++   if ((info->mode == PIPE_PRIM_POINTS && ctx->vs->state.point_size_idx == -1) ||
+        ((info->mode >= PIPE_PRIM_LINES) && (info->mode < PIPE_PRIM_TRIANGLES)))
+    {
+       uint32_t v = info->mode == PIPE_PRIM_POINTS ?
+@@ -382,7 +382,7 @@ lima_pack_plbu_cmd(struct lima_context *ctx, const struct pipe_draw_info *info,
+ 
+    if (info->index_size) {
+       PLBU_CMD_INDEXED_DEST(ctx->gp_output->va);
+-      if (vs->point_size_idx != -1)
++      if (vs->state.point_size_idx != -1)
+          PLBU_CMD_INDEXED_PT_SIZE(ctx->gp_output->va + ctx->gp_output_point_size_offt);
+ 
+       PLBU_CMD_INDICES(ctx->index_res->bo->va + draw->start * info->index_size + ctx->index_offset);
+@@ -710,12 +710,12 @@ lima_pack_render_state(struct lima_context *ctx, const struct pipe_draw_info *in
+ 
+    render->textures_address = 0x00000000;
+ 
+-   render->aux0 = (ctx->vs->varying_stride >> 3);
++   render->aux0 = (ctx->vs->state.varying_stride >> 3);
+    render->aux1 = 0x00001000;
+    if (ctx->blend->base.dither)
+       render->aux1 |= 0x00002000;
+ 
+-   if (fs->uses_discard) {
++   if (fs->state.uses_discard) {
+       early_z = false;
+       pixel_kill = false;
+    }
+@@ -754,18 +754,18 @@ lima_pack_render_state(struct lima_context *ctx, const struct pipe_draw_info *in
+       render->aux1 |= 0x10000;
+    }
+ 
+-   if (ctx->vs->num_varyings) {
++   if (ctx->vs->state.num_varyings) {
+       render->varying_types = 0x00000000;
+       render->varyings_address = ctx->gp_output->va +
+                                  ctx->gp_output_varyings_offt;
+-      for (int i = 0, index = 0; i < ctx->vs->num_outputs; i++) {
++      for (int i = 0, index = 0; i < ctx->vs->state.num_outputs; i++) {
+          int val;
+ 
+-         if (i == ctx->vs->gl_pos_idx ||
+-             i == ctx->vs->point_size_idx)
++         if (i == ctx->vs->state.gl_pos_idx ||
++             i == ctx->vs->state.point_size_idx)
+             continue;
+ 
+-         struct lima_varying_info *v = ctx->vs->varying + i;
++         struct lima_varying_info *v = ctx->vs->state.varying + i;
+          if (v->component_size == 4)
+             val = v->components > 2 ? 0 : 1;
+          else
+@@ -843,9 +843,9 @@ lima_update_gp_uniform(struct lima_context *ctx)
+    struct lima_context_constant_buffer *ccb =
+       ctx->const_buffer + PIPE_SHADER_VERTEX;
+    struct lima_vs_compiled_shader *vs = ctx->vs;
+-   int uniform_size = MIN2(vs->uniform_size, ccb->size);
++   int uniform_size = MIN2(vs->state.uniform_size, ccb->size);
+ 
+-   int size = uniform_size + vs->constant_size + 32;
++   int size = uniform_size + vs->state.constant_size + 32;
+    void *vs_const_buff =
+       lima_ctx_buff_alloc(ctx, lima_ctx_buff_gp_uniform, size);
+ 
+@@ -861,7 +861,7 @@ lima_update_gp_uniform(struct lima_context *ctx)
+ 
+    if (vs->constant)
+       memcpy(vs_const_buff + uniform_size + 32,
+-             vs->constant, vs->constant_size);
++             vs->constant, vs->state.constant_size);
+ 
+    struct lima_job *job = lima_job_get(ctx);
+ 
+@@ -928,16 +928,16 @@ lima_update_varying(struct lima_context *ctx, const struct pipe_draw_info *info,
+ 
+    uint32_t *varying =
+       lima_ctx_buff_alloc(ctx, lima_ctx_buff_gp_varying_info,
+-                          vs->num_outputs * 8);
++                          vs->state.num_outputs * 8);
+    int n = 0;
+ 
+    int offset = 0;
+ 
+-   for (int i = 0; i < vs->num_outputs; i++) {
+-      struct lima_varying_info *v = vs->varying + i;
++   for (int i = 0; i < vs->state.num_outputs; i++) {
++      struct lima_varying_info *v = vs->state.varying + i;
+ 
+-      if (i == vs->gl_pos_idx ||
+-          i == vs->point_size_idx)
++      if (i == vs->state.gl_pos_idx ||
++          i == vs->state.point_size_idx)
+          continue;
+ 
+       int size = v->component_size * 4;
+@@ -950,19 +950,19 @@ lima_update_varying(struct lima_context *ctx, const struct pipe_draw_info *info,
+       offset += size;
+    }
+ 
+-   vs->varying_stride = align(offset, 16);
++   vs->state.varying_stride = align(offset, 16);
+ 
+    /* gl_Position is always present, allocate space for it */
+    gp_output_size = align(4 * 4 * num, 0x40);
+ 
+    /* Allocate space for varyings if there're any */
+-   if (vs->num_varyings) {
++   if (vs->state.num_varyings) {
+       ctx->gp_output_varyings_offt = gp_output_size;
+-      gp_output_size += align(vs->varying_stride * num, 0x40);
++      gp_output_size += align(vs->state.varying_stride * num, 0x40);
+    }
+ 
+    /* Allocate space for gl_PointSize if it's there */
+-   if (vs->point_size_idx != -1) {
++   if (vs->state.point_size_idx != -1) {
+       ctx->gp_output_point_size_offt = gp_output_size;
+       gp_output_size += 4 * num;
+    }
+@@ -975,14 +975,14 @@ lima_update_varying(struct lima_context *ctx, const struct pipe_draw_info *info,
+    lima_job_add_bo(job, LIMA_PIPE_GP, ctx->gp_output, LIMA_SUBMIT_BO_WRITE);
+    lima_job_add_bo(job, LIMA_PIPE_PP, ctx->gp_output, LIMA_SUBMIT_BO_READ);
+ 
+-   for (int i = 0; i < vs->num_outputs; i++) {
+-      struct lima_varying_info *v = vs->varying + i;
++   for (int i = 0; i < vs->state.num_outputs; i++) {
++      struct lima_varying_info *v = vs->state.varying + i;
+ 
+-      if (i == vs->gl_pos_idx) {
++      if (i == vs->state.gl_pos_idx) {
+          /* gl_Position */
+          varying[n++] = ctx->gp_output->va;
+          varying[n++] = 0x8020;
+-      } else if (i == vs->point_size_idx) {
++      } else if (i == vs->state.point_size_idx) {
+          /* gl_PointSize */
+          varying[n++] = ctx->gp_output->va + ctx->gp_output_point_size_offt;
+          varying[n++] = 0x2021;
+@@ -990,7 +990,7 @@ lima_update_varying(struct lima_context *ctx, const struct pipe_draw_info *info,
+          /* Varying */
+          varying[n++] = ctx->gp_output->va + ctx->gp_output_varyings_offt +
+                         v->offset;
+-         varying[n++] = (vs->varying_stride << 11) | (v->components - 1) |
++         varying[n++] = (vs->state.varying_stride << 11) | (v->components - 1) |
+             (v->component_size == 2 ? 0x0C : 0);
+       }
+    }
+@@ -1166,14 +1166,14 @@ lima_draw_vbo(struct pipe_context *pctx,
+       return;
+ 
+    struct lima_job *job = lima_job_get(ctx);
+-   job->pp_max_stack_size = MAX2(job->pp_max_stack_size, ctx->fs->stack_size);
++   job->pp_max_stack_size = MAX2(job->pp_max_stack_size, ctx->fs->state.stack_size);
+ 
+    lima_dump_command_stream_print(
+-      job->dump, ctx->vs->bo->map, ctx->vs->shader_size, false,
++      job->dump, ctx->vs->bo->map, ctx->vs->state.shader_size, false,
+       "add vs at va %x\n", ctx->vs->bo->va);
+ 
+    lima_dump_command_stream_print(
+-      job->dump, ctx->fs->bo->map, ctx->fs->shader_size, false,
++      job->dump, ctx->fs->bo->map, ctx->fs->state.shader_size, false,
+       "add fs at va %x\n", ctx->fs->bo->va);
+ 
+    lima_job_add_bo(job, LIMA_PIPE_GP, ctx->vs->bo, LIMA_SUBMIT_BO_READ);
+diff --git a/src/gallium/drivers/lima/lima_program.c b/src/gallium/drivers/lima/lima_program.c
+index 6f823a962c1..727a4485b41 100644
+--- a/src/gallium/drivers/lima/lima_program.c
++++ b/src/gallium/drivers/lima/lima_program.c
+@@ -28,6 +28,7 @@
+ 
+ #include "tgsi/tgsi_dump.h"
+ #include "compiler/nir/nir.h"
++#include "compiler/nir/nir_serialize.h"
+ #include "nir/tgsi_to_nir.h"
+ 
+ #include "pipe/p_state.h"
+@@ -37,6 +38,7 @@
+ #include "lima_job.h"
+ #include "lima_program.h"
+ #include "lima_bo.h"
++#include "lima_disk_cache.h"
+ 
+ #include "ir/lima_ir.h"
+ 
+@@ -273,10 +275,11 @@ lima_program_optimize_fs_nir(struct nir_shader *s,
+ static bool
+ lima_fs_compile_shader(struct lima_context *ctx,
+                        struct lima_fs_key *key,
++                       struct lima_fs_uncompiled_shader *ufs,
+                        struct lima_fs_compiled_shader *fs)
+ {
+    struct lima_screen *screen = lima_screen(ctx->base.screen);
+-   nir_shader *nir = nir_shader_clone(fs, key->uncomp_shader->base.ir.nir);
++   nir_shader *nir = nir_shader_clone(fs, ufs->base.ir.nir);
+ 
+    struct nir_lower_tex_options tex_options = {
+       .lower_txp = ~0u,
+@@ -298,26 +301,35 @@ lima_fs_compile_shader(struct lima_context *ctx,
+       return false;
+    }
+ 
+-   fs->uses_discard = nir->info.fs.uses_discard;
++   fs->state.uses_discard = nir->info.fs.uses_discard;
+    ralloc_free(nir);
+ 
+-   fs->bo = lima_bo_create(screen, fs->shader_size, 0);
++   return true;
++}
++
++static bool
++lima_fs_upload_shader(struct lima_context *ctx,
++                      struct lima_fs_compiled_shader *fs)
++{
++   struct lima_screen *screen = lima_screen(ctx->base.screen);
++
++   fs->bo = lima_bo_create(screen, fs->state.shader_size, 0);
+    if (!fs->bo) {
+       fprintf(stderr, "lima: create fs shader bo fail\n");
+       return false;
+    }
+ 
+-   memcpy(lima_bo_map(fs->bo), fs->shader, fs->shader_size);
+-   ralloc_free(fs->shader);
+-   fs->shader = NULL;
++   memcpy(lima_bo_map(fs->bo), fs->shader, fs->state.shader_size);
+ 
+    return true;
+ }
+ 
+ static struct lima_fs_compiled_shader *
+ lima_get_compiled_fs(struct lima_context *ctx,
++                     struct lima_fs_uncompiled_shader *ufs,
+                      struct lima_fs_key *key)
+ {
++   struct lima_screen *screen = lima_screen(ctx->base.screen);
+    struct hash_table *ht;
+    uint32_t key_size;
+ 
+@@ -328,20 +340,39 @@ lima_get_compiled_fs(struct lima_context *ctx,
+    if (entry)
+       return entry->data;
+ 
+-   /* not on cache, compile and insert into the cache */
+-   struct lima_fs_compiled_shader *fs = rzalloc(NULL, struct lima_fs_compiled_shader);
+-   if (!fs)
+-      return NULL;
++   /* Not on memory cache, try disk cache */
++   struct lima_fs_compiled_shader *fs =
++      lima_fs_disk_cache_retrieve(screen->disk_cache, key);
+ 
+-   if (!lima_fs_compile_shader(ctx, key, fs))
+-      return NULL;
++   if (!fs) {
++      /* Not on disk cache, compile and insert into disk cache*/
++      fs = rzalloc(NULL, struct lima_fs_compiled_shader);
++      if (!fs)
++         return NULL;
++
++      if (!lima_fs_compile_shader(ctx, key, ufs, fs))
++         goto err;
++
++      lima_fs_disk_cache_store(screen->disk_cache, key, fs);
++   }
++
++   if (!lima_fs_upload_shader(ctx, fs))
++      goto err;
+ 
++   ralloc_free(fs->shader);
++   fs->shader = NULL;
++
++   /* Insert into memory cache */
+    struct lima_key *dup_key;
+    dup_key = rzalloc_size(fs, key_size);
+    memcpy(dup_key, key, key_size);
+    _mesa_hash_table_insert(ht, dup_key, fs);
+ 
+    return fs;
++
++err:
++   ralloc_free(fs);
++   return NULL;
+ }
+ 
+ static void *
+@@ -350,6 +381,7 @@ lima_create_fs_state(struct pipe_context *pctx,
+ {
+    struct lima_context *ctx = lima_context(pctx);
+    struct lima_fs_uncompiled_shader *so = rzalloc(NULL, struct lima_fs_uncompiled_shader);
++   struct lima_screen *screen = lima_screen(pctx->screen);
+ 
+    if (!so)
+       return NULL;
+@@ -368,16 +400,29 @@ lima_create_fs_state(struct pipe_context *pctx,
+    so->base.type = PIPE_SHADER_IR_NIR;
+    so->base.ir.nir = nir;
+ 
++   if (screen->disk_cache) {
++      /* Serialize the NIR to a binary blob that we can hash for the disk
++       * cache.  Drop unnecessary information (like variable names)
++       * so the serialized NIR is smaller, and also to let us detect more
++       * isomorphic shaders when hashing, increasing cache hits.
++       */
++      struct blob blob;
++      blob_init(&blob);
++      nir_serialize(&blob, nir, true);
++      _mesa_sha1_compute(blob.data, blob.size, so->nir_sha1);
++      blob_finish(&blob);
++   }
++
+    if (lima_debug & LIMA_DEBUG_PRECOMPILE) {
+       /* Trigger initial compilation with default settings */
+-      struct lima_fs_key key = {
+-         .uncomp_shader = so,
+-      };
++      struct lima_fs_key key;
++      memset(&key, 0, sizeof(key));
++      memcpy(key.nir_sha1, so->nir_sha1, sizeof(so->nir_sha1));
+       for (int i = 0; i < ARRAY_SIZE(key.tex); i++) {
+          for (int j = 0; j < 4; j++)
+             key.tex[i].swizzle[j] = j;
+       }
+-      lima_get_compiled_fs(ctx, &key);
++      lima_get_compiled_fs(ctx, so, &key);
+    }
+ 
+    return so;
+@@ -400,7 +445,7 @@ lima_delete_fs_state(struct pipe_context *pctx, void *hwcso)
+ 
+    hash_table_foreach(ctx->fs_cache, entry) {
+       const struct lima_fs_key *key = entry->key;
+-      if (key->uncomp_shader == so) {
++      if (!memcmp(key->nir_sha1, so->nir_sha1, sizeof(so->nir_sha1))) {
+          struct lima_fs_compiled_shader *fs = entry->data;
+          _mesa_hash_table_remove(ctx->fs_cache, entry);
+          if (fs->bo)
+@@ -420,9 +465,10 @@ lima_delete_fs_state(struct pipe_context *pctx, void *hwcso)
+ static bool
+ lima_vs_compile_shader(struct lima_context *ctx,
+                        struct lima_vs_key *key,
++                       struct lima_vs_uncompiled_shader *uvs,
+                        struct lima_vs_compiled_shader *vs)
+ {
+-   nir_shader *nir = nir_shader_clone(vs, key->uncomp_shader->base.ir.nir);
++   nir_shader *nir = nir_shader_clone(vs, uvs->base.ir.nir);
+ 
+    lima_program_optimize_vs_nir(nir);
+ 
+@@ -436,24 +482,31 @@ lima_vs_compile_shader(struct lima_context *ctx,
+ 
+    ralloc_free(nir);
+ 
++   return true;
++}
++
++static bool
++lima_vs_upload_shader(struct lima_context *ctx,
++                      struct lima_vs_compiled_shader *vs)
++{
+    struct lima_screen *screen = lima_screen(ctx->base.screen);
+-   vs->bo = lima_bo_create(screen, vs->shader_size, 0);
++   vs->bo = lima_bo_create(screen, vs->state.shader_size, 0);
+    if (!vs->bo) {
+       fprintf(stderr, "lima: create vs shader bo fail\n");
+       return false;
+    }
+ 
+-   memcpy(lima_bo_map(vs->bo), vs->shader, vs->shader_size);
+-   ralloc_free(vs->shader);
+-   vs->shader = NULL;
++   memcpy(lima_bo_map(vs->bo), vs->shader, vs->state.shader_size);
+ 
+    return true;
+ }
+ 
+ static struct lima_vs_compiled_shader *
+ lima_get_compiled_vs(struct lima_context *ctx,
++                     struct lima_vs_uncompiled_shader *uvs,
+                      struct lima_vs_key *key)
+ {
++   struct lima_screen *screen = lima_screen(ctx->base.screen);
+    struct hash_table *ht;
+    uint32_t key_size;
+ 
+@@ -464,13 +517,26 @@ lima_get_compiled_vs(struct lima_context *ctx,
+    if (entry)
+       return entry->data;
+ 
+-   /* not on cache, compile and insert into the cache */
+-   struct lima_vs_compiled_shader *vs = rzalloc(NULL, struct lima_vs_compiled_shader);
+-   if (!vs)
+-      return NULL;
++   /* Not on memory cache, try disk cache */
++   struct lima_vs_compiled_shader *vs =
++      lima_vs_disk_cache_retrieve(screen->disk_cache, key);
+ 
+-   if (!lima_vs_compile_shader(ctx, key, vs))
+-      return NULL;
++   if (!vs) {
++      /* Not on disk cache, compile and insert into disk cache */
++      vs = rzalloc(NULL, struct lima_vs_compiled_shader);
++      if (!vs)
++         return NULL;
++      if (!lima_vs_compile_shader(ctx, key, uvs, vs))
++         goto err;
++
++      lima_vs_disk_cache_store(screen->disk_cache, key, vs);
++   }
++
++   if (!lima_vs_upload_shader(ctx, vs))
++      goto err;
++
++   ralloc_free(vs->shader);
++   vs->shader = NULL;
+ 
+    struct lima_key *dup_key;
+    dup_key = rzalloc_size(vs, key_size);
+@@ -478,6 +544,10 @@ lima_get_compiled_vs(struct lima_context *ctx,
+    _mesa_hash_table_insert(ht, dup_key, vs);
+ 
+    return vs;
++
++err:
++   ralloc_free(vs);
++   return NULL;
+ }
+ 
+ bool
+@@ -490,11 +560,13 @@ lima_update_vs_state(struct lima_context *ctx)
+    struct lima_vs_key local_key;
+    struct lima_vs_key *key = &local_key;
+    memset(key, 0, sizeof(*key));
+-   key->uncomp_shader = ctx->uncomp_vs;
++   memcpy(key->nir_sha1, ctx->uncomp_vs->nir_sha1,
++          sizeof(ctx->uncomp_vs->nir_sha1));
+ 
+    struct lima_vs_compiled_shader *old_vs = ctx->vs;
+-
+-   struct lima_vs_compiled_shader *vs = lima_get_compiled_vs(ctx, key);
++   struct lima_vs_compiled_shader *vs = lima_get_compiled_vs(ctx,
++                                                             ctx->uncomp_vs,
++                                                             key);
+    if (!vs)
+       return false;
+ 
+@@ -518,7 +590,8 @@ lima_update_fs_state(struct lima_context *ctx)
+    struct lima_fs_key local_key;
+    struct lima_fs_key *key = &local_key;
+    memset(key, 0, sizeof(*key));
+-   key->uncomp_shader = ctx->uncomp_fs;
++   memcpy(key->nir_sha1, ctx->uncomp_fs->nir_sha1,
++          sizeof(ctx->uncomp_fs->nir_sha1));
+ 
+    for (int i = 0; i < lima_tex->num_textures; i++) {
+       struct lima_sampler_view *sampler = lima_sampler_view(lima_tex->textures[i]);
+@@ -534,7 +607,9 @@ lima_update_fs_state(struct lima_context *ctx)
+ 
+    struct lima_fs_compiled_shader *old_fs = ctx->fs;
+ 
+-   struct lima_fs_compiled_shader *fs = lima_get_compiled_fs(ctx, key);
++   struct lima_fs_compiled_shader *fs = lima_get_compiled_fs(ctx,
++                                                             ctx->uncomp_fs,
++                                                             key);
+    if (!fs)
+       return false;
+ 
+@@ -551,6 +626,7 @@ lima_create_vs_state(struct pipe_context *pctx,
+                      const struct pipe_shader_state *cso)
+ {
+    struct lima_context *ctx = lima_context(pctx);
++   struct lima_screen *screen = lima_screen(pctx->screen);
+    struct lima_vs_uncompiled_shader *so = rzalloc(NULL, struct lima_vs_uncompiled_shader);
+ 
+    if (!so)
+@@ -570,12 +646,25 @@ lima_create_vs_state(struct pipe_context *pctx,
+    so->base.type = PIPE_SHADER_IR_NIR;
+    so->base.ir.nir = nir;
+ 
++   if (screen->disk_cache) {
++      /* Serialize the NIR to a binary blob that we can hash for the disk
++       * cache.  Drop unnecessary information (like variable names)
++       * so the serialized NIR is smaller, and also to let us detect more
++       * isomorphic shaders when hashing, increasing cache hits.
++       */
++      struct blob blob;
++      blob_init(&blob);
++      nir_serialize(&blob, nir, true);
++      _mesa_sha1_compute(blob.data, blob.size, so->nir_sha1);
++      blob_finish(&blob);
++   }
++
+    if (lima_debug & LIMA_DEBUG_PRECOMPILE) {
+       /* Trigger initial compilation with default settings */
+-      struct lima_vs_key key = {
+-         .uncomp_shader = so,
+-      };
+-      lima_get_compiled_vs(ctx, &key);
++      struct lima_vs_key key;
++      memset(&key, 0, sizeof(key));
++      memcpy(key.nir_sha1, so->nir_sha1, sizeof(so->nir_sha1));
++      lima_get_compiled_vs(ctx, so, &key);
+    }
+ 
+    return so;
+@@ -598,7 +687,7 @@ lima_delete_vs_state(struct pipe_context *pctx, void *hwcso)
+ 
+    hash_table_foreach(ctx->vs_cache, entry) {
+       const struct lima_vs_key *key = entry->key;
+-      if (key->uncomp_shader == so) {
++      if (!memcmp(key->nir_sha1, so->nir_sha1, sizeof(so->nir_sha1))) {
+          struct lima_vs_compiled_shader *vs = entry->data;
+          _mesa_hash_table_remove(ctx->vs_cache, entry);
+          if (vs->bo)
+diff --git a/src/gallium/drivers/lima/lima_screen.c b/src/gallium/drivers/lima/lima_screen.c
+index 7a7fdded6b8..74f7578f4a4 100644
+--- a/src/gallium/drivers/lima/lima_screen.c
++++ b/src/gallium/drivers/lima/lima_screen.c
+@@ -39,6 +39,7 @@
+ #include "lima_bo.h"
+ #include "lima_fence.h"
+ #include "lima_format.h"
++#include "lima_disk_cache.h"
+ #include "ir/lima_ir.h"
+ 
+ #include "xf86drm.h"
+@@ -61,6 +62,7 @@ lima_screen_destroy(struct pipe_screen *pscreen)
+ 
+    lima_bo_cache_fini(screen);
+    lima_bo_table_fini(screen);
++   disk_cache_destroy(screen->disk_cache);
+    ralloc_free(screen);
+ }
+ 
+@@ -570,6 +572,8 @@ static const struct debug_named_value lima_debug_options[] = {
+           "disable multi job optimization" },
+         { "precompile", LIMA_DEBUG_PRECOMPILE,
+           "Precompile shaders for shader-db" },
++        { "diskcache", LIMA_DEBUG_DISK_CACHE,
++          "print debug info for shader disk cache" },
+         { NULL }
+ };
+ 
+@@ -612,6 +616,14 @@ lima_screen_parse_env(void)
+    }
+ }
+ 
++static struct disk_cache *
++lima_get_disk_shader_cache (struct pipe_screen *pscreen)
++{
++   struct lima_screen *screen = lima_screen(pscreen);
++
++   return screen->disk_cache;
++}
++
+ struct pipe_screen *
+ lima_screen_create(int fd, struct renderonly *ro)
+ {
+@@ -707,9 +719,11 @@ lima_screen_create(int fd, struct renderonly *ro)
+    screen->base.get_compiler_options = lima_screen_get_compiler_options;
+    screen->base.query_dmabuf_modifiers = lima_screen_query_dmabuf_modifiers;
+    screen->base.is_dmabuf_modifier_supported = lima_screen_is_dmabuf_modifier_supported;
++   screen->base.get_disk_shader_cache = lima_get_disk_shader_cache;
+ 
+    lima_resource_screen_init(screen);
+    lima_fence_screen_init(screen);
++   lima_disk_cache_init(screen);
+ 
+    slab_create_parent(&screen->transfer_pool, sizeof(struct lima_transfer), 16);
+ 
+diff --git a/src/gallium/drivers/lima/lima_screen.h b/src/gallium/drivers/lima/lima_screen.h
+index 9f470b82aa9..bc08a490236 100644
+--- a/src/gallium/drivers/lima/lima_screen.h
++++ b/src/gallium/drivers/lima/lima_screen.h
+@@ -29,6 +29,7 @@
+ 
+ #include "util/slab.h"
+ #include "util/list.h"
++#include "util/disk_cache.h"
+ #include "os/os_thread.h"
+ 
+ #include "pipe/p_screen.h"
+@@ -43,6 +44,7 @@
+ #define LIMA_DEBUG_NO_GROW_HEAP   (1 << 7)
+ #define LIMA_DEBUG_SINGLE_JOB     (1 << 8)
+ #define LIMA_DEBUG_PRECOMPILE     (1 << 9)
++#define LIMA_DEBUG_DISK_CACHE     (1 << 10)
+ 
+ extern uint32_t lima_debug;
+ extern int lima_ctx_num_plb;
+@@ -90,6 +92,8 @@ struct lima_screen {
+    #define pp_buffer_size            0x1000
+ 
+    bool has_growable_heap_buffer;
++
++   struct disk_cache *disk_cache;
+ };
+ 
+ static inline struct lima_screen *
+diff --git a/src/gallium/drivers/lima/meson.build b/src/gallium/drivers/lima/meson.build
+index fbc45a60191..08533fe563a 100644
+--- a/src/gallium/drivers/lima/meson.build
++++ b/src/gallium/drivers/lima/meson.build
+@@ -60,6 +60,8 @@ files_lima = files(
+   'lima_resource.c',
+   'lima_resource.h',
+   'lima_state.c',
++  'lima_disk_cache.c',
++  'lima_disk_cache.h',
+   'lima_draw.c',
+   'lima_program.c',
+   'lima_query.c',
+-- 
+GitLab
+
