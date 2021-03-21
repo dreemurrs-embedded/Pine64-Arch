@@ -1,24 +1,38 @@
-# Maintainer: Gustavo Castro < gustawho [ at ] gmail [ dot ] com >
+# Maintainer: Bernhard Landauer <bernhard@manjaro.org>
 
 pkgname=qqc2-breeze-style
 pkgver=5.21.3
-pkgrel=1
-pkgdesc="Breeze inspired QQC2 Style"
-arch=('x86_64' 'armv7' 'aarch64')
-url="https://invent.kde.org/plasma/qqc2-breeze-style"
-license=('GPL3')
-depends=('qt5-base' 'qt5-declarative' 'qt5-quickcontrols2' 'kguiaddons' 'kconfig' 'kirigami2')
-makedepends=('git' 'extra-cmake-modules')
-source=("git+${url}.git#commit=b63b4f315ca2f69b086257b95531b5be13a5fb20")
-md5sums=('SKIP')
+pkgrel=2
+pkgdesc='Breeze inspired QQC2 Style'
+arch=(x86_64 aarch64)
+url='https://community.kde.org/Frameworks'
+license=(LGPL)
+depends=(kirigami2 kiconthemes)
+makedepends=(extra-cmake-modules git)
+replaces=("$pkgname-git")
+source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
+sha256sums=('a4c4ab4a763929fb06092fb2a11c0adf55fa536be47ce504737cc999658ebbf9'
+            'SKIP')
+validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr@jriddell.org>
+              '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
+              'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
+              '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
+
+prepare() {
+  mv $pkgname-$pkgver $pkgname
+  mkdir -p build
+}
 
 build() {
-  cd "${pkgname}"
-  cmake -DCMAKE_INSTALL_PREFIX=/usr -B build
-  make -C build
+  cd build
+  cmake ../$pkgname \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_TESTING=OFF
+  make
 }
 
 package() {
-  cd "${pkgname}"
-  make -C build DESTDIR="${pkgdir}" PREFIX=/usr install
+  cd build
+  make DESTDIR="$pkgdir" install
 }
