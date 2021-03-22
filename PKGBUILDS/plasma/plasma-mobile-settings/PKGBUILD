@@ -2,7 +2,7 @@
 # Contributor: Bernhard Landauer <oberon@manjaro.org>
 
 pkgname=plasma-mobile-settings
-pkgver=20210304
+pkgver=20210322
 pkgrel=1
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
@@ -19,7 +19,7 @@ source=('applications-blacklistrc'
     'settings.ini'
     'powerdevil.hook'
     '90-plasma-flashlight.rules')
-sha256sums=('bcbe9a3e44016c71811c4323d14dbd79f259b93bae0830cfc26ebfdfdf6e1381'
+sha256sums=('4b0bd5c4dbae3cfe2884e04d47af16086a9bdd57f1d9bf8700cddcd7f205c671'
             'f7621041edd8dde4a2d15110c5c1d902a78ac1f57a4de6ceb250e12da5db7417'
             '68bc1f74168a8d4f9c3418b37b9373d5a46d3fe550c3d5357dd3d737114abdcf'
             '187bd69ff45ddedb5a2f2152792bd65c0c46ee0082239e86a0d0aab654327617'
