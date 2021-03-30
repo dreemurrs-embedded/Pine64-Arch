@@ -1,0 +1,4 @@
+post_install() {
+  cp -a /usr/lib/glibc-locale/*utf8 /usr/lib/locale/
+  cp -a /usr/lib/glibc-locale/locale-gen /usr/bin/locale-gen
+}
