@@ -2,25 +2,17 @@
 # Contributor: dodgejcr@gmail.com
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
-_pkgname=plasma-settings
-pkgname=$_pkgname-git
-pkgver=r863.gea65387
+pkgname=plasma-settings
+pkgver=0.2
 pkgrel=1
 pkgdesc="Settings application for Mobile Devices running Plasma"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
 depends=('accountsservice' 'plasma-framework' 'kdelibs4support' 'libkgapi' 'kdesignerplugin' 'kcmutils')
-makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools' 'kinit')
-provides=("$_pkgname")
-conflicts=("$_pkgname")
-source=("git+https://invent.kde.org/plasma-mobile/plasma-settings.git")
+makedepends=('cmake' 'extra-cmake-modules' 'kdoctools' 'kinit')
+source=("https://download.kde.org/stable/plasma-settings/$pkgver/plasma-settings-$pkgver.tar.xz")
 md5sums=('SKIP')
-
-pkgver() {
-  cd $_pkgname
-  printf "r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-}
 
 prepare() {
   mkdir -p build
@@ -28,7 +20,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../$_pkgname \
+  cmake ../$pkgname-$pkgver \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_TESTING=OFF \
     -DLIB_INSTALL_DIR=lib \
