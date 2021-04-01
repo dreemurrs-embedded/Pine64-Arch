@@ -1,0 +1,11 @@
+[Unit]
+Description=Quectel EG25 modem
+Before=ModemManager.service ofono.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/eg25manager
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
