@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephone
 pkgver=0.1
-pkgrel=14
+pkgrel=15
 pkgdesc="PinePhone device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -14,8 +14,9 @@ depends=(
 	rtl8723bt-firmware
 	anx7688-firmware
 	ov5640-firmware
-	danctnix-eg25-misc
+	eg25-manager
 	)
+install="$pkgname.install"
 source=(10-proximity.rules
 	pinephone-suspend-hook.sh
 	machine-info
