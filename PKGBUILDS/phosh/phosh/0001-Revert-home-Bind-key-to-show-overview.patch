@@ -1,15 +1,15 @@
-From 3a1f2f4fd7448ce1093bc08b1167ece63121371c Mon Sep 17 00:00:00 2001
+From 3185dd731e423936fda36ee75aafae1b67cb0da2 Mon Sep 17 00:00:00 2001
 From: Danct12 <danct12@disroot.org>
 Date: Thu, 29 Oct 2020 16:00:28 +0700
 Subject: [PATCH] Revert "home: Bind key to show overview"
 
 This reverts commit f70af466ff57763bc94548e3086a3caa50c8eacc.
 ---
- src/home.c | 108 -----------------------------------------------------
- 1 file changed, 108 deletions(-)
+ src/home.c | 109 -----------------------------------------------------
+ 1 file changed, 109 deletions(-)
 
 diff --git a/src/home.c b/src/home.c
-index b8fc99e..9b3b722 100644
+index 34505c6..b3b8d6d 100644
 --- a/src/home.c
 +++ b/src/home.c
 @@ -18,10 +18,6 @@
@@ -23,7 +23,7 @@ index b8fc99e..9b3b722 100644
  /**
   * SECTION:home
   * @short_description: The home surface contains the overview and
-@@ -65,10 +61,6 @@ struct _PhoshHome
+@@ -66,10 +62,6 @@ struct _PhoshHome
  
    PhoshHomeState state;
  
@@ -34,7 +34,7 @@ index b8fc99e..9b3b722 100644
    /* osk button */
    gboolean        osk_enabled;
  };
-@@ -207,77 +199,6 @@ key_press_event_cb (PhoshHome *self, GdkEventKey *event, gpointer data)
+@@ -221,78 +213,6 @@ key_press_event_cb (PhoshHome *self, GdkEventKey *event, gpointer data)
  }
  
  
@@ -70,19 +70,20 @@ index b8fc99e..9b3b722 100644
 -static void
 -add_keybindings (PhoshHome *self)
 -{
--  g_auto (GStrv) bindings = NULL;
+-  g_auto (GStrv) overview_bindings = NULL;
+-  g_auto (GStrv) app_view_bindings = NULL;
 -  g_autoptr (GSettings) settings = g_settings_new (KEYBINDINGS_SCHEMA_ID);
 -
--  bindings = g_settings_get_strv (settings, KEYBINDING_KEY_TOGGLE_OVERVIEW);
--  for (int i = 0; i < g_strv_length (bindings); i++) {
--    GActionEntry entry = { bindings[i],
+-  overview_bindings = g_settings_get_strv (settings, KEYBINDING_KEY_TOGGLE_OVERVIEW);
+-  for (int i = 0; i < g_strv_length (overview_bindings); i++) {
+-    GActionEntry entry = { overview_bindings[i],
 -                           toggle_overview_action, };
 -    g_array_append_val (self->actions, entry);
 -  }
 -
--  bindings = g_settings_get_strv (settings, KEYBINDING_KEY_TOGGLE_APPLICATION_VIEW);
--  for (int i = 0; i < g_strv_length (bindings); i++) {
--    GActionEntry entry = { bindings[i],
+-  app_view_bindings = g_settings_get_strv (settings, KEYBINDING_KEY_TOGGLE_APPLICATION_VIEW);
+-  for (int i = 0; i < g_strv_length (app_view_bindings); i++) {
+-    GActionEntry entry = { app_view_bindings[i],
 -                           toggle_application_view_action, };
 -    g_array_append_val (self->actions, entry);
 -  }
@@ -112,7 +113,7 @@ index b8fc99e..9b3b722 100644
  static gboolean
  on_idle (PhoshOskButton *self)
  {
-@@ -332,14 +253,6 @@ phosh_home_constructed (GObject *object)
+@@ -322,14 +242,6 @@ phosh_home_constructed (GObject *object)
                      G_CALLBACK (key_press_event_cb),
                      NULL);
  
@@ -127,7 +128,7 @@ index b8fc99e..9b3b722 100644
    phosh_connect_feedback (self->btn_home);
  
    g_idle_add ((GSourceFunc) on_idle, self);
-@@ -348,24 +261,6 @@ phosh_home_constructed (GObject *object)
+@@ -338,24 +250,6 @@ phosh_home_constructed (GObject *object)
  }
  
  
@@ -152,7 +153,7 @@ index b8fc99e..9b3b722 100644
  static void
  phosh_home_class_init (PhoshHomeClass *klass)
  {
-@@ -373,7 +268,6 @@ phosh_home_class_init (PhoshHomeClass *klass)
+@@ -363,7 +257,6 @@ phosh_home_class_init (PhoshHomeClass *klass)
    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
  
    object_class->constructed = phosh_home_constructed;
@@ -160,7 +161,7 @@ index b8fc99e..9b3b722 100644
  
    object_class->set_property = phosh_home_set_property;
    object_class->get_property = phosh_home_get_property;
-@@ -419,8 +313,6 @@ phosh_home_init (PhoshHome *self)
+@@ -414,8 +307,6 @@ phosh_home_init (PhoshHome *self)
  {
    self->state = PHOSH_HOME_STATE_FOLDED;
    self->animation.progress = 1.0;
@@ -170,5 +171,5 @@ index b8fc99e..9b3b722 100644
    gtk_widget_init_template (GTK_WIDGET (self));
  }
 -- 
-2.29.2
+2.31.0
 
