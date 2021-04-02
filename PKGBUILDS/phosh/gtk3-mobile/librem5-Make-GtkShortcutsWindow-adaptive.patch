@@ -1,0 +1,219 @@
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Thu, 18 Mar 2021 17:42:00 +0500
+Subject: librem5: Make GtkShortcutsWindow adaptive
+
+Fixes https://source.puri.sm/Librem5/debs/gtk/-/issues/30
+---
+ gtk/gtkshortcutssection.c | 65 +++++++++++++++++++++++++++++++++++++++++------
+ gtk/gtkshortcutswindow.c  |  5 ++--
+ 2 files changed, 60 insertions(+), 10 deletions(-)
+
+diff --git a/gtk/gtkshortcutssection.c b/gtk/gtkshortcutssection.c
+index 9a61765..a3d4e85 100644
+--- a/gtk/gtkshortcutssection.c
++++ b/gtk/gtkshortcutssection.c
+@@ -27,6 +27,7 @@
+ #include "gtkstackswitcher.h"
+ #include "gtkstylecontext.h"
+ #include "gtkorientable.h"
++#include "gtkscrolledwindow.h"
+ #include "gtksizegroup.h"
+ #include "gtkwidget.h"
+ #include "gtkbindings.h"
+@@ -62,7 +63,8 @@ struct _GtkShortcutsSection
+   gchar            *view_name;
+   guint             max_height;
+ 
+-  GtkStack         *stack;
++  GtkWidget        *column;
++  GtkWidget        *stack;
+   GtkStackSwitcher *switcher;
+   GtkWidget        *show_all;
+   GtkWidget        *footer;
+@@ -117,10 +119,12 @@ static void gtk_shortcuts_section_maybe_reflow     (GtkShortcutsSection *self);
+ static gboolean gtk_shortcuts_section_change_current_page (GtkShortcutsSection *self,
+                                                            gint                 offset);
+ 
++/*
+ static void gtk_shortcuts_section_pan_gesture_pan (GtkGesturePan       *gesture,
+                                                    GtkPanDirection      direction,
+                                                    gdouble              offset,
+                                                    GtkShortcutsSection *self);
++*/
+ 
+ static void
+ gtk_shortcuts_section_add (GtkContainer *container,
+@@ -424,11 +428,14 @@ gtk_shortcuts_section_class_init (GtkShortcutsSectionClass *klass)
+ static void
+ gtk_shortcuts_section_init (GtkShortcutsSection *self)
+ {
++  GtkSizeGroup *group;
++
+   self->max_height = 15;
+ 
+   gtk_orientable_set_orientation (GTK_ORIENTABLE (self), GTK_ORIENTATION_VERTICAL);
+   gtk_box_set_homogeneous (GTK_BOX (self), FALSE);
+   gtk_box_set_spacing (GTK_BOX (self), 22);
++/*
+   gtk_container_set_border_width (GTK_CONTAINER (self), 24);
+ 
+   self->stack = g_object_new (GTK_TYPE_STACK,
+@@ -447,8 +454,38 @@ gtk_shortcuts_section_init (GtkShortcutsSection *self)
+                                  NULL);
+ 
+   gtk_style_context_remove_class (gtk_widget_get_style_context (GTK_WIDGET (self->switcher)), GTK_STYLE_CLASS_LINKED);
++*/
++
++  self->stack = g_object_new (GTK_TYPE_SCROLLED_WINDOW,
++                              "propagate-natural-width", TRUE,
++                              "vexpand", TRUE,
++                              "visible", TRUE,
++                              NULL);
++  GTK_CONTAINER_CLASS (gtk_shortcuts_section_parent_class)->add (GTK_CONTAINER (self), GTK_WIDGET (self->stack));
++
++  self->column = g_object_new (GTK_TYPE_BOX,
++                               "orientation", GTK_ORIENTATION_VERTICAL,
++                               "spacing", 24,
++                               "margin", 24,
++                               "halign", GTK_ALIGN_CENTER,
++                               "visible", TRUE,
++                               NULL);
++  gtk_container_add (GTK_CONTAINER (self->stack), self->column);
++
++  group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
++G_GNUC_BEGIN_IGNORE_DEPRECATIONS
++  gtk_size_group_set_ignore_hidden (group, TRUE);
++G_GNUC_END_IGNORE_DEPRECATIONS
++  g_object_set_data_full (G_OBJECT (self->column), "accel-size-group", group, g_object_unref);
++
++  group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
++G_GNUC_BEGIN_IGNORE_DEPRECATIONS
++  gtk_size_group_set_ignore_hidden (group, TRUE);
++G_GNUC_END_IGNORE_DEPRECATIONS
++  g_object_set_data_full (G_OBJECT (self->column), "title-size-group", group, g_object_unref);
+ 
+   self->show_all = gtk_button_new_with_mnemonic (_("_Show All"));
++  g_object_set (self->show_all, "margin", 24, "margin-top", 0, NULL);
+   gtk_widget_set_no_show_all (self->show_all, TRUE);
+   g_signal_connect_swapped (self->show_all, "clicked",
+                             G_CALLBACK (gtk_shortcuts_section_show_all), self);
+@@ -456,13 +493,8 @@ gtk_shortcuts_section_init (GtkShortcutsSection *self)
+   self->footer = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 20);
+   GTK_CONTAINER_CLASS (gtk_shortcuts_section_parent_class)->add (GTK_CONTAINER (self), self->footer);
+ 
+-  gtk_box_set_center_widget (GTK_BOX (self->footer), GTK_WIDGET (self->switcher));
+   gtk_box_pack_end (GTK_BOX (self->footer), self->show_all, TRUE, TRUE, 0);
+   gtk_widget_set_halign (self->show_all, GTK_ALIGN_END);
+-
+-  self->pan_gesture = gtk_gesture_pan_new (GTK_WIDGET (self->stack), GTK_ORIENTATION_HORIZONTAL);
+-  g_signal_connect (self->pan_gesture, "pan",
+-                    G_CALLBACK (gtk_shortcuts_section_pan_gesture_pan), self);
+ }
+ 
+ static void
+@@ -499,6 +531,7 @@ static void
+ gtk_shortcuts_section_add_group (GtkShortcutsSection *self,
+                                  GtkShortcutsGroup   *group)
+ {
++/*
+   GList *children;
+   GtkWidget *page, *column;
+ 
+@@ -523,6 +556,14 @@ gtk_shortcuts_section_add_group (GtkShortcutsSection *self,
+   g_list_free (children);
+ 
+   gtk_container_add (GTK_CONTAINER (column), GTK_WIDGET (group));
++*/
++  gtk_container_add (GTK_CONTAINER (self->column), GTK_WIDGET (group));
++
++  g_object_set (group,
++                "accel-size-group", g_object_get_data (G_OBJECT (self->column), "accel-size-group"),
++                "title-size-group", g_object_get_data (G_OBJECT (self->column), "title-size-group"),
++                NULL);
++
+   self->groups = g_list_append (self->groups, group);
+ 
+   gtk_shortcuts_section_maybe_reflow (self);
+@@ -570,7 +611,7 @@ gtk_shortcuts_section_filter_groups (GtkShortcutsSection *self)
+   gtk_widget_set_visible (GTK_WIDGET (self->show_all), self->has_filtered_group);
+   gtk_widget_set_visible (gtk_widget_get_parent (GTK_WIDGET (self->show_all)),
+                           gtk_widget_get_visible (GTK_WIDGET (self->show_all)) ||
+-                          gtk_widget_get_visible (GTK_WIDGET (self->switcher)));
++                          TRUE);
+ }
+ 
+ static void
+@@ -606,6 +647,9 @@ gtk_shortcuts_section_reflow_groups (GtkShortcutsSection *self)
+   guint n_pages;
+   GtkWidget *current_page, *current_column;
+ 
++  self->need_reflow = FALSE;
++  return;
++
+   /* collect all groups from the current pages */
+   groups = NULL;
+   pages = gtk_container_get_children (GTK_CONTAINER (self->stack));
+@@ -768,7 +812,7 @@ G_GNUC_END_IGNORE_DEPRECATIONS
+       gchar *title;
+ 
+       title = g_strdup_printf ("_%u", n_pages + 1);
+-      gtk_stack_add_titled (self->stack, page, title, title);
++      gtk_stack_add_titled (GTK_STACK (self->stack), page, title, title);
+       g_free (title);
+     }
+ 
+@@ -790,6 +834,7 @@ static gboolean
+ gtk_shortcuts_section_change_current_page (GtkShortcutsSection *self,
+                                            gint                 offset)
+ {
++/*
+   GtkWidget *child;
+   GList *children, *l;
+ 
+@@ -812,8 +857,11 @@ gtk_shortcuts_section_change_current_page (GtkShortcutsSection *self,
+   g_list_free (children);
+ 
+   return TRUE;
++*/
++  return FALSE;
+ }
+ 
++/*
+ static void
+ gtk_shortcuts_section_pan_gesture_pan (GtkGesturePan       *gesture,
+                                        GtkPanDirection      direction,
+@@ -832,3 +880,4 @@ gtk_shortcuts_section_pan_gesture_pan (GtkGesturePan       *gesture,
+ 
+   gtk_gesture_set_state (GTK_GESTURE (gesture), GTK_EVENT_SEQUENCE_DENIED);
+ }
++*/
+diff --git a/gtk/gtkshortcutswindow.c b/gtk/gtkshortcutswindow.c
+index 36f55f6..803b5d3 100644
+--- a/gtk/gtkshortcutswindow.c
++++ b/gtk/gtkshortcutswindow.c
+@@ -871,7 +871,7 @@ gtk_shortcuts_window_init (GtkShortcutsWindow *self)
+   GtkWidget *empty;
+   PangoAttrList *attributes;
+ 
+-  gtk_window_set_resizable (GTK_WINDOW (self), FALSE);
++  gtk_window_set_default_size (GTK_WINDOW (self), -1, 600);
+   gtk_window_set_type_hint (GTK_WINDOW (self), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+   g_signal_connect (self, "key-press-event",
+@@ -952,6 +952,7 @@ gtk_shortcuts_window_init (GtkShortcutsWindow *self)
+ 
+   priv->menu_label = g_object_new (GTK_TYPE_LABEL,
+                                    "visible", TRUE,
++                                   "ellipsize", PANGO_ELLIPSIZE_END,
+                                    NULL);
+   gtk_container_add (GTK_CONTAINER (menu_box), GTK_WIDGET (priv->menu_label));
+ 
+@@ -986,7 +987,7 @@ gtk_shortcuts_window_init (GtkShortcutsWindow *self)
+   gtk_container_add (GTK_CONTAINER (priv->search_bar), GTK_WIDGET (priv->search_entry));
+   g_object_set (priv->search_entry,
+                 "placeholder-text", _("Search Shortcuts"),
+-                "width-chars", 40,
++                "width-chars", 30,
+                 NULL);
+   g_signal_connect_object (priv->search_entry,
+                            "search-changed",

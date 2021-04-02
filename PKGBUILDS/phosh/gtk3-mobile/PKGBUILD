@@ -4,7 +4,7 @@
 
 pkgname=gtk3-mobile
 pkgver=3.24.27
-pkgrel=1
+pkgrel=2
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -51,7 +51,8 @@ source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.
         scrolledwindow-Set-deceleration-value-based-on-the-device.patch
         theme-Add-libhandy-styles.patch
         window-Disable-window-dragging-on-phones.patch
-        window-Maximize-resizable-pseudo-dialogs-on-mobile.patch)
+        window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
+        librem5-Make-GtkShortcutsWindow-adaptive.patch)
 sha256sums=('755d24b0990fc5e590115fcd9a23e70e35f0bfa28faa740e106e9ca1dc57f6be'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
@@ -87,7 +88,8 @@ sha256sums=('755d24b0990fc5e590115fcd9a23e70e35f0bfa28faa740e106e9ca1dc57f6be'
             '7c524fd9dc1d954bac76a0ec0f0b17b7e370f22e6243eaf1592b5c12b91fb060'
             'dc7f02d63d11c28bd2c1e930754cf4c3fa8375556198d5c0744e53f25b17621b'
             '680a7de058d00f49ddac543392151502e9daca8f72a5ffd00543c4e93a9b6311'
-            '4298dbfb786d26162f3012b86975669a3538903eb8fc103c354385ca64dd0c15')
+            '4298dbfb786d26162f3012b86975669a3538903eb8fc103c354385ca64dd0c15'
+            '7b6d71ac78967c7bcf45c3f9b458874373dcf5ac7b8df451df9dbe7d42e07a6d')
 
 prepare() {
   cd gtk-$_commit
@@ -127,6 +129,7 @@ prepare() {
   patch -p1 -N < ../printunixdialog-Adapt-for-phones.patch
   patch -p1 -N < ../window-Disable-window-dragging-on-phones.patch
   patch -p1 -N < ../events-Compress-touch-update-events.patch
+  patch -p1 -N < ../librem5-Make-GtkShortcutsWindow-adaptive.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
