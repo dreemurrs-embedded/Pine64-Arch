@@ -1,0 +1,14 @@
+#!/usr/bin/ash
+
+run_hook() {
+    if cryptsetup isLuks "$root"; then
+        echo "Device is encrypted, starting osk-sdl."
+        until cryptsetup status cryptroot | grep -qwi active; do
+            osk-sdl -G -d $root -n cryptroot -c /etc/osk.conf
+        done
+        export root="/dev/mapper/cryptroot"
+    else
+        echo "Device is not encrypted, quitting."
+        return 1
+    fi
+}
