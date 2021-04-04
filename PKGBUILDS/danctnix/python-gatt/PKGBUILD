@@ -1,0 +1,24 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=python-gatt
+_module=gatt
+pkgver=0.2.6
+pkgrel=1
+pkgdesc="Bluetooth GATT SDK for Python"
+url="https://github.com/getsenic/gatt-python"
+depends=('python')
+makedepends=('python-setuptools')
+license=('MIT')
+arch=('any')
+source=("https://files.pythonhosted.org/packages/source/${_module::1}/$_module/$_module-$pkgver.tar.gz")
+sha256sums=('049299db39ad7c28bb30fe354a1506b3b8a9980be7b8c423411371953e1643fa')
+
+build() {
+    cd ${_module}-${pkgver}
+    python setup.py build
+}
+
+package() {
+    cd ${_module}-${pkgver}
+    python setup.py install --root="${pkgdir}" --skip-build
+}
