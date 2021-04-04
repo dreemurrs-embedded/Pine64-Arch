@@ -1,0 +1,31 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=siglo
+pkgver=0.4.1
+pkgrel=1
+pkgdesc="GTK app to sync InfiniTime watch with PinePhone"
+arch=(any)
+url="https://github.com/alexr4535/siglo"
+license=('MPL')
+depends=(bluez bluez-utils python python-gobject dbus-python python-gatt)
+makedepends=(git meson)
+_commit=f742fe23f7c24a0e5bd5ba5a5b0c2b9d539d6eb9 # tags/v0.4.1
+source=("git+https://github.com/alexr4535/siglo.git#commit=$_commit")
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | cut -c 2-
+}
+
+build() {
+  arch-meson $pkgname build
+  meson compile -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+
+  # workaround for https://github.com/alexr4535/siglo/issues/12
+  sed -e 's/\/local//' -i "$pkgdir/usr/share/applications/org.gnome.siglo.desktop"
+}
+
+md5sums=('SKIP')
