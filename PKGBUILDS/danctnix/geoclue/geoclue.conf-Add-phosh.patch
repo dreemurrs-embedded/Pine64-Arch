@@ -1,0 +1,33 @@
+From: =?utf-8?q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Sun, 28 Feb 2021 16:08:31 +0100
+Subject: geoclue.conf: Add phosh
+
+This allows geoclue to use phosh (https://source.puri.sm/Librem5/phosh)
+as agent.
+---
+ data/geoclue.conf.in | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/data/geoclue.conf.in b/data/geoclue.conf.in
+index bebe471..b369e46 100644
+--- a/data/geoclue.conf.in
++++ b/data/geoclue.conf.in
+@@ -10,7 +10,7 @@
+ 
+ # Whitelist of desktop IDs (without .desktop part) of all agents we recognise,
+ # separated by a ';'.
+-whitelist=@demo_agent@gnome-shell;io.elementary.desktop.agent-geoclue2
++whitelist=@demo_agent@gnome-shell;io.elementary.desktop.agent-geoclue2;sm.puri.Phosh
+ 
+ # Network NMEA source configuration options
+ [network-nmea]
+@@ -128,3 +128,9 @@ users=
+ allowed=true
+ system=false
+ users=
++
++[sm.puri.Phosh]
++allowed=true
++system=true
++users=
++

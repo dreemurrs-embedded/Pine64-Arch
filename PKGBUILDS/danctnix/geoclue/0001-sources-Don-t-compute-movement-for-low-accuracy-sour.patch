@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: "Jan Alexander Steffens (heftig)" <jan.steffens@gmail.com>
+Date: Fri, 9 Apr 2021 19:50:58 +0000
+Subject: [PATCH] sources: Don't compute movement for low-accuracy sources
+
+This avoids claiming the compass and updating the location for heading
+changes when we only need to serve low-accuracy clients like the GNOME
+Settings Daemon.
+---
+ src/gclue-3g.c   | 4 +++-
+ src/gclue-cdma.c | 4 +++-
+ src/gclue-wifi.c | 1 +
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/gclue-3g.c b/src/gclue-3g.c
+index 4473102..40c10f6 100644
+--- a/src/gclue-3g.c
++++ b/src/gclue-3g.c
+@@ -188,7 +188,9 @@ gclue_3g_get_singleton (void)
+         static GClue3G *source = NULL;
+ 
+         if (source == NULL) {
+-                source = g_object_new (GCLUE_TYPE_3G, NULL);
++                source = g_object_new (GCLUE_TYPE_3G,
++                                       "compute-movement", FALSE,
++                                       NULL);
+                 g_object_weak_ref (G_OBJECT (source),
+                                    on_3g_destroyed,
+                                    &source);
+diff --git a/src/gclue-cdma.c b/src/gclue-cdma.c
+index 8f4f129..2a26a77 100644
+--- a/src/gclue-cdma.c
++++ b/src/gclue-cdma.c
+@@ -177,7 +177,9 @@ gclue_cdma_get_singleton (void)
+         static GClueCDMA *source = NULL;
+ 
+         if (source == NULL) {
+-                source = g_object_new (GCLUE_TYPE_CDMA, NULL);
++                source = g_object_new (GCLUE_TYPE_CDMA,
++                                       "compute-movement", FALSE,
++                                       NULL);
+                 g_object_weak_ref (G_OBJECT (source),
+                                    on_cdma_destroyed,
+                                    &source);
+diff --git a/src/gclue-wifi.c b/src/gclue-wifi.c
+index e507830..f09b40c 100644
+--- a/src/gclue-wifi.c
++++ b/src/gclue-wifi.c
+@@ -968,6 +968,7 @@ gclue_wifi_get_singleton (GClueAccuracyLevel level)
+                 wifi[i] = g_object_new (GCLUE_TYPE_WIFI,
+                                         "accuracy-level", level,
+                                         "scramble-location", scramble_location,
++                                        "compute-movement", i > 0,
+                                         NULL);
+                 g_object_weak_ref (G_OBJECT (wifi[i]),
+                                    on_wifi_destroyed,

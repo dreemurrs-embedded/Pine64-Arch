@@ -1,0 +1,49 @@
+From 5d15b65e60df84f741b436c254dc5eb4dc8e966c Mon Sep 17 00:00:00 2001
+From: Chris McGee <newton688@gmail.com>
+Date: Tue, 21 Jul 2020 07:38:09 -0400
+Subject: [PATCH 2/2] Use tracking area code (TAC) as the LAC when in LTE mode
+ matching Ichneaa docs. Ref #132
+
+---
+ src/gclue-modem-manager.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/src/gclue-modem-manager.c b/src/gclue-modem-manager.c
+index 65de5d8..bcb09f4 100644
+--- a/src/gclue-modem-manager.c
++++ b/src/gclue-modem-manager.c
+@@ -278,6 +278,15 @@ is_location_3gpp_same (GClueModemManager *manager,
+         mcc = mm_location_3gpp_get_mobile_country_code (priv->location_3gpp);
+         mnc = mm_location_3gpp_get_mobile_network_code (priv->location_3gpp);
+         lac = mm_location_3gpp_get_location_area_code (priv->location_3gpp);
++
++        // Most likely this is an LTE connection and with the mozilla
++        // services they use the tracking area code in place of the
++        // location area code in this case.
++        // https://ichnaea.readthedocs.io/en/latest/api/geolocate.html#cell-tower-fields
++        if (lac == 0x0 || lac == 0xFFFE) {
++                lac = mm_location_3gpp_get_tracking_area_code(priv->location_3gpp);
++        }
++
+         cell_id = mm_location_3gpp_get_cell_id (priv->location_3gpp);
+ 
+         return (mcc == new_mcc &&
+@@ -317,6 +326,15 @@ on_get_3gpp_ready (GObject      *source_object,
+         mcc = mm_location_3gpp_get_mobile_country_code (location_3gpp);
+         mnc = mm_location_3gpp_get_mobile_network_code (location_3gpp);
+         lac = mm_location_3gpp_get_location_area_code (location_3gpp);
++
++	// Most likely this is an LTE connection and with the mozilla
++	// services they use the tracking area code in place of the
++	// location area code in this case.
++	// https://ichnaea.readthedocs.io/en/latest/api/geolocate.html#cell-tower-fields
++	if (lac == 0x0 || lac == 0xFFFE) {
++		lac = mm_location_3gpp_get_tracking_area_code(location_3gpp);
++	}
++
+         cell_id = mm_location_3gpp_get_cell_id (location_3gpp);
+ 
+         if (is_location_3gpp_same (manager, mcc, mnc, lac, cell_id)) {
+-- 
+2.30.2
+
