@@ -4,19 +4,19 @@
 buildarch=8
 
 pkgname=uboot-pinephone
-pkgver=v2020.10_rc3
-pkgrel=3
-pkgdesc="U-Boot for Pine64 - CRUST EDITION"
+pkgver=v2021.01_rc4
+pkgrel=1
+pkgdesc="U-Boot for PinePhone (contains crust scp firmware)"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
 license=('GPL')
-depends=('uboot-tools')
-makedepends=('bc' 'python' 'swig' 'dtc')
+depends=('uboot-tools') # we need this for mkscr
+makedepends=('bc' 'python' 'swig' 'dtc' 'python-setuptools')
 install=${pkgname}.install
 backup=("boot/boot.txt")
 
-_commit_uboot="7206996ef7f89375dd74b275ced62d85f8bc7f42"
-_commit_atf="f928897fa5df6afa0f70bb1b1011e4bb03cb4596"
+_commit_uboot="7492749fec31b1086bc8933bf113a766aea021aa"
+_commit_atf="ddf9d186a0060eec0beecc69ebe717053ea0f572"
 
 source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/archive/${_commit_uboot}/u-boot-${_commit_uboot}.tar.gz"
         "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/crust-firmware/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
@@ -25,13 +25,13 @@ source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/ar
         'boot.txt'
         'mkscr'
         'scp.bin')
-md5sums=('96ca5597c63d724b245315ca88589a21'
-         'ec70813ae71f978f07795cde13ba42c0'
+md5sums=('1164b7e402a752cc9bec6be2f7d9dfae'
+         '968fa8240c3cfe43d97007c0c50ecbdc'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
          '90caaaf7c972240e2992c5c46102b2e9'
          '021623a04afd29ac3f368977140cfbfd'
-         'af8268d4f7c026d375e60044fdf12691')
+         'd0568f89aac3969b94f15f0b371b9834')
 
 prepare() {
   cd arm-trusted-firmware-${_commit_atf}
@@ -54,10 +54,10 @@ build() {
   cd ../u-boot-${_commit_uboot}
 
   # This builds the PineTab (624)
-  echo "Building U-Boot for PineTab..."
+  msg2 "Building U-Boot for PineTab..."
   make distclean
   make pinetab_defconfig
-  echo 'CONFIG_IDENT_STRING=" Arch Linux ARM"' >> .config
+  echo 'CONFIG_IDENT_STRING=" DanctNIX ARM"' >> .config
   echo 'CONFIG_SERIAL_PRESENT=y' >> .config
   echo 'CONFIG_GZIP=y' >> .config
   echo 'CONFIG_CMD_UNZIP=y' >> .config
@@ -66,25 +66,22 @@ build() {
   echo 'CONFIG_CMD_EXT4_WRITE=n' >> .config
   echo 'CONFIG_EXT4_WRITE=n' >> .config
   make EXTRAVERSION=-${pkgrel}
-  cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinetab.bin
-  mv u-boot-sunxi-with-spl-pinetab.bin u-boot-sunxi-with-spl-pinetab-624.bin
+  mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinetab-624.bin
 
   # Now we build PineTab (552)
   echo 'CONFIG_DRAM_CLK=552' >> .config
   make EXTRAVERSION=-${pkgrel}
-  cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinetab.bin
-  mv u-boot-sunxi-with-spl-pinetab.bin u-boot-sunxi-with-spl-pinetab-552.bin
+  mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinetab-552.bin
 
   # Now we build PineTab (492)
   echo 'CONFIG_DRAM_CLK=492' >> .config
   make EXTRAVERSION=-${pkgrel}
-  cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinetab.bin
-  mv u-boot-sunxi-with-spl-pinetab.bin u-boot-sunxi-with-spl-pinetab-492.bin
+  mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinetab-492.bin
 
   # This builds the PinePhone (624)
-  echo "Building U-Boot for PinePhone..."
+  msg2 "Building U-Boot for PinePhone..."
   make pinephone_defconfig
-  echo 'CONFIG_IDENT_STRING=" Arch Linux ARM"' >> .config
+  echo 'CONFIG_IDENT_STRING=" DanctNIX ARM"' >> .config
   echo 'CONFIG_SERIAL_PRESENT=y' >> .config
   echo 'CONFIG_GZIP=y' >> .config
   echo 'CONFIG_CMD_UNZIP=y' >> .config
@@ -94,20 +91,17 @@ build() {
   echo 'CONFIG_EXT4_WRITE=n' >> .config
   echo 'CONFIG_DRAM_CLK=624' >> .config
   make EXTRAVERSION=-${pkgrel}
-  cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinephone.bin
-  mv u-boot-sunxi-with-spl-pinephone.bin u-boot-sunxi-with-spl-pinephone-624.bin
+  mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinephone-624.bin
 
   # Now we build PinePhone (552)
   echo 'CONFIG_DRAM_CLK=552' >> .config
   make EXTRAVERSION=-${pkgrel}
-  cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinephone.bin
-  mv u-boot-sunxi-with-spl-pinephone.bin u-boot-sunxi-with-spl-pinephone-552.bin
+  mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinephone-552.bin
 
   # Now we build PinePhone (492)
   echo 'CONFIG_DRAM_CLK=492' >> .config
   make EXTRAVERSION=-${pkgrel}
-  cat spl/sunxi-spl.bin u-boot.itb > u-boot-sunxi-with-spl-pinephone.bin
-  mv u-boot-sunxi-with-spl-pinephone.bin u-boot-sunxi-with-spl-pinephone-492.bin
+  mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinephone-492.bin
 }
 
 package() {
