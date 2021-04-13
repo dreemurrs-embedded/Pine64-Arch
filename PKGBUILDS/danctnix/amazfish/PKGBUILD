@@ -9,7 +9,7 @@ arch=('x86_64' 'aarch64')
 license=(GPL3)
 url="https://github.com/piggz/$_repo"
 makedepends=('git')
-depends=('kcontacts' 'dbus' 'kdb' 'kirigami2' 'mlite' 'mpris-qt5' 'qt5-connectivity' 'qt5-location' 'qt5-quickcontrols2')
+depends=('kcontacts' 'dbus' 'kdb' 'kirigami2' 'mlite' 'mpris-qt5' 'qt5-connectivity' 'qt5-location' 'qt5-quickcontrols2' 'qt5-wayland')
 _commit="e1e9ba8571823d0971b19c92f67652428c1073b6" # v1.9.8
 _commit_libwatchfish="e3bf99e47c8c339b15eb4c8d6a485c22e9c7c2cd"
 source=("git+$url.git#commit=$_commit"
