@@ -1,16 +1,22 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=danctnix-tweaks
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 pkgdesc="Tweaks made to DanctNIX Mobile."
 arch=(any)
 url="https://danctnix.org"
 license=('MIT')
-source=(00-journal-size.conf)
+source=(00-journal-size.conf
+        packagekit-rm-lock.service)
 
 package() {
   mkdir -p "$pkgdir"
   install -Dm644 00-journal-size.conf $pkgdir/etc/systemd/journald.conf.d/00-journal-size.conf
+
+  install -Dm644 "$srcdir/packagekit-rm-lock.service" "$pkgdir/usr/lib/systemd/system/packagekit-rm-lock.service"
+  mkdir -p "$pkgdir/usr/lib/systemd/system/system-update.target.wants"
+  ln -s ../packagekit-rm-lock.service "$pkgdir/usr/lib/systemd/system/system-update.target.wants/packagekit-rm-lock.service"
 }
-md5sums=('3b3ccac2ebb5ada20d81f758c1591a19')
+md5sums=('3b3ccac2ebb5ada20d81f758c1591a19'
+         '002308e4f5d9c10fade7eec8cfcde1b0')
