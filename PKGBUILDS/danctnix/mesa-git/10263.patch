@@ -1,0 +1,43 @@
+From 51c2f9f5909cc1bb8da5517e19f887bf0c21bf6d Mon Sep 17 00:00:00 2001
+From: Axel Davy <davyaxel0@gmail.com>
+Date: Thu, 15 Apr 2021 21:59:18 +0200
+Subject: [PATCH] st/nine: Fix compilation error on non-x86 platforms
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The unused variable was improperly declared.
+
+Closes: https://gitlab.freedesktop.org/mesa/mesa/-/issues/4647
+Fixes: d9e79bfe4f ("st/nine: Disable fpu exceptions during init")
+
+Signed-off-by: Axel Davy <davyaxel0@gmail.com>
+Reviewed-by: Timur Kristóf <timur.kristof@gmail.com>
+---
+ src/gallium/frontends/nine/device9.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/gallium/frontends/nine/device9.c b/src/gallium/frontends/nine/device9.c
+index 289c6502ead..ec2e9f4bc71 100644
+--- a/src/gallium/frontends/nine/device9.c
++++ b/src/gallium/frontends/nine/device9.c
+@@ -45,6 +45,7 @@
+ #include "pipe/p_screen.h"
+ #include "pipe/p_context.h"
+ #include "pipe/p_config.h"
++#include "util/macros.h"
+ #include "util/u_math.h"
+ #include "util/u_inlines.h"
+ #include "util/u_hash_table.h"
+@@ -95,7 +96,7 @@ static void nine_setup_fpu(void)
+     WARN_ONCE("FPU setup not supported on non-x86 platforms\n");
+ }
+ 
+-static void nine_setup_set_fpu(uint16_t)
++static void nine_setup_set_fpu(UNUSED uint16_t val)
+ {
+     WARN_ONCE("FPU setup not supported on non-x86 platforms\n");
+ }
+-- 
+GitLab
+
