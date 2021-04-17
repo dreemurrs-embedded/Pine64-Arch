@@ -1,0 +1,33 @@
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Fri, 6 Nov 2020 15:04:19 +0100
+Subject: data: List compatible form-factors
+
+This will allow the app to be available in Phosh and PureOS Store.
+---
+ data/org.gnome.Evince.desktop.in.in | 2 ++
+ org.gnome.Evince.appdata.xml.in     | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/data/org.gnome.Evince.desktop.in.in b/data/org.gnome.Evince.desktop.in.in
+index d4f5d01..0b697b9 100644
+--- a/data/org.gnome.Evince.desktop.in.in
++++ b/data/org.gnome.Evince.desktop.in.in
+@@ -12,3 +12,5 @@ Type=Application
+ Icon=org.gnome.Evince
+ Categories=GNOME;GTK;Office;Viewer;Graphics;2DGraphics;VectorGraphics;
+ MimeType=@EVINCE_MIME_TYPES@;
++# Translators: Do NOT translate or transliterate this text (these are enum types)!
++X-Purism-FormFactor=Workstation;Mobile;
+diff --git a/org.gnome.Evince.appdata.xml.in b/org.gnome.Evince.appdata.xml.in
+index e81cc72..dfb9f5c 100644
+--- a/org.gnome.Evince.appdata.xml.in
++++ b/org.gnome.Evince.appdata.xml.in
+@@ -222,4 +222,8 @@
+     <release version="3.32.0" date="2019-03-14" />
+     <release version="3.30.3" date="2019-09-29" />
+   </releases>
++  <custom>
++    <value key="Purism::form_factor">workstation</value>
++    <value key="Purism::form_factor">mobile</value>
++  </custom>
+ </component>

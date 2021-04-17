@@ -5,43 +5,31 @@
 
 _pkgname=evince
 pkgname=$_pkgname-mobile
-pkgver=3.38.2
+pkgver=40.1
 pkgrel=1
 pkgdesc='Purism mobile document viewer (PDF, Postscript, djvu, tiff, dvi, XPS, SyncTex support with gedit, comics books (cbr,cbz,cb7 and cbt))'
 url='https://gitlab.gnome.org/GNOME/evince'
 arch=('aarch64')
 license=('GPL')
-_commit=30db40f32fd91af612504c191c0e0b4d560f44e3  # tags/3.38.2^0
+_commit=133f1c1880fd97d432442c8f7956c2c4a1efd5dc  # tags/40.1^0
 source=("git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
-        '0001-menus-Drop-printing.patch'
-        '0002-menus-Drop-fullscreen.patch'
-        '0003-menus-Drop-sharing.patch'
-        '0004-menus-Drop-presenting-as-slideshow.patch'
-        '0005-menus-Drop-keyboard-shortcuts.patch'
-        '0006-toolbar-Drop-the-zoom-actions.patch'
-        '0007-toolbar-Drop-the-page-switcher.patch'
-        '0008-toolbar-Drop-the-annotation-button.patch'
-        '0009-properties-view-Reduce-the-label-width-chars.patch'
-        '0010-meson-Add-the-libhandy-0.0.12-dep.patch'
-        '0011-toolbar-Allow-to-toggle-the-sidebar-button.patch'
-        '0012-window-Port-it-to-phones.patch')
+        'data-List-compatible-form-factors.patch'
+        'properties-view-Reduce-the-label-width-chars.patch'
+        'Disable-fullscreen-actions-in-phosh.patch'
+        'toolbar-Allow-to-toggle-the-sidebar-button.patch'
+        'toolbar-Allow-hiding-zoom-annotation-and-page-widgets.patch'
+        'window-Port-it-to-phones.patch')
 sha256sums=('SKIP'
-            '6fab2d77da7097bf6727b05cfd6894fa49bc2376f36a7852aa136b0a2b1e734e'
-            'e5c5353068fb52fd80fe19673f8b13ac2d13f9a58a762a883b3577f5795defa9'
-            '2c1d01da24528ff32db46fee44ae0d4ceebc9360910ea9cf87190fb0edb0063e'
-            'd6f328f623830c8b994c1e078204a56e20245af6f61ccd6553c28e587beec778'
-            'a14e11d3094371fad883655d37d1171eb4bf36cde16282769e92be48d1020719'
-            'c95769b8cc76f03f2a02809f59e1ed40b9f866d9ff14ce19e8cea5d3427a6a80'
-            '8c62322c0c68af1791b6df1a5a56f9fefea660c6dfee0f7e453a550efb3f0392'
-            '7bfd07779509d96dbc4d1850051f364ea60e0069e0967ce17e053c53ebf72d7d'
-            'ada63f25ef3fba7cb6b895f49ddbe3785b84f9f9795856bb72da42166169219f'
-            '3a070b3660f472eb852e8419eeb2e9a5acd7ee47e171e5561d3e6c453c228d66'
-            '6d43071fb4815a2518e26b67d65700586aae02eb2856c8dd0e660102beb25c42'
-            'acc2aebcb8e59d4123a3b4914b2941b12e5c6e73bd528c7ed46b85cb6bbf538e')
+            'b5354b0c93fcc1ef8838a12a7eeedd31e83c5ec6c666761af97e35fb7cbfa80d'
+            '194086757f539afc7cd5d24f4bc3e1b16fa321d5cb6c9e27fe0470eb62508098'
+            'fa8554c29ef59ad926bc33adead0c4b327cc14c5b444f4fbaa897c76fb67f1c3'
+            '3ce259a56cc4f35badbdc142b83c72a4fe1422aeb483979ec343ab8a68a76302'
+            '6dbd8d185cd896e1ab772f2aee6147113333109ea8f0e8446335f4da6a9f2bb9'
+            '00413c8f03b75a309c02acb2ab9ea5b52d4f4096994e0bec691fd998c2ed8ef5')
 provides=(libev{document,view}3.so $_pkgname)
 conflicts=($_pkgname)
 depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre t1lib dconf libsecret libsynctex
-         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy0)
+         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy)
 makedepends=(libnautilus-extension texlive-bin gobject-introspection docbook-xsl python gtk-doc
              git meson appstream-glib yelp-tools)
 

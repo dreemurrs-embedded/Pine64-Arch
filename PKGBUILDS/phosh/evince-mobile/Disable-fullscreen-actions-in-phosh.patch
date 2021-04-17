@@ -1,0 +1,66 @@
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Wed, 14 Apr 2021 18:53:12 +0500
+Subject: Disable fullscreen actions in phosh
+
+There's no way to exit them currently.
+
+See https://source.puri.sm/Librem5/debs/epiphany/-/issues/32
+---
+ shell/ev-window.c     | 15 +++++++++++++--
+ shell/evince-menus.ui |  2 ++
+ 2 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/shell/ev-window.c b/shell/ev-window.c
+index 077d577..9a6dd2d 100644
+--- a/shell/ev-window.c
++++ b/shell/ev-window.c
+@@ -428,6 +428,17 @@ ev_window_set_action_enabled (EvWindow   *ev_window,
+ 	g_simple_action_set_enabled (G_SIMPLE_ACTION (action), enabled);
+ }
+ 
++static gboolean
++is_session_phosh (void)
++{
++	const gchar *xdg_session_desktop = g_getenv ("XDG_SESSION_DESKTOP");
++
++	if (!xdg_session_desktop)
++		return FALSE;
++
++	return strstr (xdg_session_desktop, "phosh") != NULL;
++}
++
+ static void
+ ev_window_update_actions_sensitivity (EvWindow *ev_window)
+ {
+@@ -519,9 +530,9 @@ ev_window_update_actions_sensitivity (EvWindow *ev_window)
+ 	                              nautilus_sendto &&
+ 				      !recent_view_mode);
+ 	ev_window_set_action_enabled (ev_window, "fullscreen",
+-				      has_document && !recent_view_mode);
++				      has_document && !recent_view_mode && !is_session_phosh ());
+ 	ev_window_set_action_enabled (ev_window, "presentation",
+-				      has_document && !recent_view_mode);
++				      has_document && !recent_view_mode && !is_session_phosh ());
+ 
+         /* Edit menu */
+ 	ev_window_set_action_enabled (ev_window, "select-all", has_pages &&
+diff --git a/shell/evince-menus.ui b/shell/evince-menus.ui
+index 26b0a06..8c4d075 100644
+--- a/shell/evince-menus.ui
++++ b/shell/evince-menus.ui
+@@ -30,6 +30,7 @@
+         <attribute name="label" translatable="yes">Fullscreen</attribute>
+         <attribute name="action">win.fullscreen</attribute>
+         <attribute name="verb-icon">view-fullscreen-symbolic</attribute>
++        <attribute name='hidden-when'>action-disabled</attribute>
+       </item>
+       <item>
+         <attribute name="label" translatable="yes">Send To…</attribute>
+@@ -63,6 +64,7 @@
+       <item>
+         <attribute name="label" translatable="yes">Present as _Slideshow</attribute>
+         <attribute name="action">win.presentation</attribute>
++        <attribute name='hidden-when'>action-disabled</attribute>
+       </item>
+     </section>
+     <section>
