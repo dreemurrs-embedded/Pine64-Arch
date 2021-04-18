@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=uboot-pinephone
 pkgver=v2021.01_rc4
-pkgrel=1
+pkgrel=2
 pkgdesc="U-Boot for PinePhone (contains crust scp firmware)"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -22,6 +22,7 @@ source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/ar
         "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/crust-firmware/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
         '0001-ATF-set-fno-stack-protector.patch'
         '0001-configs-Add-Pinetab-configuration.patch'
+        '0001-expose-DRAM-clock-speed.patch'
         'boot.txt'
         'mkscr'
         'scp.bin')
@@ -29,6 +30,7 @@ md5sums=('1164b7e402a752cc9bec6be2f7d9dfae'
          '968fa8240c3cfe43d97007c0c50ecbdc'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
+         '061a510280d16bddf16679cf0d23bf6e'
          '90caaaf7c972240e2992c5c46102b2e9'
          '021623a04afd29ac3f368977140cfbfd'
          'd0568f89aac3969b94f15f0b371b9834')
@@ -39,6 +41,7 @@ prepare() {
 
   cd ../u-boot-${_commit_uboot}
   patch -N -p1 < ../0001-configs-Add-Pinetab-configuration.patch
+  patch -N -p1 < ../0001-expose-DRAM-clock-speed.patch
 
   cp ../scp.bin .
 }
@@ -73,6 +76,11 @@ build() {
   make EXTRAVERSION=-${pkgrel}
   mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinetab-552.bin
 
+  # Now we build PineTab (528)
+  echo 'CONFIG_DRAM_CLK=528' >> .config
+  make EXTRAVERSION=-${pkgrel}
+  mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinetab-528.bin
+
   # Now we build PineTab (492)
   echo 'CONFIG_DRAM_CLK=492' >> .config
   make EXTRAVERSION=-${pkgrel}
@@ -98,6 +106,11 @@ build() {
   make EXTRAVERSION=-${pkgrel}
   mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinephone-552.bin
 
+  # Now we build PinePhone (528)
+  echo 'CONFIG_DRAM_CLK=528' >> .config
+  make EXTRAVERSION=-${pkgrel}
+  mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinephone-528.bin
+
   # Now we build PinePhone (492)
   echo 'CONFIG_DRAM_CLK=492' >> .config
   make EXTRAVERSION=-${pkgrel}
@@ -109,8 +122,8 @@ package() {
 
   mkdir -p "${pkgdir}"/boot
 
-  cp u-boot-sunxi-with-spl-pinetab{-624,-552,-492}.bin "${pkgdir}"/boot
-  cp u-boot-sunxi-with-spl-pinephone{-624,-552,-492}.bin "${pkgdir}"/boot
+  cp u-boot-sunxi-with-spl-pinetab{-624,-552,-528,-492}.bin "${pkgdir}"/boot
+  cp u-boot-sunxi-with-spl-pinephone{-624,-552,-528,-492}.bin "${pkgdir}"/boot
 
   cp ../boot.txt ../mkscr "${pkgdir}"/boot
 }
