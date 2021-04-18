@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=calls
 pkgver=0.3.1
-pkgrel=1
+pkgrel=2
 pkgdesc="The phone app"
 url="https://source.puri.sm/Librem5/calls"
 license=('GPL')
