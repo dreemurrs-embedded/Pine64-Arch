@@ -12,7 +12,7 @@
 
 pkgname=mesa-git
 pkgdesc="an open-source implementation of the OpenGL specification, git version"
-pkgver=21.2.0_devel.138249.55fb9417a6a
+pkgver=21.2.0_devel.138334.c74d93cf018
 pkgrel=1
 arch=('x86_64' 'aarch64')
 makedepends=('git' 'python-mako' 'xorgproto'
@@ -28,14 +28,13 @@ url="https://www.mesa3d.org"
 license=('custom')
 source=('mesa::git://anongit.freedesktop.org/mesa/mesa'
         'LICENSE'
-        '10263.patch'
 )
 md5sums=('SKIP'
          '5c65a0fe315dd347e09b1f2826a1df5a'
-         'f3c001113ee6d5a685bce60bf215e792')
+)
 sha512sums=('SKIP'
             '25da77914dded10c1f432ebcbf29941124138824ceecaf1367b3deedafaecabc082d463abcfa3d15abff59f177491472b505bcb5ba0c4a51bb6b93b4721a23c2'
-            'fa13dd3084db4f07a7a5fb63a8788418c8e05b98f784cfcf4a99cd3d91dda688d2b6f10eb40ce8eeb12764977169268266f9657fdef8699c22ba16ea76c3b07b')
+)
 
 # NINJAFLAGS is an env var used to pass commandline options to ninja
 # NOTE: It's your responbility to validate the value of $NINJAFLAGS. If unsure, don't set it.
@@ -96,9 +95,6 @@ prepare() {
     if [  -d _build ]; then
         rm -rf _build
     fi
-
-    cd mesa
-    patch -p1 -N < ../10263.patch
 }
 
 build() {
