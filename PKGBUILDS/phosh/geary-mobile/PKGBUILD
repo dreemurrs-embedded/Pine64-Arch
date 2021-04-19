@@ -4,10 +4,10 @@
 # Contributor: Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
 
 _pkgname=geary
-_tag=v3.38.2+git20210118+7bb025-0pureos2
+_tag=v3.38.2+git20210118+7bb025-0pureos3
 pkgname=$_pkgname-mobile
 pkgver=$(sed -e 's|[+\-]|.|g' -e 's/^.//' <<< $_tag)
-pkgrel=3
+pkgrel=1
 pkgdesc='Purism mobile email client for the Phosh desktop'
 arch=(aarch64)
 url='https://source.puri.sm/Librem5/geary'
@@ -29,8 +29,6 @@ prepare() {
     msg2 "Applying ${line}"
     patch -p1 < debian/patches/"${line}"
   done <<< "$pseries"
-
-  git revert -n 0010550ad6f7d053b83f1857215294ce2b69f833
 }
 
 build() {
