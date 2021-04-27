@@ -1,4 +1,4 @@
-From f062022f2a2781d6b8ca63c460b0e72ebac30870 Mon Sep 17 00:00:00 2001
+From 4ff393c2bf25a3be0464c85696f6501a701bbf9c Mon Sep 17 00:00:00 2001
 From: Martijn Braam <martijn@brixit.nl>
 Date: Mon, 28 Sep 2020 14:26:11 +0200
 Subject: [PATCH] media: ov5640: Implement autofocus
@@ -11,11 +11,11 @@ this at least makes it possible to focus on the center of the sensor.
 
 Signed-off-by: Martijn Braam <martijn@brixit.nl>
 ---
- drivers/media/i2c/ov5640.c | 254 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 254 insertions(+)
+ drivers/media/i2c/ov5640.c | 273 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 273 insertions(+)
 
 diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index df0a507c211f..08a5304c0e95 100644
+index 7764e755bd05..65ab69f6b71a 100644
 --- a/drivers/media/i2c/ov5640.c
 +++ b/drivers/media/i2c/ov5640.c
 @@ -9,6 +9,7 @@
@@ -61,7 +61,7 @@ index df0a507c211f..08a5304c0e95 100644
  #define OV5640_REG_TIMING_DVPHO		0x3808
  #define OV5640_REG_TIMING_DVPVO		0x380a
  #define OV5640_REG_TIMING_HTS		0x380c
-@@ -95,6 +109,20 @@
+@@ -96,6 +110,20 @@
  #define OV5640_REG_SDE_CTRL4		0x5584
  #define OV5640_REG_SDE_CTRL5		0x5585
  #define OV5640_REG_AVG_READOUT		0x56a1
@@ -81,8 +81,8 @@ index df0a507c211f..08a5304c0e95 100644
 +#define OV5640_FW_CMD_DEFAULT_ZONES	0x80
  
  enum ov5640_mode_id {
- 	OV5640_MODE_QCIF_176_144 = 0,
-@@ -218,6 +246,12 @@ struct ov5640_ctrls {
+ 	OV5640_MODE_QQVGA_160_120 = 0,
+@@ -220,6 +248,12 @@ struct ov5640_ctrls {
  		struct v4l2_ctrl *auto_gain;
  		struct v4l2_ctrl *gain;
  	};
@@ -95,7 +95,7 @@ index df0a507c211f..08a5304c0e95 100644
  	struct v4l2_ctrl *brightness;
  	struct v4l2_ctrl *light_freq;
  	struct v4l2_ctrl *saturation;
-@@ -261,6 +295,8 @@ struct ov5640_dev {
+@@ -263,6 +297,8 @@ struct ov5640_dev {
  
  	bool pending_mode_change;
  	bool streaming;
@@ -104,7 +104,7 @@ index df0a507c211f..08a5304c0e95 100644
  };
  
  static inline struct ov5640_dev *to_ov5640_dev(struct v4l2_subdev *sd)
-@@ -1967,6 +2003,118 @@ static void ov5640_reset(struct ov5640_dev *sensor)
+@@ -1927,6 +1963,118 @@ static void ov5640_reset(struct ov5640_dev *sensor)
  	usleep_range(20000, 25000);
  }
  
@@ -223,7 +223,7 @@ index df0a507c211f..08a5304c0e95 100644
  static int ov5640_set_power_on(struct ov5640_dev *sensor)
  {
  	struct i2c_client *client = sensor->i2c_client;
-@@ -1988,6 +2117,8 @@ static int ov5640_set_power_on(struct ov5640_dev *sensor)
+@@ -1948,6 +2096,8 @@ static int ov5640_set_power_on(struct ov5640_dev *sensor)
  		goto xclk_off;
  	}
  
@@ -232,7 +232,7 @@ index df0a507c211f..08a5304c0e95 100644
  	ov5640_reset(sensor);
  	ov5640_power(sensor, true);
  
-@@ -2416,6 +2547,35 @@ static int ov5640_set_framefmt(struct ov5640_dev *sensor,
+@@ -2463,6 +2613,35 @@ static int ov5640_set_framefmt(struct ov5640_dev *sensor,
  			      is_jpeg ? (BIT(5) | BIT(3)) : 0);
  }
  
@@ -268,7 +268,7 @@ index df0a507c211f..08a5304c0e95 100644
  /*
   * Sensor Controls.
   */
-@@ -2532,6 +2692,41 @@ static int ov5640_set_ctrl_exposure(struct ov5640_dev *sensor,
+@@ -2579,6 +2758,41 @@ static int ov5640_set_ctrl_exposure(struct ov5640_dev *sensor,
  	return ret;
  }
  
@@ -310,7 +310,7 @@ index df0a507c211f..08a5304c0e95 100644
  static int ov5640_set_ctrl_gain(struct ov5640_dev *sensor, bool auto_gain)
  {
  	struct ov5640_ctrls *ctrls = &sensor->ctrls;
-@@ -2638,6 +2833,32 @@ static int ov5640_set_ctrl_vflip(struct ov5640_dev *sensor, int value)
+@@ -2685,6 +2899,32 @@ static int ov5640_set_ctrl_vflip(struct ov5640_dev *sensor, int value)
  			      (BIT(2) | BIT(1)) : 0);
  }
  
@@ -343,7 +343,7 @@ index df0a507c211f..08a5304c0e95 100644
  static int ov5640_g_volatile_ctrl(struct v4l2_ctrl *ctrl)
  {
  	struct v4l2_subdev *sd = ctrl_to_sd(ctrl);
-@@ -2659,6 +2880,12 @@ static int ov5640_g_volatile_ctrl(struct v4l2_ctrl *ctrl)
+@@ -2706,6 +2946,12 @@ static int ov5640_g_volatile_ctrl(struct v4l2_ctrl *ctrl)
  			return val;
  		sensor->ctrls.exposure->val = val;
  		break;
@@ -356,7 +356,7 @@ index df0a507c211f..08a5304c0e95 100644
  	}
  
  	return 0;
-@@ -2690,6 +2917,18 @@ static int ov5640_s_ctrl(struct v4l2_ctrl *ctrl)
+@@ -2737,6 +2983,18 @@ static int ov5640_s_ctrl(struct v4l2_ctrl *ctrl)
  	case V4L2_CID_AUTO_WHITE_BALANCE:
  		ret = ov5640_set_ctrl_white_balance(sensor, ctrl->val);
  		break;
@@ -375,7 +375,7 @@ index df0a507c211f..08a5304c0e95 100644
  	case V4L2_CID_HUE:
  		ret = ov5640_set_ctrl_hue(sensor, ctrl->val);
  		break;
-@@ -2762,6 +3001,20 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
+@@ -2809,6 +3067,20 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
  	ctrls->gain = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_GAIN,
  					0, 1023, 1, 0);
  
@@ -396,7 +396,7 @@ index df0a507c211f..08a5304c0e95 100644
  	ctrls->saturation = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_SATURATION,
  					      0, 255, 1, 64);
  	ctrls->hue = v4l2_ctrl_new_std(hdl, ops, V4L2_CID_HUE,
-@@ -2795,6 +3048,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
+@@ -2842,6 +3114,7 @@ static int ov5640_init_controls(struct ov5640_dev *sensor)
  	v4l2_ctrl_auto_cluster(3, &ctrls->auto_wb, 0, false);
  	v4l2_ctrl_auto_cluster(2, &ctrls->auto_gain, 0, true);
  	v4l2_ctrl_auto_cluster(2, &ctrls->auto_exp, 1, true);
@@ -405,5 +405,5 @@ index df0a507c211f..08a5304c0e95 100644
  	sensor->sd.ctrl_handler = hdl;
  	return 0;
 -- 
-2.25.4
+2.30.1
 

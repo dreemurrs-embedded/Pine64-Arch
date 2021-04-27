@@ -115,7 +115,7 @@
   	int c = scr_readw((u16 *) vc->vc_pos);
  
  	ops->cur_blink_jiffies = msecs_to_jiffies(vc->vc_cur_blink_ms);
-@@ -1344,8 +1399,16 @@
+@@ -1334,11 +1389,19 @@ static void fbcon_cursor(struct vc_data
  		fbcon_add_cursor_timer(info);
  
  	ops->cursor_flash = (mode == CM_ERASE) ? 0 : 1;
@@ -128,8 +128,11 @@
 +		y = 0;
 +	}
  
-+	ops->cursor(vc, info, mode, y, get_color(vc, info, c, 1),
+ 	if (!ops->cursor)
+ 		return;
+ 
 -	ops->cursor(vc, info, mode, 0, get_color(vc, info, c, 1),
++	ops->cursor(vc, info, mode, y, get_color(vc, info, c, 1),
  		    get_color(vc, info, c, 0));
  }
  

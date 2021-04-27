@@ -1,4 +1,4 @@
-From 5da6a7e3f4d6e11f4887893672f849d2d4fa5b58 Mon Sep 17 00:00:00 2001
+From 602d05e416ae0d0fba3022fa2c3d195164b406c6 Mon Sep 17 00:00:00 2001
 From: Clayton Craft <clayton@craftyguy.net>
 Date: Wed, 16 Dec 2020 20:16:14 -0800
 Subject: [PATCH] dts: pinephone: drop modem-power node
@@ -11,7 +11,7 @@ Subject: [PATCH] dts: pinephone: drop modem-power node
  4 files changed, 24 insertions(+), 68 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts
-index 0f6faa44ce3e..2cc513772172 100644
+index a21c6d78a..7f0cfdafe 100644
 --- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts
 +++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.0.dts
 @@ -86,28 +86,6 @@ &reg_drivevbus {
@@ -52,14 +52,23 @@ index 0f6faa44ce3e..2cc513772172 100644
 +};
 +
  &sgm3140 {
- 	flash-gpios = <&pio 3 24 GPIO_ACTIVE_HIGH>; /* PD24 */
  	enable-gpios = <&pio 2 3 GPIO_ACTIVE_HIGH>; /* PC3 */
+ 	flash-gpios = <&pio 3 24 GPIO_ACTIVE_HIGH>; /* PD24 */
 diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts
-index 95a880fdc9ce..5f3b6a1a142f 100644
+index 61ff56b17..5e85ddc12 100644
 --- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts
 +++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.1.dts
-@@ -109,29 +109,6 @@ &reg_drivevbus {
+@@ -109,34 +109,15 @@ &reg_drivevbus {
  	status = "okay";
+ };
+ 
++&ring_indicator {
++	gpios = <&pio 1 2 GPIO_ACTIVE_LOW>; /* PB2 */
++};
++
+ &sgm3140 {
+ 	enable-gpios = <&pio 3 24 GPIO_ACTIVE_HIGH>; /* PD24 */
+ 	flash-gpios = <&pio 2 3 GPIO_ACTIVE_HIGH>; /* PC3 */
  };
  
 -&uart3 {
@@ -88,23 +97,21 @@ index 95a880fdc9ce..5f3b6a1a142f 100644
  &usbphy {
  	usb-role-switch;
  
-@@ -142,6 +119,10 @@ usb0_drd_sw: endpoint {
- 	};
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
+index fe7d567a8..f4b9b0991 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
+@@ -101,34 +101,15 @@ &reg_anx1v0 {
+ 	enable-active-high;
  };
  
 +&ring_indicator {
-+	gpios = <&pio 1 2 GPIO_ACTIVE_LOW>; /* PB2 */
++	gpios = <&r_pio 0 6 GPIO_ACTIVE_LOW>; /* PL6 */
 +};
 +
  &sgm3140 {
- 	flash-gpios = <&pio 2 3 GPIO_ACTIVE_HIGH>; /* PC3 */
  	enable-gpios = <&pio 3 24 GPIO_ACTIVE_HIGH>; /* PD24 */
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
-index 23ba72508cfc..889841ca5b8a 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone-1.2.dts
-@@ -93,29 +93,6 @@ &reg_anx1v0 {
- 	enable-active-high;
+ 	flash-gpios = <&pio 2 3 GPIO_ACTIVE_HIGH>; /* PC3 */
  };
  
 -&uart3 {
@@ -133,23 +140,12 @@ index 23ba72508cfc..889841ca5b8a 100644
  &usbphy {
  	usb-role-switch;
  
-@@ -126,6 +103,10 @@ usb0_drd_sw: endpoint {
- 	};
- };
- 
-+&ring_indicator {
-+	gpios = <&r_pio 0 6 GPIO_ACTIVE_LOW>; /* PL6 */
-+};
-+
- &sgm3140 {
- 	flash-gpios = <&pio 2 3 GPIO_ACTIVE_HIGH>; /* PC3 */
- 	enable-gpios = <&pio 3 24 GPIO_ACTIVE_HIGH>; /* PD24 */
 diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
-index 02d82980cf39..979d01de8d84 100644
+index 346113382..7b48126d1 100644
 --- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
 +++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
 @@ -192,6 +192,17 @@ ec25_codec: ec25-codec {
- 		compatible = "quectel,ec25";
+ 		sound-name-prefix = "Modem";
  	};
  
 +	gpio-keys {
@@ -166,7 +162,7 @@ index 02d82980cf39..979d01de8d84 100644
  	i2c_csi: i2c-csi {
  		compatible = "i2c-gpio";
  		sda-gpios = <&pio 4 13 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>; /* PE13 */
-@@ -256,6 +267,7 @@ reg_usb_5v: usb-5v {
+@@ -264,6 +275,7 @@ reg_usb_5v: usb-5v {
  	reg_vbat_bb: vbat-bb {
  		compatible = "regulator-fixed";
  		regulator-name = "vbat-bb";
@@ -175,5 +171,5 @@ index 02d82980cf39..979d01de8d84 100644
  		regulator-max-microvolt = <3500000>;
  		gpio = <&r_pio 0 7 GPIO_ACTIVE_HIGH>; /* PL7 */
 -- 
-2.29.2
+2.31.1
 

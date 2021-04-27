@@ -1,4 +1,4 @@
-From 33212e529708fd480eaf9cc76579f8e7044c0505 Mon Sep 17 00:00:00 2001
+From 27ac6ae2994fd38e2b5642c06fb48767d1eca547 Mon Sep 17 00:00:00 2001
 From: Martijn Braam <martijn@brixit.nl>
 Date: Tue, 20 Oct 2020 14:42:01 +0200
 Subject: [PATCH] dts: add pinetab-dev (old display panel)
@@ -10,20 +10,20 @@ Subject: [PATCH] dts: add pinetab-dev (old display panel)
  create mode 100644 arch/arm64/boot/dts/allwinner/sun50i-a64-pinetab-dev.dts
 
 diff --git a/arch/arm64/boot/dts/allwinner/Makefile b/arch/arm64/boot/dts/allwinner/Makefile
-index a21cfdd8924d..2936092002b5 100644
+index 41ce680e5..b8231ca31 100644
 --- a/arch/arm64/boot/dts/allwinner/Makefile
 +++ b/arch/arm64/boot/dts/allwinner/Makefile
-@@ -15,6 +15,7 @@ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-pinephone-1.0.dtb
+@@ -13,6 +13,7 @@ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-pinephone-1.0.dtb
  dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-pinephone-1.1.dtb
  dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-pinephone-1.2.dtb
  dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-pinetab.dtb
 +dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-pinetab-dev.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-pinetab-early-adopter.dtb
  dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-sopine-baseboard.dtb
  dtb-$(CONFIG_ARCH_SUNXI) += sun50i-a64-teres-i.dtb
- dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h5-bananapi-m2-plus.dtb
 diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinetab-dev.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinetab-dev.dts
 new file mode 100644
-index 000000000000..1e287f2fb9f3
+index 000000000..1e287f2fb
 --- /dev/null
 +++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinetab-dev.dts
 @@ -0,0 +1,29 @@
@@ -57,5 +57,5 @@ index 000000000000..1e287f2fb9f3
 +	};
 +};
 -- 
-2.25.4
+2.31.1
 

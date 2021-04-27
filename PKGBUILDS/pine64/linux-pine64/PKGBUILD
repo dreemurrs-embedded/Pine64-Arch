@@ -4,8 +4,8 @@
 buildarch=8
 
 pkgname=linux-pine64
-pkgver=5.10.19
-pkgrel=4
+pkgver=5.12.0
+pkgrel=1
 pkgdesc="The Linux Kernel and modules - Pine64"
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -20,20 +20,16 @@ backup=("etc/mkinitcpio.d/${pkgname}.preset")
 install=${pkgname}.install
 
 # Source
-_commit="5aa571dfc47b2fa92615ea5774475fa3650e8eb3"
+_commit="d2a38a149efe9b1a08ce7beff968c8f9f36b1a71"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'enable-hdmi-output-pinetab.patch'
-        'improve-pinephone-brightness.patch'
         'enable-jack-detection-pinetab.patch'
         'pinetab-bluetooth.patch'
         'pinetab-accelerometer.patch'
         'camera-added-bggr-bayer-mode.patch'
         'media-ov5640-Implement-autofocus.patch'
-        '0011-dts-pinetab-hardcode-mmc-numbers.patch'
         '0002-dts-add-pinetab-dev-old-display-panel.patch'
-        '0001-arm64-dts-allwinner-pinephone-stop-LEDs-on-suspend.patch'
-        '0010-dts-pinephone-Add-pine64-pinephone-to-compat-list.patch'
         '0013-fix-pogopin-i2c.patch'
         'dts-pinephone-drop-modem-power-node.patch'
         'linux.preset'
@@ -59,9 +55,6 @@ prepare() {
   cd linux-$_commit
 
   # PinePhone patches
-  patch -p1 -N < ../improve-pinephone-brightness.patch
-  patch -p1 -N < ../0001-arm64-dts-allwinner-pinephone-stop-LEDs-on-suspend.patch
-  patch -p1 -N < ../0010-dts-pinephone-Add-pine64-pinephone-to-compat-list.patch
   patch -p1 -N < ../0013-fix-pogopin-i2c.patch
   patch -p1 -N < ../dts-pinephone-drop-modem-power-node.patch
 
@@ -71,7 +64,6 @@ prepare() {
   # PineTab patches
   patch -p1 -N < ../pinetab-bluetooth.patch
   patch -p1 -N < ../pinetab-accelerometer.patch
-  patch -p1 -N < ../0011-dts-pinetab-hardcode-mmc-numbers.patch
   patch -p1 -N < ../0002-dts-add-pinetab-dev-old-display-panel.patch
   patch -p1 -N < ../enable-jack-detection-pinetab.patch
   patch -p1 -N < ../enable-hdmi-output-pinetab.patch
@@ -182,34 +174,30 @@ package() {
     install -Dm644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/90-${pkgname}.hook"
 }
 
-md5sums=('cd8a63df0bfcd4b7fffadf95cab65f7a'
-         '06d86b6570d3dec2e3254d971c1ff0ce'
+md5sums=('a0c10da2c9c2f6cb501ab9170333d80b'
+         'ed3ddd0edb5cdaff3d9548d1dfc55319'
          '979a787cf84bef9c60da78e72ec96550'
-         'd251f240c3f8c5ed2a94dcee5354f5a0'
          'f79300740a7350d2d24ab5e120831b52'
          '85d8339bc3d5daf45aa579d578ef0255'
          'd0fd6bd627223d4c9fc001ffff9df401'
          'a020d566b1b55988476b32840b204834'
-         '787377044b921cecb32a23f1b0e68467'
-         '2b844df5de7f662fa0faf09d1358b24d'
-         'bc674ba1b15197ba5c4b2fd8a9622545'
-         '39eea273d8df3ceb72a1590c735103af'
-         '9e0e7e39c51fe5196778030e51a37771'
+         'a25d069b2b008ae22aa7fe55716239da'
+         '3182f25beb0b76e8abd2e9de8213351d'
          'c2b0ee1805e10cba7072cbcae67830b2'
-         '8324dabfbee49ddf01457488daf1ddcd'
+         '10d200e0a964f24cdb744678a758e22b'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
          'a31a435ab6cd8e7a47601159d665ce50'
          'fed6ae4ac4c3f56178fa4aca6c934d6f'
-         '47f65423c4ffc7e6092c7ff2c7129942'
+         '594d4f69b956eaab3336b4e01f42eda8'
          'be5a873f638ff5c31947f8d28a824d3a'
          'b4acd66a564af83b5409738c40b4a566'
          'a6407dceae1838f5aa27450401a91be6'
          'cb78b1c11b917a4d31c4b1567183b76f'
          '3efea575da7f02ba94789d3b6b81e11f'
          '2529ad13791b259d80c9d5d702187a65'
-         'efd2367798cc4eab0e15fc0ae44fb003'
+         'cb296d7788098cf478c46c0d21376719'
          '50255aac36e002afa477e4527a0550af'
          '6b6def41b404422dc04b39e2f1adffc8'
          '1922e3a7727d2bf51641b98d6d354738'
