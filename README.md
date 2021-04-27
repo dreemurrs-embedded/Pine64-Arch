@@ -6,5 +6,5 @@ Currently only supports PinePhone and PineTab. Images for these can be found [he
 
 ## Come and talk with us!
  * Discord: https://discord.gg/AvtdRJ3 (#arch-on-mobile)
- * Matrix: #archmobile:kde.org
+ * Matrix: #archlinux-pinephone:kde.org
  * Telegram: @archlinux_pinephone
