@@ -3,21 +3,15 @@
 
 buildarch=8
 
-pkgname=linux-pine64
+pkgbase=linux-pine64
+_desc="Pine64 PinePhone"
 pkgver=5.12.0
-pkgrel=1
-pkgdesc="The Linux Kernel and modules - Pine64"
+pkgrel=2
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
-depends=('coreutils' 'kmod' 'mkinitcpio>=0.7')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' 'dtc')
-optdepends=('crda: to set the correct wireless channels of your country')
-provides=('kernel26' "linux=${pkgver}")
-conflicts=('linux')
 options=('!strip')
-backup=("etc/mkinitcpio.d/${pkgname}.preset")
-install=${pkgname}.install
 
 # Source
 _commit="d2a38a149efe9b1a08ce7beff968c8f9f36b1a71"
@@ -109,7 +103,7 @@ build() {
   # ... or manually edit .config
 
   # Copy back our configuration (use with new kernel version)
-  #cp ./.config ../${pkgname}.config
+  #cp ./.config ../${pkgbase}.config
 
   ####################
   # stop here
@@ -127,7 +121,15 @@ build() {
   make ${MAKEFLAGS} DTC_FLAGS="-@" dtbs
 }
 
-package() {
+_package() {
+  pkgdesc="The Linux Kernel and modules - ${_desc}"
+  depends=('coreutils' 'kmod' 'mkinitcpio>=0.7')
+  optdepends=('crda: to set the correct wireless channels of your country')
+  provides=('kernel26' "linux=${pkgver}")
+  conflicts=('linux')
+  backup=("etc/mkinitcpio.d/${pkgbase}.preset")
+  install=${pkgname}.install
+
   cd linux-$_commit
 
   KARCH=arm64
@@ -158,24 +160,109 @@ package() {
 
   # sed expression for following substitutions
   local _subst="
-    s|%PKGBASE%|${pkgname}|g
+    s|%PKGBASE%|${pkgbase}|g
     s|%KERNVER%|${_kernver}|g
     s|%EXTRAMODULES%|${_extramodules}|g
   "
 
   # install mkinitcpio preset file
   sed "${_subst}" ../linux.preset |
-    install -Dm644 /dev/stdin "${pkgdir}/etc/mkinitcpio.d/${pkgname}.preset"
+    install -Dm644 /dev/stdin "${pkgdir}/etc/mkinitcpio.d/${pkgbase}.preset"
 
   # install pacman hooks
   sed "${_subst}" ../60-linux.hook |
-    install -Dm644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/60-${pkgname}.hook"
+    install -Dm644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/60-${pkgbase}.hook"
   sed "${_subst}" ../90-linux.hook |
-    install -Dm644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/90-${pkgname}.hook"
+    install -Dm644 /dev/stdin "${pkgdir}/usr/share/libalpm/hooks/90-${pkgbase}.hook"
 }
 
+_package-headers() {
+  pkgdesc="Header files and scripts for building modules for linux kernel - ${_desc}"
+  provides=("linux-headers=${pkgver}")
+  conflicts=('linux-headers')
+
+  cd linux-$_commit
+  local _builddir="${pkgdir}/usr/lib/modules/${_kernver}/build"
+
+  echo "Installing build files..."
+  install -Dt "${_builddir}" -m644 Makefile .config Module.symvers System.map \
+    vmlinux
+  install -Dt "${_builddir}/kernel" -m644 kernel/Makefile
+
+  mkdir "${_builddir}/.tmp_versions"
+
+  echo "Installing headers..."
+  cp -t "${_builddir}" -a include scripts
+
+  install -Dt "${_builddir}/arch/${KARCH}" -m644 arch/${KARCH}/Makefile
+  install -Dt "${_builddir}/arch/${KARCH}/kernel" -m644 arch/${KARCH}/kernel/asm-offsets.s
+
+  cp -t "${_builddir}/arch/${KARCH}" -a arch/${KARCH}/include
+  mkdir -p "${_builddir}/arch/arm"
+  cp -t "${_builddir}/arch/arm" -a arch/arm/include
+
+  install -Dt "${_builddir}/drivers/md" -m644 drivers/md/*.h
+  install -Dt "${_builddir}/net/mac80211" -m644 net/mac80211/*.h
+
+  # http://bugs.archlinux.org/task/13146
+  install -Dt "${_builddir}/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+
+  # http://bugs.archlinux.org/task/20402
+  install -Dt "${_builddir}/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
+  install -Dt "${_builddir}/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
+  install -Dt "${_builddir}/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+
+  # add xfs and shmem for aufs building
+  mkdir -p "${_builddir}"/{fs/xfs,mm}
+
+  echo "Installing KConfig files..."
+  find . -name Kconfig\* -exec install -Dm644 {} "${_builddir}/{}" \;
+
+  echo "Removing unneeded architectures..."
+  local _arch
+  for _arch in "${_builddir}"/arch/*/; do
+    [[ ${_arch} == */${KARCH}/ || ${_arch} == */arm/ || ${_arch} == */x86/ ]] && continue
+    rm -r "${_arch}"
+  done
+
+  echo "Removing documentation..."
+  rm -r "${_builddir}/Documentation"
+
+  echo "Removing broken symlinks..."
+  find -L "${_builddir}" -type l -printf 'Removing %P\n' -delete
+
+  echo "Removing loose objects..."
+  find "${_builddir}" -type f -name '*.o' -printf 'Removing %P\n' -delete
+
+  # Fix permissions
+  chmod -R u=rwX,go=rX "${_builddir}"
+
+  echo "Stripping build tools..."
+  local _binary _strip
+  while read -rd '' _binary; do
+    case "$(file -bi "${_binary}")" in
+      *application/x-sharedlib*)  _strip="${STRIP_SHARED}"   ;; # Libraries (.so)
+      *application/x-archive*)    _strip="${STRIP_STATIC}"   ;; # Libraries (.a)
+      *application/x-executable*) _strip="${STRIP_BINARIES}" ;; # Binaries
+      *) continue ;;
+    esac
+    strip ${_strip} "${_binary}"
+  done < <(find "${_builddir}/scripts" -type f -perm -u+w -print0 2>/dev/null)
+
+  echo "Stripping vmlinux..."
+  ${CROSS_COMPILE}strip -v ${STRIP_STATIC} "${_builddir}/vmlinux"
+}
+
+pkgname=("$pkgbase" "$pkgbase-headers")
+for _p in "${pkgname[@]}"; do
+  eval "package_$_p() {
+    $(declare -f "_package${_p#$pkgbase}")
+    _package${_p#$pkgbase}
+  }"
+done
+
 md5sums=('a0c10da2c9c2f6cb501ab9170333d80b'
-         'ed3ddd0edb5cdaff3d9548d1dfc55319'
+         '10373f97f41d08144b6cfd9de67c2242'
          '979a787cf84bef9c60da78e72ec96550'
          'f79300740a7350d2d24ab5e120831b52'
          '85d8339bc3d5daf45aa579d578ef0255'
