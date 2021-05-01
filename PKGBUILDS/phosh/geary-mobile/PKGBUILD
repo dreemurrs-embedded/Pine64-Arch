@@ -1,41 +1,9 @@
-# Maintainer: Danct12 <danct12@disroot.org>
-# Contributor: Maxime Gauduin <alucryd@archlinux.org>
-# Contributor: sebikul <sebikul@gmail.com>
-# Contributor: Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
-
-_pkgname=geary
-_tag=v3.38.2+git20210118+7bb025-0pureos3
-pkgname=$_pkgname-mobile
-pkgver=$(sed -e 's|[+\-]|.|g' -e 's/^.//' <<< $_tag)
+pkgname=geary-mobile
+pkgver=40.1
 pkgrel=1
-pkgdesc='Purism mobile email client for the Phosh desktop'
-arch=(aarch64)
-url='https://source.puri.sm/Librem5/geary'
-license=(GPL3)
-depends=(cairo enchant folks gcr gdk-pixbuf2 glib2 gmime3 gnome-keyring gnome-online-accounts gspell gtk3 iso-codes libcanberra libhandy libgee libnotify libpeas libytnef libsecret libsoup libxml2 pango sqlite webkit2gtk gsound)
-makedepends=(git appstream-glib gobject-introspection intltool itstool meson vala)
-source=("git+https://source.puri.sm/Librem5/geary.git#commit=pureos/$_tag")
-sha512sums=('SKIP')
-provides=("$_pkgname")
-conflicts=("$_pkgname")
+pkgdesc="This is a dummy package. It is no longer needed."
+url="https://danctnix.org"
+license=(NONE)
+arch=(i686 x86_64 armv7h aarch64)
+depends=(geary)
 
-prepare() {
-  cd geary
-
-  # Apply patches
-  pseries=$(cat debian/patches/series | grep \.patch)
-  while IFS= read -r line
-  do
-    msg2 "Applying ${line}"
-    patch -p1 < debian/patches/"${line}"
-  done <<< "$pseries"
-}
-
-build() {
-  arch-meson geary build -Dprofile=release
-  ninja -C build
-}
-
-package() {
-  DESTDIR="$pkgdir" ninja -C build install
-}
