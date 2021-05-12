@@ -4,7 +4,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=spacebar
-pkgver=0.2
+pkgver=21.05
 pkgrel=1
 pkgdesc="SMS and messaging application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
@@ -16,12 +16,12 @@ depends=('kcontacts'
     'kpeople'
     'ki18n'
     'qt5-quickcontrols2'
+    'libqofono-qt5'
     'telepathy-qt')
 makedepends=('cmake'
-    'extra-cmake-modules'
-    'git')
-source=("https://download.kde.org/stable/spacebar/$pkgver/spacebar-$pkgver.tar.xz")
-md5sums=('621409d00138fb19a2d3d1bfe5a967a1')
+    'extra-cmake-modules')
+source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
+md5sums=('b252b6519f6cef9f677e5f5773ea2f4b')
 
 prepare() {
   mkdir -p build
@@ -32,7 +32,7 @@ build() {
   cmake ../spacebar-$pkgver \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_TESTING=OFF \
-    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_LIBDIR=lib \
     -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
     -DCMAKE_BUILD_TYPE=Release
   make
