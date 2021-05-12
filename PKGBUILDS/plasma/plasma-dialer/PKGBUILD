@@ -3,17 +3,17 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-dialer
-pkgver=0.3
+pkgver=21.05
 pkgrel=1
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
 depends=('desktop-file-utils' 'ofono' 'kcontacts' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'kdbusaddons' 'knotifications' 'telepathy-ofono' 'telepathy-mission-control')
-makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools')
-source=("https://download.kde.org/stable/plasma-dialer/$pkgver/plasma-dialer-$pkgver.tar.xz")
+makedepends=('cmake' 'extra-cmake-modules' 'kdoctools')
+source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-md5sums=('fe41c5ac23e9e634f3a7525d0f5cdbaa')
+md5sums=('e3210310587465d6d40d8cf56e999ad8')
 
 prepare() {
   mkdir -p build
@@ -21,7 +21,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../plasma-dialer-$pkgver \
+  cmake ../$pkgname-$pkgver \
     -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_TESTING=OFF \
