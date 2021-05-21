@@ -3,7 +3,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-phone-components
-pkgver=5.21.4
+pkgver=5.21.5
 pkgrel=1
 pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
 arch=('aarch64' 'x86_64')
@@ -13,7 +13,7 @@ depends=('desktop-file-utils' 'plasma-workspace' 'ofono' 'libqofono-qt5' 'kpeopl
 makedepends=('git' 'cmake' 'baloo' 'extra-cmake-modules' 'kdoctools')
 source=("https://invent.kde.org/plasma/plasma-phone-components/-/archive/v${pkgver}/plasma-phone-components-v${pkgver}.tar.gz")
 install=$pkgname.install
-sha512sums=('54b3b93fcc66be0820d365b5c7f2ccffb55415faea423cc713a8d8686e5f627dab6d63c92007e34199bd0dea83cd857406da7d06f92e7721416c2e60177cce85')
+sha512sums=('6601a6ad0333494528ecf75ed93cbc129dbc0308da1dc7f6e8e136e320f284c036f629eda7bddba2256ef4637eacd446d5f264ca240ab427b02a189e1f90e2ff')
 
 prepare() {
   mkdir -p build
