@@ -4,7 +4,7 @@
 
 pkgname=gtk3-mobile
 pkgver=3.24.27
-pkgrel=2
+pkgrel=3
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -52,7 +52,9 @@ source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.
         theme-Add-libhandy-styles.patch
         window-Disable-window-dragging-on-phones.patch
         window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
-        librem5-Make-GtkShortcutsWindow-adaptive.patch)
+        librem5-Make-GtkShortcutsWindow-adaptive.patch
+        gdk-wayland-Take-transform-into-account-when-setting-phys.patch
+        gtkapplication-dbus-Fetch-inital-screen-saver-state-async.patch)
 sha256sums=('755d24b0990fc5e590115fcd9a23e70e35f0bfa28faa740e106e9ca1dc57f6be'
             '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
@@ -89,7 +91,9 @@ sha256sums=('755d24b0990fc5e590115fcd9a23e70e35f0bfa28faa740e106e9ca1dc57f6be'
             'dc7f02d63d11c28bd2c1e930754cf4c3fa8375556198d5c0744e53f25b17621b'
             '680a7de058d00f49ddac543392151502e9daca8f72a5ffd00543c4e93a9b6311'
             '4298dbfb786d26162f3012b86975669a3538903eb8fc103c354385ca64dd0c15'
-            '7b6d71ac78967c7bcf45c3f9b458874373dcf5ac7b8df451df9dbe7d42e07a6d')
+            '7b6d71ac78967c7bcf45c3f9b458874373dcf5ac7b8df451df9dbe7d42e07a6d'
+            'e58cc66bf32cbf268cb5c9398f527585b73ea160ad57e81fdf2925e013e56947'
+            '43f6ae61a0dea25fed1f8a601ea8152fe550f3724377358ef806c6b98705528f')
 
 prepare() {
   cd gtk-$_commit
@@ -130,6 +134,8 @@ prepare() {
   patch -p1 -N < ../window-Disable-window-dragging-on-phones.patch
   patch -p1 -N < ../events-Compress-touch-update-events.patch
   patch -p1 -N < ../librem5-Make-GtkShortcutsWindow-adaptive.patch
+  patch -p1 -N < ../gdk-wayland-Take-transform-into-account-when-setting-phys.patch
+  patch -p1 -N < ../gtkapplication-dbus-Fetch-inital-screen-saver-state-async.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
