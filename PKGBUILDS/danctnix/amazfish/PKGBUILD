@@ -2,7 +2,7 @@
 
 pkgname=amazfish
 _repo=harbour-$pkgname
-pkgver=1.9.8
+pkgver=2.0.0
 pkgrel=1
 pkgdesc='Companion application for the Huami Amazfit Bip, Cor, MiBand2/3 and GTS'
 arch=('x86_64' 'aarch64')
@@ -10,8 +10,8 @@ license=(GPL3)
 url="https://github.com/piggz/$_repo"
 makedepends=('git')
 depends=('kcontacts' 'dbus' 'kdb' 'kirigami2' 'mlite' 'mpris-qt5' 'qt5-connectivity' 'qt5-location' 'qt5-quickcontrols2')
-_commit="e1e9ba8571823d0971b19c92f67652428c1073b6" # v1.9.8
-_commit_libwatchfish="e3bf99e47c8c339b15eb4c8d6a485c22e9c7c2cd"
+_commit="595c09309699cb49267ae25975994997b278823e" # v2.0.0
+_commit_libwatchfish="ec302cd25d4605e56148a750f2f75fb5c641cfee"
 source=("git+$url.git#commit=$_commit"
     "git+https://github.com/piggz/libwatchfish.git#commit=$_commit_libwatchfish")
 md5sums=('SKIP'
