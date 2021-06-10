@@ -2,7 +2,7 @@
 # Contributor: Dan Johansen <strit@manjaro.org>
 
 pkgname=plasma-nano
-pkgver=5.21.5
+pkgver=5.22.0
 pkgrel=1
 pkgdesc="A minimal Plasma shell package"
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')
@@ -12,7 +12,7 @@ depends=('desktop-file-utils' 'plasma-workspace')
 makedepends=('cmake' 'extra-cmake-modules')
 source=("https://invent.kde.org/kde/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.gz")
 install=$pkgname.install
-md5sums=('c8a6349985acf1f5657ce4cb874787a5')
+md5sums=('743a1f6202a94d93552c173a1a421824')
 
 prepare() {
   mkdir -p build
