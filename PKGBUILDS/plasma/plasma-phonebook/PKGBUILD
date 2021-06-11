@@ -3,7 +3,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-phonebook
-pkgver=21.05
+pkgver=21.06
 pkgrel=1
 pkgdesc="Phonebook application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
@@ -12,7 +12,7 @@ license=('GPL3')
 depends=('kirigami2' 'kcontacts' 'kpeople' 'kpeoplevcard' 'qt5-quickcontrols2' 'qt5-svg')
 makedepends=('cmake' 'extra-cmake-modules' 'kdoctools')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('547cf9306135a48d786ed4547dd33952')
+md5sums=('99312e89b2ec8ce552d4df65cc19df2f')
 
 prepare() {
   mkdir -p build
