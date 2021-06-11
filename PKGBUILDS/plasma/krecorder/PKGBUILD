@@ -2,16 +2,16 @@
 # Contributor: Bernhard Landauer <bernhard@manjaro.org>
 
 pkgname=krecorder
-pkgver=21.05
+pkgver=21.06
 pkgrel=1
 pkgdesc="Cross-platfrom calculator built with the Kirigami framework"
 arch=('x86_64' 'aarch64')
 url="https://invent.kde.org/plasma-mobile/kalk"
 license=('GPL3')
-depends=('ki18n' 'kconfig' 'kirigami2' 'qt5-multimedia')
+depends=('ki18n' 'kconfig' 'kirigami2' 'qt5-multimedia' 'qt5-svg')
 makedepends=('qt5-tools' 'extra-cmake-modules')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-sha256sums=('ac58bb4943c09099f026e0bd2973d22587eafd7e4a79187b5c2618d17b8baa79')
+sha256sums=('ae7cdb21f3f73031e6c766a42d9792ac2238193b0d966111abb185c661c25cd0')
 
 prepare() {
   mkdir build
