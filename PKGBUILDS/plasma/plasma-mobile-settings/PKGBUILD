@@ -2,7 +2,7 @@
 # Contributor: Bernhard Landauer <oberon@manjaro.org>
 
 pkgname=plasma-mobile-settings
-pkgver=20210329
+pkgver=20210611
 pkgrel=1
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
@@ -19,7 +19,9 @@ source=('applications-blacklistrc'
     'settings.ini'
     'powerdevil.hook'
     '90-plasma-flashlight.rules'
-    'kde-tweaks.sh')
+    'kde-tweaks.sh'
+    'kdewallet.kwl'
+    'kdewallet.salt')
 sha256sums=('4b0bd5c4dbae3cfe2884e04d47af16086a9bdd57f1d9bf8700cddcd7f205c671'
             'f7621041edd8dde4a2d15110c5c1d902a78ac1f57a4de6ceb250e12da5db7417'
             '68bc1f74168a8d4f9c3418b37b9373d5a46d3fe550c3d5357dd3d737114abdcf'
@@ -29,7 +31,9 @@ sha256sums=('4b0bd5c4dbae3cfe2884e04d47af16086a9bdd57f1d9bf8700cddcd7f205c671'
             'e3e671c730f7a4ed54011a1152a54e5ce11e6092850c379deb5641d88b5463bd'
             '42c4de4c9310904ada1c84e23a34e42fcf20f8318a5f798372468381965dbd18'
             'd90fbbc46520d7f757d7650976039dabd7342856f3868e41c7d3ed60f515640d'
-            'a20bf47c2a3a5d22029f953933079a2b8c0948e2c687e32f084d6964309ae113')
+            'a20bf47c2a3a5d22029f953933079a2b8c0948e2c687e32f084d6964309ae113'
+            'c284837b4e7f1262a2844a2b52a98475a3f655192489fa01a70c3a6535ceda34'
+            '786e097683f48193c41ac14756e7cdaf0314acb97919c26838b7530d0996041f')
 
 pkgver() {
     date +%Y%m%d
@@ -49,4 +53,11 @@ package() {
     install -Dm644 "${srcdir}/powerdevil.hook" "${pkgdir}/usr/share/libalpm/hooks/90-powerdevil.hook"
 
     install -Dm755 "${srcdir}/kde-tweaks.sh" "${pkgdir}/etc/profile.d/kde-tweaks.sh"
+
+    # TODO: remove once keyboard input bug is fixed
+    # https://bugs.kde.org/show_bug.cgi?id=435183
+    install -Dm600 -t "$pkgdir"/etc/skel/.local/share/kwalletd \
+        "$srcdir"/kdewallet.kwl \
+        "$srcdir"/kdewallet.salt
+
 }
