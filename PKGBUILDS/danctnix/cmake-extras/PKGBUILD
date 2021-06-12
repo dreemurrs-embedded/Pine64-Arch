@@ -2,7 +2,7 @@
 
 pkgname=cmake-extras
 pkgver=1.5+29+g87ffd0d
-pkgrel=1
+pkgrel=2
 _commit=87ffd0dd75e0f6ba7ae499af5c1f26f3f9ebe204
 pkgdesc="A collection of add-ons for the CMake build tool."
 arch=('any')
@@ -10,12 +10,19 @@ url="https://gitlab.com/ubports/core/cmake-extras"
 license=('LGPL')
 depends=('cmake')
 makedepends=('git')
-source=(git+$url.git#commit=${_commit})
-sha256sums=('SKIP')
+source=(git+$url.git#commit=${_commit}
+        qt5_libdir.patch)
+sha256sums=('SKIP'
+            'e32c39e22a442009a0e6a3429a3929a8b9c417dc8c77a0e9aef5c76bef649406')
 
 pkgver() {
   cd ${pkgname}
   git describe --tags | sed 's/^v//;s/-/+/g'
+}
+
+prepare() {
+  cd "${pkgname}"
+  patch -p1 -N < ../qt5_libdir.patch
 }
 
 build() {
