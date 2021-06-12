@@ -2,13 +2,13 @@
 # Contributor: Bernhard Landauer <oberon@manjaro.org>
 
 pkgname=plasma-mobile-settings
-pkgver=20210611
+pkgver=20210612
 pkgrel=1
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
 license=('GPL')
 pkgdesc='Settings files for Plasma Mobile'
-depends=('accountsservice' 'noto-fonts' 'breeze' 'breeze-gtk')
+depends=('accountsservice' 'noto-fonts' 'breeze' 'breeze-gtk' 'pipewire' 'pipewire-media-session' 'hfd-service')
 makedepends=('git')
 source=('applications-blacklistrc'
     'kdeglobals'
@@ -60,4 +60,13 @@ package() {
         "$srcdir"/kdewallet.kwl \
         "$srcdir"/kdewallet.salt
 
+    # Enable Pipewire for app switcher thumbnails
+    mkdir -p $pkgdir/usr/lib/systemd/user/default.target.wants
+    ln -sfv /usr/lib/systemd/user/pipewire.service \
+        $pkgdir/usr/lib/systemd/user/default.target.wants/pipewire.service
+
+    # Enable hfd-service for vibrations
+    mkdir -p $pkgdir/usr/lib/systemd/system/multi-user.target.wants
+    ln -sfv /usr/lib/systemd/system/hfd-service.service \
+        $pkgdir/usr/lib/systemd/system/multi-user.target.wants/hfd-service.service
 }
