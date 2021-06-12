@@ -1,0 +1,30 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=cmake-extras
+pkgver=1.5+29+g87ffd0d
+pkgrel=1
+_commit=87ffd0dd75e0f6ba7ae499af5c1f26f3f9ebe204
+pkgdesc="A collection of add-ons for the CMake build tool."
+arch=('any')
+url="https://gitlab.com/ubports/core/cmake-extras"
+license=('LGPL')
+depends=('cmake')
+makedepends=('git')
+source=(git+$url.git#commit=${_commit})
+sha256sums=('SKIP')
+
+pkgver() {
+  cd ${pkgname}
+  git describe --tags | sed 's/^v//;s/-/+/g'
+}
+
+build() {
+  cmake -B build -S "${pkgname}" \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --build build --target install
+}
