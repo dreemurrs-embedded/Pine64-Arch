@@ -2,12 +2,13 @@
 
 pkgname=danctnix-pm-ui-meta
 pkgver=5.22
-pkgrel=1
+pkgrel=2
 pkgdesc='Meta package to install Plasma Mobile'
 arch=(any)
 url='https://mobile.danctnix.org'
 depends=(noto-fonts
          iio-sensor-proxy
+         oxygen
          qqc2-breeze-style
          plasma-phone-components
          plasma-nano
