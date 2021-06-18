@@ -1,0 +1,47 @@
+From 4f82d7270cda72069dd4fb8cad2daf64207b1799 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 4 Sep 2019 09:41:52 +0200
+Subject: [PATCH 12/23] librem5: updates-section: Make the header vertical
+
+---
+ src/gs-updates-section.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/src/gs-updates-section.c b/src/gs-updates-section.c
+index b47f54e3..6a1b5056 100644
+--- a/src/gs-updates-section.c
++++ b/src/gs-updates-section.c
+@@ -432,7 +432,11 @@ _build_section_header (GsUpdatesSection *self)
+ 	}
+ 
+ 	/* create header */
+-	header = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 3);
++	header = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
++	gtk_widget_set_margin_start (header, 6);
++	gtk_widget_set_margin_end (header, 6);
++	gtk_widget_set_margin_top (header, 6);
++	gtk_widget_set_margin_bottom (header, 6);
+ 	context = gtk_widget_get_style_context (header);
+ 	gtk_style_context_add_class (context, "app-listbox-header");
+ 
+@@ -440,14 +444,15 @@ _build_section_header (GsUpdatesSection *self)
+ 	gtk_widget_set_hexpand (label, TRUE);
+ 	gtk_container_add (GTK_CONTAINER (header), label);
+ 	gtk_widget_set_visible (label, TRUE);
+-	gtk_widget_set_margin_start (label, 6);
+-	gtk_label_set_xalign (GTK_LABEL (label), 0.0);
++	gtk_widget_set_halign (label, GTK_ALIGN_CENTER);
++	gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
+ 	context = gtk_widget_get_style_context (label);
+ 	gtk_style_context_add_class (context, "app-listbox-header-title");
+ 
+ 	/* use a stack so we can switch which buttons are showing without the
+ 	 * sizegroup resizing */
+ 	self->button_stack = GTK_STACK (gtk_stack_new ());
++	gtk_widget_set_halign (GTK_WIDGET (self->button_stack), GTK_ALIGN_CENTER);
+ 	gtk_container_add (GTK_CONTAINER (header), GTK_WIDGET (self->button_stack));
+ 	gtk_container_child_set (GTK_CONTAINER (header), GTK_WIDGET (self->button_stack), "pack-type", GTK_PACK_END, NULL);
+ 
+-- 
+2.28.0
+

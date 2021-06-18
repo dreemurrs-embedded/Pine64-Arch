@@ -1,0 +1,71 @@
+From 2bf8e25cad05097c7b5c91f4b3ea27ac9ca83841 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 3 Sep 2019 15:40:38 +0200
+Subject: [PATCH 03/23] shell: Give a title and an icon to the main stack pages
+
+---
+ src/gnome-software.gresource.xml | 3 +++
+ src/gnome-software.ui            | 6 ++++++
+ src/navigate-symbolic.svg        | 7 +++++++
+ 3 files changed, 16 insertions(+)
+ create mode 100644 src/navigate-symbolic.svg
+
+diff --git a/src/gnome-software.gresource.xml b/src/gnome-software.gresource.xml
+index 3eaabca2..9b82a697 100644
+--- a/src/gnome-software.gresource.xml
++++ b/src/gnome-software.gresource.xml
+@@ -38,4 +38,7 @@
+   <file>gtk-style-hc.css</file>
+   <file>developer-verified.svg</file>
+  </gresource>
++ <gresource prefix="/org/gnome/Software/icons/hicolor/scalable/status">
++  <file preprocess="xml-stripblanks">navigate-symbolic.svg</file>
++ </gresource>
+ </gresources>
+diff --git a/src/gnome-software.ui b/src/gnome-software.ui
+index 9606d91e..822582f8 100644
+--- a/src/gnome-software.ui
++++ b/src/gnome-software.ui
+@@ -503,6 +503,8 @@
+                       </object>
+                       <packing>
+                         <property name="name">overview</property>
++                        <property name="title" translatable="yes" comments="Translators: A label for a button to show all available software.">Explore</property>
++                        <property name="icon-name">navigate-symbolic</property>
+                       </packing>
+                     </child>
+                     <child>
+@@ -511,6 +513,8 @@
+                       </object>
+                       <packing>
+                         <property name="name">installed</property>
++                        <property name="title" translatable="yes" comments="Translators: A label for a button to show only software which is already installed.">Installed</property>
++                        <property name="icon-name">software-installed-symbolic</property>
+                       </packing>
+                     </child>
+                     <child>
+@@ -543,6 +547,8 @@
+                       </object>
+                       <packing>
+                         <property name="name">updates</property>
++                        <property name="title" translatable="yes" comments="Translators: A label for a button to show only updates which are available to install.">Updates</property>
++                        <property name="icon-name">software-update-available-symbolic</property>
+                       </packing>
+                     </child>
+ 
+diff --git a/src/navigate-symbolic.svg b/src/navigate-symbolic.svg
+new file mode 100644
+index 00000000..5b264cd3
+--- /dev/null
++++ b/src/navigate-symbolic.svg
+@@ -0,0 +1,7 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">
++    <g fill="#2e3436">
++        <path d="M8.017 1.054c-3.82 0-6.941 3.12-6.941 6.941 0 3.822 3.12 6.942 6.941 6.942 3.822 0 6.942-3.12 6.942-6.942 0-3.82-3.12-6.941-6.942-6.941zm0 1.98a4.944 4.944 0 014.961 4.961 4.944 4.944 0 01-4.96 4.961 4.944 4.944 0 01-4.961-4.96 4.944 4.944 0 014.96-4.961z" style="line-height:normal;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-feature-settings:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000;text-transform:none;text-orientation:mixed;white-space:normal;shape-padding:0;isolation:auto;mix-blend-mode:normal;solid-color:#000;solid-opacity:1;marker:none" color="#000" font-weight="400" font-family="sans-serif" overflow="visible"/>
++        <path d="M5.756 11.655L9.52 8.992l.759-4.656L6.515 7zm2.577-2.79a.956.956 0 01-1.25-.512.956.956 0 01.51-1.251.956.956 0 011.253.512.956.956 0 01-.513 1.25z" style="marker:none" opacity=".35"/>
++        <path d="M9.51 8.998l.01-.006.76-4.655-3.755 2.656.656.44a.956.956 0 01.413-.332.956.956 0 011.251.514.956.956 0 01-.078.884z" style="marker:none"/>
++    </g>
++</svg>
+-- 
+2.28.0
+

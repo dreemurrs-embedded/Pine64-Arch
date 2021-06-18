@@ -1,0 +1,99 @@
+From 883ccf9ea004a553e79d80b29e2529e9642b65bc Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Thu, 5 Sep 2019 07:46:39 +0200
+Subject: [PATCH 07/23] details-page: Make it better fit in smaller narrower
+ windows
+
+This makes the header work in both desktops and mobiles.
+---
+ src/gs-details-page.ui | 47 ++++++++++++++++++++++++------------------
+ 1 file changed, 27 insertions(+), 20 deletions(-)
+
+diff --git a/src/gs-details-page.ui b/src/gs-details-page.ui
+index f86674fe..ef376f62 100644
+--- a/src/gs-details-page.ui
++++ b/src/gs-details-page.ui
+@@ -86,46 +86,33 @@
+                                 <property name="halign">fill</property>
+                                 <property name="valign">start</property>
+                                 <property name="margin_start">24</property>
+-                                <property name="margin_end">24</property>
+                                 <child>
+-                                  <object class="GtkLabel" id="application_details_title">
++                                  <object class="GtkBox" id="box_details_header3">
+                                     <property name="visible">True</property>
+                                     <property name="halign">fill</property>
+                                     <property name="valign">start</property>
+-                                    <property name="hexpand">True</property>
+-                                    <property name="margin_bottom">4</property>
+-                                    <property name="xalign">0</property>
+-                                    <property name="selectable">True</property>
+-                                    <property name="wrap">True</property>
+-                                    <property name="max_width_chars">20</property>
+-                                    <style>
+-                                      <class name="application-details-title"/>
+-                                    </style>
+-                                  </object>
+-                                </child>
++                                    <property name="spacing">24</property>
+                                 <child>
+-                                  <object class="GtkLabel" id="application_details_summary">
++                                  <object class="GtkLabel" id="application_details_title">
+                                     <property name="visible">True</property>
+                                     <property name="halign">fill</property>
+                                     <property name="valign">start</property>
+                                     <property name="hexpand">True</property>
+-                                    <property name="margin_bottom">16</property>
++                                    <property name="margin_bottom">4</property>
+                                     <property name="xalign">0</property>
+                                     <property name="selectable">True</property>
+                                     <property name="wrap">True</property>
+-                                    <property name="max-width-chars">60</property>
++                                    <property name="max_width_chars">20</property>
+                                     <style>
+-                                      <class name="application-details-summary"/>
++                                      <class name="application-details-title"/>
+                                     </style>
+                                   </object>
+                                 </child>
+-                              </object>
+-                            </child>
+ 
+                             <child>
+                               <object class="GtkBox" id="star_box">
+                                 <property name="visible">True</property>
+-                                <property name="valign">start</property>
++                                <property name="valign">center</property>
+                                 <child>
+                                   <object class="GtkEventBox" id="star_eventbox">
+                                     <property name="visible">True</property>
+@@ -152,6 +139,26 @@
+                               </object>
+                             </child>
+ 
++                                  </object>
++                                </child>
++                                <child>
++                                  <object class="GtkLabel" id="application_details_summary">
++                                    <property name="visible">True</property>
++                                    <property name="halign">fill</property>
++                                    <property name="valign">start</property>
++                                    <property name="hexpand">True</property>
++                                    <property name="margin_bottom">16</property>
++                                    <property name="xalign">0</property>
++                                    <property name="selectable">True</property>
++                                    <property name="wrap">True</property>
++                                    <property name="max-width-chars">60</property>
++                                    <style>
++                                      <class name="application-details-summary"/>
++                                    </style>
++                                  </object>
++                                </child>
++                              </object>
++                            </child>
+                           </object>
+                         </child>
+ 
+-- 
+2.28.0
+
