@@ -1,0 +1,44 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgbase=danctnix-tweaks-app
+pkgname=("$pkgbase" "$pkgbase-phosh" "$pkgbase-pinephone")
+pkgver=0.6.1.2
+pkgrel=1
+pkgdesc="Tweaks tool for phone UIs"
+url="https://github.com/dreemurrs-embedded/danctnix-tweaks"
+license=('LGPL')
+arch=('any')
+makedepends=('libhandy' 'python' 'python-gobject' 'python-yaml' 'gtk3' 'python-setuptools' 'meson')
+source=("https://github.com/dreemurrs-embedded/danctnix-tweaks/archive/refs/tags/$pkgver.tar.gz")
+
+build() {
+    arch-meson danctnix-tweaks-$pkgver output
+    meson compile -C output
+}
+
+package_danctnix-tweaks-app() {
+    depends=('libhandy' 'python' 'python-gobject' 'python-yaml' 'gtk3')
+    install=danctnix-tweaks-app.install
+
+    DESTDIR="$pkgdir" meson install -C output
+    mv "$pkgdir"/usr/share/danctnix-tweaks/phosh.yml "$srcdir"/phosh.yml
+    mv "$pkgdir"/usr/share/danctnix-tweaks/pinephone.yml "$srcdir"/pinephone.yml
+
+    # Not yet ready, we need the user to manually mkinitcpio after the config changes.
+    rm "$pkgdir"/usr/share/danctnix-tweaks/unlocker.yml
+}
+
+package_danctnix-tweaks-app-phosh() {
+     depends=('danctnix-tweaks-app' 'phosh')
+
+     mkdir -p "$pkgdir"/usr/share/danctnix-tweaks
+     mv "$srcdir"/phosh.yml "$pkgdir"/usr/share/danctnix-tweaks/phosh.yml
+}
+
+package_danctnix-tweaks-app-pinephone() {
+     depends=('danctnix-tweaks-app' 'device-pine64-pinephone')
+
+     mkdir -p "$pkgdir"/usr/share/danctnix-tweaks
+     mv "$srcdir"/pinephone.yml "$pkgdir"/usr/share/danctnix-tweaks/pinephone.yml
+}
+
+md5sums=('1763bfbc3c0e3476c2fa58a1f26986cf')
