@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=chatty
 pkgver=0.3.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Messaging client"
 url="https://source.puri.sm/Librem5/chatty"
 license=('GPL')
