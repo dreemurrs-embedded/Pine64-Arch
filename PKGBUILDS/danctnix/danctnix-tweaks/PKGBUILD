@@ -1,12 +1,13 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=danctnix-tweaks
-pkgver=0.2
+pkgver=0.3
 pkgrel=1
 pkgdesc="Tweaks made to DanctNIX Mobile."
 arch=(any)
 url="https://danctnix.org"
 license=('MIT')
+install=$pkgname.install
 source=(00-journal-size.conf
         packagekit-rm-lock.service)
 
