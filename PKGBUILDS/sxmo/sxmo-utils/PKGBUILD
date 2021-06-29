@@ -1,0 +1,44 @@
+# Maintainer: dni <office@dnilabs.com>
+pkgname=sxmo-utils
+pkgver=1.4.1
+pkgrel=0
+pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
+url="https://git.sr.ht/~mil/sxmo-utils"
+arch=('x86_64' 'armv7h' 'aarch64')
+license=('MIT')
+makedepends=('libx11' 'xorg-xproto' 'linux-headers')
+depends=(
+  'sxmo-dmenu' 'sxmo-dwm' 'sxmo-st' 'sxmo-surf' 'svkbd' 'lisgd' 'clickclack'
+  'alsa-utils' 'autocutsel' 'codemadness-frontends' 'conky' 'coreutils' 'curl' 'dunst'
+  'geoclue' 'grep' 'inotify-tools' 'mediainfo' 'modemmanager' 'networkmanager'
+  'mpv' 'ncurses' 'sfeed' 'sxiv' 'terminus-font' 'font-terminus-nerd' 'font-fira-mono-nerd'
+  'tzdata' 'v4l-utils' 'vis' 'w3m' 'xcalib' 'xclip' 'xdotool' 'xdpyinfo' 'xinput' 'xprop'
+  'xrandr' 'xrdb' 'xsel' 'xset' 'xsetroot' 'xwininfo' 'youtube-dl'
+)
+source=(
+  "$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
+  'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
+  'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
+  'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
+)
+sha512sums=(
+  'b80ed389e29404421a829bba9b76814ee3afc3c11527d2f3e87f95eb83bbc498ead43e38c0d6164c4336c2d5633af569c43bcdb28c0f0d886e00ee506184b537'
+  '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
+  '32532ad5071588b80f43d539b3bd140e3f5b4100fca244be2ade5b8c697c76043ce5278ae7bf14762106aed2c9690f34c14e73031e5d86c11cc042c8f7245421'
+  '7b34e861bc4ec57d970d2a7aacca36e3c3742a63ff995af1336f80b666e4a38c1035b35e129322e0d62dc75011bfaf495eb2bcae5392f2bf39f1d7b1400afcce'
+)
+
+package() {
+  cd "$pkgname-$pkgver"
+  mkdir -p "$pkgdir/etc/modules-load.d/"
+  printf %b "snd-aloop" > "$pkgdir/etc/modules-load.d/sxmo.conf"
+  mkdir -p "$pkgdir/etc/modprobe.d/"
+  printf %b "options snd slots=,snd-aloop" > "$pkgdir/etc/modprobe.d/sxmo.conf"
+
+  make DESTDIR=$pkgdir install
+
+  install -Dm644 "$srcdir/rootfs-etc-NetworkManager-conf.d-00-sxmo.conf" "$pkgdir/etc/NetworkManager/conf.d/00-sxmo.conf"
+  install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-00-sxmo.rules" "$pkgdir/etc/polkit-1/rules.d/00-sxmo.rules"
+  install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules" "$pkgdir/etc/polkit-1/rules.d/50-org.freedesktop.NetworkManager.rules"
+}
+
