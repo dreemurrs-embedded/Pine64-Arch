@@ -1,5 +1,14 @@
 # iio-sensor-proxy
 # Set PROXIMITY_NEAR_LEVEL for iio-sensor-proxy to pick up the proximity sensor
 
+# NOTE: just for the confirmation(you can remove the note after), I am new, I don't be sure about iio-sensor-proxy what is ...
+#   'proximity sensor' is the touch screen setting capatibility over the capacitive detection value from sensors ? all right ?
+#  Because I down the value to 200(less resistance ? more sensitive? no?) with hope all respond (problem with toggle of virtual keyboard, littles options buttons, that reply not like other keys on screen...)
+#  So Probably it's an start to found the details problem, ergonomic isn't for now. 
+#  Sorry to write here, I have ADHD, I 'm Rick, please help me to contrib, I love my new phone and yeah I take this by choice for phone of all days, probably forever...
+#  I am a little crazy and this prototype can made my life an hell maybe ... but I hope you really be good person to help me, for now is the desert at my side...
+#  TTYL,
+#  -0x7CB (Rick)
+
 # Set the sensor type for all the types we recognise
-ACTION=="add", SUBSYSTEM=="iio", TEST=="in_proximity_raw", ENV{PROXIMITY_NEAR_LEVEL}="250"
+ACTION=="add", SUBSYSTEM=="iio", TEST=="in_proximity_raw", ENV{PROXIMITY_NEAR_LEVEL}="200" # Modification 250 ==> 200 (Rick)
