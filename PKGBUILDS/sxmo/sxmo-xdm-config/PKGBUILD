@@ -1,14 +1,14 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-xdm-config
 pkgver=0.3.1
-pkgrel=0
+pkgrel=4
 pkgdesc="X Display Manager configuration for Sxmo; starts with virtual keyboard and launches Sxmo UI"
 url="https://git.sr.ht/~mil/sxmo-xdm-config"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
-#depends=( 'sxmo-utils' 'svkbd' 'xdm' )
+depends=( 'sxmo-utils' 'svkbd' 'xorg-xdm' )
 makedepends=('make')
-replaces=('sxmo-xdm' 'xdm' 'xdm-openrc')
+replaces=('sxmo-xdm' 'xorg-xdm' )
 #subpackages="$pkgname-openrc"
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-xdm-config/archive/$pkgver.tar.gz")
 sha512sums=("37265e077931424161ab4fd0e61674ede29ef5c9141ba09b22d92aa702cdcfc71e7c4f7ff5f2b0f730c0572d89c7c59ac9329440f1b444966135f72cdc707405")
@@ -16,8 +16,7 @@ sha512sums=("37265e077931424161ab4fd0e61674ede29ef5c9141ba09b22d92aa702cdcfc71e7
 
 package() {
   cd "$pkgname-$pkgver"
-	mkdir -p "$pkgdir/etc/X11/xdm" "$pkgdir/usr/lib/X11/xdm" "$pkgdir/etc/conf.d" "$pkgdir/etc/profile.d"
-
+	#mkdir -p "$pkgdir/etc/X11/xdm" "$pkgdir/usr/lib/X11/xdm" "$pkgdir/etc/conf.d" "$pkgdir/etc/profile.d"
 	make DESTDIR=$pkgdir install
 
 	# E.g. hide the cursor for Xorg

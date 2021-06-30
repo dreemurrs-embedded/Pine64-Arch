@@ -1,0 +1,17 @@
+pre_install() {
+  rm -f /etc/X11/xdm/GiveConsole /etc/X11/xdm/Xresources /etc/X11/xdm/Xsession /etc/X11/xdm/Xsetup_0
+}
+post_install() {
+  systemctl enable ModemManager
+  systemctl enable bluetooth
+  systemctl enable xdm
+  systemctl enable sxmo-pinephone.service
+  # E.g. hide the cursor for Xorg
+  sed -i 's@:0 local /usr/bin/X :0  -nolisten tcp@:0 local /usr/bin/X -nolisten tcp -nocursor :0@g' /etc/X11/xdm/Xservers
+}
+post_remove() {
+  systemctl disable xdm
+  systemctl disable ModemManager
+  systemctl disable bluetooth
+  systemctl disable sxmo-pinephone.service
+}

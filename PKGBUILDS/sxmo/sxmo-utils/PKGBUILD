@@ -6,14 +6,14 @@ pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environmen
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
-makedepends=('libx11' 'xorg-xproto' 'linux-headers')
+makedepends=('libx11' 'xorgproto' 'linux-aarch64-headers')
 depends=(
   'sxmo-dmenu' 'sxmo-dwm' 'sxmo-st' 'sxmo-surf' 'svkbd' 'lisgd' 'clickclack'
-  'alsa-utils' 'autocutsel' 'codemadness-frontends' 'conky' 'coreutils' 'curl' 'dunst'
+  'alsa-utils' 'autocutsel' 'conky' 'coreutils' 'curl' 'dunst'
   'geoclue' 'grep' 'inotify-tools' 'mediainfo' 'modemmanager' 'networkmanager'
-  'mpv' 'ncurses' 'sfeed' 'sxiv' 'terminus-font' 'font-terminus-nerd' 'font-fira-mono-nerd'
-  'tzdata' 'v4l-utils' 'vis' 'w3m' 'xcalib' 'xclip' 'xdotool' 'xdpyinfo' 'xinput' 'xprop'
-  'xrandr' 'xrdb' 'xsel' 'xset' 'xsetroot' 'xwininfo' 'youtube-dl'
+  'mpv' 'ncurses' 'sxiv' 'terminus-font' 'ttf-fira-mono'
+  'tzdata' 'v4l-utils' 'vis' 'w3m' 'xcalib' 'xclip' 'xdotool' 'xorg-xdpyinfo' 'xorg-xinput' 'xorg-xprop'
+  'xorg-xrandr' 'xorg-xrdb' 'xsel' 'xorg-xset' 'xorg-xsetroot' 'xorg-xwininfo' 'youtube-dl'
 )
 source=(
   "$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"

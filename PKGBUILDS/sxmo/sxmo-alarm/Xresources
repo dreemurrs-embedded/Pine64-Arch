@@ -1,0 +1,36 @@
+Xcursor.theme: whiteglass
+
+xlogin*login.translations: #override \
+	Ctrl<Key>R: abort-display()\n\
+	<Key>F1: set-session-argument(failsafe) finish-field()\n\
+	<Key>Delete: delete-character()\n\
+	<Key>Left: move-backward-character()\n\
+	<Key>Right: move-forward-character()\n\
+	<Key>Home: move-to-begining()\n\
+	<Key>End: move-to-end()\n\
+	Ctrl<Key>KP_Enter: set-session-argument(failsafe) finish-field()\n\
+	<Key>KP_Enter: set-session-argument() finish-field()\n\
+	Ctrl<Key>Return: set-session-argument(failsafe) finish-field()\n\
+	<Key>Return: set-session-argument() finish-field()
+
+xlogin*logoPadding: 0
+xlogin*useShape: false
+xlogin*geometry: 550x500+100+300
+xlogin*greeting: Sxmo
+xlogin*greetFace:   Monospace:bold:size=15
+xlogin*face:       Monospace:size=12:italic
+xlogin*promptFace:    Monospace:size=12:bold
+xlogin*failFace:    Monospace:size=12
+xlogin*borderWidth: 2
+xlogin*frameWidth: 5
+xlogin*innerFramesWidth: 0
+xlogin*shdColor: #005577
+xlogin*hiColor: #005577
+xlogin*background: grey20
+xlogin*inpColor: white
+xlogin*foreground: black
+xlogin*greetColor: white
+xlogin*failColor: red
+svkbd*font: Sans:bold:size=12
+*Foreground: white
+*Background: #fffff0
