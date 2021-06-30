@@ -84,10 +84,6 @@ SigLevel = Never
 Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
 SigLevel = Never
 
-[sxmo]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
-SigLevel = Never
-
 [aur]
 Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
 SigLevel = Never
