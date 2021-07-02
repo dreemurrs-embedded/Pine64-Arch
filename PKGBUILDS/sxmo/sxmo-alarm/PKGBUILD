@@ -1,11 +1,11 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-alarm
 pkgver=1.5.0
-pkgrel=3
+pkgrel=1
 pkgdesc="Sxmo: Simple X Mobile - A Pinephone UI that is simple and suckless"
 url="https://sr.ht/~mil/Sxmo/"
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=( 'sxmo-utils' 'xorg-xdm' 'ttf-nerd-fonts-symbols' 'busybox' )
+depends=( 'sxmo-utils' 'xorg-xdm' )
 makedepends=( 'make' )
 install="$pkgname.install"
 license=('MIT')
@@ -38,11 +38,10 @@ package() {
 
   # xdm stuff
   install -Dm644 "$srcdir/Xresources" "$pkgdir/etc/X11/xdm/Xresources"
-	install -Dm755 "$srcdir/Xsession" "$pkgdir/etc/X11/xdm/Xsession"
-	install -Dm755 "$srcdir/Xsetup_0" "$pkgdir/etc/X11/xdm/Xsetup_0"
-	install -Dm755 "$srcdir/GiveConsole" "$pkgdir/etc/X11/xdm/GiveConsole"
+  install -Dm755 "$srcdir/Xsession" "$pkgdir/etc/X11/xdm/Xsession"
+  install -Dm755 "$srcdir/Xsetup_0" "$pkgdir/etc/X11/xdm/Xsetup_0"
+  install -Dm755 "$srcdir/GiveConsole" "$pkgdir/etc/X11/xdm/GiveConsole"
   install -Dm644 "$srcdir/xdm.confd" "$pkgdir/etc/conf.d/xdm"
-	install -Dm755 "$srcdir/profilesxmo.sh" "$pkgdir/etc/profile.d/sxmo.sh"
-
+  install -Dm755 "$srcdir/profilesxmo.sh" "$pkgdir/etc/profile.d/sxmo.sh"
 }
 

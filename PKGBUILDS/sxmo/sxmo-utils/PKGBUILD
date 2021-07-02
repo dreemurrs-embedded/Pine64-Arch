@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-utils
 pkgver=1.4.1
-pkgrel=0
+pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -14,6 +14,7 @@ depends=(
   'mpv' 'ncurses' 'sxiv' 'terminus-font' 'ttf-fira-mono'
   'tzdata' 'v4l-utils' 'vis' 'w3m' 'xcalib' 'xclip' 'xdotool' 'xorg-xdpyinfo' 'xorg-xinput' 'xorg-xprop'
   'xorg-xrandr' 'xorg-xrdb' 'xsel' 'xorg-xset' 'xorg-xsetroot' 'xorg-xwininfo' 'youtube-dl'
+  'ttf-nerd-fonts-symbols' 'busybox'
 )
 source=(
   "$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
@@ -41,4 +42,3 @@ package() {
   install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-00-sxmo.rules" "$pkgdir/etc/polkit-1/rules.d/00-sxmo.rules"
   install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules" "$pkgdir/etc/polkit-1/rules.d/50-org.freedesktop.NetworkManager.rules"
 }
-

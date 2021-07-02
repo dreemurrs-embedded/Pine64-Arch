@@ -1,13 +1,12 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=lisgd
 pkgver=0.3.0
-pkgrel=0
+pkgrel=1
 pkgdesc="simple libinput gesture daemon"
 url="http://git.sr.ht/~mil/lisgd"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 makedepends=('make' 'libinput' 'libx11')
-provides=('lisgd')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/lisgd/archive/$pkgver.tar.gz")
 sha512sums=("0cb99e1169105a52c0a716c58f6c7450407f7e6dfa25fb9db53ef702b231b43a18553995b0f57469ac76ed55126114d56ccc712da3a5bde7d41bcf3af37b5c8d")
 

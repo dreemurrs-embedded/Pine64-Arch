@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-surf
 pkgver=2.0.3
-pkgrel=0
+pkgrel=1
 pkgdesc="Surf fork for Sxmo UI; supports externalpipe, keyword searching, non-JS by default"
 url="https://git.sr.ht/~mil/sxmo-surf"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -14,10 +14,10 @@ sha512sums=("39f0265f62148cb819022699077fde64264fdc4d4586741d1b216409557a58e12fd
 
 build() {
   cd "$pkgname-$pkgver"
-	make
+  make
 }
 
 package() {
   cd "$pkgname-$pkgver"
-	make DESTDIR="$pkgdir" PREFIX="/usr" install
+  make DESTDIR="$pkgdir" PREFIX="/usr" install
 }

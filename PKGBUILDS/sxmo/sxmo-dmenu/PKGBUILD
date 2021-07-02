@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-dmenu
 pkgver=5.0.9
-pkgrel=0
+pkgrel=1
 pkgdesc="Dmenu fork for Sxmo UI; supports highlight, centering, volume-key navigation and more"
 url="https://git.sr.ht/~mil/sxmo-dmenu"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -20,11 +20,11 @@ sha512sums=("f49823ddf906c5096d8c932a2a529c3128df5d475575796778bf6cd43de4b8566b2
 
 build() {
   cd "$pkgname-$pkgver"
-	make X11INC=/usr/include/X11 X11LIB=/usr/lib/X11 FREETYPEINC=/usr/include/freetype2
+  make X11INC=/usr/include/X11 X11LIB=/usr/lib/X11 FREETYPEINC=/usr/include/freetype2
 }
 
 package() {
   cd "$pkgname-$pkgver"
-	make DESTDIR=$pkgdir PREFIX=/usr install
+  make DESTDIR=$pkgdir PREFIX=/usr install
 }
 
