@@ -10,7 +10,6 @@ depends=('ncurses')
 makedepends=('make' 'fontconfig' 'freetype2' 'libx11' 'libxext' 'libxft')
 provides=('st')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-st/archive/$pkgver.tar.gz")
-sha512sums=('a4cb72680e070d1703c4359618fa7ed36d5460496ab1320025f89809d7fa5387a6f9aae1e1143b261e57ea5f49d9b71bb68dad7653538b0238d2e50259029190')
 
 build() {
   cd "$pkgname-$pkgver"
@@ -32,3 +31,5 @@ package() {
     Categories=System;TerminalEmulator;
   EOF
 }
+
+sha512sums=('a4cb72680e070d1703c4359618fa7ed36d5460496ab1320025f89809d7fa5387a6f9aae1e1143b261e57ea5f49d9b71bb68dad7653538b0238d2e50259029190')

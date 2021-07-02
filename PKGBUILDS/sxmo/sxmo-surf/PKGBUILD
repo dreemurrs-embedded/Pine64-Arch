@@ -10,7 +10,6 @@ depends=('xorg-xprop' 'libxml2' 'dmenu')
 makedepends=('make' 'webkit2gtk')
 provides=('surf')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-surf/archive/$pkgver.tar.gz")
-sha512sums=("39f0265f62148cb819022699077fde64264fdc4d4586741d1b216409557a58e12fda4ea84d0ee08c035a94b1665c2684bae9cb7412ccfb16b90b958f966b9e1f")
 
 build() {
   cd "$pkgname-$pkgver"
@@ -21,3 +20,5 @@ package() {
   cd "$pkgname-$pkgver"
   make DESTDIR="$pkgdir" PREFIX="/usr" install
 }
+
+sha512sums=("39f0265f62148cb819022699077fde64264fdc4d4586741d1b216409557a58e12fda4ea84d0ee08c035a94b1665c2684bae9cb7412ccfb16b90b958f966b9e1f")

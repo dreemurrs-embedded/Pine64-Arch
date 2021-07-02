@@ -10,7 +10,6 @@ depends=('xorg-server')
 makedepends=('make' 'freetype2' 'libx11' 'libxinerama' 'libxft')
 provides=('dwm')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-dwm/archive/$pkgver.tar.gz")
-sha512sums=('842d93eb51204059e2f10c78dbf61f0239fef176d768b43a4d0b5f39a5ec452546e9fa77bc580a496f57f5a8f90a5576aa59a8964ffb0f86be2e454aec2b27c5')
 
 # prepare() {
 # 	sed -i -e '/CFLAGS/{s/-Os//;s/=/+=/}' \
@@ -27,3 +26,5 @@ package() {
   cd "$pkgname-$pkgver"
   make PREFIX=/usr DESTDIR="$pkgdir" install
 }
+
+sha512sums=('842d93eb51204059e2f10c78dbf61f0239fef176d768b43a4d0b5f39a5ec452546e9fa77bc580a496f57f5a8f90a5576aa59a8964ffb0f86be2e454aec2b27c5')

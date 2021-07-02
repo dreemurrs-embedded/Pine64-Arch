@@ -9,7 +9,6 @@ license=('MIT')
 depends=('sdl2')
 makedepends=('make' 'sdl2')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~proycon/clickclack/archive/$pkgver.tar.gz")
-sha512sums=('029da491bcd021ae2a1c1756725845324ef38bcb03f983a3cab91da84729d55b52314db8ad6aeb195f402cac2492ceb7385dbb8cf4cdae4b393ef4cae6d82e52')
 
 build() {
   cd "$pkgname-$pkgver"
@@ -20,3 +19,5 @@ package() {
   cd "$pkgname-$pkgver"
   make PREFIX=/usr DESTDIR="$pkgdir" install
 }
+
+sha512sums=('029da491bcd021ae2a1c1756725845324ef38bcb03f983a3cab91da84729d55b52314db8ad6aeb195f402cac2492ceb7385dbb8cf4cdae4b393ef4cae6d82e52')

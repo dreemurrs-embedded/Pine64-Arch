@@ -10,7 +10,6 @@ depends=( 'sxmo-utils' 'svkbd' 'xorg-xdm' )
 makedepends=('make')
 replaces=('sxmo-xdm' 'xorg-xdm' )
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-xdm-config/archive/$pkgver.tar.gz")
-sha512sums=("37265e077931424161ab4fd0e61674ede29ef5c9141ba09b22d92aa702cdcfc71e7c4f7ff5f2b0f730c0572d89c7c59ac9329440f1b444966135f72cdc707405")
 #install="$pkgname.pre-deinstall"
 
 package() {
@@ -22,3 +21,4 @@ package() {
   echo ":0 local /usr/bin/X -nocursor :0" > "$pkgdir/etc/X11/xdm/Xservers"
 }
 
+sha512sums=("37265e077931424161ab4fd0e61674ede29ef5c9141ba09b22d92aa702cdcfc71e7c4f7ff5f2b0f730c0572d89c7c59ac9329440f1b444966135f72cdc707405")
