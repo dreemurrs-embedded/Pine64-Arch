@@ -6,7 +6,6 @@ pkgdesc="Sxmo: Simple X Mobile - A Pinephone UI that is simple and suckless"
 url="https://sr.ht/~mil/Sxmo/"
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=( 'sxmo-utils' 'xorg-xdm' )
-makedepends=( 'make' )
 install="$pkgname.install"
 license=('MIT')
 source=(

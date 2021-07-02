@@ -7,7 +7,6 @@ url="https://git.sr.ht/~mil/sxmo-dmenu"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 depends=('freetype2' 'libx11' 'libxinerama' 'libxft')
-makedepends=('make')
 provides=("dmenu")
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-dmenu/archive/$pkgver.tar.gz")
 

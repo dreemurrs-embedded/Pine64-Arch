@@ -7,7 +7,6 @@ url="https://git.sr.ht/~proycon/clickclack"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 depends=('sdl2')
-makedepends=('make')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~proycon/clickclack/archive/$pkgver.tar.gz")
 
 build() {

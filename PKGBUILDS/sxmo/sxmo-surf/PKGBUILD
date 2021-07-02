@@ -7,7 +7,7 @@ url="https://git.sr.ht/~mil/sxmo-surf"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 depends=('xorg-xprop' 'libxml2' 'dmenu')
-makedepends=('make' 'webkit2gtk')
+makedepends=('webkit2gtk')
 provides=('surf')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-surf/archive/$pkgver.tar.gz")
 

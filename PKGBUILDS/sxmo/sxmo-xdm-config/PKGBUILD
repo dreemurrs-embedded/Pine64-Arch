@@ -7,7 +7,6 @@ url="https://git.sr.ht/~mil/sxmo-xdm-config"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 depends=( 'sxmo-utils' 'svkbd' 'xorg-xdm' )
-makedepends=('make')
 replaces=('sxmo-xdm' 'xorg-xdm' )
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-xdm-config/archive/$pkgver.tar.gz")
 #install="$pkgname.pre-deinstall"

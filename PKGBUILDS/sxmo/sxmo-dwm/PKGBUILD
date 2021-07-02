@@ -7,7 +7,7 @@ arch=('x86_64' 'armv7h' 'aarch64')
 url="https://git.sr.ht/~mil/sxmo-dwm"
 license=('MIT')
 depends=('xorg-server')
-makedepends=('make' 'freetype2' 'libx11' 'libxinerama' 'libxft')
+makedepends=('freetype2' 'libx11' 'libxinerama' 'libxft')
 provides=('dwm')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-dwm/archive/$pkgver.tar.gz")
 
