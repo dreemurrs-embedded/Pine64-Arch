@@ -7,7 +7,7 @@ url="https://tools.suckless.org/x/svkbd/"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 depends=( 'fontconfig' 'freetype2' 'libx11' 'libxtst' 'libxft' 'libxinerama' )
-makedepends=('make' 'fontconfig' 'freetype2' 'libx11' 'libxtst' 'libxft' 'libxinerama' )
+makedepends=('make')
 source=("https://dl.suckless.org/tools/svkbd-$pkgver.tar.gz")
 
 build() {

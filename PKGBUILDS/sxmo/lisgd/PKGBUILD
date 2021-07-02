@@ -7,7 +7,7 @@ url="http://git.sr.ht/~mil/lisgd"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 depends=('libinput' 'libx11')
-makedepends=('make' 'libinput' 'libx11')
+makedepends=('make')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/lisgd/archive/$pkgver.tar.gz")
 
 build() {
