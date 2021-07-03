@@ -10,10 +10,10 @@ depends=(
   'sxmo-dmenu' 'sxmo-dwm' 'sxmo-st' 'sxmo-surf' 'svkbd' 'lisgd' 'clickclack'
   'alsa-utils' 'autocutsel' 'conky' 'coreutils' 'curl' 'dunst'
   'geoclue' 'grep' 'inotify-tools' 'mediainfo' 'modemmanager' 'networkmanager'
-  'mpv' 'ncurses' 'sxiv' 'terminus-font' 'ttf-fira-mono'
+  'mpv' 'ncurses' 'sxiv' 'terminus-font' 'ttf-inconsolata'
   'tzdata' 'v4l-utils' 'vis' 'w3m' 'xcalib' 'xclip' 'xdotool' 'xorg-xdpyinfo' 'xorg-xinput' 'xorg-xprop'
   'xorg-xrandr' 'xorg-xrdb' 'xsel' 'xorg-xset' 'xorg-xsetroot' 'xorg-xwininfo' 'youtube-dl'
-  'ttf-nerd-fonts-symbols' 'busybox'
+  'ttf-nerd-fonts-symbols' 'busybox' 'bluez' 'bluez-utils'
 )
 makedepends=('libx11' 'xorgproto' 'linux-aarch64-headers')
 source=(
