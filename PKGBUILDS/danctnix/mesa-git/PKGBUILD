@@ -12,7 +12,7 @@
 
 pkgname=mesa-git
 pkgdesc="an open-source implementation of the OpenGL specification, git version"
-pkgver=21.2.0_devel.139242.a1c56b80915
+pkgver=21.2.0_devel.142376.c70f45c7596
 pkgrel=1
 arch=('x86_64' 'aarch64')
 makedepends=('git' 'python-mako' 'xorgproto'
@@ -26,7 +26,7 @@ conflicts=('mesa' 'opencl-mesa' 'vulkan-intel' 'vulkan-radeon' 'vulkan-mesa-laye
 #options=('!strip')
 url="https://www.mesa3d.org"
 license=('custom')
-source=('mesa::git://anongit.freedesktop.org/mesa/mesa'
+source=('mesa::git+https://gitlab.freedesktop.org/mesa/mesa.git#branch=main'
         'LICENSE'
 )
 md5sums=('SKIP'
