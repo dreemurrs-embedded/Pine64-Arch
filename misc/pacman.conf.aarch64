@@ -34,6 +34,7 @@ Architecture = aarch64
 #TotalDownload
 CheckSpace
 #VerbosePkgLists
+ParallelDownloads = 10
 
 # By default, pacman accepts packages signed by keys that its local keyring
 # trusts (see pacman-key and its man page), as well as unsigned packages.
@@ -67,6 +68,22 @@ LocalFileSigLevel = Optional
 # The testing repositories are disabled by default. To enable, uncomment the
 # repo name header and Include lines. You can add preferred servers immediately
 # after the header, and they will be used before the default mirrors.
+
+[pine64]
+SigLevel = Never
+Server = https://p64.arikawa-hi.me/pine64/aarch64/
+
+[plasma]
+SigLevel = Never
+Server = https://p64.arikawa-hi.me/plasma/aarch64/
+
+[phosh]
+SigLevel = Never
+Server = https://p64.arikawa-hi.me/phosh/aarch64/
+
+[danctnix]
+SigLevel = Never
+Server = https://p64.arikawa-hi.me/danctnix/aarch64/
 
 [core]
 Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
