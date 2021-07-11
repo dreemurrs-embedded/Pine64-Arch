@@ -1,0 +1,26 @@
+From cf70376ab63a44aff217e0d2d40d4fcf87cb9afe Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 4 Sep 2019 21:16:58 +0200
+Subject: [PATCH 06/23] shell: Set a minimum size
+
+This prevents the window from being stupidly small.
+---
+ src/gnome-software.ui | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/gnome-software.ui b/src/gnome-software.ui
+index 822582f8..7dede5ba 100644
+--- a/src/gnome-software.ui
++++ b/src/gnome-software.ui
+@@ -51,6 +51,8 @@
+       <object class="GtkBox" id="box1">
+         <property name="visible">True</property>
+         <property name="orientation">vertical</property>
++        <property name="width-request">360</property>
++        <property name="height-request">200</property>
+         <child>
+           <object class="GtkHeaderBar" id="header">
+             <property name="visible">True</property>
+-- 
+2.28.0
+

@@ -9,7 +9,7 @@ It was left broken by a previous commit.
  1 file changed, 1 insertion(+), 18 deletions(-)
 
 diff --git a/src/gs-category-page.ui b/src/gs-category-page.ui
-index f37e8e377..df21469bf 100644
+index f37e8e37..df21469b 100644
 --- a/src/gs-category-page.ui
 +++ b/src/gs-category-page.ui
 @@ -104,8 +104,7 @@

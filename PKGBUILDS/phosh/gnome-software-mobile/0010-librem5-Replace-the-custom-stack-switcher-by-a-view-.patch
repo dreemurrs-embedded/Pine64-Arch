@@ -1,0 +1,372 @@
+From 7b2c9189e2f8df22e3845b8d1f118bb7b426c045 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 3 Sep 2019 16:42:35 +0200
+Subject: [PATCH 10/23] librem5: Replace the custom stack switcher by a view
+ switcher
+
+---
+ src/gnome-software.ui   | 111 ++++++----------------------------------
+ src/gs-installed-page.c |  18 +++----
+ src/gs-overview-page.c  |   2 +-
+ src/gs-search-page.c    |   2 +-
+ src/gs-shell.c          |  81 ++++++++---------------------
+ src/gs-updates-page.c   |  22 +-------
+ 6 files changed, 45 insertions(+), 191 deletions(-)
+
+diff --git a/src/gnome-software.ui b/src/gnome-software.ui
+index 7dede5ba..a4a95e2b 100644
+--- a/src/gnome-software.ui
++++ b/src/gnome-software.ui
+@@ -83,104 +83,13 @@
+                 <property name="visible">True</property>
+                 <property name="hexpand">False</property>
+                 <child>
+-                  <object class="GtkButtonBox" id="buttonbox_main">
+-                    <property name="visible">True</property>
+-                    <property name="layout_style">center</property>
++                  <object class="GtkLabel" id="title_label">
++                    <property name="visible" bind-source="application_details_header" bind-property="visible" bind-flags="sync-create|invert-boolean"/>
++                    <property name="label" bind-source="window_software" bind-property="title" bind-flags="sync-create"/>
++                    <property name="halign">center</property>
+                     <style>
+-                      <class name="linked"/>
++                      <class name="title"/>
+                     </style>
+-                    <child>
+-                      <object class="GtkToggleButton" id="button_explore">
+-                        <property name="visible">True</property>
+-                        <property name="can_focus">True</property>
+-                        <property name="receives_default">True</property>
+-                        <property name="use_underline">True</property>
+-                        <property name="label" translatable="yes" comments="Translators: A label for a button to show all available software.">_Explore</property>
+-                        <style>
+-                          <class name="toolbar-primary-buttons-software"/>
+-                        </style>
+-                      </object>
+-                    </child>
+-                    <child>
+-                      <object class="GtkToggleButton" id="button_installed">
+-                        <property name="visible">True</property>
+-                        <property name="can_focus">True</property>
+-                        <property name="receives_default">True</property>
+-                        <child>
+-                          <object class="GtkBox" id="button_installed_box">
+-                            <property name="visible">True</property>
+-                            <property name="orientation">horizontal</property>
+-                            <property name="halign">fill</property>
+-                            <property name="spacing">6</property>
+-                            <child>
+-                              <object class="GtkLabel" id="button_installed_label">
+-                                <property name="visible">True</property>
+-                                <property name="use_underline">True</property>
+-                                <property name="halign">center</property>
+-                                <property name="hexpand">True</property>
+-                                <property name="label" translatable="yes" comments="Translators: A label for a button to show only software which is already installed.">_Installed</property>
+-                                <property name="mnemonic_widget">button_installed</property>
+-                                <style>
+-                                  <class name="text-button"/>
+-                                </style>
+-                              </object>
+-                            </child>
+-                            <child>
+-                              <object class="GtkLabel" id="button_installed_counter">
+-                                <property name="visible">False</property>
+-                                <property name="width-chars">2</property>
+-                                <style>
+-                                  <class name="counter-label"/>
+-                                </style>
+-                              </object>
+-                            </child>
+-                          </object>
+-                        </child>
+-                        <style>
+-                          <class name="toolbar-primary-buttons-software"/>
+-                        </style>
+-                      </object>
+-                    </child>
+-                    <child>
+-                      <object class="GtkToggleButton" id="button_updates">
+-                        <property name="visible">True</property>
+-                        <property name="can_focus">True</property>
+-                        <property name="receives_default">True</property>
+-                        <child>
+-                          <object class="GtkBox" id="button_updates_box">
+-                            <property name="visible">True</property>
+-                            <property name="orientation">horizontal</property>
+-                            <property name="halign">fill</property>
+-                            <property name="spacing">6</property>
+-                            <child>
+-                              <object class="GtkLabel" id="button_updates_label">
+-                                <property name="visible">True</property>
+-                                <property name="use_underline">True</property>
+-                                <property name="halign">center</property>
+-                                <property name="hexpand">True</property>
+-                                <property name="label" translatable="yes" comments="Translators: A label for a button to show only updates which are available to install.">_Updates</property>
+-                                <property name="mnemonic_widget">button_updates</property>
+-                                <style>
+-                                  <class name="text-button"/>
+-                                </style>
+-                              </object>
+-                            </child>
+-                            <child>
+-                              <object class="GtkLabel" id="button_updates_counter">
+-                                <property name="visible">False</property>
+-                                <property name="width-chars">2</property>
+-                                <style>
+-                                  <class name="counter-label"/>
+-                                </style>
+-                              </object>
+-                            </child>
+-                          </object>
+-                        </child>
+-                        <style>
+-                          <class name="toolbar-primary-buttons-software"/>
+-                        </style>
+-                      </object>
+-                    </child>
+                   </object>
+                 </child>
+                 <child>
+@@ -585,6 +494,16 @@
+             </child>
+           </object>
+         </child>
++        <child>
++          <object class="HdyViewSwitcherBar" id="viewswitcher_bar">
++            <property name="visible">True</property>
++            <property name="reveal">True</property>
++            <property name="stack">stack_main</property>
++          </object>
++          <packing>
++            <property name="pack-type">end</property>
++          </packing>
++        </child>
+       </object>
+     </child>
+   </object>
+diff --git a/src/gs-installed-page.c b/src/gs-installed-page.c
+index de8a8874..8658018c 100644
+--- a/src/gs-installed-page.c
++++ b/src/gs-installed-page.c
+@@ -276,7 +276,7 @@ gs_installed_page_switch_to (GsPage *page, gboolean scroll_up)
+ 		return;
+ 	}
+ 
+-	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "buttonbox_main"));
++	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "viewswitcher_bar"));
+ 	gtk_widget_show (widget);
+ 	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "menu_button"));
+ 	gtk_widget_show (widget);
+@@ -527,17 +527,11 @@ gs_installed_page_pending_apps_changed_cb (GsPluginLoader *plugin_loader,
+ 		cnt++;
+ 	}
+ 
+-	/* show a label with the number of on-going operations */
+-	widget = GTK_WIDGET (gtk_builder_get_object (self->builder,
+-						     "button_installed_counter"));
+-	if (cnt == 0) {
+-		gtk_widget_hide (widget);
+-	} else {
+-		g_autofree gchar *label = NULL;
+-		label = g_strdup_printf ("%u", cnt);
+-		gtk_label_set_label (GTK_LABEL (widget), label);
+-		gtk_widget_show (widget);
+-	}
++	/* show there are on-going operations */
++	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "stack_main"));
++	gtk_container_child_set (GTK_CONTAINER (widget), GTK_WIDGET (self),
++				 "needs-attention", cnt > 0,
++				 NULL);
+ }
+ 
+ static gboolean
+diff --git a/src/gs-overview-page.c b/src/gs-overview-page.c
+index a97b2d51..83c90889 100644
+--- a/src/gs-overview-page.c
++++ b/src/gs-overview-page.c
+@@ -857,7 +857,7 @@ gs_overview_page_switch_to (GsPage *page, gboolean scroll_up)
+ 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "search_button"));
+ 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), FALSE);
+ 
+-	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "buttonbox_main"));
++	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "viewswitcher_bar"));
+ 	gtk_widget_show (widget);
+ 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "menu_button"));
+ 	gtk_widget_show (widget);
+diff --git a/src/gs-search-page.c b/src/gs-search-page.c
+index c543faef..c66c11b8 100644
+--- a/src/gs-search-page.c
++++ b/src/gs-search-page.c
+@@ -337,7 +337,7 @@ gs_search_page_switch_to (GsPage *page, gboolean scroll_up)
+ 		return;
+ 	}
+ 
+-	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "buttonbox_main"));
++	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "viewswitcher_bar"));
+ 	gtk_widget_show (widget);
+ 	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "menu_button"));
+ 	gtk_widget_show (widget);
+diff --git a/src/gs-shell.c b/src/gs-shell.c
+index 0fffe74d..5df4e6e3 100644
+--- a/src/gs-shell.c
++++ b/src/gs-shell.c
+@@ -409,7 +409,7 @@ gs_shell_change_mode (GsShell *shell,
+ 	 */
+ 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "application_details_header"));
+ 	gtk_widget_hide (widget);
+-	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "buttonbox_main"));
++	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "viewswitcher_bar"));
+ 	gtk_widget_hide (widget);
+ 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "menu_button"));
+ 	gtk_widget_hide (widget);
+@@ -437,14 +437,7 @@ gs_shell_change_mode (GsShell *shell,
+ 
+ 	/* update main buttons according to mode */
+ 	priv->ignore_primary_buttons = TRUE;
+-	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_explore"));
+-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), mode == GS_SHELL_MODE_OVERVIEW);
+-
+-	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_installed"));
+-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), mode == GS_SHELL_MODE_INSTALLED);
+-
+-	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_updates"));
+-	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (widget), mode == GS_SHELL_MODE_UPDATES);
++	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "updates_page"));
+ 	gtk_widget_set_visible (widget, gs_plugin_loader_get_allow_updates (priv->plugin_loader) ||
+ 					mode == GS_SHELL_MODE_UPDATES);
+ 
+@@ -553,11 +546,22 @@ gs_shell_change_mode (GsShell *shell,
+ }
+ 
+ static void
+-gs_overview_page_button_cb (GtkWidget *widget, GsShell *shell)
++gs_stack_child_changed_cb (GtkStack *stack_main, GParamSpec *pspec, GsShell *shell)
+ {
+-	GsShellMode mode;
+-	mode = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (widget),
+-						   "gnome-software::overview-mode"));
++	GsShellPrivate *priv = gs_shell_get_instance_private (shell);
++	GsShellMode mode = GS_SHELL_MODE_UNKNOWN;
++	gpointer current_page = gtk_stack_get_visible_child (stack_main);
++
++	/* Assume the stack switcher got activated. */
++	if (current_page == g_hash_table_lookup (priv->pages, "overview"))
++		mode = GS_SHELL_MODE_OVERVIEW;
++	else if (current_page == g_hash_table_lookup (priv->pages, "installed"))
++		mode = GS_SHELL_MODE_INSTALLED;
++	else if (current_page == g_hash_table_lookup (priv->pages, "updates"))
++		mode = GS_SHELL_MODE_UPDATES;
++	else
++		return;
++
+ 	gs_shell_change_mode (shell, mode, NULL, TRUE);
+ }
+ 
+@@ -971,36 +975,6 @@ gs_shell_main_window_mapped_cb (GtkWidget *widget, GsShell *shell)
+ static void
+ gs_shell_main_window_realized_cb (GtkWidget *widget, GsShell *shell)
+ {
+-
+-	GsShellPrivate *priv = gs_shell_get_instance_private (shell);
+-	GdkRectangle geometry;
+-	GdkDisplay *display;
+-	GdkMonitor *monitor;
+-
+-	display = gtk_widget_get_display (GTK_WIDGET (priv->main_window));
+-	monitor = gdk_display_get_monitor_at_window (display,
+-						     gtk_widget_get_window (GTK_WIDGET (priv->main_window)));
+-
+-	/* adapt the window for low and medium resolution screens */
+-	gdk_monitor_get_geometry (monitor, &geometry);
+-	if (geometry.width < 800 || geometry.height < 600) {
+-		    GtkWidget *buttonbox = GTK_WIDGET (gtk_builder_get_object (priv->builder, "buttonbox_main"));
+-
+-		    gtk_container_child_set (GTK_CONTAINER (buttonbox),
+-					     GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_explore")),
+-					     "non-homogeneous", TRUE,
+-					     NULL);
+-		    gtk_container_child_set (GTK_CONTAINER (buttonbox),
+-					     GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_installed")),
+-					     "non-homogeneous", TRUE,
+-					     NULL);
+-		    gtk_container_child_set (GTK_CONTAINER (buttonbox),
+-					     GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_updates")),
+-					     "non-homogeneous", TRUE,
+-					     NULL);
+-	} else if (geometry.width < 1366 || geometry.height < 768) {
+-		gtk_window_set_default_size (priv->main_window, 1050, 600);
+-	}
+ }
+ 
+ static void
+@@ -2188,24 +2162,9 @@ gs_shell_setup (GsShell *shell, GsPluginLoader *plugin_loader, GCancellable *can
+ 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_back"));
+ 	g_signal_connect (widget, "clicked",
+ 			  G_CALLBACK (gs_shell_back_button_cb), shell);
+-	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_explore"));
+-	g_object_set_data (G_OBJECT (widget),
+-			   "gnome-software::overview-mode",
+-			   GINT_TO_POINTER (GS_SHELL_MODE_OVERVIEW));
+-	g_signal_connect (widget, "clicked",
+-			  G_CALLBACK (gs_overview_page_button_cb), shell);
+-	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_installed"));
+-	g_object_set_data (G_OBJECT (widget),
+-			   "gnome-software::overview-mode",
+-			   GINT_TO_POINTER (GS_SHELL_MODE_INSTALLED));
+-	g_signal_connect (widget, "clicked",
+-			  G_CALLBACK (gs_overview_page_button_cb), shell);
+-	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_updates"));
+-	g_object_set_data (G_OBJECT (widget),
+-			   "gnome-software::overview-mode",
+-			   GINT_TO_POINTER (GS_SHELL_MODE_UPDATES));
+-	g_signal_connect (widget, "clicked",
+-			  G_CALLBACK (gs_overview_page_button_cb), shell);
++	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "stack_main"));
++	g_signal_connect (widget, "notify::visible-child",
++			  G_CALLBACK (gs_stack_child_changed_cb), shell);
+ 
+ 	/* set up in-app notification controls */
+ 	widget = GTK_WIDGET (gtk_builder_get_object (priv->builder, "button_events_dismiss"));
+diff --git a/src/gs-updates-page.c b/src/gs-updates-page.c
+index 95367040..f778d814 100644
+--- a/src/gs-updates-page.c
++++ b/src/gs-updates-page.c
+@@ -277,25 +277,7 @@ refresh_headerbar_updates_counter (GsUpdatesPage *self)
+ 
+ 	num_updates = _get_num_updates (self);
+ 
+-	/* update the counter */
+-	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "button_updates_counter"));
+-	if (num_updates > 0 &&
+-	    gs_plugin_loader_get_allow_updates (self->plugin_loader)) {
+-		g_autofree gchar *text = NULL;
+-		text = g_strdup_printf ("%u", num_updates);
+-		gtk_label_set_label (GTK_LABEL (widget), text);
+-		gtk_widget_show (widget);
+-	} else {
+-		gtk_widget_hide (widget);
+-	}
+-
+-	/* update the tab style */
+-	if (num_updates > 0 &&
+-	    gs_shell_get_mode (self->shell) != GS_SHELL_MODE_UPDATES)
+-		gtk_style_context_add_class (gtk_widget_get_style_context (widget), "needs-attention");
+-	else
+-		gtk_style_context_remove_class (gtk_widget_get_style_context (widget), "needs-attention");
+-
++	/* shows there are updates pending */
+ 	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "stack_main"));
+ 	gtk_container_child_set (GTK_CONTAINER (widget), GTK_WIDGET (self),
+ 				 "needs-attention", num_updates > 0,
+@@ -727,7 +709,7 @@ gs_updates_page_switch_to (GsPage *page,
+ 		return;
+ 	}
+ 
+-	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "buttonbox_main"));
++	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "viewswitcher_bar"));
+ 	gtk_widget_show (widget);
+ 	widget = GTK_WIDGET (gtk_builder_get_object (self->builder, "menu_button"));
+ 	gtk_widget_show (widget);
+-- 
+2.28.0
+

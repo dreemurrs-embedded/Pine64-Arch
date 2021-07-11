@@ -1,0 +1,79 @@
+From 647e974926e531872d92f71d6fe8120a7328bf47 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 9 Sep 2019 15:15:53 +0200
+Subject: [PATCH 18/23] librem5: upgrade-banner: Make it fit narrow screens
+
+This makes it work on mobile but not on desktops.
+---
+ src/gs-upgrade-banner.ui | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/src/gs-upgrade-banner.ui b/src/gs-upgrade-banner.ui
+index 3e53a257..967a2c94 100644
+--- a/src/gs-upgrade-banner.ui
++++ b/src/gs-upgrade-banner.ui
+@@ -17,8 +17,13 @@
+             <property name="visible">True</property>
+             <property name="margin-top">66</property>
+             <property name="margin_bottom">26</property>
++            <property name="margin_start">8</property>
++            <property name="margin_end">8</property>
+             <!-- Just a placeholder; actual label text is set in code -->
+             <property name="label">GNOME 3.20 Now Available</property>
++            <property name="wrap">True</property>
++            <property name="wrap_mode">word-char</property>
++            <property name="justify">center</property>
+             <attributes>
+               <attribute name="scale" value="1.8"/>
+             </attributes>
+@@ -27,7 +32,12 @@
+         <child>
+           <object class="GtkLabel" id="label_upgrades_summary">
+             <property name="visible">True</property>
++            <property name="margin_start">8</property>
++            <property name="margin_end">8</property>
+             <property name="label" translatable="yes">A major upgrade, with new features and added polish.</property>
++            <property name="wrap">True</property>
++            <property name="wrap_mode">word-char</property>
++            <property name="justify">center</property>
+             <attributes>
+               <attribute name="scale" value="1.2"/>
+             </attributes>
+@@ -36,7 +46,7 @@
+         <child>
+           <object class="GtkBox" id="box_upgrades_buttons">
+             <property name="visible">True</property>
+-            <property name="orientation">horizontal</property>
++            <property name="orientation">vertical</property>
+             <property name="halign">fill</property>
+             <property name="valign">end</property>
+             <property name="spacing">12</property>
+@@ -65,10 +75,15 @@
+               </object>
+             </child>
+ 
++            <child>
++              <object class="HdyClamp">
++                <property name="visible">True</property>
++                <property name="tightening_threshold">300</property>
++                <property name="maximum_size">400</property>
++                <property name="hexpand">True</property>
+             <child>
+               <object class="GtkProgressBar" id="progressbar">
+                 <property name="visible">True</property>
+-                <property name="width_request">400</property>
+                 <property name="halign">center</property>
+                 <property name="valign">center</property>
+                 <property name="fraction">0.3</property>
+@@ -78,6 +93,8 @@
+                 </style>
+               </object>
+             </child>
++              </object>
++            </child>
+ 
+             <child>
+               <object class="GtkLabel" id="label_upgrades_warning">
+-- 
+2.28.0
+

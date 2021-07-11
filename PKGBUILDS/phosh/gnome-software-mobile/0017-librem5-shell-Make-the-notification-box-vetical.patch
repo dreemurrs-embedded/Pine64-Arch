@@ -1,0 +1,43 @@
+From 7df6271a13bbcd31d43f7a915ee876dfdc0fb811 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 9 Sep 2019 15:13:17 +0200
+Subject: [PATCH 17/23] librem5: shell: Make the notification box vetical
+
+This helps it work well on mobile but not on desktops.
+---
+ src/gnome-software.ui | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/gnome-software.ui b/src/gnome-software.ui
+index a4a95e2b..4c3751e8 100644
+--- a/src/gnome-software.ui
++++ b/src/gnome-software.ui
+@@ -262,7 +262,7 @@
+                 <property name="valign">GTK_ALIGN_START</property>
+                 <child>
+                   <object class="GtkBox">
+-                    <property name="orientation">horizontal</property>
++                    <property name="orientation">vertical</property>
+                     <property name="spacing">6</property>
+                     <property name="visible">True</property>
+                     <style>
+@@ -272,6 +272,7 @@
+                       <object class="GtkLabel" id="label_events">
+                         <property name="visible">True</property>
+                         <property name="halign">start</property>
++                        <property name="justify">center</property>
+                         <property name="label">Some Title</property>
+                         <property name="wrap">True</property>
+                         <property name="wrap_mode">word-char</property>
+@@ -285,7 +286,7 @@
+                     </child>
+                     <child>
+                       <object class="GtkButtonBox">
+-                        <property name="layout_style">end</property>
++                        <property name="layout_style">expand</property>
+                         <property name="visible">True</property>
+                         <child>
+                           <object class="GtkButton" id="button_events_sources">
+-- 
+2.28.0
+

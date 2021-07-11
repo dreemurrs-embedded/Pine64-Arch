@@ -1,0 +1,9 @@
+[Unit]
+Description=HFD Service
+Wants=dbus.service
+
+[Service]
+ExecStart=/usr/bin/hfd-service
+
+[Install]
+WantedBy=multi-user.target

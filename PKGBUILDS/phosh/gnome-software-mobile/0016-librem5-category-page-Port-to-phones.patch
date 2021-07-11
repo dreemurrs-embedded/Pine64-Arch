@@ -1,0 +1,137 @@
+From 4f6832842afbb69c561f00969bfc38357908578d Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Thu, 5 Sep 2019 08:39:01 +0200
+Subject: [PATCH 16/23] librem5: category-page: Port to phones
+
+This makes it work better on phones but less well on desktops.
+---
+ src/gs-category-page.ui | 46 +++++++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
+
+diff --git a/src/gs-category-page.ui b/src/gs-category-page.ui
+index cbb82840..f37e8e37 100644
+--- a/src/gs-category-page.ui
++++ b/src/gs-category-page.ui
+@@ -104,16 +104,22 @@
+                                 <property name="margin_start">24</property>
+                                 <property name="margin_end">24</property>
+                                 <property name="margin_top">36</property>
+-                                <property name="spacing">9</property>
++                                <property name="row_spacing">12</property>
++                                <property name="column_spacing">9</property>
+                                 <child>
+                                   <object class="GtkLabel" id="subcats_filter_label">
+                                     <property name="visible">True</property>
+                                     <property name="label" translatable="yes" comments="TRANSLATORS: This is a label for the category filter drop down, which all together can read e.g. 'Show Vector Graphics'.">Show</property>
+                                     <property name="margin_start">2</property>
++                                    <property name="halign">end</property>
+                                     <accessibility>
+                                       <relation target="subcats_filter_button" type="label-for"/>
+                                     </accessibility>
+                                   </object>
++                                  <packing>
++                                    <property name="left_attach">0</property>
++                                    <property name="top_attach">0</property>
++                                  </packing>
+                                 </child>
+                                 <child>
+                                   <object class="GtkMenuButton" id="subcats_filter_button">
+@@ -122,7 +128,6 @@
+                                     <property name="receives_default">True</property>
+                                     <property name="relief">normal</property>
+                                     <property name="popover">categories_popover</property>
+-                                    <property name="margin_end">24</property>
+                                     <child internal-child="accessible">
+                                       <object class="AtkObject">
+                                         <property name="accessible-name" translatable="yes">Subcategories filter menu</property>
+@@ -137,7 +142,9 @@
+                                         <child>
+                                           <object class="GtkLabel" id="subcats_filter_button_label">
+                                             <property name="visible">True</property>
++                                            <property name="ellipsize">end</property>
+                                             <property name="xalign">0.0</property>
++                                            <property name="hexpand">True</property>
+                                           </object>
+                                         </child>
+                                         <child>
+@@ -152,16 +159,25 @@
+                                       <class name="text-button"/>
+                                     </style>
+                                   </object>
++                                  <packing>
++                                    <property name="left_attach">1</property>
++                                    <property name="top_attach">0</property>
++                                  </packing>
+                                 </child>
+                                 <child>
+                                   <object class="GtkLabel" id="subcats_sort_label">
+                                     <property name="visible">True</property>
+                                     <property name="label" translatable="yes" comments="TRANSLATORS: This is a label for the category sort drop down, which all together can read e.g. 'Sort Top Rated'.">Sort</property>
+                                     <property name="margin_start">2</property>
++                                    <property name="halign">end</property>
+                                     <accessibility>
+                                       <relation target="subcats_sort_button" type="label-for"/>
+                                     </accessibility>
+                                   </object>
++                                  <packing>
++                                    <property name="left_attach">0</property>
++                                    <property name="top_attach">1</property>
++                                  </packing>
+                                 </child>
+                                 <child>
+                                   <object class="GtkMenuButton" id="subcats_sort_button">
+@@ -184,7 +200,9 @@
+                                         <child>
+                                           <object class="GtkLabel" id="subcats_sort_button_label">
+                                             <property name="visible">True</property>
++                                            <property name="ellipsize">end</property>
+                                             <property name="xalign">0.0</property>
++                                            <property name="hexpand">True</property>
+                                           </object>
+                                         </child>
+                                         <child>
+@@ -202,14 +220,18 @@
+                                       <class name="text-button"/>
+                                     </style>
+                                   </object>
++                                  <packing>
++                                    <property name="left_attach">1</property>
++                                    <property name="top_attach">1</property>
++                                  </packing>
+                                 </child>
+                               </object>
+                             </child>
+ 
+                             <child>
+                               <object class="GtkFlowBox" id="category_detail_box">
+-                                <property name="margin_start">24</property>
+-                                <property name="margin_end">24</property>
++                                <property name="margin_start">12</property>
++                                <property name="margin_end">12</property>
+                                 <property name="margin_top">14</property>
+                                 <property name="margin_bottom">21</property>
+                                 <property name="halign">fill</property>
+@@ -237,20 +259,4 @@
+       </object>
+     </child>
+   </template>
+-  <object class="GtkSizeGroup">
+-    <property name="ignore-hidden">False</property>
+-    <property name="mode">horizontal</property>
+-    <widgets>
+-      <widget name="subcats_filter_button_label"/>
+-      <widget name="popover_filter_box"/>
+-    </widgets>
+-  </object>
+-  <object class="GtkSizeGroup">
+-    <property name="ignore-hidden">False</property>
+-    <property name="mode">horizontal</property>
+-    <widgets>
+-      <widget name="subcats_sort_button_label"/>
+-      <widget name="sorting_popover_box"/>
+-    </widgets>
+-  </object>
+ </interface>
+-- 
+2.28.0
+

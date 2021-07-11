@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinephone
-pkgver=0.3
+pkgver=0.4
 pkgrel=1
 pkgdesc="UCM files for PinePhone"
 arch=(any)
@@ -10,7 +10,7 @@ depends=(alsa-ucm-conf)
 source=(HiFi.conf VoiceCall.conf PinePhone.conf)
 
 package() {
-	# These UCMs came from Mobian
+	# https://gitlab.com/pine64-org/pine64-alsa-ucm
 	install -D -m644 "$srcdir"/PinePhone.conf \
 		"$pkgdir"/usr/share/alsa/ucm2/PinePhone/PinePhone.conf
 	install -D -m644 "$srcdir"/HiFi.conf \
@@ -19,6 +19,6 @@ package() {
 		"$pkgdir"/usr/share/alsa/ucm2/PinePhone/VoiceCall.conf
 }
 
-md5sums=('976b20254ded5cd22ac9b775c9230ce9'
-         '0691020012e0926c197f0d2f4c3a4958'
-         '715d967b9826d03b9333c92fbd61a543')
+md5sums=('2402e0d5b7a2566d40562158aca3f681'
+         '2738f3bc5e0e892b32c5b9abf202f5a3'
+         '033a54ae72eb1ab4125ff6a081d78c71')

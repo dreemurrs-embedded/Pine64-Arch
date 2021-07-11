@@ -1,13 +1,14 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=danctnix-pm-ui-meta
-pkgver=5.21
+pkgver=5.22
 pkgrel=2
 pkgdesc='Meta package to install Plasma Mobile'
 arch=(any)
 url='https://mobile.danctnix.org'
 depends=(noto-fonts
          iio-sensor-proxy
+         oxygen
          qqc2-breeze-style
          plasma-phone-components
          plasma-nano
@@ -21,5 +22,6 @@ depends=(noto-fonts
          polkit-kde-agent
          xdg-desktop-portal
          xdg-desktop-portal-kde)
-optdepends=('maliit-keyboard-git: OSK for Plasma Mobile')
+optdepends=('maliit-keyboard: OSK for Plasma Mobile')
+
 

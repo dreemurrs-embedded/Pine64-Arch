@@ -1,0 +1,12 @@
+diff --git a/src/mobile-config-prefs.js b/src/mobile-config-prefs.js
+index 6090643..787e48e 100644
+--- a/src/mobile-config-prefs.js
++++ b/src/mobile-config-prefs.js
+@@ -33,3 +33,7 @@ pref('toolkit.cosmeticAnimations.enabled', false);
+ 
+ // Disable download animations, save CPU
+ pref('browser.download.animateNotifications', false);
++
++// Disable the new Proton design
++pref('browser.proton.enabled', false);
++

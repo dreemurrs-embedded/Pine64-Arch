@@ -4,7 +4,7 @@
 
 pkgname=telepathy-ofono
 pkgver=20200305
-pkgrel=1
+pkgrel=2
 pkgdesc='Telepathy oFono connection manager'
 arch=('aarch64')
 url="https://github.com/TelepathyIM/telepathy-ofono"

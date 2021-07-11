@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-settings
-pkgver=0.2
-pkgrel=2
+pkgver=0.3
+pkgrel=1
 pkgdesc="Settings for Phosh UI"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -19,6 +19,7 @@ source=(
 	ca.desrt.dconf-editor.desktop
 	lstopo.desktop
 	org.gnome.Terminal.desktop
+	org.gnome.Extensions.desktop
 	qv4l2.desktop
 	qvidcap.desktop
 	vim.desktop
@@ -51,13 +52,14 @@ md5sums=('7567fd058afb2a7e5c8690fff0291c80'
          '4e060d406b742a03336224389c2e648a'
          'f506daa7e5abad20e53cb8971dc9f191'
          'b55db963b6aa8e510787eae5cda2e3c2'
-         '660f46f121a3c4343ab89046b21e259c'
+         'cc97f9536176fafe6cb895961a3410dc'
          '69aff19df2d6f54de33d784e760bf6d0'
          '9e9e5bdb2960c44e7c53a9bae9745065'
          'f4cb9d6bb6bd74b8f1f1139d5a280486'
          '7ed466d3c3c8a92e490ae3f16ce9a664'
          'dcf3b55511c15d773503cc5dfe067c36'
          '386f9f031bb536653f6e0358e08171af'
+         '4e6df0827c38569b5cade08496187370'
          '8275502efc147f126643c194f386640e'
          '40a3cfff4bb4f499f2d31d9b80ac36df'
          'ab46e1b0be015b1cd45e0ae338bb13df'

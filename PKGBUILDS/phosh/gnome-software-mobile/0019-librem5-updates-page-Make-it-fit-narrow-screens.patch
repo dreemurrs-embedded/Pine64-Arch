@@ -1,0 +1,35 @@
+From 16ff4699e388aa2824f6a53e63cff2a69348c258 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 9 Sep 2019 15:16:35 +0200
+Subject: [PATCH 19/23] librem5: updates-page: Make it fit narrow screens
+
+This makes it work on mobile but not on desktops.
+---
+ src/gs-updates-page.ui | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/gs-updates-page.ui b/src/gs-updates-page.ui
+index 64bbe68f..b9e280cf 100644
+--- a/src/gs-updates-page.ui
++++ b/src/gs-updates-page.ui
+@@ -41,6 +41,8 @@
+                     <property name="margin_right">18</property>
+                     <property name="margin_top">18</property>
+                     <property name="label" translatable="yes">Operating System Updates Unavailable</property>
++                    <property name="wrap">True</property>
++                    <property name="wrap-mode">word-char</property>
+                     <property name="xalign">0</property>
+                     <attributes>
+                       <attribute name="weight" value="bold"/>
+@@ -54,7 +56,7 @@
+                     <property name="margin_bottom">18</property>
+                     <property name="label">Your OS is no longer supported. This means that it does not receive security updates. It is recommended that you upgrade to a more recent version.</property>
+                     <property name="wrap">True</property>
+-                    <property name="width_chars">80</property>
++                    <property name="wrap-mode">word-char</property>
+                     <property name="xalign">0</property>
+                   </object>
+                 </child>
+-- 
+2.28.0
+
