@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 # Contributor: Denis Zheleztsov <difrex.punk@gmail.com>
 pkgname=wlr-randr
-pkgver=r15.f5fba61
+pkgver=r20.ced1daa
 pkgrel=1
 pkgdesc="Utility to manage outputs of a Wayland compositor. You need a support wlr-output-management-unstable-v1 in the compositor."
 arch=('x86_64' 'armv7h' 'aarch64')
