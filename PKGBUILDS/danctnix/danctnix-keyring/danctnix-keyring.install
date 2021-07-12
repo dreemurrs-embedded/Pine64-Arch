@@ -1,11 +1,11 @@
-post_install() {
-	pacman-key --init
-	pacman-key --add /usr/share/pacman/keyrings/danctnix.gpg 
-	pacman-key --lsign-key 3047650AF42D7CE509B752B529DF2D441A1BEDD7
-	pacman-key --populate
+post_upgrade() {
+	if usr/bin/pacman-key -l >/dev/null 2>&1; then
+		usr/bin/pacman-key --populate danctnix
+	fi
 }
 
-post_upgrade() {
-        post_install
+post_install() {
+	if [ -x usr/bin/pacman-key ]; then
+		post_upgrade
+	fi
 }
-# -*- mode: bash;-*-
