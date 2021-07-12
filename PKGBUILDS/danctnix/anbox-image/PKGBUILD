@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=anbox-image-aarch64
 pkgver=0_20200520
-pkgrel=6
+pkgrel=7
 pkgdesc="Anbox image for ARM64"
 arch=(aarch64)
 url="https://anbox.postmarketos.org"
@@ -9,14 +9,14 @@ license=('custom')
 depends=(anbox)
 makedepends=(squashfs-tools)
 provides=(anbox-image)
-_fdroidver=1010050
+_fdroidver=1013050
 _fdroid="org.fdroid.fdroid_$_fdroidver.apk"
-_fdroidprivver=2110
+_fdroidprivver=2120
 _fdroidpriv="org.fdroid.fdroid.privileged_$_fdroidprivver.apk"
 source=(android.img::http://anbox.postmarketos.org/android-7.1.2_r39-anbox_arm64-userdebug.img
         https://f-droid.org/repo/$_fdroid
         https://f-droid.org/repo/$_fdroidpriv
-        SimpleKeyboard.apk::https://f-droid.org/repo/rkr.simplekeyboard.inputmethod_73.apk
+        SimpleKeyboard.apk::https://f-droid.org/repo/rkr.simplekeyboard.inputmethod_88.apk
         network-fix.patch
         display_settings.xml)
 
@@ -56,8 +56,8 @@ package() {
 }
 
 md5sums=('5c2e2a5fc1e6a388f6949b3df65b5c0c'
-         '3610f505b7086f2a15003c6fb50b9264'
-         'b8c42726bd6c8f3931e8a01890ce47b4'
-         '2c2663fc448ec1071503690893ed29c5'
+         'f6835b57edc6110119c7140fb080c294'
+         'dc7a163cc47fd2a2c441a266df06e69b'
+         '3564709bff0cb75c7e3b8d272bd86a6e'
          '1ef3b59fb14bbb7d17236af393d27474'
          '363e812b6efcaf579da46affc7cd321f')
