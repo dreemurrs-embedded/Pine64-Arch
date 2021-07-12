@@ -1,0 +1,22 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=danctnix-keyring
+pkgver=1
+pkgrel=1
+pkgdesc="DanctNIX GPG keyring"
+arch=('any')
+url="https://danctnix.org"
+license=('GPL3')
+install=$pkgname.install
+source=(danctnix.gpg
+        $pkgname.install)
+
+sha512sums=('bd56a1669f9581c359cee89351844fb05d8b0c2238b085274d2869466d236fd7332d41461f37e0b2da3196471a3e3b6d570652831dbe712d6191c108944c86ca'
+            '32cc96d63b25199f23336ba3f05421d673c89679a7d13615f09fd719c52b88a8bff6852153ae916e32e08bb56ff0bb0f1327985d8afa938f753c86f4070a3bde')
+
+package() {
+    local destdir=usr/share/pacman/keyrings
+
+    install -d $pkgdir/$destdir
+    install -Dm644 danctnix.gpg $pkgdir/$destdir/danctnix.gpg
+}
