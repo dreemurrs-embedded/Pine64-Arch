@@ -1,0 +1,8 @@
+post_install() {
+  # E.g. hide the cursor for Xorg
+  sed -i 's@:0 local /usr/bin/X :0  -nolisten tcp@:0 local /usr/bin/X -nolisten tcp -nocursor :0@g' /etc/X11/xdm/Xservers
+  systemctl enable sxmo-xdm-config.service
+}
+post_remove() {
+  systemctl disable sxmo-xdm-config.service
+}
