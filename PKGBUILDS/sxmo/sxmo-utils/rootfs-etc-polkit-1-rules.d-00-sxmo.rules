@@ -1,0 +1,7 @@
+polkit.addRule(function(action, subject) {
+  if (action.id.indexOf("org.freedesktop.ModemManager1.") == 0 &&
+      subject.isInGroup("plugdev")) {
+
+      return polkit.Result.YES;
+  }
+});

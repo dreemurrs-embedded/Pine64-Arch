@@ -1,0 +1,12 @@
+#!/bin/sh
+# Assign ownership of the console to the invoking user
+#
+# By convention, both xconsole and xterm -C check that the
+# console is owned by the invoking user and is readable before attaching
+# the console output.  This way a random user can invoke xterm -C without
+# causing serious grief.
+#
+busybox pkill svkbd-mobile-intl
+busybox pkill svkbd-mobile-plain
+busybox pkill svkbd-sxmo
+chown "$USER" /dev/console
