@@ -14,7 +14,7 @@ source=(
   'xdm.confd'
   'Xresources'
   'Xsession'
-  'Xsetup_0'
+  'Xsetup'
   'sxmo-xdm-config.service'
 )
 
