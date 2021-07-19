@@ -10,10 +10,10 @@ post_install() {
   sed -i 's@:0 local /usr/bin/X :0  -nolisten tcp@:0 local /usr/bin/X -nolisten tcp -nocursor :0@g' /etc/X11/xdm/Xservers
   sed -i "s/#HandlePowerKey=poweroff/HandlePowerKey=ignore/" /etc/systemd/logind.conf
 
-  # Fix upgrade menu to use yay
+  # Fix upgrade menu to use payman
   sed -i 's@echo "Updating all packages from repositories"@@g' /usr/bin/sxmo_upgrade.sh
   sed -i 's@sudo apk update@@g' /usr/bin/sxmo_upgrade.sh
-  sed -i 's@sudo apk upgrade -a@yay -Syu@g' /usr/bin/sxmo_upgrade.sh
+  sed -i 's@sudo apk upgrade -a@pacman -Syu@g' /usr/bin/sxmo_upgrade.sh
 
   # Fix sxmo_timezonechange.sh to use arch command timedatectl
   sed -i 's@sudo setup-timezone -z@sudo timedatectl set-timezone@g' /usr/bin/sxmo_timezonechange.sh
