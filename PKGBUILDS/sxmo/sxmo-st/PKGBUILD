@@ -1,0 +1,34 @@
+# Maintainer: dni <office@dnilabs.com>
+pkgname=sxmo-st
+pkgver=0.8.3.4
+pkgrel=1
+pkgdesc="St fork for Sxmo UI; supports scrollback, invert, and other patches"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://git.sr.ht/~mil/sxmo-st"
+license=('MIT')
+depends=('ncurses')
+makedepends=('fontconfig' 'freetype2' 'libx11' 'libxext' 'libxft')
+provides=('st')
+source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-st/archive/$pkgver.tar.gz")
+
+build() {
+  cd "$pkgname-$pkgver"
+  make
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make install PREFIX=/usr DESTDIR="$pkgdir"
+  mkdir -p "$pkgdir"/usr/share/applications
+  cat > "$pkgdir"/usr/share/applications/st.desktop <<-EOF
+    [Desktop Entry]
+    Name=st
+    Comment=st is a simple virtual terminal emulator for X which sucks less
+    Exec=st
+    Terminal=false
+    Type=Application
+    Icon=gnome-xterm
+    Categories=System;TerminalEmulator;
+EOF
+}
+sha512sums=('a4cb72680e070d1703c4359618fa7ed36d5460496ab1320025f89809d7fa5387a6f9aae1e1143b261e57ea5f49d9b71bb68dad7653538b0238d2e50259029190')
