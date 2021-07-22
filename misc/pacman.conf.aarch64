@@ -81,6 +81,10 @@ Server = https://p64.arikawa-hi.me/plasma/aarch64/
 SigLevel = Never
 Server = https://p64.arikawa-hi.me/phosh/aarch64/
 
+[sxmo]
+SigLevel = Never
+Server = https://p64.arikawa-hi.me/sxmo/aarch64/
+
 [danctnix]
 SigLevel = Never
 Server = https://p64.arikawa-hi.me/danctnix/aarch64/
