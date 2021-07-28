@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-settings
 pkgver=0.3
-pkgrel=1
+pkgrel=2
 pkgdesc="Settings for Phosh UI"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -50,7 +50,7 @@ package() {
 
 md5sums=('7567fd058afb2a7e5c8690fff0291c80'
          '4e060d406b742a03336224389c2e648a'
-         'f506daa7e5abad20e53cb8971dc9f191'
+         '8b7d33d23e72bd2efd6d377201e9dd53'
          'b55db963b6aa8e510787eae5cda2e3c2'
          'cc97f9536176fafe6cb895961a3410dc'
          '69aff19df2d6f54de33d784e760bf6d0'
