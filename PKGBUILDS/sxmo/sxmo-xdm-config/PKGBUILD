@@ -1,13 +1,12 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-xdm-config
 pkgver=0.3.1
-pkgrel=1
+pkgrel=2
 pkgdesc="X Display Manager configuration for Sxmo; starts with virtual keyboard and launches Sxmo UI"
 url="https://git.sr.ht/~mil/sxmo-xdm-config"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 depends=('sxmo-utils' 'svkbd' 'xorg-xdm')
-install="$pkgname.install"
 source=(
   'GiveConsole'
   'profilesxmo.sh'
