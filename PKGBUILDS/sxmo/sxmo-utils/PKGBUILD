@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-utils
 pkgver=1.4.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -10,10 +10,10 @@ depends=(
   'sxmo-dmenu' 'sxmo-dwm' 'sxmo-st' 'sxmo-surf' 'svkbd' 'lisgd' 'clickclack'
   'bc' 'alsa-utils' 'autocutsel' 'conky' 'coreutils' 'curl' 'dunst'
   'geoclue' 'grep' 'inotify-tools' 'mediainfo' 'modemmanager' 'networkmanager'
-  'mpv' 'ncurses' 'sxiv' 'terminus-font' 'ttf-inconsolata'
+  'mpv' 'ncurses' 'sxiv' 'terminus-font'
   'tzdata' 'v4l-utils' 'vis' 'w3m' 'xcalib' 'xclip' 'xdotool' 'xorg-xdpyinfo' 'xorg-xinput' 'xorg-xprop'
   'xorg-xrandr' 'xorg-xrdb' 'xsel' 'xorg-xset' 'xorg-xsetroot' 'xorg-xwininfo' 'youtube-dl'
-  'ttf-nerd-fonts-symbols' 'busybox' 'bluez' 'bluez-utils'
+  'nerd-fonts-fira-code' 'busybox' 'bluez' 'bluez-utils'
 )
 makedepends=('libx11' 'xorgproto' 'linux-aarch64-headers')
 source=(
@@ -21,6 +21,8 @@ source=(
   'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
   'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
   'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
+  'sxmo-setpermissions.service'
+  '66-sxmo.conf'
 )
 
 package() {
@@ -35,9 +37,14 @@ package() {
   install -Dm644 "$srcdir/rootfs-etc-NetworkManager-conf.d-00-sxmo.conf" "$pkgdir/etc/NetworkManager/conf.d/00-sxmo.conf"
   install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-00-sxmo.rules" "$pkgdir/etc/polkit-1/rules.d/00-sxmo.rules"
   install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules" "$pkgdir/etc/polkit-1/rules.d/50-org.freedesktop.NetworkManager.rules"
+
+  install -Dm644 "$srcdir/66-sxmo.conf" "$pkgdir/etc/fonts/conf.d/66-sxmo.conf"
+  install -Dm644 "$srcdir/sxmo-setpermissions.service" "$pkgdir/usr/lib/systemd/system/sxmo-setpermissions.service"
 }
 
 sha512sums=('b80ed389e29404421a829bba9b76814ee3afc3c11527d2f3e87f95eb83bbc498ead43e38c0d6164c4336c2d5633af569c43bcdb28c0f0d886e00ee506184b537'
             '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
             '32532ad5071588b80f43d539b3bd140e3f5b4100fca244be2ade5b8c697c76043ce5278ae7bf14762106aed2c9690f34c14e73031e5d86c11cc042c8f7245421'
-            '7b34e861bc4ec57d970d2a7aacca36e3c3742a63ff995af1336f80b666e4a38c1035b35e129322e0d62dc75011bfaf495eb2bcae5392f2bf39f1d7b1400afcce')
+            '7b34e861bc4ec57d970d2a7aacca36e3c3742a63ff995af1336f80b666e4a38c1035b35e129322e0d62dc75011bfaf495eb2bcae5392f2bf39f1d7b1400afcce'
+            '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd'
+            '23aa8fe54806792a8a2d6bc8eab9c66903d2cff570645da99de4ac581c22a08fb48350576f771f3ea0c0a4c45fee9fa16665497b62079f30b80ea2acb07a26c2')
