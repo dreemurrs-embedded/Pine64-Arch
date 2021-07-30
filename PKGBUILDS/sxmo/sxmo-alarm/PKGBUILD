@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-alarm
 pkgver=1.5.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Sxmo: Simple X Mobile - A Pinephone UI that is simple and suckless"
 url="https://sr.ht/~mil/Sxmo/"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -10,13 +10,10 @@ install="$pkgname.install"
 license=('MIT')
 source=(
   'asound.conf'
-  'sxmo-pinephone.service'
 )
 
 package() {
   install -Dm644 "$srcdir/asound.conf" "$pkgdir/etc/asound.conf"
-  install -Dm644 "$srcdir/sxmo-pinephone.service" "$pkgdir/etc/systemd/system/sxmo-pinephone.service"
 }
 
-sha512sums=('3490ff82c7881fb2fa4978c3b81dc662b053ac1e37ae1c2cecf72dcebce412764030841fbf907b02d0c07d86b1ec39a989e66d3ae37561948bf5a3a830dccc59'
-            '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd')
+sha512sums=('3490ff82c7881fb2fa4978c3b81dc662b053ac1e37ae1c2cecf72dcebce412764030841fbf907b02d0c07d86b1ec39a989e66d3ae37561948bf5a3a830dccc59')

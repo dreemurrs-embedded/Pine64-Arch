@@ -4,8 +4,8 @@ pre_install() {
 post_install() {
   systemctl enable ModemManager
   systemctl enable bluetooth
-  systemctl enable xdm
-  systemctl enable sxmo-pinephone.service
+  systemctl enable sxmo-xdm-config
+  systemctl enable sxmo-setpermissions
   # E.g. hide the cursor for Xorg
   sed -i 's@:0 local /usr/bin/X :0  -nolisten tcp@:0 local /usr/bin/X -nolisten tcp -nocursor :0@g' /etc/X11/xdm/Xservers
   sed -i "s/#HandlePowerKey=poweroff/HandlePowerKey=ignore/" /etc/systemd/logind.conf
@@ -13,14 +13,14 @@ post_install() {
   # Fix upgrade menu to use pacman
   sed -i 's@echo "Updating all packages from repositories"@@g' /usr/bin/sxmo_upgrade.sh
   sed -i 's@sudo apk update@@g' /usr/bin/sxmo_upgrade.sh
-  sed -i 's@sudo apk upgrade -a@pacman -Syu@g' /usr/bin/sxmo_upgrade.sh
+  sed -i 's@sudo apk upgrade -a@sudo pacman -Syu@g' /usr/bin/sxmo_upgrade.sh
 
   # Fix sxmo_timezonechange.sh to use arch command timedatectl
   sed -i 's@sudo setup-timezone -z@sudo timedatectl set-timezone@g' /usr/bin/sxmo_timezonechange.sh
 }
 post_remove() {
-  systemctl disable xdm
+  systemctl disable sxmo-xdm-config
   systemctl disable ModemManager
   systemctl disable bluetooth
-  systemctl disable sxmo-pinephone.service
+  systemctl disable sxmo-setpermissions
 }
