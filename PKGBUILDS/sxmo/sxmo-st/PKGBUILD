@@ -1,6 +1,6 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-st
-pkgver=0.8.3.4
+pkgver=0.8.4
 pkgrel=1
 pkgdesc="St fork for Sxmo UI; supports scrollback, invert, and other patches"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -31,4 +31,4 @@ package() {
     Categories=System;TerminalEmulator;
 EOF
 }
-sha512sums=('a4cb72680e070d1703c4359618fa7ed36d5460496ab1320025f89809d7fa5387a6f9aae1e1143b261e57ea5f49d9b71bb68dad7653538b0238d2e50259029190')
+sha512sums=('4a6d04a264cd9707137e3500802ce4d8604b55ec05d64288a43e618dad837a4a1f53743877f3b81ce80f402d9846b91f8f3edb8942cb39f8df7d9fd20d88c616')
