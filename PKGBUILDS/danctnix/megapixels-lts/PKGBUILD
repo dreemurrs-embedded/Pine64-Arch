@@ -1,0 +1,23 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=megapixels-lts
+pkgver=0.16.1
+pkgrel=1
+pkgdesc="A camera app that deal with V4L2 request - LTS version"
+url="https://git.sr.ht/~martijnbraam/megapixels"
+license=('GPL')
+arch=('x86_64' 'armv7h' 'aarch64')
+depends=('glib2' 'gtk3' 'imagemagick' 'libraw' 'zbar')
+makedepends=('meson' 'ninja')
+provides=('megapixels')
+conflicts=('megapixels')
+source=("https://git.sr.ht/~martijnbraam/megapixels/archive/${pkgver}.tar.gz")
+sha256sums=('4f6b247c74528b1351c3e0f23afbf1e62921ccf892d64496d172f4748fa3b77c')
+
+build() {
+    arch-meson megapixels-$pkgver build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}
