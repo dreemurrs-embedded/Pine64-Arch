@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgbase=danctnix-tweaks-app
 pkgname=("$pkgbase" "$pkgbase-phosh" "$pkgbase-pinephone")
-pkgver=0.6.1.2
+pkgver=0.7.3
 pkgrel=1
 pkgdesc="Tweaks tool for phone UIs"
 url="https://github.com/dreemurrs-embedded/danctnix-tweaks"
@@ -41,4 +41,4 @@ package_danctnix-tweaks-app-pinephone() {
      mv "$srcdir"/pinephone.yml "$pkgdir"/usr/share/danctnix-tweaks/pinephone.yml
 }
 
-md5sums=('1763bfbc3c0e3476c2fa58a1f26986cf')
+md5sums=('c56ba8ccb9662c22f53714b3d35ac679')
