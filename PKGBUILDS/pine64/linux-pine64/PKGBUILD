@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64 PinePhone"
 pkgver=5.13.7
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -260,7 +260,7 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('fdde1df31b7258172f94658246a42be7'
-         '47cd5cb9bf9feb2aa588d53ea0f12bc1'
+         'd2413f948154ebcb9c5b8427b58aaa51'
          '979a787cf84bef9c60da78e72ec96550'
          'f79300740a7350d2d24ab5e120831b52'
          '85d8339bc3d5daf45aa579d578ef0255'
