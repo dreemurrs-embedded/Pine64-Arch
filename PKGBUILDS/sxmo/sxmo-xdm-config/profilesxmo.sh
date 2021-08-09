@@ -5,3 +5,4 @@ export XDG_DATA_HOME=~/.local/share
 export XDG_RUNTIME_DIR=~/.local/run
 export LOGDIR="$XDG_DATA_HOME"/sxmo/modem
 export CONTACTS="$XDG_CONFIG_HOME"/sxmo/contacts.tsv
+export EDITOR="vis"
