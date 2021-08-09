@@ -1,0 +1,207 @@
+From 6d2506e66b3c985f99ea78dd688e5026daec0dfd Mon Sep 17 00:00:00 2001
+From: Han Young <hanyoung@protonmail.com>
+Date: Thu, 17 Jun 2021 16:28:44 +0800
+Subject: [PATCH] watch powerdevil DBus registration
+
+---
+ src/kclockd/alarmmodel.cpp |  1 +
+ src/kclockd/timer.cpp      |  7 ++++
+ src/kclockd/timer.h        |  1 +
+ src/kclockd/utilities.cpp  | 80 ++++++++++++++++++++++++++------------
+ src/kclockd/utilities.h    |  6 ++-
+ 5 files changed, 69 insertions(+), 26 deletions(-)
+
+diff --git a/src/kclockd/alarmmodel.cpp b/src/kclockd/alarmmodel.cpp
+index ae2d7f1..93342bc 100644
+--- a/src/kclockd/alarmmodel.cpp
++++ b/src/kclockd/alarmmodel.cpp
+@@ -39,6 +39,7 @@ AlarmModel::AlarmModel(QObject *parent)
+ 
+     // alarm wakeup behaviour
+     connect(&Utilities::instance(), &Utilities::wakeup, this, &AlarmModel::wakeupCallback);
++    connect(&Utilities::instance(), &Utilities::needsReschedule, this, &AlarmModel::scheduleAlarm);
+ }
+ 
+ void AlarmModel::load()
+diff --git a/src/kclockd/timer.cpp b/src/kclockd/timer.cpp
+index 3d8ac0e..5b31f7b 100644
+--- a/src/kclockd/timer.cpp
++++ b/src/kclockd/timer.cpp
+@@ -22,6 +22,7 @@ Timer::Timer(int length, QString label, bool running)
+     , m_label(label)
+ {
+     connect(&Utilities::instance(), &Utilities::wakeup, this, &Timer::timeUp);
++    connect(&Utilities::instance(), &Utilities::needsReschedule, this, &Timer::reschedule);
+     QDBusConnection::sessionBus().registerObject(QStringLiteral("/Timers/") + this->m_uuid.toString(QUuid::Id128),
+                                                  this,
+                                                  QDBusConnection::ExportScriptableContents | QDBusConnection::ExportAllProperties);
+@@ -131,3 +132,9 @@ void Timer::sendNotification()
+ 
+     notif->sendEvent();
+ }
++void Timer::reschedule()
++{
++    if (m_running) {
++        m_cookie = Utilities::instance().scheduleWakeup(m_startTime + m_length);
++    }
++}
+diff --git a/src/kclockd/timer.h b/src/kclockd/timer.h
+index 7e120a2..71fc4cf 100644
+--- a/src/kclockd/timer.h
++++ b/src/kclockd/timer.h
+@@ -76,6 +76,7 @@ Q_SIGNALS:
+     Q_SCRIPTABLE void runningChanged();
+ private Q_SLOTS:
+     void timeUp(int cookie);
++    void reschedule();
+ 
+ private:
+     void setRunning(bool running);
+diff --git a/src/kclockd/utilities.cpp b/src/kclockd/utilities.cpp
+index 83595a3..0b48535 100644
+--- a/src/kclockd/utilities.cpp
++++ b/src/kclockd/utilities.cpp
+@@ -7,12 +7,13 @@
+ #include "utilities.h"
+ 
+ #include <QDBusReply>
++#include <QDBusServiceWatcher>
+ #include <QDebug>
+ #include <QThread>
+ 
+ Utilities::Utilities(QObject *parent)
+     : QObject(parent)
+-    , m_interface(new QDBusInterface(QStringLiteral("org.kde.Solid.PowerManagement"),
++    , m_interface(new QDBusInterface(POWERDEVIL_SERVICE_NAME,
+                                      QStringLiteral("/org/kde/Solid/PowerManagement"),
+                                      QStringLiteral("org.kde.Solid.PowerManagement"),
+                                      QDBusConnection::sessionBus(),
+@@ -21,36 +22,39 @@ Utilities::Utilities(QObject *parent)
+     // if PowerDevil is present, we can rely on PowerDevil to track time, otherwise we do it ourself
+     if (m_interface->isValid()) {
+         // test Plasma 5.20 PowerDevil schedule wakeup feature
+-        QDBusMessage m = QDBusMessage::createMethodCall(QStringLiteral("org.kde.Solid.PowerManagement"),
+-                                                        QStringLiteral("/org/kde/Solid/PowerManagement"),
+-                                                        QStringLiteral("org.freedesktop.DBus.Introspectable"),
+-                                                        QStringLiteral("Introspect"));
+-        QDBusReply<QString> result = QDBusConnection::sessionBus().call(m);
+-
+-        if (result.isValid() && result.value().indexOf(QStringLiteral("scheduleWakeup")) >= 0) { // have this feature
+-            m_hasPowerDevil = true;
+-        }
++        m_hasPowerDevil = hasWakeup();
+     }
+ 
++    bool success = QDBusConnection::sessionBus().registerObject(QStringLiteral("/Utility"),
++                                                                QStringLiteral("org.kde.PowerManagement"),
++                                                                this,
++                                                                QDBusConnection::ExportScriptableSlots);
++    qDebug() << "Register Utility on DBus: " << success;
+     if (this->hasPowerDevil()) {
+-        bool success = QDBusConnection::sessionBus().registerObject(QStringLiteral("/Utility"),
+-                                                                    QStringLiteral("org.kde.PowerManagement"),
+-                                                                    this,
+-                                                                    QDBusConnection::ExportScriptableSlots);
+-        qDebug() << "PowerDevil found, using it for time tracking. Success:" << success;
++        qDebug() << "PowerDevil found, using it for time tracking.";
+     } else {
+-        m_timerThread = new QThread(this);
+-        m_worker = new AlarmWaitWorker();
+-        m_worker->moveToThread(m_timerThread);
+-        connect(m_worker, &AlarmWaitWorker::finished, [this] {
+-            // notify time is up
+-            Q_EMIT this->wakeup(m_currentCookie);
+-            this->clearWakeup(m_currentCookie);
+-        });
+-        m_timerThread->start();
++        initWorker();
+ 
+         qDebug() << "PowerDevil not found, using wait worker thread for time tracking.";
+     }
++
++    auto m_watcher = new QDBusServiceWatcher{POWERDEVIL_SERVICE_NAME,
++                                             QDBusConnection::sessionBus(),
++                                             QDBusServiceWatcher::WatchForRegistration | QDBusServiceWatcher::WatchForUnregistration};
++    connect(m_watcher, &QDBusServiceWatcher::serviceRegistered, [this]() {
++        qDebug() << "powerdevil found";
++        m_hasPowerDevil = hasWakeup();
++        if (m_hasPowerDevil && m_timerThread)
++            m_timerThread->quit();
++
++        Q_EMIT needsReschedule();
++    });
++    connect(m_watcher, &QDBusServiceWatcher::serviceUnregistered, [this]() {
++        m_hasPowerDevil = false;
++        initWorker();
++
++        Q_EMIT needsReschedule();
++    });
+ }
+ 
+ int Utilities::scheduleWakeup(quint64 timestamp)
+@@ -116,3 +120,31 @@ void Utilities::schedule()
+     }
+     m_worker->setNewTime(minTime); // Unix uses int64 internally for time, if we don't have anything to wait, we wait to year 2262 A.D.
+ }
++void Utilities::initWorker()
++{
++    if (!m_timerThread) {
++        m_timerThread = new QThread(this);
++        m_worker = new AlarmWaitWorker();
++        m_worker->moveToThread(m_timerThread);
++        connect(m_worker, &AlarmWaitWorker::finished, [this] {
++            // notify time is up
++            Q_EMIT this->wakeup(m_currentCookie);
++            this->clearWakeup(m_currentCookie);
++        });
++    }
++    m_timerThread->start();
++}
++bool Utilities::hasWakeup()
++{
++    QDBusMessage m = QDBusMessage::createMethodCall(QStringLiteral("org.kde.Solid.PowerManagement"),
++                                                    QStringLiteral("/org/kde/Solid/PowerManagement"),
++                                                    QStringLiteral("org.freedesktop.DBus.Introspectable"),
++                                                    QStringLiteral("Introspect"));
++    QDBusReply<QString> result = QDBusConnection::sessionBus().call(m);
++
++    if (result.isValid() && result.value().indexOf(QStringLiteral("scheduleWakeup")) >= 0) { // have this feature
++        return true;
++    } else {
++        return false;
++    }
++}
+diff --git a/src/kclockd/utilities.h b/src/kclockd/utilities.h
+index a32d796..0c0ae47 100644
+--- a/src/kclockd/utilities.h
++++ b/src/kclockd/utilities.h
+@@ -11,7 +11,7 @@
+ 
+ #include <QDBusInterface>
+ #include <QObject>
+-
++const QString POWERDEVIL_SERVICE_NAME = QStringLiteral("org.kde.Solid.PowerManagement");
+ class Utilities : public QObject
+ {
+     Q_OBJECT
+@@ -32,6 +32,7 @@ public:
+     void clearWakeup(int cookie);
+ Q_SIGNALS:
+     void wakeup(int cookie);
++    void needsReschedule();
+ public Q_SLOTS:
+     Q_SCRIPTABLE void wakeupCallback(int cookie);
+ 
+@@ -39,7 +40,8 @@ private:
+     explicit Utilities(QObject *parent = nullptr);
+ 
+     void schedule(); // For AlarmWaitWorker use
+-
++    void initWorker();
++    bool hasWakeup();
+     QDBusInterface *m_interface = nullptr;
+ 
+     bool m_hasPowerDevil = false;
+-- 
+GitLab
+

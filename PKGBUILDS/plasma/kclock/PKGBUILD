@@ -5,17 +5,23 @@
 
 pkgname=kclock
 pkgver=21.06
-pkgrel=1
+pkgrel=2
 pkgdesc="Simple Clock application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
 url="https://invent.kde.org/plasma-mobile/kclock"
 license=('GPL-2.0-or-later')
 depends=('kdbusaddons' 'kirigami-addons' 'knotifications' 'plasma-framework' 'qt5-quickcontrols2' 'qt5-declarative' 'qt5-multimedia')
 makedepends=('cmake' 'extra-cmake-modules' 'qt5-svg')
-source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('0fbf5e4866e6500b92c0a315a8e0d883')
+source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz"
+        6d2506e66b3c985f99ea78dd688e5026daec0dfd.patch)
+md5sums=('0fbf5e4866e6500b92c0a315a8e0d883'
+         'c5538c613e8fb89b006e95115dc63aec')
 
 prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -N < ../6d2506e66b3c985f99ea78dd688e5026daec0dfd.patch
+  cd ..
+
   mkdir -p build
 }
 
