@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-xdm-config
-pkgver=0.3.1
-pkgrel=1
+pkgver=0.3.2
+pkgrel=0
 pkgdesc="X Display Manager configuration for Sxmo; starts with virtual keyboard and launches Sxmo UI"
 url="https://git.sr.ht/~mil/sxmo-xdm-config"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -37,4 +37,5 @@ sha512sums=('5eabe8f93ba60a8207298c099e7a0e9e35524f8a92bdd10d2582ddcb8286600da7f
             'ffb294b5e950ae2927c94ecb9cb3471cd47b3bb85e0d3fe523190a1ecf97b3b9e8ddcabfb2254c137dceacea261b3e8e8c4e0fd9281fa681980a4d15c08bfc30'
             'fcb344542d3607f0ecd888d6c1ceeb7e3c8d6c7602f1dc9a15891394afd07cf74249f8eabc6351cb823afab384750bb713666c80476e8b2d14ddecb9327defcc'
             'c07672dd079bb3840ec5777c46aaa1a86aca9ad1be5193ced4fa00521dc32aeb6c50817c800863b9296c5f21399cc4805dcbf02963709db8c62ff27494ad241c'
-            'b2ec0890e9819adfbbf4d01c205498f513412f96ab370b70219955e03025de884196546224033c49a9ec3431c51cc55985c7ddfdb923467c8feefde81b9081ee')
+            'b2ec0890e9819adfbbf4d01c205498f513412f96ab370b70219955e03025de884196546224033c49a9ec3431c51cc55985c7ddfdb923467c8feefde81b9081ee'
+            'b5c1e7051154764c8dcbdc67c50803dc0472cf1774f90dc73546a330bae6b89b3f4be2fab2e0c726805cdd8b9b614085825bd22c01d8a293f30cc7baff6d568c')

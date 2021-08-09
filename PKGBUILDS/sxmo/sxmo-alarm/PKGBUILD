@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-alarm
 pkgver=1.5.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Sxmo: Simple X Mobile - A Pinephone UI that is simple and suckless"
 url="https://sr.ht/~mil/Sxmo/"
 arch=('x86_64' 'armv7h' 'aarch64')
