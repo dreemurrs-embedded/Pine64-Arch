@@ -1,13 +1,13 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-utils
 pkgver=1.5.0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
 depends=(
-  'sxmo-dmenu' 'sxmo-dwm' 'sxmo-st' 'sxmo-surf' 'svkbd' 'lisgd' 'clickclack'
+  'sxmo-dmenu' 'sxmo-dwm' 'sxmo-st' 'sxmo-surf' 'svkbd' 'lisgd' 'clickclack' 'mnc' 'pn'
   'bc' 'alsa-utils' 'autocutsel' 'conky' 'coreutils' 'curl' 'dunst'
   'geoclue' 'grep' 'inotify-tools' 'mediainfo' 'modemmanager' 'networkmanager'
   'mpv' 'ncurses' 'sxiv' 'terminus-font'
