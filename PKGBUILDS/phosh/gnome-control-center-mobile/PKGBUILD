@@ -4,7 +4,7 @@
 
 pkgname=gnome-control-center-mobile
 pkgver=3.36.3
-pkgrel=5
+pkgrel=6
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-control-center"
 license=(GPL2)
@@ -48,4 +48,6 @@ check() {
 package() {
   DESTDIR="$pkgdir" meson install -C build
   install -d -o root -g 102 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+
+  echo "X-Purism-FormFactor=Workstation;Mobile;" >> "$pkgdir/usr/share/applications/gnome-control-center.desktop"
 }
