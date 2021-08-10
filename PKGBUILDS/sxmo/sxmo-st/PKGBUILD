@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-st
 pkgver=0.8.4.1
-pkgrel=0
+pkgrel=1
 pkgdesc="St fork for Sxmo UI; supports scrollback, invert, and other patches"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://git.sr.ht/~mil/sxmo-st"

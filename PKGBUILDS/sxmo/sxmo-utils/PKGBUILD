@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-utils
 pkgver=1.5.0.1
-pkgrel=0
+pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
