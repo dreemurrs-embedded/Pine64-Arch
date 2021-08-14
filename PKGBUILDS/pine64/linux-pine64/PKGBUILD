@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64 PinePhone"
 pkgver=5.13.8
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -25,6 +25,7 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         'media-ov5640-Implement-autofocus.patch'
         '0002-dts-add-pinetab-dev-old-display-panel.patch'
         'dts-pinephone-drop-modem-power-node.patch'
+        'pp-keyboard.patch'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
@@ -49,6 +50,7 @@ prepare() {
 
   # PinePhone patches
   patch -p1 -N < ../dts-pinephone-drop-modem-power-node.patch
+  patch -p1 -N < ../pp-keyboard.patch
 
   # camera
   patch -p1 -N < ../media-ov5640-Implement-autofocus.patch
@@ -269,6 +271,7 @@ md5sums=('f2d1bee483395dd7dcb44b2982b77ead'
          'a25d069b2b008ae22aa7fe55716239da'
          '3182f25beb0b76e8abd2e9de8213351d'
          '10d200e0a964f24cdb744678a758e22b'
+         '5b44a02d5374c02a151c21798d11cf78'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
