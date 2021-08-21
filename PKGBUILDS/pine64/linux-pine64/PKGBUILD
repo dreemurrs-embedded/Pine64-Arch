@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-pine64
 _desc="Pine64 PinePhone"
-pkgver=5.13.10
+pkgver=5.13.12
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -14,10 +14,9 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="cdce3c94785d5520db516a6b95ed8ab8bbd82463"
+_commit="48dc1976f3638033d1bdc98dd0ddd6cecff93153"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
-        '5.13.8-10.patch'
         'enable-hdmi-output-pinetab.patch'
         'enable-jack-detection-pinetab.patch'
         'pinetab-bluetooth.patch'
@@ -48,9 +47,6 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
 
 prepare() {
   cd linux-$_commit
-
-  # 5.13.8 -> 5.13.10
-  patch -p1 -N -i "../5.13.8-10.patch" || true
 
   # PinePhone patches
   patch -p1 -N < ../dts-pinephone-drop-modem-power-node.patch
@@ -265,9 +261,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('f2d1bee483395dd7dcb44b2982b77ead'
+md5sums=('b90711816a98c0b4d12e7bb849fcb8b0'
          '946c9220dcf9ee57579e37dea01e2fde'
-         '3bd2d9f6aa431ac27ac466a814272129'
          '979a787cf84bef9c60da78e72ec96550'
          'f79300740a7350d2d24ab5e120831b52'
          '85d8339bc3d5daf45aa579d578ef0255'
