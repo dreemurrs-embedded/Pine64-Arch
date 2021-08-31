@@ -1,6 +1,6 @@
 [Unit]
 Description=Phosh, a shell for mobile phones
-Documentation=https://source.puri.sm/Librem5/phosh
+Documentation=https://gitlab.gnome.org/World/Phosh/phosh
 
 # Make sure we are started after logins are permitted.
 After=systemd-user-sessions.service
@@ -25,6 +25,9 @@ Before=graphical.target
 ConditionPathExists=/dev/tty0
 
 [Service]
+Environment=XDG_CURRENT_DESKTOP=GNOME:Phosh
+Environment=XDG_SESSION_DESKTOP=phosh
+Environment=XDG_SESSION_TYPE=wayland
 ExecStart=/usr/bin/phosh
 TimeoutStartSec=30
 User=1000
