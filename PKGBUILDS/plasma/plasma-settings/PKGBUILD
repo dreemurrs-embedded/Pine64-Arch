@@ -3,7 +3,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-settings
-pkgver=21.07
+pkgver=21.08
 pkgrel=1
 pkgdesc="Settings application for Mobile Devices running Plasma"
 arch=('aarch64' 'x86_64')
@@ -12,7 +12,7 @@ license=('GPL3')
 depends=('accountsservice' 'plasma-framework' 'kdelibs4support' 'libkgapi' 'kdesignerplugin' 'kcmutils')
 makedepends=('cmake' 'extra-cmake-modules' 'kdoctools' 'kinit')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('5a4851f939284bc95e6f1c97bfc9b239')
+md5sums=('b4a594fe686f0e91021af0f6092da402')
 
 prepare() {
   mkdir -p build
