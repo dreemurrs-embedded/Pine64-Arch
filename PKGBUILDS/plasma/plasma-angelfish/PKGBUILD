@@ -2,7 +2,7 @@
 # Contributor: Dan Johansen <strit@manjaro.org>
 
 pkgname=plasma-angelfish
-pkgver=21.07
+pkgver=21.08
 pkgrel=1
 pkgdesc="Plasma Webbrowser for Mobile Devices"
 arch=('x86_64' 'aarch64')
@@ -12,7 +12,7 @@ depends=('desktop-file-utils' 'plasma-framework' 'qt5-webengine' 'qt5-feedback' 
 makedepends=('cmake' 'extra-cmake-modules')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/angelfish-$pkgver.tar.xz")
 install=$pkgname.install
-md5sums=('a490e762a22b79976260a8ba9a90801a')
+md5sums=('8ee84025135307825ed566d54a9b5de9')
 
 prepare() {
   mkdir -p build
