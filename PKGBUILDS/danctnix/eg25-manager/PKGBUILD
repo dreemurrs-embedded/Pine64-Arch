@@ -2,9 +2,9 @@
 # Contributor : Philip Müller <philm@manjaro.org>
 
 pkgname=eg25-manager
-pkgver=0.3.0+6+gf2593b6
+pkgver=0.4.0
 pkgrel=1
-_commit=f2593b62b10513f94039d5c9ba995905b23e7eb4
+_commit=c11f68f40212981e82cdbc09cff005bc02670705
 pkgdesc="Daemon for managing the Quectel EG25 modem"
 arch=('aarch64')
 url="https://gitlab.com/mobian1/devices/eg25-manager"
