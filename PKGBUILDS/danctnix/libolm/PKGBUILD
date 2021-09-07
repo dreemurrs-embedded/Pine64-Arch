@@ -1,0 +1,55 @@
+# DANCTNIX: There's a bug with libolm which can cause symbol conflicts
+# with other libraries (e.g. lurch) and crash the application.
+#
+# Upstream issue: https://github.com/matrix-org/olm/issues/47
+# https://gitlab.matrix.org/matrix-org/olm/-/commit/1b7973626e27beb05a55df6085f643a1323db987
+
+# Contributor: Jonas Witschel <diabonas@archlinux.org>
+pkgname=libolm
+pkgver=3.2.4
+_tag=8a2946bd0e750121443206dd9075666ea5239070 # git rev-parse "$pkgver"
+pkgrel=5
+pkgdesc='Implementation of the Olm and Megolm cryptographic ratchets'
+arch=('x86_64' 'armv7h' 'aarch64')
+url='https://gitlab.matrix.org/matrix-org/olm'
+license=('APACHE')
+depends=('gcc-libs')
+makedepends=('git' 'cmake' 'python' 'python-cffi' 'python-future' 'python-setuptools')
+checkdepends=('python-aspectlib' 'python-pytest' 'python-pytest-benchmark')
+provides=('libolm.so')
+source=("git+$url.git?signed#tag=$_tag"
+	https://gitlab.matrix.org/matrix-org/olm/-/commit/1b7973626e27beb05a55df6085f643a1323db987.patch)
+sha512sums=('SKIP'
+            '015690a1d888790f449f2e1473705a1b6073efba565acda0b36954c80736be14677c5b3a81629473dc5bf2be2862aa63edb7cb71dc89fb96d852450e86ed8c2c')
+# PGP key can be obtained from https://packages.matrix.org/npm/olm/signing_key.asc
+validpgpkeys=('56CF24AEE5F4513280CC594BF75FDC22C1DE8453') # Matrix.org olm <olm@matrix.org>
+
+pkgver() {
+	cd olm
+	git describe | sed 's/\([^-]*-\)g/r\1/;s/-/./g'
+}
+
+prepare() {
+	cd olm
+	git apply "${srcdir}/1b7973626e27beb05a55df6085f643a1323db987.patch"
+}
+
+build() {
+	cd olm
+	cmake -DCMAKE_INSTALL_PREFIX=/usr \
+	      -DCMAKE_BUILD_TYPE=None \
+	      -DCMAKE_C_FLAGS="${CFLAGS} ${CPPFLAGS}" \
+	      -DCMAKE_CXX_FLAGS="${CXXFLAGS} ${CPPFLAGS}" \
+	      -B build
+	cmake --build build
+}
+
+check() {
+	cd olm/build/tests
+	ctest
+}
+
+package() {
+	cd olm/build
+	make DESTDIR="$pkgdir" install
+}
