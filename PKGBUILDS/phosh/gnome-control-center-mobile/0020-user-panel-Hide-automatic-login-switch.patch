@@ -1,0 +1,21 @@
+From d499104e1506c80b211252fa99f9b080ac21c5f8 Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Thu, 19 Nov 2020 07:45:10 +0530
+Subject: [PATCH 07/10] user-panel: Hide automatic login switch
+
+Fixes #102
+---
+ panels/user-accounts/cc-user-panel.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/panels/user-accounts/cc-user-panel.c
++++ b/panels/user-accounts/cc-user-panel.c
+@@ -940,7 +940,7 @@
+ 
+         /* Autologin: show when local account */
+         show = act_user_is_local_account (user);
+-        gtk_widget_set_visible (GTK_WIDGET (self->autologin_row), show);
++        gtk_widget_set_visible (GTK_WIDGET (self->autologin_row), FALSE);
+ 
+ #ifdef HAVE_MALCONTENT
+         /* Parental Controls: Unavailable if user is admin */

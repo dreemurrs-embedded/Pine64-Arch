@@ -1,0 +1,54 @@
+From 891322a558ea6853300ca4682a8a2dc885030422 Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Tue, 2 Mar 2021 16:45:32 +0530
+Subject: [PATCH 1/8] Add patches to check if phone
+
+---
+ panels/common/list-box-helper.h |  2 ++
+ panels/common/pureos.h          | 22 ++++++++++++++++++++++
+ 2 files changed, 24 insertions(+)
+ create mode 100644 panels/common/pureos.h
+
+diff --git a/panels/common/list-box-helper.h b/panels/common/list-box-helper.h
+index f3c2553c9..dce767990 100644
+--- a/panels/common/list-box-helper.h
++++ b/panels/common/list-box-helper.h
+@@ -20,6 +20,8 @@
+ 
+ #include <gtk/gtk.h>
+ 
++#include "pureos.h"
++
+ #define CC_TYPE_LIST_BOX_ROW (cc_list_box_row_get_type ())
+ G_DECLARE_FINAL_TYPE (CcListBoxRow, cc_list_box_row, CC, LIST_BOX_ROW, GtkListBoxRow)
+ 
+diff --git a/panels/common/pureos.h b/panels/common/pureos.h
+new file mode 100644
+index 000000000..2e31d7e07
+--- /dev/null
++++ b/panels/common/pureos.h
+@@ -0,0 +1,22 @@
++#include <gtk/gtk.h>
++
++static inline gboolean
++pureos_get_is_phone (void)
++{
++  GSettingsSchema *schema;
++  GSettings *gsettings;
++  gboolean is_phone;
++
++  schema = g_settings_schema_source_lookup (g_settings_schema_source_get_default (),
++                                            "org.gtk.Settings.Purism", TRUE);
++
++  if (!schema)
++    return FALSE;
++
++  gsettings = g_settings_new_full (schema, NULL, NULL);
++  is_phone = g_settings_get_boolean (gsettings, "is-phone");
++  g_object_unref (gsettings);
++  g_settings_schema_unref (schema);
++
++  return is_phone;
++}
+-- 
+2.31.0

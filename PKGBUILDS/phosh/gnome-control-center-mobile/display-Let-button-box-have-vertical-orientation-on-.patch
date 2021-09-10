@@ -1,0 +1,47 @@
+From d1d0715001c9633f2adde75c983215240ca99234 Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Tue, 15 Sep 2020 16:38:08 +0530
+Subject: [PATCH 2/8] display: Let button box have vertical orientation on
+ phone
+
+So that they fit better on small screens
+
+The vertical orientation is set only on phones (ie, when
+"org.gtk.Settings.Purism" "is-phone" property is set)
+---
+ panels/display/cc-display-panel.c  | 7 +++++++
+ panels/display/cc-display-panel.ui | 2 ++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/panels/display/cc-display-panel.c b/panels/display/cc-display-panel.c
+index dfca98cc6..a5ac89b75 100644
+--- a/panels/display/cc-display-panel.c
++++ b/panels/display/cc-display-panel.c
+@@ -1176,4 +1176,11 @@ cc_display_panel_init (CcDisplayPanel *self)
+   gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+                                              GTK_STYLE_PROVIDER (provider),
+                                              GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
++
++  if (pureos_get_is_phone ())
++    gtk_orientable_set_orientation (GTK_ORIENTABLE (self->output_selection_two_buttonbox),
++                                    GTK_ORIENTATION_VERTICAL);
++  else
++    gtk_orientable_set_orientation (GTK_ORIENTABLE (self->output_selection_two_buttonbox),
++                                    GTK_ORIENTATION_HORIZONTAL);
+ }
+diff --git a/panels/display/cc-display-panel.ui b/panels/display/cc-display-panel.ui
+index 855b34814..2fb22244e 100644
+--- a/panels/display/cc-display-panel.ui
++++ b/panels/display/cc-display-panel.ui
+@@ -84,6 +84,8 @@
+                                 <property name="can_focus">False</property>
+                                 <property name="homogeneous">True</property>
+                                 <property name="layout_style">expand</property>
++                                <property name="orientation" bind-source="output_selection_two_buttonbox"
++                                          bind-property="orientation" bind-flags="sync-create" />
+                                 <child>
+                                   <object class="GtkRadioButton" id="config_type_single">
+                                     <property name="label" translatable="yes">Single Display</property>
+-- 
+2.31.0
+

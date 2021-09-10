@@ -1,0 +1,22 @@
+From bd641bf7e71c58d3e498dc514c1bd51933bec6fa Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Thu, 19 Sep 2019 17:27:58 +0200
+Subject: [PATCH 7/7] UserAccount: Allow stack to have different size
+
+When stack is set to be homogenous, the stack size is set to
+the size of largest widget.  On librem5 this results in the
+window to exceed the size of screen
+---
+ panels/user-accounts/cc-user-panel.ui | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/panels/user-accounts/cc-user-panel.ui
++++ b/panels/user-accounts/cc-user-panel.ui
+@@ -41,6 +41,7 @@
+         <property name="visible">True</property>
+         <property name="homogeneous">False</property>
+         <property name="visible-child">no_users_box</property>
++        <property name="homogeneous">False</property>
+         <child>
+           <object class="GtkOverlay" id="users_overlay">
+             <property name="visible">True</property>

@@ -1,0 +1,4871 @@
+From 83852147a48bc3ba277234caab1304a3a43e34b4 Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Fri, 18 Oct 2019 18:36:59 +0530
+Subject: [PATCH] Add new connection editor
+
+---
+ .../connection-editor/cc-connection-editor.c  |  617 ++++++++++
+ .../connection-editor/cc-connection-editor.h  |   44 +
+ .../connection-editor/cc-connection-editor.ui |  316 +++++
+ .../connection-editor/ce-details-page.c       |  837 +++++++++++++
+ .../connection-editor/ce-details-page.h       |   53 +
+ .../connection-editor/ce-details-page.ui      |  162 +++
+ panels/network/connection-editor/ce-ip-page.c | 1055 +++++++++++++++++
+ panels/network/connection-editor/ce-ip-page.h |   47 +
+ .../network/connection-editor/ce-ip-page.ui   |  407 +++++++
+ .../connection-editor/ce-password-row.c       |  194 +++
+ .../connection-editor/ce-password-row.h       |   43 +
+ .../connection-editor/ce-password-row.ui      |   65 +
+ .../connection-editor/ce-security-page.c      |  759 ++++++++++++
+ .../connection-editor/ce-security-page.h      |   45 +
+ .../connection-editor/ce-security-page.ui     |  102 ++
+ .../connection-editor.gresource.xml           |    5 +
+ panels/network/connection-editor/meson.build  |   10 +
+ 17 files changed, 4761 insertions(+)
+ create mode 100644 panels/network/connection-editor/cc-connection-editor.c
+ create mode 100644 panels/network/connection-editor/cc-connection-editor.h
+ create mode 100644 panels/network/connection-editor/cc-connection-editor.ui
+ create mode 100644 panels/network/connection-editor/ce-details-page.c
+ create mode 100644 panels/network/connection-editor/ce-details-page.h
+ create mode 100644 panels/network/connection-editor/ce-details-page.ui
+ create mode 100644 panels/network/connection-editor/ce-ip-page.c
+ create mode 100644 panels/network/connection-editor/ce-ip-page.h
+ create mode 100644 panels/network/connection-editor/ce-ip-page.ui
+ create mode 100644 panels/network/connection-editor/ce-password-row.c
+ create mode 100644 panels/network/connection-editor/ce-password-row.h
+ create mode 100644 panels/network/connection-editor/ce-password-row.ui
+ create mode 100644 panels/network/connection-editor/ce-security-page.c
+ create mode 100644 panels/network/connection-editor/ce-security-page.h
+ create mode 100644 panels/network/connection-editor/ce-security-page.ui
+
+--- /dev/null
++++ b/panels/network/connection-editor/cc-connection-editor.c
+@@ -0,0 +1,617 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* cc-network-editor.c
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#undef G_LOG_DOMAIN
++#define G_LOG_DOMAIN "cc-connection-editor"
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++#include <glib/gi18n.h>
++#include <NetworkManager.h>
++
++#include "../cc-network-panel.h"
++#include "list-box-helper.h"
++#include "cc-list-row.h"
++#include "ce-ip-page.h"
++#include "ce-details-page.h"
++#include "ce-security-page.h"
++#include "cc-connection-editor.h"
++
++/**
++ * @short_description: Connection Editor dialog
++ * @include: "cc-connection-editor.h"
++ *
++ * A Dialog to modify connection settings
++ */
++
++typedef enum
++{
++  NET_TYPE_NONE,
++  NET_TYPE_WIFI,
++  NET_TYPE_ETHERNET,
++  NET_TYPE_VPN
++} NetType;
++
++struct _CcConnectionEditor
++{
++  GtkDialog      parent_instance;
++
++  GtkAdjustment *vadjustment;
++  gdouble        vadjustment_value;
++
++  GtkButton     *back_button;
++  GtkButton     *cancel_button;
++  GtkButton     *apply_button;
++
++  GtkScrolledWindow  *main_view;
++  GtkStack      *main_stack;
++  GtkBox        *main_page;
++
++  GtkListBox    *details_box;
++  CcListRow     *signal_row;
++  CcListRow     *frequency_row;
++  CcListRow     *route_row;
++  CcListRow     *last_used_row;
++  CcListRow     *details_row;
++
++  GtkListBox    *switch_box;
++  CcListRow     *auto_connect_row;
++  CcListRow     *allow_others_row;
++  CcListRow     *metered_row;
++
++  GtkListBox    *advanced_box;
++  CcListRow     *ip4_row;
++  CcListRow     *ip6_row;
++  CcListRow     *security_row;
++
++  CeDetailsPage *details_page;
++  CeIpPage      *ip4_page;
++  CeIpPage      *ip6_page;
++  CeSecurityPage *security_page;
++
++  NMClient      *nm_client;
++  NMDevice      *device;
++  NMConnection  *orig_connection;
++  NMConnection  *connection;
++  NMAccessPoint *ap;
++  NetType        network_type;
++
++  /* Set after current view changed, reset after scroll set */
++  gboolean       view_changed;
++};
++
++G_DEFINE_TYPE (CcConnectionEditor, cc_connection_editor, GTK_TYPE_DIALOG)
++
++static void
++cc_connection_editor_update_ap (CcConnectionEditor *self)
++{
++  CeDetailsPage *details_page;
++  gchar *str;
++
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++
++  details_page = self->details_page;
++  ce_details_page_set_ap (details_page, self->ap);
++
++  gtk_widget_set_visible (GTK_WIDGET (self->signal_row), self->ap != NULL);
++  gtk_widget_set_visible (GTK_WIDGET (self->frequency_row), self->ap != NULL);
++
++  cc_list_row_set_secondary_label (self->signal_row,
++                                   ce_details_page_get_ap_strength (details_page));
++
++  str = ce_details_page_get_ap_frequency (details_page);
++  cc_list_row_set_secondary_label (self->frequency_row, str);
++  g_free (str);
++
++  str = ce_details_page_get_security (details_page);
++  cc_list_row_set_secondary_label (self->security_row, str);
++  g_free (str);
++}
++
++static void
++editor_visible_child_changed_cb (CcConnectionEditor *self)
++{
++  GtkWidget *visible_child;
++  const gchar *title = "";
++
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++
++  visible_child = gtk_stack_get_visible_child (self->main_stack);
++
++  if (visible_child == GTK_WIDGET (self->main_page))
++    title = _("Network Settings");
++  else if (visible_child == GTK_WIDGET (self->details_page))
++    title = _("Network Details");
++  else if (visible_child == GTK_WIDGET (self->ip4_page))
++    title = _("Network IPv4 Settings");
++  else if (visible_child == GTK_WIDGET (self->ip6_page))
++    title = _("Network IPv6 Settings");
++  else if (visible_child == GTK_WIDGET (self->security_page))
++    title = _("Network Security Settings");
++  else
++    g_return_if_reached ();
++
++  gtk_window_set_title (GTK_WINDOW (self), title);
++
++  /* Update Apply button */
++  gtk_widget_set_sensitive (GTK_WIDGET (self->apply_button), FALSE);
++
++  if (visible_child == GTK_WIDGET (self->main_page) ||
++      visible_child == GTK_WIDGET (self->details_page))
++    gtk_widget_hide (GTK_WIDGET (self->apply_button));
++  else
++    gtk_widget_show (GTK_WIDGET (self->apply_button));
++}
++
++static void
++editor_cancel_clicked_cb (CcConnectionEditor *self)
++{
++  GtkWidget *visible_child;
++
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++
++  visible_child = gtk_stack_get_visible_child (self->main_stack);
++
++  if (visible_child == GTK_WIDGET (self->main_page))
++    gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_CANCEL);
++  else
++    gtk_stack_set_visible_child (self->main_stack, GTK_WIDGET (self->main_page));
++
++  gtk_widget_show (GTK_WIDGET (self->back_button));
++}
++
++static void
++editor_apply_clicked_cb (CcConnectionEditor *self)
++{
++  GtkWidget *visible_child;
++  g_autoptr(GVariant) settings = NULL;
++  g_autoptr(GError) error = NULL;
++
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++
++  visible_child = gtk_stack_get_visible_child (self->main_stack);
++
++  if (visible_child == GTK_WIDGET (self->ip4_page))
++    ce_ip_page_save_connection (self->ip4_page);
++  else if (visible_child == GTK_WIDGET (self->ip6_page))
++    ce_ip_page_save_connection (self->ip6_page);
++  else if (visible_child == GTK_WIDGET (self->security_page))
++    ce_security_page_save_connection (self->security_page);
++  else
++    g_return_if_reached ();
++
++  settings = nm_connection_to_dbus (self->connection, NM_CONNECTION_SERIALIZE_ALL);
++  nm_connection_replace_settings (self->orig_connection, settings, &error);
++
++  if (error)
++    g_warning ("Error replacing settings: %s", error->message);
++  else
++    nm_remote_connection_commit_changes (NM_REMOTE_CONNECTION (self->orig_connection),
++                                         TRUE,
++                                         NULL, /* cancellable */
++                                         &error);
++  if (error)
++    g_warning ("Error saving settings: %s", error->message);
++
++  gtk_stack_set_visible_child (self->main_stack, GTK_WIDGET (self->main_page));
++}
++
++static void
++editor_row_activated_cb (CcConnectionEditor *self,
++                         CcListRow          *row)
++{
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++  g_assert (GTK_IS_LIST_BOX_ROW (row));
++
++  gtk_widget_show (GTK_WIDGET (self->cancel_button));
++  self->vadjustment_value = gtk_adjustment_get_value (self->vadjustment);
++  self->view_changed = TRUE;
++
++  if (row == self->details_row)
++    {
++      ce_details_page_refresh (self->details_page);
++      gtk_widget_show (GTK_WIDGET (self->back_button));
++      gtk_stack_set_visible_child (self->main_stack, GTK_WIDGET (self->details_page));
++    }
++  else if (row == self->ip4_row)
++    {
++      ce_ip_page_refresh (self->ip4_page);
++      gtk_stack_set_visible_child (self->main_stack, GTK_WIDGET (self->ip4_page));
++    }
++  else if (row == self->ip6_row)
++    {
++      ce_ip_page_refresh (self->ip6_page);
++      gtk_stack_set_visible_child (self->main_stack, GTK_WIDGET (self->ip6_page));
++    }
++  else if (row == self->security_row)
++    {
++      ce_security_page_refresh (self->security_page);
++      gtk_stack_set_visible_child (self->main_stack, GTK_WIDGET (self->security_page));
++    }
++  else
++    g_return_if_reached ();     /* XXX: debug, replace with return */
++}
++
++static void
++ce_main_view_scroll_changed_cb (CcConnectionEditor *self)
++{
++  GtkWidget *current_view;
++
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++
++  current_view = gtk_stack_get_visible_child (self->main_stack);
++
++  if (self->view_changed && current_view == GTK_WIDGET (self->main_page))
++    {
++      gtk_adjustment_set_value (self->vadjustment, self->vadjustment_value);
++      self->view_changed = FALSE;
++    }
++  else if (self->view_changed)
++    gtk_adjustment_set_value (self->vadjustment, 0.0);
++}
++
++static void
++editor_settings_changed_cb (CcConnectionEditor *self)
++{
++  GtkWidget *visible_child;
++  gboolean has_error = TRUE;
++
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++
++  visible_child = gtk_stack_get_visible_child (self->main_stack);
++
++  if (visible_child == GTK_WIDGET (self->main_page))
++    return;
++
++  if (visible_child == GTK_WIDGET (self->ip4_page))
++    has_error = ce_ip_page_has_error (self->ip4_page);
++  else if (visible_child == GTK_WIDGET (self->ip6_page))
++    has_error = ce_ip_page_has_error (self->ip6_page);
++  else if (visible_child == GTK_WIDGET (self->security_page))
++    has_error = ce_security_page_has_error (self->security_page);
++  else
++    g_warn_if_reached ();
++
++  gtk_widget_set_sensitive (GTK_WIDGET (self->apply_button), !has_error);
++}
++
++static void
++editor_row_changed_cb (CcConnectionEditor *self,
++                       GParamSpec         *psec,
++                       CcListRow          *row)
++{
++  NMSettingConnection *con_setting;
++  g_autoptr(GError) error = NULL;
++  gboolean active;
++
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++  g_assert (CC_IS_LIST_ROW (row));
++
++  /* We are saving to the original connection, not clone */
++  con_setting = nm_connection_get_setting_connection (self->orig_connection);
++  g_object_get (row, "active", &active, NULL);
++
++  if (row == self->allow_others_row)
++    {
++      g_object_set (con_setting, "permissions", NULL, NULL);
++
++      /* Ie,  Don’t allow others */
++      if (!active)
++        nm_setting_connection_add_permission (con_setting, "user", g_get_user_name (), NULL);
++    }
++  else if (row == self->auto_connect_row)
++    g_object_set (con_setting, "autoconnect", active, NULL);
++  else if (row == self->metered_row)
++    g_object_set (con_setting, "metered", active, NULL);
++  else
++    g_return_if_reached ();
++
++  /* XXX: Currently all networks are assumed to be already saved */
++  if (!NM_IS_REMOTE_CONNECTION (self->orig_connection))
++    g_return_if_reached ();
++
++  nm_remote_connection_commit_changes (NM_REMOTE_CONNECTION (self->orig_connection),
++                                       TRUE, NULL, &error);
++  if (error)
++    g_warning ("Error saving settings: %s", error->message);
++}
++
++static void
++editor_delete_clicked_cb (CcConnectionEditor *self)
++{
++  g_assert (CC_IS_CONNECTION_EDITOR (self));
++
++  /* XXX: Don't close on fail? */
++  nm_remote_connection_delete (NM_REMOTE_CONNECTION (self->orig_connection),
++                               NULL, NULL);
++  gtk_dialog_response (GTK_DIALOG (self), GTK_RESPONSE_CLOSE);
++}
++
++static void
++cc_connection_editor_response (GtkDialog *dialog,
++                               gint       response_id)
++{
++  CcConnectionEditor *self = (CcConnectionEditor *)dialog;
++  g_autoptr(GVariant) settings = NULL;
++
++  if (response_id != GTK_RESPONSE_APPLY)
++    return;
++
++  ce_ip_page_save_connection (self->ip4_page);
++  settings = nm_connection_to_dbus (self->connection, NM_CONNECTION_SERIALIZE_ALL);
++  nm_connection_replace_settings (self->orig_connection, settings, NULL);
++
++  ce_ip_page_save_connection (self->ip6_page);
++  settings = nm_connection_to_dbus (self->connection, NM_CONNECTION_SERIALIZE_ALL);
++  nm_connection_replace_settings (self->orig_connection, settings, NULL);
++
++  ce_security_page_save_connection (self->security_page);
++  settings = nm_connection_to_dbus (self->connection, NM_CONNECTION_SERIALIZE_ALL);
++  nm_connection_replace_settings (self->orig_connection, settings, NULL);
++
++  nm_remote_connection_commit_changes_async (NM_REMOTE_CONNECTION (self->orig_connection),
++                                             TRUE,
++                                             NULL, /* cancellable */
++                                             NULL,
++                                             NULL);
++}
++
++static void
++cc_connection_editor_show (GtkWidget *widget)
++{
++  CcConnectionEditor *self = (CcConnectionEditor *)widget;
++/*   NMSettingConnection *con_setting; */
++/*   const gchar *type; */
++/*   gboolean others_allowed, auto_connect; */
++
++  self->vadjustment_value = 0.0;
++  gtk_adjustment_set_value (self->vadjustment, 0.0);
++/*   con_setting = nm_connection_get_setting_connection (self->connection); */
++
++/*   auto_connect = nm_setting_connection_get_autoconnect (con_setting); */
++/*   g_object_set (self->auto_connect_row, "active", auto_connect, NULL); */
++
++/*   /\* If no users are added, all users are allowed *\/ */
++/*   others_allowed = nm_setting_connection_get_num_permissions (con_setting) == 0; */
++/*   g_object_set (self->allow_others_row, "active", others_allowed, NULL); */
++
++/*   /\* Disable for VPN; NetworkManager does not implement that yet (see */
++/*    * bug https://bugzilla.gnome.org/show_bug.cgi?id=792618) *\/ */
++/*   type = nm_setting_connection_get_connection_type (con_setting); */
++/*   if (type && !g_str_equal (type, NM_SETTING_VPN_SETTING_NAME)) */
++/*     { */
++/*       NMMetered metered; */
++
++/*       metered = nm_setting_connection_get_metered (con_setting); */
++
++/*       if (metered == NM_METERED_YES || metered == NM_METERED_GUESS_YES) */
++/*         g_object_set (self->metered_row, "active", TRUE, NULL); */
++/*     } */
++/*   else */
++/*     gtk_widget_hide (self->metered_row); */
++
++  GTK_WIDGET_CLASS (cc_connection_editor_parent_class)->show (widget);
++}
++
++static void
++cc_connection_editor_finalize (GObject *object)
++{
++  CcConnectionEditor *self = (CcConnectionEditor *)object;
++
++  g_clear_object (&self->device);
++  g_clear_object (&self->connection);
++  g_clear_object (&self->orig_connection);
++  g_object_unref (self->nm_client);
++
++  G_OBJECT_CLASS (cc_connection_editor_parent_class)->finalize (object);
++}
++
++static void
++cc_connection_editor_class_init (CcConnectionEditorClass *klass)
++{
++  GObjectClass   *object_class = G_OBJECT_CLASS (klass);
++  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
++
++  object_class->finalize = cc_connection_editor_finalize;
++
++  widget_class->show = cc_connection_editor_show;
++
++  gtk_widget_class_set_template_from_resource (widget_class,
++                                               "/org/gnome/control-center/"
++                                               "network/cc-connection-editor.ui");
++
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, back_button);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, cancel_button);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, apply_button);
++
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, main_view);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, main_stack);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, main_page);
++
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, details_box);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, signal_row);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, frequency_row);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, route_row);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, last_used_row);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, details_row);
++
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, switch_box);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, auto_connect_row);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, allow_others_row);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, metered_row);
++
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, advanced_box);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, ip4_row);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, ip6_row);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, security_row);
++
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, details_page);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, ip4_page);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, ip6_page);
++  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, security_page);
++
++  gtk_widget_class_bind_template_callback (widget_class, editor_visible_child_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, editor_cancel_clicked_cb);
++  gtk_widget_class_bind_template_callback (widget_class, editor_apply_clicked_cb);
++  gtk_widget_class_bind_template_callback (widget_class, editor_row_activated_cb);
++  gtk_widget_class_bind_template_callback (widget_class, editor_row_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, ce_main_view_scroll_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, editor_settings_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, editor_delete_clicked_cb);
++
++  g_type_ensure (CC_TYPE_LIST_ROW);
++  g_type_ensure (CE_TYPE_IP_PAGE);
++  g_type_ensure (CC_TYPE_NETWORK_PANEL);
++}
++
++static void
++cc_connection_editor_init (CcConnectionEditor *self)
++{
++  gtk_widget_init_template (GTK_WIDGET (self));
++  editor_visible_child_changed_cb (self);
++  ce_ip_page_set_version (self->ip4_page, AF_INET);
++  ce_ip_page_set_version (self->ip6_page, AF_INET6);
++
++  gtk_list_box_set_header_func (self->details_box,
++                                cc_list_box_update_header_func,
++                                NULL, NULL);
++
++  gtk_list_box_set_header_func (self->switch_box,
++                                cc_list_box_update_header_func,
++                                NULL, NULL);
++
++ gtk_list_box_set_header_func (self->advanced_box,
++                                cc_list_box_update_header_func,
++                               NULL, NULL);
++
++ self->vadjustment = gtk_scrolled_window_get_vadjustment (self->main_view);
++ g_signal_connect_swapped (self->vadjustment, "notify::upper",
++                           G_CALLBACK (ce_main_view_scroll_changed_cb), self);
++}
++
++GtkWidget *
++cc_connection_editor_new (GtkWindow *parent_window,
++                          NMClient  *nm_client)
++{
++  CcConnectionEditor *self;
++
++  g_return_val_if_fail (GTK_IS_WINDOW (parent_window), NULL);
++  g_return_val_if_fail (NM_IS_CLIENT (nm_client), NULL);
++
++  self = g_object_new (CC_TYPE_CONNECTION_EDITOR,
++                       "transient-for", parent_window,
++                       "use-header-bar", TRUE,
++                       NULL);
++  ce_ip_page_set_parent_window (self->ip4_page, GTK_WINDOW (self));
++  ce_ip_page_set_parent_window (self->ip6_page, GTK_WINDOW (self));
++  ce_details_page_set_parent_window (self->details_page, GTK_WINDOW (self));
++
++  self->nm_client = g_object_ref (nm_client);
++  ce_details_page_set_nm_client (self->details_page, nm_client);
++  ce_security_page_set_nm_client (self->security_page, nm_client);
++
++  return GTK_WIDGET (self);
++}
++
++void
++cc_connection_editor_set_connection (CcConnectionEditor *self,
++                                     NMConnection       *connection,
++                                     NMDevice           *device)
++{
++  NMSettingConnection *con_setting;
++  const gchar *type;
++  gchar *str;
++  gboolean others_allowed, is_active;
++
++  g_return_if_fail (CC_IS_CONNECTION_EDITOR (self));
++  g_return_if_fail (NM_IS_CONNECTION (connection));
++  g_return_if_fail (NM_IS_DEVICE (device));
++
++  g_set_object (&self->orig_connection, connection);
++  g_set_object (&self->device, device);
++
++  g_clear_object (&self->connection);
++  self->connection = nm_simple_connection_new_clone (self->orig_connection);
++  con_setting = nm_connection_get_setting_connection (self->connection);
++
++  g_object_bind_property (con_setting, "autoconnect",
++                          self->auto_connect_row, "active",
++                          G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
++
++  /* If no users are added, all users are allowed */
++  others_allowed = nm_setting_connection_get_num_permissions (con_setting) == 0;
++  g_object_set (self->allow_others_row, "active", others_allowed, NULL);
++
++  /* Disable for VPN; NetworkManager does not implement that yet (see
++   * bug https://bugzilla.gnome.org/show_bug.cgi?id=792618) */
++  type = nm_setting_connection_get_connection_type (con_setting);
++  if (type && !g_str_equal (type, NM_SETTING_VPN_SETTING_NAME))
++    {
++      NMMetered metered;
++
++      metered = nm_setting_connection_get_metered (con_setting);
++
++      if (metered == NM_METERED_YES || metered == NM_METERED_GUESS_YES)
++        g_object_set (self->metered_row, "active", TRUE, NULL);
++      else
++        g_object_set (self->metered_row, "active", FALSE, NULL);
++    }
++  else
++    gtk_widget_hide (GTK_WIDGET (self->metered_row));
++
++  ce_security_page_set_connection (self->security_page, self->orig_connection, self->connection, device);
++  ce_details_page_set_connection (self->details_page, self->orig_connection, self->connection, device);
++  ce_ip_page_set_connection (self->ip4_page, self->connection, device);
++  ce_ip_page_set_connection (self->ip6_page, self->connection, device);
++
++  is_active = ce_deails_page_has_active_connection (self->details_page, TRUE);
++  gtk_widget_set_visible (GTK_WIDGET (self->route_row), is_active);
++  gtk_widget_set_visible (GTK_WIDGET (self->last_used_row), !is_active);
++
++  if (is_active)
++    {
++      const gchar *gateway;
++
++      gateway = ce_details_page_get_gateway (self->details_page);
++      cc_list_row_set_secondary_label (self->route_row, gateway);
++    }
++  else
++    {
++      str = ce_details_page_get_last_used (self->details_page);
++      cc_list_row_set_secondary_label (self->last_used_row, str);
++      g_free (str);
++    }
++}
++
++void
++cc_connection_editor_set_ap (CcConnectionEditor *self,
++                             NMAccessPoint      *ap)
++{
++  g_return_if_fail (CC_IS_CONNECTION_EDITOR (self));
++  g_return_if_fail (!ap || NM_IS_ACCESS_POINT (ap));
++
++  if (g_set_object (&self->ap, ap))
++    cc_connection_editor_update_ap (self);
++}
+--- /dev/null
++++ b/panels/network/connection-editor/cc-connection-editor.h
+@@ -0,0 +1,44 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* cc-network-editor.h
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#define HANDY_USE_UNSTABLE_API 1
++#include <handy.h>
++#include <shell/cc-panel.h>
++
++G_BEGIN_DECLS
++
++#define CC_TYPE_CONNECTION_EDITOR (cc_connection_editor_get_type())
++G_DECLARE_FINAL_TYPE (CcConnectionEditor, cc_connection_editor, CC, CONNECTION_EDITOR, GtkDialog)
++
++GtkWidget   *cc_connection_editor_new            (GtkWindow          *parent_window,
++                                                  NMClient           *nm_client);
++void         cc_connection_editor_set_connection (CcConnectionEditor *self,
++                                                  NMConnection       *connection,
++                                                  NMDevice           *device);
++void         cc_connection_editor_set_ap         (CcConnectionEditor *self,
++                                                  NMAccessPoint      *ap);
++
++G_END_DECLS
+--- /dev/null
++++ b/panels/network/connection-editor/cc-connection-editor.ui
+@@ -0,0 +1,316 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <template class="CcConnectionEditor" parent="GtkDialog">
++    <signal name="delete-event" handler="gtk_widget_hide_on_delete"/>
++    <property name="default-width">360</property>
++    <child type="titlebar">
++      <object class="GtkHeaderBar">
++        <property name="visible">1</property>
++
++        <!-- Back button -->
++        <child>
++          <object class="GtkButton" id="back_button">
++            <property name="visible">1</property>
++            <signal name="clicked" handler="editor_cancel_clicked_cb" swapped="yes"/>
++            <child internal-child="accessible">
++              <object class="AtkObject">
++                <property name="accessible-name" translatable="yes">Back</property>
++              </object>
++            </child>
++            <child>
++              <object class="GtkImage">
++                <property name="visible">1</property>
++                <property name="icon-name">go-previous-symbolic</property>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- Cancel button -->
++        <child>
++          <object class="GtkButton" id="cancel_button">
++            <property name="visible" bind-source="back_button" bind-property="visible" bind-flags="invert-boolean|bidirectional" />
++            <property name="use-underline">1</property>
++            <property name="label" translatable="yes">_Cancel</property>
++            <signal name="clicked" handler="editor_cancel_clicked_cb" swapped="yes"/>
++          </object>
++        </child>
++
++        <!-- Apply button -->
++        <child>
++          <object class="GtkButton" id="apply_button">
++            <property name="visible">0</property>
++            <property name="sensitive">0</property>
++            <property name="can-default">1</property>
++            <property name="use-underline">1</property>
++            <property name="label" translatable="yes">_Apply</property>
++            <signal name="clicked" handler="editor_apply_clicked_cb" swapped="yes"/>
++            <style>
++              <class name="default" />
++            </style>
++          </object>
++          <packing>
++            <property name="pack-type">end</property>
++          </packing>
++        </child>
++
++      </object>
++    </child>
++
++    <child internal-child="vbox">
++      <object class="GtkBox">
++        <property name="border-width">0</property>
++
++        <child>
++          <object class="GtkScrolledWindow" id="main_view">
++            <property name="visible">1</property>
++            <property name="vexpand">1</property>
++            <property name="hscrollbar-policy">never</property>
++            <property name="min-content-height">400</property>
++            <child>
++              <object class="HdyClamp">
++                <property name="visible">1</property>
++                <property name="maximum-size">600</property>
++                <property name="tightening-threshold">400</property>
++                <property name="margin-top">32</property>
++                <property name="margin-bottom">32</property>
++
++                <child>
++                  <object class="GtkStack" id="main_stack">
++                    <property name="visible">1</property>
++                    <property name="transition-type">slide-left-right</property>
++                    <property name="homogeneous">0</property>
++                    <signal name="notify::visible-child" handler="editor_visible_child_changed_cb" swapped="yes" />
++
++                    <child>
++                      <object class="GtkBox" id="main_page">
++                        <property name="margin-start">12</property>
++                        <property name="margin-end">12</property>
++                        <property name="visible">1</property>
++                        <property name="orientation">vertical</property>
++
++                        <!-- Details -->
++                        <child>
++                          <object class="GtkListBox" id="details_box">
++                            <property name="visible">1</property>
++                            <property name="valign">start</property>
++                            <property name="margin-bottom">32</property>
++                            <property name="selection-mode">none</property>
++                            <signal name="row-activated" handler="editor_row_activated_cb" object="CcConnectionEditor" swapped="yes" />
++                            <style>
++                              <class name="frame" />
++                            </style>
++
++                            <!-- Signal Strength row -->
++                            <child>
++                              <object class="CcListRow" id="signal_row">
++                                <property name="visible">0</property>
++                                <property name="title" translatable="yes">Signal Strength</property>
++                              </object>
++                            </child>
++
++                            <!-- Frequency row -->
++                            <child>
++                              <object class="CcListRow" id="frequency_row">
++                                <property name="visible">0</property>
++                                <property name="title" translatable="yes">Frequency</property>
++                              </object>
++                            </child>
++
++                            <!-- Default Route row -->
++                            <child>
++                              <object class="CcListRow" id="route_row">
++                                <property name="visible">1</property>
++                                <property name="title" translatable="yes">Default Route</property>
++                              </object>
++                            </child>
++
++                            <!-- Last Used row -->
++                            <child>
++                              <object class="CcListRow" id="last_used_row">
++                                <property name="visible">0</property>
++                                <property name="title" translatable="yes">Last Used</property>
++                              </object>
++                            </child>
++
++                            <!-- Details row -->
++                            <child>
++                              <object class="CcListRow" id="details_row">
++                                <property name="visible">1</property>
++                                <property name="title" translatable="yes">Details</property>
++                                <property name="icon-name">go-next-symbolic</property>
++                              </object>
++                            </child>
++
++                          </object>
++                        </child>
++
++                        <!-- Misc. Switches -->
++                        <child>
++                          <object class="GtkListBox" id="switch_box">
++                            <property name="visible">1</property>
++                            <property name="valign">start</property>
++                            <property name="margin-bottom">32</property>
++                            <property name="selection-mode">none</property>
++                            <style>
++                              <class name="frame" />
++                            </style>
++
++                            <!-- Connect Automatically row -->
++                            <child>
++                              <object class="CcListRow" id="auto_connect_row">
++                                <property name="visible">1</property>
++                                <property name="show-switch">1</property>
++                                <property name="title" translatable="yes">Connect Automatically</property>
++                                <signal name="notify::active" handler="editor_row_changed_cb" swapped="yes" />
++                              </object>
++                            </child>
++
++                            <!-- Allow Others row -->
++                            <child>
++                              <object class="CcListRow" id="allow_others_row">
++                                <property name="visible">1</property>
++                                <property name="show-switch">1</property>
++                                <property name="title" translatable="yes">Available to other users</property>
++                                <signal name="notify::active" handler="editor_row_changed_cb" swapped="yes" />
++                              </object>
++                            </child>
++
++                            <!-- Metered connection row -->
++                            <child>
++                              <object class="CcListRow" id="metered_row">
++                                <property name="visible">1</property>
++                                <property name="show-switch">1</property>
++                                <property name="title" translatable="yes">Metered connection</property>
++                                <property name="subtitle" translatable="yes">Limit background data</property>
++                                <signal name="notify::active" handler="editor_row_changed_cb" swapped="yes" />
++                              </object>
++                            </child>
++
++                          </object>
++                        </child>
++
++                        <!-- Advanced settings -->
++                        <child>
++                          <object class="GtkLabel">
++                            <property name="visible">1</property>
++                            <property name="margin-bottom">12</property>
++                            <property name="halign">start</property>
++                            <property name="label" translatable="yes">Advanced Settings</property>
++                            <attributes>
++                              <attribute name="weight" value="bold"/>
++                            </attributes>
++                          </object>
++                        </child>
++
++                        <child>
++                          <object class="GtkListBox" id="advanced_box">
++                            <property name="visible">1</property>
++                            <property name="valign">start</property>
++                            <property name="margin-bottom">32</property>
++                            <property name="selection-mode">none</property>
++                            <signal name="row-activated" handler="editor_row_activated_cb" object="CcConnectionEditor" swapped="yes" />
++                            <style>
++                             <class name="frame" />
++                            </style>
++
++                            <!-- IPv4 row -->
++                            <child>
++                              <object class="CcListRow" id="ip4_row">
++                                <property name="visible">1</property>
++                                <property name="title" translatable="yes">IPv4</property>
++                                <property name="icon-name">go-next-symbolic</property>
++                              </object>
++                            </child>
++
++                            <!-- IPv6 row -->
++                            <child>
++                              <object class="CcListRow" id="ip6_row">
++                                <property name="visible">1</property>
++                                <property name="title" translatable="yes">IPv6</property>
++                                <property name="icon-name">go-next-symbolic</property>
++                              </object>
++                            </child>
++
++                            <!-- Security row -->
++                            <child>
++                              <object class="CcListRow" id="security_row">
++                                <property name="visible">1</property>
++                                <property name="title" translatable="yes">Security</property>
++                                <property name="icon-name">go-next-symbolic</property>
++                              </object>
++                            </child>
++
++                          </object>
++                        </child>
++
++                        <child>
++                          <object class="GtkButton" id="delete_button">
++                            <property name="visible">1</property>
++                            <property name="can-default">1</property>
++                            <property name="use-underline">1</property>
++                            <property name="label" translatable="yes">_Forget this Network</property>
++                            <signal name="clicked" handler="editor_delete_clicked_cb" swapped="yes" />
++                            <style>
++                              <class name="destructive-action" />
++                            </style>
++                          </object>
++                        </child>
++
++                      </object>
++                      <packing>
++                        <property name="name">main-view</property>
++                      </packing>
++                    </child>
++
++                    <!-- Details Page -->
++                    <child>
++                      <object class="CeDetailsPage" id="details_page">
++                        <property name="visible">1</property>
++                        <property name="margin-start">12</property>
++                        <property name="margin-end">12</property>
++                      </object>
++                    </child>
++
++                    <!-- IPv4 Page -->
++                    <child>
++                      <object class="CeIpPage" id="ip4_page">
++                        <property name="visible">1</property>
++                        <property name="margin-start">12</property>
++                        <property name="margin-end">12</property>
++                        <signal name="changed" handler="editor_settings_changed_cb" object="CcConnectionEditor" swapped="yes" />
++                      </object>
++                    </child>
++
++                    <!-- IPv6 Page -->
++                    <child>
++                      <object class="CeIpPage" id="ip6_page">
++                        <property name="visible">1</property>
++                        <property name="margin-start">12</property>
++                        <property name="margin-end">12</property>
++                        <signal name="changed" handler="editor_settings_changed_cb" object="CcConnectionEditor" swapped="yes" />
++                      </object>
++                    </child>
++
++                    <!-- Security Page -->
++                    <child>
++                      <object class="CeSecurityPage" id="security_page">
++                        <property name="visible">1</property>
++                        <property name="margin-start">12</property>
++                        <property name="margin-end">12</property>
++                        <signal name="changed" handler="editor_settings_changed_cb" object="CcConnectionEditor" swapped="yes" />
++                      </object>
++                    </child>
++
++                  </object>
++                </child>
++
++              </object>
++            </child>
++          </object>
++        </child>
++
++      </object>
++    </child>
++  </template>
++</interface>
+--- /dev/null
++++ b/panels/network/connection-editor/ce-details-page.c
+@@ -0,0 +1,837 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ce-wifi-page.c
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#undef G_LOG_DOMAIN
++#define G_LOG_DOMAIN "ce-details-page"
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++#include <glib/gi18n.h>
++#include <NetworkManager.h>
++
++#include "list-box-helper.h"
++#include "cc-list-row.h"
++#include "ce-details-page.h"
++
++/**
++ * @short_description: The Details page for a connection
++ * @include: "ce-details-page.h"
++ *
++ * Show details related to a network connection
++ */
++
++struct _CeDetailsPage
++{
++  GtkBox         parent_instance;
++
++  GtkWidget     *list_box;
++  GtkWidget     *speed_row;
++  GtkWidget     *dns_row;
++  GtkWidget     *ipv4_row;
++  GtkWidget     *ipv6_row;
++
++  GtkWidget     *network_name_row;
++  GtkWidget     *bssid_row;
++  GtkWidget     *mac_row;
++  GtkWidget     *cloned_mac_row;
++
++  GtkWidget     *edit_dialog;
++  GtkWidget     *apply_button;
++  GtkWidget     *dialog_label;
++  GtkWidget     *dialog_entry;
++  GtkWidget     *dialog_combo_box;
++  /* The row that activated the dialog */
++  GtkWidget     *dialog_row;
++
++  NMClient      *nm_client;
++  NMDevice      *device;
++  NMConnection  *orig_connection;
++  NMConnection  *connection;
++  NMAccessPoint *ap;
++  NMActiveConnection *active_connection;
++  /* NMSettingWireless  *wireless_setting; */
++
++  gboolean       device_is_active;
++};
++
++G_DEFINE_TYPE (CeDetailsPage, ce_details_page, GTK_TYPE_BOX)
++
++/* Stolen from ce-page.c
++ * Written by Matthias Clasen and Bastien Nocera
++ */
++static gboolean
++ce_details_address_is_valid (const gchar *addr)
++{
++  guint8 invalid_addr[4][ETH_ALEN] = {
++    {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
++    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
++    {0x44, 0x44, 0x44, 0x44, 0x44, 0x44},
++    {0x00, 0x30, 0xb4, 0x00, 0x00, 0x00}, /* prism54 dummy MAC */
++  };
++  guint8 addr_bin[ETH_ALEN];
++  g_autofree char *trimmed_addr = NULL;
++  gchar *end;
++  guint i;
++
++  /* MAC Address can be empty */
++  if (!addr || *addr == '\0')
++    return TRUE;
++
++  /* The address text may also have the device name at end, strip it */
++  trimmed_addr = g_strdup (addr);
++  end = strchr (trimmed_addr, ' ');
++  if (end != NULL)
++    *end = '\0';
++
++  if (!nm_utils_hwaddr_valid (trimmed_addr, -1))
++    return FALSE;
++
++  if (!nm_utils_hwaddr_aton (trimmed_addr, addr_bin, ETH_ALEN))
++    return FALSE;
++
++  /* Check for multicast address */
++  if ((((guint8 *) addr_bin)[0]) & 0x01)
++    return FALSE;
++
++  for (i = 0; i < G_N_ELEMENTS (invalid_addr); i++)
++    if (nm_utils_hwaddr_matches (addr_bin, ETH_ALEN, invalid_addr[i], ETH_ALEN))
++      return FALSE;
++
++  return TRUE;
++}
++
++static gchar *
++ce_details_get_human_time (guint64 unix_time)
++{
++  g_autoptr(GDateTime) now = NULL;
++  g_autoptr(GDateTime) utc_time = NULL;
++  gchar *last_used;
++  GTimeSpan diff;
++  gint days;
++
++  if (unix_time == 0)
++    return g_strdup (_("Never"));
++
++  now = g_date_time_new_now_utc ();
++  utc_time = g_date_time_new_from_unix_utc (unix_time);
++
++  diff = g_date_time_difference (now, utc_time);
++  days = diff / G_TIME_SPAN_DAY;
++
++  if (days == 0)
++    last_used = g_strdup (_("Today"));
++  else if (days == 1)
++    last_used = g_strdup (_("Yesterday"));
++  else
++    last_used = g_strdup_printf (ngettext ("%i day ago", "%i days ago", days), days);
++
++  return last_used;
++}
++
++static const gchar *
++details_get_ip_string (NMIPConfig *ip_config)
++{
++  NMIPAddress *address;
++  GPtrArray *ip_addresses;
++
++  g_assert (NM_IS_IP_CONFIG (ip_config));
++
++  ip_addresses = nm_ip_config_get_addresses (ip_config);
++
++  if (ip_addresses->len < 1)
++    return "";
++
++  address = ip_addresses->pdata[0];
++  return nm_ip_address_get_address (address);
++}
++
++static void
++ce_details_page_update_device_details (CeDetailsPage *self)
++{
++  NMIPConfig *ip_config;
++  const gchar * const *nameservers;
++  guint32 speed = 0;
++  gboolean is_active;
++
++  g_assert (CE_IS_DETAILS_PAGE (self));
++  g_assert (NM_IS_DEVICE (self->device));
++  g_assert (NM_IS_CONNECTION (self->connection));
++
++  is_active = ce_deails_page_has_active_connection (self, TRUE);
++  gtk_widget_set_visible (self->speed_row, is_active);
++  gtk_widget_set_visible (self->dns_row, is_active);
++  gtk_widget_set_visible (self->ipv4_row, is_active);
++  gtk_widget_set_visible (self->ipv6_row, is_active);
++
++  if (!is_active)
++    return;
++
++  /* Link Speed */
++  if (NM_IS_DEVICE_WIFI (self->device))
++    speed = nm_device_wifi_get_bitrate (NM_DEVICE_WIFI (self->device)) / 1000;
++  else if (NM_IS_DEVICE_ETHERNET (self->device))
++    speed = nm_device_ethernet_get_speed (NM_DEVICE_ETHERNET (self->device));
++  else
++    g_warn_if_reached ();
++
++  if (speed > 0)
++    {
++      g_autofree gchar *speed_label = NULL;
++
++      speed_label = g_strdup_printf (_("%u Mb/s"), speed);
++      cc_list_row_set_secondary_label (CC_LIST_ROW (self->speed_row), speed_label);
++    }
++
++  /* DNS servers list */
++  ip_config = nm_active_connection_get_ip4_config (self->active_connection);
++
++  /* XXX: check IPv6? */
++  if (!ip_config)
++    return;
++
++  nameservers = nm_ip_config_get_nameservers (ip_config);
++
++  if (nameservers)
++    {
++      g_autofree gchar *dns_list = NULL;
++
++      dns_list = g_strjoinv (", ", (gchar **)nameservers);
++      cc_list_row_set_secondary_label (CC_LIST_ROW (self->dns_row), dns_list);
++    }
++
++  /* IPv4 DHCP/Static address list */
++  ip_config = nm_active_connection_get_ip4_config (self->active_connection);
++  cc_list_row_set_secondary_label (CC_LIST_ROW (self->ipv4_row),
++                                   details_get_ip_string (ip_config));
++
++  /* IPv6 DHCP/Static address list */
++  ip_config = nm_active_connection_get_ip6_config (self->active_connection);
++  cc_list_row_set_secondary_label (CC_LIST_ROW (self->ipv6_row),
++                                   details_get_ip_string (ip_config));
++}
++
++static gchar *
++ce_details_get_ssid (CeDetailsPage *self)
++{
++  NMSettingWireless *setting;
++  GBytes *ssid;
++  gchar *ssid_text;
++
++  g_assert (CE_IS_DETAILS_PAGE (self));
++
++  setting = nm_connection_get_setting_wireless (self->orig_connection);
++  g_return_val_if_fail (setting, g_strdup (""));
++
++  ssid = nm_setting_wireless_get_ssid (setting);
++  if (ssid)
++    ssid_text = nm_utils_ssid_to_utf8 (g_bytes_get_data (ssid, NULL),
++                                       g_bytes_get_size (ssid));
++  else
++    ssid_text = g_strdup ("");
++
++  return ssid_text;
++}
++
++static void
++ce_details_page_update_wireless (CeDetailsPage *self)
++{
++  NMSettingWireless *setting;
++  g_autofree gchar *ssid_text = NULL;
++
++  g_assert (CE_IS_DETAILS_PAGE (self));
++
++  g_object_set (self->network_name_row, "subtitle", "", NULL);
++
++  setting = nm_connection_get_setting_wireless (self->orig_connection);
++  if (!setting)
++    return;
++
++  g_object_set (self->network_name_row, "subtitle", _("SSID"), NULL);
++
++  ssid_text = ce_details_get_ssid (self);
++  cc_list_row_set_secondary_label (CC_LIST_ROW (self->network_name_row), ssid_text);
++
++  cc_list_row_set_secondary_label (CC_LIST_ROW (self->bssid_row),
++                                   nm_setting_wireless_get_bssid (setting));
++}
++
++static void
++ce_details_page_populate_bssid (CeDetailsPage *self)
++{
++  NMSettingWireless *setting;
++  const gchar *bssid;
++
++  g_assert (CE_IS_DETAILS_PAGE (self));
++
++  setting = nm_connection_get_setting_wireless (self->orig_connection);
++  g_return_if_fail (setting);
++
++  for (guint32 i = 0; i < nm_setting_wireless_get_num_seen_bssids (setting); i++)
++    {
++      bssid = nm_setting_wireless_get_seen_bssid (setting, i);
++      gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (self->dialog_combo_box), NULL, bssid);
++    }
++}
++
++static void
++ce_details_page_populate_device_mac (CeDetailsPage *self)
++{
++  const GPtrArray *devices;
++  NMDeviceType device_type;
++
++  devices = nm_client_get_devices (self->nm_client);
++
++  if (!devices)
++    return;
++
++  if (NM_IS_DEVICE_WIFI (self->device))
++    device_type = NM_DEVICE_TYPE_WIFI;
++  else /* TODO */
++    g_return_if_reached ();
++
++  for (int i = 0; i < devices->len; i++)
++    {
++      NMDevice *device;
++      const char *iface;
++      g_autofree gchar *mac_address = NULL;
++      g_autofree gchar *item = NULL;
++
++      device = devices->pdata[i];
++
++      if (nm_device_get_device_type (device) != device_type)
++        continue;
++
++      g_object_get (G_OBJECT (device), "perm-hw-address", &mac_address, NULL);
++      iface = nm_device_get_iface (device);
++      item = g_strdup_printf ("%s (%s)", mac_address, iface);
++
++      gtk_combo_box_text_append (GTK_COMBO_BOX_TEXT (self->dialog_combo_box), NULL, item);
++  }
++}
++
++static void
++details_dialog_save (CeDetailsPage *self)
++{
++  NMSettingConnection *connection_setting;
++  NMSettingWireless *wireless_setting;
++  GtkEntry *entry;
++  g_autoptr(GError) error = NULL;
++  const gchar *value;
++
++  g_assert (CE_IS_DETAILS_PAGE (self));
++
++  if (self->dialog_row == self->network_name_row)
++    entry = GTK_ENTRY (self->dialog_entry);
++  else
++    entry = GTK_ENTRY (gtk_bin_get_child (GTK_BIN (self->dialog_combo_box)));
++
++  connection_setting = nm_connection_get_setting_connection (self->orig_connection);
++  wireless_setting = nm_connection_get_setting_wireless (self->orig_connection);
++  value = gtk_entry_get_text (entry);
++
++  if (!value || !*value)
++    value = NULL;
++
++  if (self->dialog_row == self->network_name_row)
++    {
++      g_object_set (G_OBJECT (connection_setting), "id", value, NULL);
++      if (wireless_setting)
++        {
++          g_autoptr(GBytes) ssid = NULL;
++
++          if (value)
++            ssid = g_bytes_new_static (value, strlen (value));
++          g_object_set (G_OBJECT (wireless_setting), "ssid", ssid, NULL);
++        }
++    }
++  else if (self->dialog_row == self->bssid_row)
++    {
++      if (wireless_setting)
++        g_object_set (G_OBJECT (wireless_setting), "bssid", value, NULL);
++    }
++  else if (self->dialog_row == self->mac_row)
++    {
++      g_autofree gchar *addr = NULL;
++      gchar *end = NULL;
++
++      /* The address text may also have the device name at end, strip it */
++      addr = g_strdup (value);
++      if (addr)
++        end = strchr (addr, ' ');
++      if (end != NULL)
++        *end = '\0';
++
++      if (wireless_setting)
++        g_object_set (G_OBJECT (wireless_setting), "mac-address", addr, NULL);
++    }
++  else if (self->dialog_row == self->cloned_mac_row)
++    {
++      const gchar *id;
++
++      id = gtk_combo_box_get_active_id (GTK_COMBO_BOX (self->dialog_combo_box));
++
++      if (id)
++        value = id;
++
++      if (wireless_setting)
++        g_object_set (G_OBJECT (wireless_setting), "cloned-mac-address", value, NULL);
++    }
++
++  nm_remote_connection_commit_changes (NM_REMOTE_CONNECTION (self->orig_connection),
++                                       TRUE, NULL, &error);
++  if (error)
++    g_warning ("Error saving settings: %s", error->message);
++  else
++    ce_details_page_update_wireless (self);
++}
++
++static void
++ce_details_page_populate_spoof_box (CeDetailsPage *self,
++                                    const gchar   *mac)
++{
++  GtkComboBoxText *combo;
++  static const char *items[][2] = {
++    { "preserve",  N_("Preserve") },
++    { "permanent", N_("Permanent") },
++    { "random",    N_("Random") },
++    { "stable",    N_("Stable") } };
++  gchar *match = NULL;
++
++  g_assert (CE_IS_DETAILS_PAGE (self));
++
++  if (mac)
++    match = strchr (mac, ':');
++
++  combo = GTK_COMBO_BOX_TEXT (self->dialog_combo_box);
++  for (int i = 0; i < G_N_ELEMENTS (items); i++)
++    gtk_combo_box_text_append (combo, items[i][0], _(items[i][1]));
++
++  if (!match && mac)
++    gtk_combo_box_set_active_id (GTK_COMBO_BOX (combo), mac);
++}
++
++static void
++details_row_activated_cb (CeDetailsPage *self,
++                          GtkWidget     *row)
++{
++  NMSettingWireless *setting;
++  GtkEntry *entry;
++  const gchar *label, *value = NULL;
++  gint response;
++  gboolean is_wifi;
++
++  g_assert (CE_IS_DETAILS_PAGE (self));
++  g_assert (GTK_IS_LIST_BOX_ROW (row));
++
++  self->dialog_row = NULL;
++  setting = nm_connection_get_setting_wireless (self->orig_connection);
++  entry = GTK_ENTRY (gtk_bin_get_child (GTK_BIN (self->dialog_combo_box)));
++  is_wifi = NM_IS_DEVICE_WIFI (self->device);
++  gtk_widget_hide (self->dialog_entry);
++
++  gtk_entry_set_text (entry, "");
++  gtk_entry_set_placeholder_text (entry, "");
++  gtk_entry_set_text (GTK_ENTRY (self->dialog_entry), "");
++  gtk_widget_set_sensitive (GTK_WIDGET (self->apply_button), FALSE);
++
++  gtk_combo_box_text_remove_all (GTK_COMBO_BOX_TEXT (self->dialog_combo_box));
++  if (row == self->network_name_row)
++    {
++      gtk_widget_show (self->dialog_entry);
++
++      if (is_wifi)
++        {
++          g_autofree gchar *ssid = NULL;
++
++          ssid = ce_details_get_ssid (self);
++          gtk_entry_set_text (GTK_ENTRY (self->dialog_entry), ssid);
++
++          label = _("Choose a new network SSID. This is how it will appear to others.");
++        }
++      else
++        label = _("Choose a new network Name. This is how it will appear to others.");
++    }
++  else if (row == self->bssid_row)
++    {
++      label = _("Choose a new network BSSID. This is how it will appear to others.");
++      value = nm_setting_wireless_get_bssid (setting);
++      ce_details_page_populate_bssid (self);
++
++      if (value && *value)
++        gtk_entry_set_text (entry, value);
++      else
++        gtk_entry_set_placeholder_text (entry, _("Allow connecting to any BSSID"));
++    }
++  else if (row == self->mac_row)
++    {
++      label = _("Choose a new network MAC Address. This is how it will appear to others.");
++      ce_details_page_populate_device_mac (self);
++
++      if (setting)
++        value = nm_setting_wireless_get_mac_address (setting);
++
++      if (value)
++        gtk_entry_set_text (entry, value);
++    }
++  else if (row == self->cloned_mac_row)
++    {
++      label = _("Choose a new Spoofed MAC Address. This is how it will appear to others.");
++
++      if (setting)
++        value = nm_setting_wireless_get_cloned_mac_address (setting);
++
++      ce_details_page_populate_spoof_box (self, value);
++    }
++  else
++    g_return_if_reached ();
++
++  self->dialog_row = row;
++  gtk_label_set_label (GTK_LABEL (self->dialog_label), label);
++
++  response = gtk_dialog_run (GTK_DIALOG (self->edit_dialog));
++  gtk_widget_hide (self->edit_dialog);
++
++  if (response == GTK_RESPONSE_APPLY)
++    details_dialog_save (self);
++}
++
++static void
++details_value_changed_cb (CeDetailsPage *self,
++                          GtkWidget     *widget)
++{
++  const gchar *value;
++  gboolean is_valid;
++
++  g_assert (CE_IS_DETAILS_PAGE (self));
++  g_assert (GTK_IS_WIDGET (self));
++
++  if (self->dialog_row == NULL)
++    return;
++
++  if (widget == self->dialog_entry)
++    {
++      if (!gtk_widget_get_visible (widget))
++        return;
++
++      value = gtk_entry_get_text (GTK_ENTRY (widget));
++      is_valid = value && *value;
++    }
++  else if (widget == self->dialog_combo_box)
++    {
++      g_autofree gchar *text = NULL;
++      text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT (widget));
++
++      if (self->dialog_row == self->cloned_mac_row)
++        {
++          is_valid = gtk_combo_box_get_active (GTK_COMBO_BOX (self->dialog_combo_box)) != -1;
++          is_valid = is_valid || ce_details_address_is_valid (text);
++        }
++      else
++        is_valid = ce_details_address_is_valid (text);
++    }
++  else
++    g_return_if_reached ();
++
++  gtk_widget_set_sensitive (self->apply_button, is_valid);
++}
++
++static void
++ce_details_page_finalize (GObject *object)
++{
++  CeDetailsPage *self = (CeDetailsPage *)object;
++
++  g_clear_object (&self->device);
++  g_clear_object (&self->connection);
++  g_clear_object (&self->nm_client);
++
++  G_OBJECT_CLASS (ce_details_page_parent_class)->finalize (object);
++}
++
++static void
++ce_details_page_class_init (CeDetailsPageClass *klass)
++{
++  GObjectClass   *object_class = G_OBJECT_CLASS (klass);
++  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
++
++  object_class->finalize = ce_details_page_finalize;
++
++  gtk_widget_class_set_template_from_resource (widget_class,
++                                               "/org/gnome/control-center/"
++                                               "network/ce-details-page.ui");
++
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, list_box);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, speed_row);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, dns_row);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, ipv4_row);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, ipv6_row);
++
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, network_name_row);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, bssid_row);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, mac_row);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, cloned_mac_row);
++
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, edit_dialog);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, apply_button);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, dialog_label);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, dialog_entry);
++  gtk_widget_class_bind_template_child (widget_class, CeDetailsPage, dialog_combo_box);
++
++  gtk_widget_class_bind_template_callback (widget_class, details_row_activated_cb);
++  gtk_widget_class_bind_template_callback (widget_class, details_value_changed_cb);
++}
++
++static void
++ce_details_page_init (CeDetailsPage *self)
++{
++  gtk_widget_init_template (GTK_WIDGET (self));
++
++  gtk_list_box_set_header_func (GTK_LIST_BOX (self->list_box),
++                                cc_list_box_update_header_func,
++                                NULL, NULL);
++}
++
++void
++ce_details_page_set_parent_window (CeDetailsPage *self,
++                                   GtkWindow     *parent_window)
++{
++  g_return_if_fail (CE_IS_DETAILS_PAGE (self));
++  g_return_if_fail (GTK_IS_WINDOW (parent_window));
++
++  gtk_window_set_transient_for (GTK_WINDOW (self->edit_dialog),
++                                parent_window);
++}
++
++void
++ce_details_page_set_nm_client (CeDetailsPage *self,
++                               NMClient      *nm_client)
++{
++  g_return_if_fail (CE_IS_DETAILS_PAGE (self));
++  g_return_if_fail (NM_IS_CLIENT (nm_client));
++
++  g_set_object (&self->nm_client, nm_client);
++}
++
++void
++ce_details_page_set_connection (CeDetailsPage *self,
++                                NMConnection  *orig_connection,
++                                NMConnection  *connection,
++                                NMDevice      *device)
++{
++  g_return_if_fail (CE_IS_DETAILS_PAGE (self));
++  g_return_if_fail (NM_IS_REMOTE_CONNECTION (orig_connection));
++  g_return_if_fail (NM_IS_CONNECTION (connection));
++  g_return_if_fail (NM_IS_DEVICE (device));
++
++  g_set_object (&self->connection, connection);
++  g_set_object (&self->orig_connection, orig_connection);
++  g_set_object (&self->device, device);
++}
++
++void
++ce_details_page_set_ap (CeDetailsPage *self,
++                        NMAccessPoint *ap)
++{
++  g_return_if_fail (CE_IS_DETAILS_PAGE (self));
++  g_return_if_fail (!ap || NM_IS_ACCESS_POINT (ap));
++
++  g_set_object (&self->ap, ap);
++}
++
++const gchar *
++ce_details_page_get_ap_strength (CeDetailsPage *self)
++{
++  const gchar *strength_label;
++  guint8 strength;
++
++  g_return_val_if_fail (CE_IS_DETAILS_PAGE (self), NULL);
++
++  if (!self->ap)
++    return "";
++
++  strength = nm_access_point_get_strength (self->ap);
++
++  if (strength <= 0)
++    strength_label = NULL;
++  else if (strength < 20)
++    strength_label = C_("Signal strength", "None");
++  else if (strength < 40)
++    strength_label = C_("Signal strength", "Weak");
++  else if (strength < 50)
++    strength_label = C_("Signal strength", "Ok");
++  else if (strength < 80)
++    strength_label = C_("Signal strength", "Good");
++  else
++    strength_label = C_("Signal strength", "Excellent");
++
++  return strength_label;
++}
++
++gchar *
++ce_details_page_get_ap_frequency (CeDetailsPage *self)
++{
++  guint32 frequency;
++
++  g_return_val_if_fail (CE_IS_DETAILS_PAGE (self), NULL);
++
++  if (!self->ap)
++    return g_strdup ("");
++
++  frequency = nm_access_point_get_frequency (self->ap);
++
++  if (!frequency)
++    return g_strdup ("");
++
++  return g_strdup_printf ("%.2g GHz", frequency / (1000 * 1.0));
++}
++
++void
++ce_details_page_refresh (CeDetailsPage *self)
++{
++  g_return_if_fail (CE_IS_DETAILS_PAGE (self));
++
++  self->active_connection = NULL;
++  if (self->device)
++    self->active_connection = nm_device_get_active_connection (self->device);
++
++  if (self->device && self->connection && self->active_connection)
++    ce_details_page_update_device_details (self);
++
++  ce_details_page_update_wireless (self);
++}
++
++gboolean
++ce_deails_page_has_active_connection (CeDetailsPage *self,
++                                      gboolean       force_refresh)
++{
++  g_return_val_if_fail (CE_IS_DETAILS_PAGE (self), FALSE);
++
++  if (force_refresh)
++    {
++      const gchar *uuid_active, *uuid;
++
++      if (self->device)
++        self->active_connection = nm_device_get_active_connection (self->device);
++
++      if (self->connection && self->active_connection)
++        {
++          uuid_active = nm_active_connection_get_uuid (self->active_connection);
++          uuid = nm_connection_get_uuid (self->connection);
++
++          self->device_is_active = g_str_equal (uuid, uuid_active);
++        }
++    }
++
++  return self->device_is_active;
++}
++
++gchar *
++ce_details_page_get_last_used (CeDetailsPage *self)
++{
++  NMSettingConnection *setting;
++  guint64 last_used;
++
++  g_return_val_if_fail (CE_IS_DETAILS_PAGE (self), ("Unknown"));
++  g_return_val_if_fail (self->connection, ("Unknown"));
++
++  if (ce_deails_page_has_active_connection (self, FALSE))
++    return g_strdup (_("Now"));
++
++  setting = nm_connection_get_setting_connection (self->connection);
++  last_used = nm_setting_connection_get_timestamp (setting);
++
++  return ce_details_get_human_time (last_used);
++}
++
++const gchar *
++ce_details_page_get_gateway (CeDetailsPage *self)
++{
++  NMIPConfig *ip_config;
++  const gchar *gateway = NULL;
++
++  g_return_val_if_fail (CE_IS_DETAILS_PAGE (self), "");
++
++  if (!ce_deails_page_has_active_connection (self, TRUE))
++    return "";
++
++  /* Check IPv4 Gateway */
++  ip_config = nm_active_connection_get_ip4_config (self->active_connection);
++  if (ip_config)
++    gateway = nm_ip_config_get_gateway (ip_config);
++
++  if (gateway && *gateway)
++    return gateway;
++
++  /* Check IPv6 Gateway */
++  ip_config = nm_active_connection_get_ip6_config (self->active_connection);
++  if (ip_config)
++    gateway = nm_ip_config_get_gateway (ip_config);
++
++  if (gateway)
++    return gateway;
++
++  return "";
++}
++
++gchar *
++ce_details_page_get_security (CeDetailsPage *self)
++{
++  GString *str;
++  NM80211ApSecurityFlags wpa_flags, rsn_flags;
++  NM80211ApFlags flags;
++
++  g_return_val_if_fail (CE_IS_DETAILS_PAGE (self), g_strdup (""));
++
++  if (!self->ap)
++    return g_strdup ("");
++
++  flags = nm_access_point_get_flags (self->ap);
++  wpa_flags = nm_access_point_get_wpa_flags (self->ap);
++  rsn_flags = nm_access_point_get_rsn_flags (self->ap);
++
++  str = g_string_new ("");
++  if ((flags & NM_802_11_AP_FLAGS_PRIVACY) &&
++      (wpa_flags == NM_802_11_AP_SEC_NONE) &&
++      (rsn_flags == NM_802_11_AP_SEC_NONE))
++    /* TRANSLATORS: this WEP WiFi security */
++    g_string_append_printf (str, "%s, ", _("WEP"));
++  if (wpa_flags != NM_802_11_AP_SEC_NONE)
++    /* TRANSLATORS: this WPA WiFi security */
++    g_string_append_printf (str, "%s, ", _("WPA"));
++  if (rsn_flags != NM_802_11_AP_SEC_NONE)
++    /* TRANSLATORS: this WPA WiFi security */
++    g_string_append_printf (str, "%s, ", _("WPA2"));
++  if ((wpa_flags & NM_802_11_AP_SEC_KEY_MGMT_802_1X) ||
++      (rsn_flags & NM_802_11_AP_SEC_KEY_MGMT_802_1X))
++    /* TRANSLATORS: this Enterprise WiFi security */
++    g_string_append_printf (str, "%s, ", _("Enterprise"));
++
++  /* Strip the comma suffix */
++  if (str->len > 0)
++    g_string_set_size (str, str->len - 2);
++  else
++    g_string_append (str, C_("Wifi security", "None"));
++
++  return g_string_free (str, FALSE);
++}
+--- /dev/null
++++ b/panels/network/connection-editor/ce-details-page.h
+@@ -0,0 +1,53 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ce-wifi-page.h
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#include <gtk/gtk.h>
++
++G_BEGIN_DECLS
++
++#define CE_TYPE_DETAILS_PAGE (ce_details_page_get_type())
++G_DECLARE_FINAL_TYPE (CeDetailsPage, ce_details_page, CE, DETAILS_PAGE, GtkBox)
++
++void         ce_details_page_set_parent_window (CeDetailsPage *self,
++                                                GtkWindow     *parent_window);
++void         ce_details_page_set_nm_client   (CeDetailsPage *self,
++                                              NMClient      *nm_client);
++void         ce_details_page_set_connection  (CeDetailsPage *self,
++                                              NMConnection  *orig_connection,
++                                              NMConnection  *connection,
++                                              NMDevice      *device);
++void         ce_details_page_set_ap          (CeDetailsPage *self,
++                                              NMAccessPoint *ap);
++void         ce_details_page_refresh         (CeDetailsPage *self);
++const gchar *ce_details_page_get_ap_strength (CeDetailsPage *self);
++gchar       *ce_details_page_get_ap_frequency (CeDetailsPage *self);
++gboolean     ce_deails_page_has_active_connection (CeDetailsPage *self,
++                                                   gboolean       force_refresh);
++gchar       *ce_details_page_get_last_used   (CeDetailsPage *self);
++const gchar *ce_details_page_get_gateway     (CeDetailsPage *self);
++gchar       *ce_details_page_get_security    (CeDetailsPage *self);
++
++G_END_DECLS
+--- /dev/null
++++ b/panels/network/connection-editor/ce-details-page.ui
+@@ -0,0 +1,162 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <template class="CeDetailsPage" parent="GtkBox">
++    <property name="orientation">vertical</property>
++
++    <child>
++      <object class="GtkListBox" id="list_box">
++        <property name="visible">1</property>
++        <property name="selection-mode">none</property>
++        <signal name="row-activated" handler="details_row_activated_cb" swapped="yes" />
++        <style>
++          <class name="frame" />
++        </style>
++
++        <!-- Link Speed Row -->
++        <child>
++          <object class="CcListRow" id="speed_row">
++            <property name="visible">1</property>
++            <property name="can-focus">0</property>
++            <property name="activatable">0</property>
++            <property name="title" translatable="yes">Link Speed</property>
++          </object>
++        </child>
++
++        <!-- DNS Servers row -->
++        <child>
++          <object class="CcListRow" id="dns_row">
++            <property name="visible">1</property>
++            <property name="can-focus">0</property>
++            <property name="activatable">0</property>
++            <property name="title" translatable="yes">DNS Servers</property>
++          </object>
++        </child>
++
++        <!-- IPv4 row -->
++        <child>
++          <object class="CcListRow" id="ipv4_row">
++            <property name="visible">1</property>
++            <property name="can-focus">0</property>
++            <property name="activatable">0</property>
++            <property name="title" translatable="yes">IPv4 Address</property>
++          </object>
++        </child>
++
++        <!-- IPv6 row -->
++        <child>
++          <object class="CcListRow" id="ipv6_row">
++            <property name="visible">1</property>
++            <property name="can-focus">0</property>
++            <property name="activatable">0</property>
++            <property name="title" translatable="yes">IPv6 Address</property>
++          </object>
++        </child>
++
++        <!-- Network Name row -->
++        <child>
++          <object class="CcListRow" id="network_name_row">
++            <property name="visible">1</property>
++            <property name="title" translatable="yes">Network Name</property>
++            <property name="icon-name">go-next-symbolic</property>
++          </object>
++        </child>
++
++        <!-- BSSID row -->
++        <child>
++          <object class="CcListRow" id="bssid_row">
++            <property name="visible">1</property>
++            <property name="title" translatable="yes">Access Point</property>
++            <property name="subtitle" translatable="yes">BSSID</property>
++            <property name="icon-name">go-next-symbolic</property>
++          </object>
++        </child>
++
++        <!-- MAC row -->
++        <child>
++          <object class="CcListRow" id="mac_row">
++            <property name="visible">1</property>
++            <property name="title" translatable="yes">Hardware Address</property>
++            <property name="subtitle" translatable="yes">MAC Address</property>
++            <property name="icon-name">go-next-symbolic</property>
++          </object>
++        </child>
++
++        <!-- Cloned MAC row -->
++        <child>
++          <object class="CcListRow" id="cloned_mac_row">
++            <property name="visible">1</property>
++            <property name="title" translatable="yes">Cloned Address</property>
++            <property name="subtitle" translatable="yes">MAC Address</property>
++            <property name="icon-name">go-next-symbolic</property>
++          </object>
++        </child>
++
++      </object>
++    </child>
++
++  </template>
++  <object class="GtkDialog" id="edit_dialog">
++    <property name="visible">0</property>
++    <property name="modal">1</property>
++    <property name="use-header-bar">1</property>
++    <property name="default-height">24</property>
++    <signal name="delete-event" handler="gtk_widget_hide_on_delete"/>
++
++    <child internal-child="vbox">
++      <object class="GtkBox">
++        <property name="border-width">0</property>
++        <property name="margin-top">18</property>
++        <property name="margin-start">12</property>
++        <property name="margin-end">12</property>
++        <property name="margin-bottom">18</property>
++        <child>
++          <object class="GtkLabel" id="dialog_label">
++            <property name="visible">1</property>
++            <property name="margin-bottom">18</property>
++            <property name="wrap">1</property>
++            <property name="max-width-chars">35</property>
++            <property name="xalign">0.0</property>
++          </object>
++        </child>
++        <child>
++          <object class="GtkEntry" id="dialog_entry">
++            <property name="visible">1</property>
++            <signal name="changed" handler="details_value_changed_cb" swapped="yes" />
++          </object>
++        </child>
++        <child>
++          <object class="GtkComboBoxText" id="dialog_combo_box">
++            <property name="visible" bind-source="dialog_entry" bind-property="visible" bind-flags="invert-boolean" />
++            <property name="has-entry">1</property>
++            <signal name="changed" handler="details_value_changed_cb" swapped="yes" />
++          </object>
++        </child>
++      </object>
++    </child>
++
++    <!-- Apply button -->
++    <child type="action">
++      <object class="GtkButton" id="apply_button">
++        <property name="visible">1</property>
++        <property name="sensitive">0</property>
++        <property name="can-default">1</property>
++        <property name="use-underline">1</property>
++        <property name="label" translatable="yes">_Apply</property>
++      </object>
++    </child>
++
++    <!-- Cancel button -->
++    <child type="action">
++      <object class="GtkButton" id="cancel_button">
++        <property name="visible">1</property>
++        <property name="use-underline">1</property>
++        <property name="label" translatable="yes">_Cancel</property>
++      </object>
++    </child>
++
++    <action-widgets>
++      <action-widget response="apply" default="true">apply_button</action-widget>
++      <action-widget response="cancel">cancel_button</action-widget>
++    </action-widgets>
++  </object>
++</interface>
+--- /dev/null
++++ b/panels/network/connection-editor/ce-ip-page.c
+@@ -0,0 +1,1055 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ce-wifi-page.c
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#undef G_LOG_DOMAIN
++#define G_LOG_DOMAIN "ce-ip-page"
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++#include <errno.h>
++#include <arpa/inet.h>
++#include <glib/gi18n.h>
++#include <NetworkManager.h>
++
++#define HANDY_USE_UNSTABLE_API
++#include <handy.h>
++
++#include "ui-helpers.h"
++#include "list-box-helper.h"
++#include "cc-list-row.h"
++#include "ce-ip-page.h"
++
++/**
++ * @short_description: The Ip page for a connection
++ * @include: "ce-ip-page.h"
++ *
++ * Show ip related to a network connection
++ */
++
++#define MANUAL_IP_NOT_CHANGED 0
++#define MANUAL_IP_ADDED    1        /* New manual IP added */
++#define MANUAL_IP_LOADED   2        /* Manual IP loaded from NMConnection */
++#define MANUAL_IP_MODIFIED 3
++#define MANUAL_IP_DELETED  4
++
++#define ROUTE_NOT_CHANGED 0
++#define ROUTE_ADDED    1        /* New route added */
++#define ROUTE_LOADED   2        /* Route loaded from NMConnection */
++#define ROUTE_MODIFIED 3
++#define ROUTE_DELETED  4
++
++struct _CeIpPage
++{
++  GtkBox         parent_instance;
++
++  GtkWidget     *auto_list_box;
++  GtkWidget     *ip_method_row;
++  GtkWidget     *auto_dns_row;
++  GtkWidget     *auto_route_row;
++
++  GtkWidget     *dns_list_box;
++  GtkWidget     *dns_title_label;
++  GtkWidget     *add_dns_row;
++
++  GtkWidget     *manual_list_box;
++  GtkWidget     *manual_address_entry;
++  GtkWidget     *manual_netmask_entry;
++  GtkWidget     *manual_gateway_entry;
++
++  GtkWidget     *add_dns_dialog;
++  GtkWidget     *add_button;
++  GtkWidget     *dns_entry;
++
++  GtkWidget     *route_list_box;
++  GtkWidget     *route_title_label;
++  GtkWidget     *route_address_entry;
++  GtkWidget     *route_netmask_entry;
++  GtkWidget     *route_gateway_entry;
++  GtkWidget     *route_metric_entry;
++
++  NMClient      *nm_client;
++  NMDevice      *device;
++  NMConnection  *connection;
++  NMSetting     *ip_setting;
++
++  GListStore    *ip_methods;
++  gchar         *current_method;
++
++  gint           version;
++  gint           route_status;
++  gint           manual_status;
++  gboolean       ip_has_error;  /* Manual IP */
++  gboolean       route_has_error;
++};
++
++G_DEFINE_TYPE (CeIpPage, ce_ip_page, GTK_TYPE_BOX)
++
++enum {
++  CHANGED,
++  N_SIGNALS
++};
++
++static guint signals[N_SIGNALS];
++
++static gboolean
++parse_netmask (const char *str,
++               guint      *prefix,
++               gint        version)
++{
++  struct in_addr tmp_addr;
++  glong tmp_prefix;
++  gint max_limit;
++
++  if (version == AF_INET)
++    max_limit = 32;
++  else
++    max_limit = 128;
++
++  errno = 0;
++
++  /* Is it a prefix? */
++  if (!strchr (str, '.')) {
++    tmp_prefix = strtol (str, NULL, 10);
++    if (!errno && tmp_prefix >= 0 && tmp_prefix <= max_limit) {
++      if (prefix)
++        *prefix = tmp_prefix;
++      return TRUE;
++    }
++  }
++
++  if (version != AF_INET)
++    return FALSE;
++
++  /* Is it a netmask? */
++  if (inet_pton (AF_INET, str, &tmp_addr) > 0) {
++    if (prefix)
++      *prefix = nm_utils_ip4_netmask_to_prefix (tmp_addr.s_addr);
++    return TRUE;
++  }
++
++  return FALSE;
++}
++
++static void
++ce_ip_page_populate_methods (CeIpPage *self)
++{
++  HdyValueObject *object;
++
++  g_assert (CE_IS_IP_PAGE (self));
++
++  g_list_store_remove_all (self->ip_methods);
++
++  /* XXX: Do we need different titles here? */
++  if (self->version == AF_INET6)
++    object = hdy_value_object_new_string (_("Automatic"));
++  else
++    object = hdy_value_object_new_string (_("Automatic (DHCP)"));
++
++  g_object_set_data (G_OBJECT (object), "value", "auto");
++  g_list_store_append (self->ip_methods, object);
++  g_object_unref (object);
++
++  if (self->version == AF_INET6)
++    {
++      object = hdy_value_object_new_string (_("Automatic, DHCP only"));
++      g_object_set_data (G_OBJECT (object), "value", "dhcp");
++      g_list_store_append (self->ip_methods, object);
++      g_object_unref (object);
++    }
++
++  object = hdy_value_object_new_string (_("Link-Local Only"));
++  g_object_set_data (G_OBJECT (object), "value", "link-local");
++  g_list_store_append (self->ip_methods, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("Manual"));
++  g_object_set_data (G_OBJECT (object), "value", "manual");
++  g_list_store_append (self->ip_methods, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("Disable"));
++  g_object_set_data (G_OBJECT (object), "value", "disabled");
++  g_list_store_append (self->ip_methods, object);
++  g_object_unref (object);
++}
++
++static void
++ce_ip_page_remove_dns_row (GtkWidget *widget,
++                           CeIpPage  *self)
++{
++  g_assert (CE_IS_IP_PAGE (self));
++  g_assert (GTK_IS_WIDGET (widget));
++
++  if (widget != self->add_dns_row)
++    gtk_container_remove (GTK_CONTAINER (self->dns_list_box), widget);
++}
++
++static void
++dns_delete_clicked_cb (CeIpPage  *self,
++                       GtkButton *button)
++{
++  GtkWidget *row, *label;
++  const gchar *dns;
++
++  g_assert (CE_IS_IP_PAGE (self));
++  g_assert (GTK_IS_BUTTON (button));
++
++  row = g_object_get_data (G_OBJECT (button), "row");
++  label = g_object_get_data (G_OBJECT (button), "label");
++  dns = gtk_label_get_label (GTK_LABEL (label));
++
++  if (nm_setting_ip_config_remove_dns_by_value (NM_SETTING_IP_CONFIG (self->ip_setting), dns))
++    gtk_container_remove (GTK_CONTAINER (self->dns_list_box), row);
++  else /* Debug */
++    g_return_if_reached ();
++
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static GtkWidget *
++ce_ip_list_row_new (CeIpPage    *self,
++                    const gchar *dns)
++{
++  GtkWidget *row, *box, *label, *button;
++  GtkStyleContext *style_context;
++
++  g_assert (CE_IS_IP_PAGE (self));
++  g_assert (nm_utils_ipaddr_valid (self->version, dns));
++
++  row = gtk_list_box_row_new ();
++  gtk_widget_set_can_focus (row, FALSE);
++
++  box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 12);
++  g_object_set (box, "margin", 6, NULL);
++  gtk_widget_set_hexpand (box, TRUE);
++  gtk_container_add (GTK_CONTAINER (row), box);
++
++  label = gtk_label_new (dns);
++  gtk_widget_set_hexpand (label, TRUE);
++  gtk_widget_set_halign (label, GTK_ALIGN_START);
++  style_context = gtk_widget_get_style_context (label);
++  gtk_style_context_add_class (style_context, "dim-label");
++  gtk_container_add (GTK_CONTAINER (box), label);
++
++  button = gtk_button_new_from_icon_name ("edit-delete-symbolic", GTK_ICON_SIZE_BUTTON);
++  g_object_set_data (G_OBJECT (button), "row", row);
++  g_object_set_data (G_OBJECT (button), "label", label);
++  g_signal_connect_object (button, "clicked",
++                           G_CALLBACK (dns_delete_clicked_cb),
++                           self,
++                           G_CONNECT_SWAPPED);
++  gtk_container_add (GTK_CONTAINER (box), button);
++
++  gtk_widget_show_all (row);
++
++  return row;
++}
++
++static void
++ce_ip_page_add_dns_row (CeIpPage    *self,
++                        const gchar *dns)
++{
++  GtkWidget *row;
++  gint last_index;
++
++  g_assert (CE_IS_IP_PAGE (self));
++  g_assert (nm_utils_ipaddr_valid (self->version, dns));
++
++  row = ce_ip_list_row_new (self, dns);
++  last_index = gtk_list_box_row_get_index (GTK_LIST_BOX_ROW (self->add_dns_row));
++  gtk_list_box_insert (GTK_LIST_BOX (self->dns_list_box), row, last_index);
++}
++
++static void
++ce_ip_page_update_device_ip (CeIpPage *self)
++{
++  g_assert (CE_IS_IP_PAGE (self));
++  g_assert (NM_IS_DEVICE (self->device));
++  g_assert (NM_IS_CONNECTION (self->connection));
++}
++
++static void
++ip_method_changed_cb (CeIpPage *self)
++{
++  g_autoptr(HdyValueObject) object = NULL;
++  gchar *method;
++  gint index;
++
++  g_assert (CE_IS_IP_PAGE (self));
++
++
++  index = hdy_combo_row_get_selected_index (HDY_COMBO_ROW (self->ip_method_row));
++  if (index == -1)
++    return;
++
++  object = g_list_model_get_item (G_LIST_MODEL (self->ip_methods), index);
++  g_assert (G_IS_OBJECT (object));
++  method = g_object_get_data (G_OBJECT (object), "value");
++
++  if (g_strcmp0 (self->current_method, method) == 0)
++    return;
++
++  self->current_method = method;
++  gtk_widget_set_sensitive (self->auto_dns_row, TRUE);
++  gtk_widget_set_sensitive (self->dns_list_box, TRUE);
++  gtk_widget_hide (self->manual_list_box);
++
++  if (g_str_equal (self->current_method, "manual"))
++    {
++      gtk_widget_show (self->manual_list_box);
++    }
++  else if (g_str_equal (self->current_method, "disabled"))
++    {
++      gtk_widget_set_sensitive (self->auto_dns_row, FALSE);
++      gtk_widget_set_sensitive (self->dns_list_box, FALSE);
++    }
++  else if (g_str_equal (self->current_method, "link-local"))
++    {
++      gtk_widget_set_sensitive (self->dns_list_box, FALSE);
++    }
++
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static void
++ip_auto_row_changed_cb (CeIpPage   *self,
++                        GParamSpec *pspec,
++                        GtkWidget  *row)
++{
++  const char *label;
++  gboolean is_auto;
++
++  g_assert (CE_IS_IP_PAGE (self));
++  g_assert (GTK_IS_LIST_BOX_ROW (row));
++
++  g_object_get (row, "active", &is_auto, NULL);
++
++  if (row == self->auto_dns_row)
++    {
++      if (is_auto)
++        label = _("Additional DNS Servers");
++      else
++        label = _("DNS Servers");
++
++      gtk_label_set_text (GTK_LABEL (self->dns_title_label), label);
++    }
++  else if (row == self->auto_route_row)
++    {
++      if (is_auto)
++        label = _("Additional Route");
++      else
++        label = _("Route");
++
++      gtk_label_set_text (GTK_LABEL (self->route_title_label), label);
++    }
++
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static void
++dns_row_activated_cb (CeIpPage  *self,
++                      GtkWidget *row)
++{
++  int result;
++
++  g_assert (CE_IS_IP_PAGE (self));
++  g_assert (GTK_IS_LIST_BOX_ROW (row));
++  g_assert (self->ip_setting);
++
++  if (row != self->add_dns_row)
++    return;
++
++  gtk_widget_grab_focus (self->dns_entry);
++  gtk_entry_set_text (GTK_ENTRY (self->dns_entry), "");
++  result = gtk_dialog_run (GTK_DIALOG (self->add_dns_dialog));
++  gtk_widget_hide (self->add_dns_dialog);
++
++  if (result == GTK_RESPONSE_APPLY)
++    {
++      const gchar *dns;
++
++      dns = gtk_entry_get_text (GTK_ENTRY (self->dns_entry));
++      if (nm_setting_ip_config_add_dns (NM_SETTING_IP_CONFIG (self->ip_setting), dns))
++        {
++          ce_ip_page_add_dns_row (self, dns);
++          g_signal_emit (self, signals[CHANGED], 0);
++        }
++    }
++}
++
++static void
++ce_entry_set_error (GtkWidget *widget,
++                    gboolean   has_error)
++{
++  if (has_error)
++    widget_set_error (widget);
++  else
++    widget_unset_error (widget);
++}
++
++static gboolean
++ce_ip_entry_validate (GtkWidget *widget,
++                      gint       version)
++{
++  GtkEntry *entry;
++  const gchar *ip;
++  gboolean valid;
++
++  g_assert (GTK_IS_ENTRY (widget));
++  g_assert (version == AF_INET || version == AF_INET6);
++
++  entry = GTK_ENTRY (widget);
++  ip = gtk_entry_get_text (entry);
++
++  valid = nm_utils_ipaddr_valid (version, ip);
++  ce_entry_set_error (widget, !valid);
++
++  return valid;
++}
++
++static gboolean
++ce_netmask_entry_validate (GtkWidget *widget,
++                           gint       version)
++{
++  GtkEntry *entry;
++  const gchar *text;
++  gchar *end;
++  glong prefix;
++  gboolean valid;
++
++  g_assert (GTK_IS_ENTRY (widget));
++  g_assert (version == AF_INET || version == AF_INET6);
++
++  valid = FALSE;
++  entry = GTK_ENTRY (widget);
++  text = gtk_entry_get_text (entry);
++
++  if (!*text)
++    {
++      widget_set_error (widget);
++      return FALSE;
++    }
++
++  if (version == AF_INET)
++    valid = ce_ip_entry_validate (widget, version);
++
++  if (gtk_entry_get_text_length (entry) > 4)
++    return valid;
++
++  prefix = strtol (text, &end, 10);
++
++  if (*end == '\0')
++    {
++      if (version == AF_INET)
++        valid = prefix >= 0 && prefix <= 32;
++      else
++        valid = prefix >= 0 && prefix <= 128;
++    }
++
++  ce_entry_set_error (widget, !valid);
++
++  return valid;
++}
++
++static gboolean
++ce_metric_entry_validate (GtkWidget *widget)
++{
++  GtkEntry *entry;
++  const gchar *text;
++  gchar *end;
++  glong metric;
++  gboolean valid;
++
++  g_assert (GTK_IS_ENTRY (widget));
++
++  valid = FALSE;
++  entry = GTK_ENTRY (widget);
++  text = gtk_entry_get_text (entry);
++
++  if (!*text)
++    {
++      widget_unset_error (widget);
++      return TRUE;
++    }
++
++  metric = strtol (text, &end, 10);
++
++  if (*end == '\0' &&
++      metric >= 0 && metric <= G_MAXUINT32)
++    valid = TRUE;
++
++  ce_entry_set_error (widget, !valid);
++
++  return valid;
++}
++
++static void
++ce_manual_entry_changed_cb (CeIpPage *self)
++{
++  const gchar *address, *gateway, *netmask;
++  gboolean valid, has_error;
++
++  g_assert (CE_IS_IP_PAGE (self));
++
++  if (!gtk_widget_get_visible (self->manual_list_box))
++    return;
++
++  address = gtk_entry_get_text (GTK_ENTRY (self->manual_address_entry));
++  gateway = gtk_entry_get_text (GTK_ENTRY (self->manual_gateway_entry));
++  netmask = gtk_entry_get_text (GTK_ENTRY (self->manual_netmask_entry));
++
++  if (!*address && !*gateway && !*netmask)
++    {
++      widget_set_error (self->manual_address_entry);
++      widget_set_error (self->manual_gateway_entry);
++      widget_set_error (self->manual_netmask_entry);
++
++      if (self->manual_status == MANUAL_IP_LOADED ||
++          self->manual_status == MANUAL_IP_MODIFIED)
++        self->manual_status = MANUAL_IP_DELETED;
++      else
++        self->manual_status = MANUAL_IP_NOT_CHANGED;
++
++      self->ip_has_error = TRUE;
++      goto end;
++    }
++
++  valid = ce_ip_entry_validate (self->manual_address_entry, self->version);
++  has_error = !valid;
++
++  valid = ce_ip_entry_validate (self->manual_gateway_entry, self->version);
++  has_error = has_error || !valid;
++
++  valid = ce_netmask_entry_validate (self->manual_netmask_entry, self->version);
++  has_error = has_error || !valid;
++
++  self->ip_has_error = has_error;
++  if (has_error)
++    goto end;
++
++  if (self->manual_status == MANUAL_IP_LOADED ||
++      self->manual_status == MANUAL_IP_DELETED)
++    self->manual_status = MANUAL_IP_MODIFIED;
++  else if (self->manual_status == MANUAL_IP_NOT_CHANGED)
++    self->manual_status = MANUAL_IP_ADDED;
++
++ end:
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static void
++ce_route_entry_changed_cb (CeIpPage *self)
++{
++  const gchar *address, *gateway, *netmask, *metric;
++  gboolean valid, has_error;
++
++  g_assert (CE_IS_IP_PAGE (self));
++
++  address = gtk_entry_get_text (GTK_ENTRY (self->route_address_entry));
++  gateway = gtk_entry_get_text (GTK_ENTRY (self->route_gateway_entry));
++  netmask = gtk_entry_get_text (GTK_ENTRY (self->route_netmask_entry));
++  metric  = gtk_entry_get_text (GTK_ENTRY (self->route_metric_entry));
++
++  if (!*address && !*gateway && !*netmask && !*metric)
++    {
++      widget_unset_error (self->route_address_entry);
++      widget_unset_error (self->route_gateway_entry);
++      widget_unset_error (self->route_netmask_entry);
++      widget_unset_error (self->route_metric_entry);
++
++      if (self->route_status == ROUTE_LOADED ||
++          self->route_status == ROUTE_MODIFIED)
++        self->route_status = ROUTE_DELETED;
++      else
++        self->route_status = ROUTE_NOT_CHANGED;
++
++      self->route_has_error = FALSE;
++      goto end;
++    }
++
++  valid = ce_ip_entry_validate (self->route_address_entry, self->version);
++  has_error = !valid;
++
++  valid = ce_ip_entry_validate (self->route_gateway_entry, self->version);
++  has_error = has_error || !valid;
++
++  valid = ce_netmask_entry_validate (self->route_netmask_entry, self->version);
++  has_error = has_error || !valid;
++
++  valid = ce_metric_entry_validate (self->route_metric_entry);
++  has_error = has_error || !valid;
++
++  self->route_has_error = has_error;
++  if (has_error)
++    goto end;
++
++  if (self->route_status == ROUTE_LOADED ||
++      self->route_status == ROUTE_DELETED)
++    self->route_status = ROUTE_MODIFIED;
++  else if (self->route_status == ROUTE_NOT_CHANGED)
++    self->route_status = ROUTE_ADDED;
++
++ end:
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static void
++ce_dns_entry_changed_cb (CeIpPage *self)
++{
++  GtkStyleContext *style_context;
++  const gchar *ip;
++  gboolean valid;
++
++  g_assert (CE_IS_IP_PAGE (self));
++
++  ip = gtk_entry_get_text (GTK_ENTRY (self->dns_entry));
++  style_context = gtk_widget_get_style_context (self->dns_entry);
++
++  valid = nm_utils_ipaddr_valid (self->version, ip);
++  gtk_widget_set_sensitive (self->add_button, valid);
++
++  if (valid || *ip == '\0')
++    gtk_style_context_remove_class (style_context, "error");
++  else
++    gtk_style_context_add_class (style_context, "error");
++
++}
++
++static void
++ce_ip_page_finalize (GObject *object)
++{
++  CeIpPage *self = (CeIpPage *)object;
++
++  g_clear_object (&self->ip_methods);
++  g_clear_object (&self->device);
++  g_clear_object (&self->connection);
++  g_clear_object (&self->nm_client);
++
++  G_OBJECT_CLASS (ce_ip_page_parent_class)->finalize (object);
++}
++
++static void
++ce_ip_page_class_init (CeIpPageClass *klass)
++{
++  GObjectClass   *object_class = G_OBJECT_CLASS (klass);
++  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
++
++  object_class->finalize = ce_ip_page_finalize;
++
++  signals[CHANGED] =
++    g_signal_new ("changed",
++                  G_OBJECT_CLASS_TYPE (object_class),
++                  G_SIGNAL_RUN_FIRST,
++                  0, NULL, NULL,
++                  g_cclosure_marshal_VOID__VOID,
++                  G_TYPE_NONE, 0);
++
++  gtk_widget_class_set_template_from_resource (widget_class,
++                                               "/org/gnome/control-center/"
++                                               "network/ce-ip-page.ui");
++
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, auto_list_box);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, ip_method_row);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, auto_dns_row);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, auto_route_row);
++
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, manual_list_box);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, manual_address_entry);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, manual_netmask_entry);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, manual_gateway_entry);
++
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, dns_list_box);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, dns_title_label);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, add_dns_row);
++
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, add_dns_dialog);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, add_button);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, dns_entry);
++
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, route_list_box);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, route_title_label);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, route_address_entry);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, route_netmask_entry);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, route_gateway_entry);
++  gtk_widget_class_bind_template_child (widget_class, CeIpPage, route_metric_entry);
++
++  gtk_widget_class_bind_template_callback (widget_class, ip_method_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, ip_auto_row_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, dns_row_activated_cb);
++  gtk_widget_class_bind_template_callback (widget_class, ce_manual_entry_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, ce_route_entry_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, ce_dns_entry_changed_cb);
++}
++
++static void
++ce_ip_page_init (CeIpPage *self)
++{
++  gtk_widget_init_template (GTK_WIDGET (self));
++  self->ip_methods = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
++
++  hdy_combo_row_bind_name_model (HDY_COMBO_ROW (self->ip_method_row),
++                                 G_LIST_MODEL (self->ip_methods),
++                                 (HdyComboRowGetNameFunc) hdy_value_object_dup_string,
++                                 NULL, NULL);
++
++  gtk_list_box_set_header_func (GTK_LIST_BOX (self->auto_list_box),
++                                cc_list_box_update_header_func,
++                                NULL, NULL);
++
++  gtk_list_box_set_header_func (GTK_LIST_BOX (self->dns_list_box),
++                                cc_list_box_update_header_func,
++                                NULL, NULL);
++
++  gtk_list_box_set_header_func (GTK_LIST_BOX (self->route_list_box),
++                                cc_list_box_update_header_func,
++                                NULL, NULL);
++}
++
++void
++ce_ip_page_set_parent_window (CeIpPage  *self,
++                              GtkWindow *parent_window)
++{
++  g_return_if_fail (CE_IS_IP_PAGE (self));
++  g_return_if_fail (GTK_IS_WINDOW (parent_window));
++
++  gtk_window_set_transient_for (GTK_WINDOW (self->add_dns_dialog),
++                                parent_window);
++}
++
++void
++ce_ip_page_set_version (CeIpPage *self,
++                        gint      version)
++{
++  g_return_if_fail (CE_IS_IP_PAGE (self));
++  g_return_if_fail (version != AF_INET || version != AF_INET6);
++
++  self->version = version;
++
++  ce_ip_page_populate_methods (self);
++
++  if (version == AF_INET6)
++    g_object_set (self->ip_method_row, "title", _("IPv6 Method"), NULL);
++  else
++    g_object_set (self->ip_method_row, "title", _("IPv4 Method"), NULL);
++}
++
++void
++ce_ip_page_set_connection (CeIpPage     *self,
++                           NMConnection *connection,
++                           NMDevice     *device)
++{
++  g_return_if_fail (CE_IS_IP_PAGE (self));
++  g_return_if_fail (self->version != 0);
++  g_return_if_fail (NM_IS_CONNECTION (connection));
++  g_return_if_fail (NM_IS_DEVICE (device));
++
++  g_set_object (&self->connection, connection);
++  g_set_object (&self->device, device);
++
++  if (self->version == AF_INET)
++    self->ip_setting = NM_SETTING (nm_connection_get_setting_ip4_config (connection));
++  if (self->version == AF_INET6)
++    self->ip_setting = NM_SETTING (nm_connection_get_setting_ip6_config (connection));
++
++  if (!self->ip_setting)
++    {
++      if (self->version == AF_INET)
++        self->ip_setting = nm_setting_ip4_config_new ();
++      else if (self->version == AF_INET6)
++        self->ip_setting = nm_setting_ip6_config_new ();
++      else /* Debug */
++        g_return_if_reached ();
++      nm_connection_add_setting (connection, self->ip_setting);
++
++      g_signal_emit (self, signals[CHANGED], 0);
++    }
++
++  g_object_bind_property (self->ip_setting, "ignore-auto-dns",
++                          self->auto_dns_row, "active",
++                          G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL | G_BINDING_INVERT_BOOLEAN);
++
++  g_object_bind_property (self->ip_setting, "ignore-auto-routes",
++                          self->auto_route_row, "active",
++                          G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL | G_BINDING_INVERT_BOOLEAN);
++}
++
++void
++ce_ip_page_refresh (CeIpPage *self)
++{
++  NMSettingIPConfig *setting;
++
++  g_return_if_fail (CE_IS_IP_PAGE (self));
++  g_return_if_fail (self->version != 0);
++
++  if (self->device && self->connection)
++    ce_ip_page_update_device_ip (self);
++
++  ip_auto_row_changed_cb (self, NULL, self->auto_dns_row);
++  ip_auto_row_changed_cb (self, NULL, self->auto_route_row);
++
++  setting = NM_SETTING_IP_CONFIG (self->ip_setting);
++  gtk_container_foreach (GTK_CONTAINER (self->dns_list_box),
++                         (GtkCallback)ce_ip_page_remove_dns_row, self);
++
++  for (int i = 0; i < nm_setting_ip_config_get_num_dns (setting); i++)
++    {
++      const char *dns;
++
++      dns = nm_setting_ip_config_get_dns (setting, i);
++      ce_ip_page_add_dns_row (self, dns);
++    }
++
++  /* Reset entries */
++  gtk_entry_set_text (GTK_ENTRY (self->route_address_entry), "");
++  gtk_entry_set_text (GTK_ENTRY (self->route_netmask_entry), "");
++  gtk_entry_set_text (GTK_ENTRY (self->route_gateway_entry), "");
++  gtk_entry_set_text (GTK_ENTRY (self->route_metric_entry), "");
++
++  gtk_entry_set_text (GTK_ENTRY (self->manual_address_entry), "");
++  gtk_entry_set_text (GTK_ENTRY (self->manual_netmask_entry), "");
++  gtk_entry_set_text (GTK_ENTRY (self->manual_gateway_entry), "");
++
++  /* We set only one route, the rest is ignored */
++  if (nm_setting_ip_config_get_num_routes (setting) > 0)
++    {
++      NMIPRoute *route;
++      gchar *str;
++      gint64 metric;
++      guint32 prefix;
++
++      route = nm_setting_ip_config_get_route (setting, 0);
++      gtk_entry_set_text (GTK_ENTRY (self->route_address_entry),
++                          nm_ip_route_get_dest (route));
++      gtk_entry_set_text (GTK_ENTRY (self->route_gateway_entry),
++                          nm_ip_route_get_next_hop (route));
++      self->route_status = ROUTE_LOADED;
++
++      prefix = nm_ip_route_get_prefix (route);
++      if (self->version == AF_INET)
++        {
++          gchar text_netmask[INET_ADDRSTRLEN + 1];
++          gulong netmask;
++
++          netmask = nm_utils_ip4_prefix_to_netmask (prefix);
++          inet_ntop (AF_INET, &netmask, text_netmask, sizeof (text_netmask));
++          gtk_entry_set_text (GTK_ENTRY (self->route_netmask_entry), text_netmask);
++        }
++      else
++        {
++          str = g_strdup_printf ("%ud", prefix);
++          gtk_entry_set_text (GTK_ENTRY (self->route_netmask_entry), str);
++          g_free (str);
++        }
++
++      metric = nm_ip_route_get_metric (route);
++      if (metric >= 0)
++        {
++          str = g_strdup_printf ("%ld", metric);
++          gtk_entry_set_text (GTK_ENTRY (self->route_metric_entry), str);
++          g_free (str);
++        }
++    }
++
++  /* We set only one address, the rest is ignored */
++  if (nm_setting_ip_config_get_num_addresses (setting) > 0)
++    {
++      NMIPAddress *address;
++      gchar *str;
++      guint32 prefix;
++
++      address = nm_setting_ip_config_get_address (setting, 0);
++      gtk_entry_set_text (GTK_ENTRY (self->manual_address_entry),
++                          nm_ip_address_get_address (address));
++      gtk_entry_set_text (GTK_ENTRY (self->manual_gateway_entry),
++                          nm_setting_ip_config_get_gateway (setting));
++      self->manual_status = MANUAL_IP_LOADED;
++
++      prefix = nm_ip_address_get_prefix (address);
++      if (self->version == AF_INET)
++        {
++          gchar text_netmask[INET_ADDRSTRLEN + 1];
++          gulong netmask;
++
++          netmask = nm_utils_ip4_prefix_to_netmask (prefix);
++          inet_ntop (AF_INET, &netmask, text_netmask, sizeof (text_netmask));
++          gtk_entry_set_text (GTK_ENTRY (self->manual_netmask_entry), text_netmask);
++        }
++      else
++        {
++          str = g_strdup_printf ("%ud", prefix);
++          gtk_entry_set_text (GTK_ENTRY (self->manual_netmask_entry), str);
++          g_free (str);
++        }
++    }
++}
++
++static void
++ce_ip_page_save_routes (CeIpPage *self)
++{
++  g_autoptr(GPtrArray) routes = NULL;
++  NMSettingIPConfig *setting;
++  NMIPRoute *route, *new_route;
++  const gchar *address, *text_metric, *gateway;
++  gint64 metric;
++  guint prefix;
++
++  g_assert (CE_IS_IP_PAGE (self));
++
++  if (self->route_status == ROUTE_NOT_CHANGED)
++    return;
++
++  setting = NM_SETTING_IP_CONFIG (self->ip_setting);
++
++  /* If we modified the route, we delete it, and re-add */
++  if (self->route_status == ROUTE_DELETED ||
++      self->route_status == ROUTE_MODIFIED)
++    nm_setting_ip_config_remove_route (setting, 0);
++
++  if (self->route_status == ROUTE_DELETED)
++    return;
++
++  if (!parse_netmask (gtk_entry_get_text (GTK_ENTRY (self->route_netmask_entry)),
++                      &prefix, self->version))
++    return;
++
++  address = gtk_entry_get_text (GTK_ENTRY (self->route_address_entry));
++  gateway = gtk_entry_get_text (GTK_ENTRY (self->route_gateway_entry));
++  text_metric = gtk_entry_get_text (GTK_ENTRY (self->route_metric_entry));
++
++  if (!text_metric || !*text_metric)
++    metric = -1;
++  else
++    metric = strtol (text_metric, NULL, 10);
++
++  /*
++   * We create a copy of all routes, and put the one we added/changed
++   * as the first item, so that it'll always be the first item.
++   */
++  routes = g_ptr_array_new_full (1, (GDestroyNotify)nm_ip_route_unref);
++  new_route = nm_ip_route_new (self->version, address, prefix, gateway, metric, NULL);
++  g_ptr_array_add (routes, new_route);
++
++  for (guint i = 0; i < nm_setting_ip_config_get_num_routes (setting); i++)
++    {
++      route = nm_setting_ip_config_get_route (setting, i);
++      nm_ip_route_ref (route);
++      g_ptr_array_add (routes, route); /* XXX: Safe? */
++    }
++
++  g_object_set (self->ip_setting,
++                NM_SETTING_IP_CONFIG_ROUTES, routes,
++                NULL);
++}
++
++static void
++ce_ip_page_save_manual_ips (CeIpPage *self)
++{
++  g_autoptr(GPtrArray) addresses = NULL;
++  NMSettingIPConfig *setting;
++  NMIPAddress *ip_address;
++  const gchar *address, *gateway;
++  guint prefix;
++
++  g_assert (CE_IS_IP_PAGE (self));
++
++  if (self->manual_status == ROUTE_NOT_CHANGED)
++    return;
++
++  setting = NM_SETTING_IP_CONFIG (self->ip_setting);
++
++  /* If we modified the route, we delete it, and re-add */
++  if (self->manual_status == ROUTE_DELETED ||
++      self->manual_status == ROUTE_MODIFIED)
++    nm_setting_ip_config_remove_address (setting, 0);
++
++  if (self->manual_status == ROUTE_DELETED)
++    return;
++
++  if (!parse_netmask (gtk_entry_get_text (GTK_ENTRY (self->manual_netmask_entry)),
++                      &prefix, self->version))
++    return;
++
++  address = gtk_entry_get_text (GTK_ENTRY (self->manual_address_entry));
++  gateway = gtk_entry_get_text (GTK_ENTRY (self->manual_gateway_entry));
++
++  /*
++   * We create a copy of all address, and put the one we added/changed
++   * as the first item, so that it'll always be the first item.
++   */
++  addresses = g_ptr_array_new_with_free_func ((GDestroyNotify) nm_ip_address_unref);
++
++  ip_address = nm_ip_address_new (self->version, address, prefix, NULL);
++  g_ptr_array_add (addresses, ip_address);
++
++  for (guint i = 0; i < nm_setting_ip_config_get_num_addresses (setting); i++)
++    {
++      ip_address = nm_setting_ip_config_get_address (setting, i);
++      nm_ip_address_ref (ip_address);
++      g_ptr_array_add (addresses, ip_address); /* XXX: Safe? */
++    }
++
++  g_object_set (setting,
++                NM_SETTING_IP_CONFIG_ADDRESSES, addresses,
++                NM_SETTING_IP_CONFIG_GATEWAY, gateway,
++                NULL);
++}
++
++gboolean
++ce_ip_page_has_error (CeIpPage *self)
++{
++  g_return_val_if_fail (CE_IS_IP_PAGE (self), TRUE);
++
++  if (self->route_has_error ||
++      (self->ip_has_error && g_str_equal (self->current_method, "manual")))
++    return TRUE;
++
++  return FALSE;
++}
++
++void
++ce_ip_page_save_connection (CeIpPage *self)
++{
++  g_autoptr(HdyValueObject) object = NULL;
++  const gchar *method;
++  gint index;
++
++  g_return_if_fail (CE_IS_IP_PAGE (self));
++  g_return_if_fail (self->version != 0);
++
++  if (ce_ip_page_has_error (self))
++    return;
++
++  index = hdy_combo_row_get_selected_index (HDY_COMBO_ROW (self->ip_method_row));
++  object = g_list_model_get_item (G_LIST_MODEL (self->ip_methods), index);
++  method = g_object_get_data (G_OBJECT (object), "value");
++
++  if (method)
++    g_object_set (self->ip_setting, "method", method, NULL);
++  else
++    g_warn_if_reached ();
++
++  ce_ip_page_save_routes (self);
++  ce_ip_page_save_manual_ips (self);
++}
+--- /dev/null
++++ b/panels/network/connection-editor/ce-ip-page.h
+@@ -0,0 +1,47 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ce-ip-page.h
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#include <gtk/gtk.h>
++
++G_BEGIN_DECLS
++
++#define CE_TYPE_IP_PAGE (ce_ip_page_get_type())
++G_DECLARE_FINAL_TYPE (CeIpPage, ce_ip_page, CE, IP_PAGE, GtkBox)
++
++void         ce_ip_page_set_parent_window (CeIpPage     *self,
++                                           GtkWindow    *parent_window);
++void         ce_ip_page_set_nm_client   (CeIpPage     *self,
++                                         NMClient     *nm_client);
++void         ce_ip_page_set_version     (CeIpPage     *self,
++                                         gint          version);
++void         ce_ip_page_set_connection  (CeIpPage     *self,
++                                         NMConnection *connection,
++                                         NMDevice     *device);
++gboolean     ce_ip_page_has_error       (CeIpPage     *self);
++void         ce_ip_page_save_connection (CeIpPage     *self);
++void         ce_ip_page_refresh         (CeIpPage     *self);
++
++G_END_DECLS
+--- /dev/null
++++ b/panels/network/connection-editor/ce-ip-page.ui
+@@ -0,0 +1,407 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <template class="CeIpPage" parent="GtkBox">
++    <property name="orientation">vertical</property>
++
++    <child>
++      <object class="GtkListBox" id="auto_list_box">
++        <property name="visible">1</property>
++        <property name="margin-bottom">32</property>
++        <property name="selection-mode">none</property>
++        <style>
++          <class name="frame" />
++        </style>
++
++        <!-- IP Method -->
++        <child>
++          <object class="HdyComboRow" id="ip_method_row">
++            <property name="visible">1</property>
++            <signal name="notify::selected-index" handler="ip_method_changed_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- Automatic DNS Row -->
++        <child>
++          <object class="CcListRow" id="auto_dns_row">
++            <property name="visible">1</property>
++            <property name="show-switch">1</property>
++            <property name="title" translatable="yes">Automatic DNS</property>
++            <signal name="notify::active" handler="ip_auto_row_changed_cb" object="CeIpPage" after="yes" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- Automatic Route Row -->
++        <child>
++          <object class="CcListRow" id="auto_route_row">
++            <property name="visible">1</property>
++            <property name="sensitive" bind-source="auto_dns_row" bind-property="sensitive" />
++            <property name="show-switch">1</property>
++            <property name="title" translatable="yes">Automatic Routing</property>
++            <signal name="notify::active" handler="ip_auto_row_changed_cb" object="CeIpPage" after="yes" swapped="yes" />
++          </object>
++        </child>
++      </object>
++    </child>
++
++    <!-- Manual IP title -->
++    <child>
++      <object class="GtkLabel" id="manual_title_label">
++        <property name="visible" bind-source="manual_list_box" bind-property="visible" />
++        <property name="margin-bottom">12</property>
++        <property name="halign">start</property>
++        <property name="label" translatable="yes" context="network connection editor">Address</property>
++        <attributes>
++          <attribute name="weight" value="bold"/>
++        </attributes>
++      </object>
++    </child>
++
++    <!-- Route Settings -->
++    <child>
++      <object class="GtkListBox" id="manual_list_box">
++        <property name="visible">0</property>
++        <property name="margin-bottom">32</property>
++        <property name="selection-mode">none</property>
++        <signal name="notify::visible" handler="ce_manual_entry_changed_cb" object="CeIpPage" swapped="yes" />
++        <style>
++          <class name="frame" />
++        </style>
++
++        <!-- Address row -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible">1</property>
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="hexpand">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">6</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes" context="network connection editor">Address</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="manual_address_entry">
++                    <property name="visible">1</property>
++                    <property name="halign">end</property>
++                    <signal name="changed" handler="ce_manual_entry_changed_cb" object="CeIpPage" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- Netmask row -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible">1</property>
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="hexpand">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">6</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Netmask</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="manual_netmask_entry">
++                    <property name="visible">1</property>
++                    <property name="halign">end</property>
++                    <signal name="changed" handler="ce_manual_entry_changed_cb" object="CeIpPage" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- Gateway row -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible">1</property>
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="hexpand">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">6</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Gateway</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="manual_gateway_entry">
++                    <property name="visible">1</property>
++                    <property name="halign">end</property>
++                    <signal name="changed" handler="ce_manual_entry_changed_cb" object="CeIpPage" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++      </object>
++    </child>
++
++    <!-- DNS settings title -->
++    <child>
++      <object class="GtkLabel" id="dns_title_label">
++        <property name="visible">1</property>
++        <property name="sensitive" bind-source="dns_list_box" bind-property="sensitive" />
++        <property name="margin-bottom">12</property>
++        <property name="halign">start</property>
++        <attributes>
++          <attribute name="weight" value="bold"/>
++        </attributes>
++      </object>
++    </child>
++
++    <!-- DNS Settings -->
++    <child>
++      <object class="GtkListBox" id="dns_list_box">
++        <property name="visible">1</property>
++        <property name="margin-bottom">32</property>
++        <property name="selection-mode">none</property>
++        <signal name="row-activated" handler="dns_row_activated_cb" object="CeIpPage" swapped="yes" />
++        <style>
++         <class name="frame" />
++        </style>
++        <child>
++          <object class="GtkListBoxRow" id="add_dns_row">
++            <property name="visible">1</property>
++            <child>
++              <object class="GtkLabel">
++                <property name="visible">1</property>
++                <property name="margin">12</property>
++                <property name="halign">center</property>
++                <property name="label" translatable="yes">Add DNS Server...</property>
++              </object>
++            </child>
++          </object>
++        </child>
++      </object>
++    </child>
++
++    <!-- Route title -->
++    <child>
++      <object class="GtkLabel" id="route_title_label">
++        <property name="visible">1</property>
++        <property name="sensitive" bind-source="dns_list_box" bind-property="sensitive" />
++        <property name="margin-bottom">12</property>
++        <property name="halign">start</property>
++        <attributes>
++          <attribute name="weight" value="bold"/>
++        </attributes>
++      </object>
++    </child>
++
++    <!-- Route Settings -->
++    <child>
++      <object class="GtkListBox" id="route_list_box">
++        <property name="visible">1</property>
++        <property name="sensitive" bind-source="dns_list_box" bind-property="sensitive" />
++        <property name="selection-mode">none</property>
++        <style>
++          <class name="frame" />
++        </style>
++
++        <!-- Address row -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible">1</property>
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="hexpand">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">6</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes" context="network connection editor">Address</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="route_address_entry">
++                    <property name="visible">1</property>
++                    <property name="halign">end</property>
++                    <signal name="changed" handler="ce_route_entry_changed_cb" object="CeIpPage" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- Netmask row -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible">1</property>
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="hexpand">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">6</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Netmask</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="route_netmask_entry">
++                    <property name="visible">1</property>
++                    <property name="halign">end</property>
++                    <signal name="changed" handler="ce_route_entry_changed_cb" object="CeIpPage" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- Gateway row -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible">1</property>
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="hexpand">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">6</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Gateway</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="route_gateway_entry">
++                    <property name="visible">1</property>
++                    <property name="halign">end</property>
++                    <signal name="changed" handler="ce_route_entry_changed_cb" object="CeIpPage" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- Metric row -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible">1</property>
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="hexpand">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">6</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Metric</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="route_metric_entry">
++                    <property name="visible">1</property>
++                    <property name="halign">end</property>
++                    <signal name="changed" handler="ce_route_entry_changed_cb" object="CeIpPage" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++      </object>
++    </child>
++
++  </template>
++
++  <object class="GtkDialog" id="add_dns_dialog">
++    <property name="visible">0</property>
++    <property name="modal">1</property>
++    <property name="use-header-bar">1</property>
++    <property name="default-height">24</property>
++    <signal name="delete-event" handler="gtk_widget_hide_on_delete"/>
++
++    <child internal-child="vbox">
++      <object class="GtkBox">
++        <property name="border-width">0</property>
++        <property name="margin-top">18</property>
++        <property name="margin-start">12</property>
++        <property name="margin-end">12</property>
++        <child>
++          <object class="GtkLabel">
++            <property name="visible">1</property>
++            <property name="margin-bottom">18</property>
++            <property name="wrap">1</property>
++            <property name="max-width-chars">35</property>
++            <property name="xalign">0.0</property>
++            <property name="label" translatable="yes">Add a custom Domain Name System (DNS) server for resolving IP Addresses.</property>
++          </object>
++        </child>
++        <child>
++          <object class="GtkEntry" id="dns_entry">
++            <property name="visible">1</property>
++            <signal name="changed" handler="ce_dns_entry_changed_cb" object="CeIpPage" swapped="yes" />
++          </object>
++        </child>
++      </object>
++    </child>
++
++    <!-- Add button -->
++    <child type="action">
++      <object class="GtkButton" id="add_button">
++        <property name="visible">1</property>
++        <property name="sensitive">0</property>
++        <property name="can-default">1</property>
++        <property name="use-underline">1</property>
++        <property name="label" translatable="yes">_Add</property>
++      </object>
++    </child>
++
++    <!-- Cancel button -->
++    <child type="action">
++      <object class="GtkButton" id="cancel_button">
++        <property name="visible">1</property>
++        <property name="use-underline">1</property>
++        <property name="label" translatable="yes">_Cancel</property>
++      </object>
++    </child>
++
++    <action-widgets>
++      <action-widget response="apply" default="true">add_button</action-widget>
++      <action-widget response="cancel">cancel_button</action-widget>
++    </action-widgets>
++  </object>
++</interface>
+--- /dev/null
++++ b/panels/network/connection-editor/ce-password-row.c
+@@ -0,0 +1,194 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ce-password-row.c
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#undef G_LOG_DOMAIN
++#define G_LOG_DOMAIN "ce-password-row"
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++#include <glib/gi18n.h>
++#include <NetworkManager.h>
++
++#define HANDY_USE_UNSTABLE_API
++#include <handy.h>
++
++#include "ui-helpers.h"
++#include "list-box-helper.h"
++#include "ce-password-row.h"
++
++/**
++ * @short_description: A widget to show passwords
++ * @include: "ce-password-row.h"
++ *
++ * A #GtkListBoxRow to show/modify passwords
++ */
++
++struct _CePasswordRow
++{
++  GtkListBoxRow    parent_instance;
++
++  GtkLabel        *password_mask_label;
++  GtkToggleButton *password_button;
++  GtkImage        *button_image;
++  GtkEntry        *password_entry;
++  gchar           *password;
++};
++
++G_DEFINE_TYPE (CePasswordRow, ce_password_row, GTK_TYPE_LIST_BOX_ROW)
++
++enum {
++  CHANGED,
++  N_SIGNALS
++};
++
++static guint signals[N_SIGNALS];
++
++static void
++password_entry_changed_cb (CePasswordRow *self)
++{
++  g_autofree gchar *text = NULL;
++  guint16 length;
++
++  g_assert (CE_IS_PASSWORD_ROW (self));
++
++  length = gtk_entry_get_text_length (self->password_entry);
++
++  if (length > 0)
++    {
++      GString *str = g_string_sized_new (length * 2 + 1);
++
++      /* Limit to 10 char */
++      if (length > 10)
++        length = 10;
++
++      while (length--)
++        g_string_append (str, "●");
++
++      text = g_string_free (str, FALSE);
++    }
++  else
++    text = g_strdup ("");
++
++  gtk_label_set_text (self->password_mask_label, text);
++
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static void
++ce_password_row_finalize (GObject *object)
++{
++  CePasswordRow *self = (CePasswordRow *)object;
++
++  ce_password_row_clear_password (self);
++
++  G_OBJECT_CLASS (ce_password_row_parent_class)->finalize (object);
++}
++
++static void
++ce_password_row_class_init (CePasswordRowClass *klass)
++{
++  GObjectClass   *object_class = G_OBJECT_CLASS (klass);
++  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
++
++  object_class->finalize = ce_password_row_finalize;
++
++  signals[CHANGED] =
++    g_signal_new ("changed",
++                  G_OBJECT_CLASS_TYPE (object_class),
++                  G_SIGNAL_RUN_FIRST,
++                  0, NULL, NULL,
++                  g_cclosure_marshal_VOID__VOID,
++                  G_TYPE_NONE, 0);
++
++  gtk_widget_class_set_template_from_resource (widget_class,
++                                               "/org/gnome/control-center/"
++                                               "network/ce-password-row.ui");
++
++  gtk_widget_class_bind_template_child (widget_class, CePasswordRow, password_mask_label);
++  gtk_widget_class_bind_template_child (widget_class, CePasswordRow, password_button);
++  gtk_widget_class_bind_template_child (widget_class, CePasswordRow, button_image);
++  gtk_widget_class_bind_template_child (widget_class, CePasswordRow, password_entry);
++
++  gtk_widget_class_bind_template_callback (widget_class, password_entry_changed_cb);
++}
++
++static void
++ce_password_row_init (CePasswordRow *self)
++{
++  gtk_widget_init_template (GTK_WIDGET (self));
++}
++
++void
++ce_password_row_set_password (CePasswordRow *self,
++                              const gchar   *password)
++{
++  g_return_if_fail (CE_IS_PASSWORD_ROW (self));
++
++  if (!password)
++    password = "";
++
++  gtk_entry_set_text (self->password_entry, password);
++}
++
++const gchar *
++ce_password_row_get_password (CePasswordRow *self)
++{
++  g_return_val_if_fail (CE_IS_PASSWORD_ROW (self), "");
++
++  return gtk_entry_get_text (self->password_entry);
++}
++
++void
++ce_password_row_clear_password (CePasswordRow *self)
++{
++  g_return_if_fail (CE_IS_PASSWORD_ROW (self));
++
++  if (!self->password)
++    return;
++
++  memset (self->password, 0, strlen (self->password));
++  g_free (self->password);
++}
++
++void
++ce_password_row_set_visible (CePasswordRow *self,
++                             gboolean       visible)
++{
++  g_return_if_fail (CE_IS_PASSWORD_ROW (self));
++
++  gtk_toggle_button_set_active (self->password_button, visible);
++}
++
++void
++ce_password_row_set_error (CePasswordRow *self,
++                           gboolean       error)
++{
++  g_return_if_fail (CE_IS_PASSWORD_ROW (self));
++
++  if (error)
++    gtk_style_context_add_class (gtk_widget_get_style_context (self->password_entry), "error");
++  else
++    gtk_style_context_remove_class (gtk_widget_get_style_context (self->password_entry), "error");
++}
+--- /dev/null
++++ b/panels/network/connection-editor/ce-password-row.h
+@@ -0,0 +1,43 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ce-password-row.h
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#include <gtk/gtk.h>
++
++G_BEGIN_DECLS
++
++#define CE_TYPE_PASSWORD_ROW (ce_password_row_get_type())
++G_DECLARE_FINAL_TYPE (CePasswordRow, ce_password_row, CE, PASSWORD_ROW, GtkListBoxRow)
++
++void ce_password_row_set_password   (CePasswordRow *self,
++                                     const gchar   *password);
++const gchar *ce_password_row_get_password (CePasswordRow *self);
++void ce_password_row_clear_password (CePasswordRow *self);
++void ce_password_row_set_visible    (CePasswordRow *self,
++                                     gboolean       visible);
++void ce_password_row_set_error      (CePasswordRow *self,
++                                     gboolean       error);
++
++G_END_DECLS
+--- /dev/null
++++ b/panels/network/connection-editor/ce-password-row.ui
+@@ -0,0 +1,65 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <template class="CePasswordRow" parent="GtkListBoxRow">
++    <child>
++      <object class="GtkGrid">
++        <property name="visible">1</property>
++        <child>
++          <object class="GtkLabel">
++            <property name="visible">1</property>
++            <property name="hexpand">1</property>
++            <property name="halign">start</property>
++            <property name="margin-start">12</property>
++            <property name="label" translatable="yes">Password</property>
++          </object>
++        </child>
++        <child>
++          <object class="GtkLabel" id="password_mask_label">
++            <property name="visible">1</property>
++            <property name="halign">end</property>
++            <style>
++              <class name="dim-label" />
++            </style>
++          </object>
++        </child>
++        <child>
++          <object class="GtkToggleButton" id="password_button">
++            <property name="visible">1</property>
++            <property name="margin">6</property>
++            <child>
++              <object class="GtkImage" id="button_image">
++                <property name="visible">1</property>
++                <property name="icon-name">view-layout-symbolic</property>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <child>
++          <object class="GtkSeparator">
++            <property name="visible" bind-source="password_button" bind-property="active" />
++          </object>
++          <packing>
++            <property name="left-attach">0</property>
++            <property name="top-attach">1</property>
++            <property name="width">3</property>
++          </packing>
++        </child>
++
++        <child>
++          <object class="GtkEntry" id="password_entry">
++            <property name="visible" bind-source="password_button" bind-property="active" />
++            <property name="margin">6</property>
++            <signal name="changed" handler="password_entry_changed_cb" swapped="yes" />
++          </object>
++          <packing>
++            <property name="left-attach">0</property>
++            <property name="top-attach">2</property>
++            <property name="width">3</property>
++          </packing>
++        </child>
++
++      </object>
++    </child>
++  </template>
++</interface>
+--- /dev/null
++++ b/panels/network/connection-editor/ce-security-page.c
+@@ -0,0 +1,759 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ce-security-page.c
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#undef G_LOG_DOMAIN
++#define G_LOG_DOMAIN "ce-security-page"
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++#include <glib/gi18n.h>
++#include <NetworkManager.h>
++
++#define HANDY_USE_UNSTABLE_API
++#include <handy.h>
++
++#include "ui-helpers.h"
++#include "list-box-helper.h"
++#include "ce-security-page.h"
++#include "ce-password-row.h"
++
++/**
++ * @short_description: The Security page for a connection
++ * @include: "ce-security-page.h"
++ *
++ * Show Security settings related to a network connection
++ */
++
++struct _CeSecurityPage
++{
++  GtkBox         parent_instance;
++
++  GtkWidget     *main_list_box;
++  HdyComboRow   *connection_list_row;
++  GListStore    *connection_list;
++  GtkBox        *name_box;
++  GtkEntry      *name_entry;
++
++  HdyComboRow   *security_method_row;
++  GListStore    *security_methods;
++  gchar         *current_method;
++
++  CePasswordRow *wpa_password_row;
++  CePasswordRow *wep_password_row;
++  GtkWidget     *wep_index_row;
++  GtkWidget     *wep_authentication_row;
++  GListStore    *wep_indexes;
++  GListStore    *wep_authentications;
++
++  NMClient      *nm_client;
++  NMDevice      *device;
++  NMConnection  *connection;
++  NMConnection  *orig_connection;
++  NMSetting     *setting;
++  NMUtilsSecurityType security_type;
++
++  gboolean       has_error;
++  gboolean       allow_create;
++};
++
++G_DEFINE_TYPE (CeSecurityPage, ce_security_page, GTK_TYPE_BOX)
++
++enum {
++  CHANGED,
++  N_SIGNALS
++};
++
++static guint signals[N_SIGNALS];
++
++enum {
++  PROP_0,
++  PROP_ALLOW_CREATE,
++  N_PROPS
++};
++
++static GParamSpec *properties[N_PROPS];
++
++static gboolean
++security_has_proto (NMSettingWirelessSecurity *sec, const char *item)
++{
++  g_assert (sec);
++  g_assert (item);
++
++  for (guint32 i = 0; i < nm_setting_wireless_security_get_num_protos (sec); i++)
++    if (!strcmp (item, nm_setting_wireless_security_get_proto (sec, i)))
++      return TRUE;
++
++  return FALSE;
++}
++
++static void
++wep_password_changed_cb (CeSecurityPage *self)
++{
++  g_autoptr(HdyValueObject) object = NULL;
++  const gchar *method, *password;
++  gint index;
++  gboolean valid = FALSE;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  index = hdy_combo_row_get_selected_index (HDY_COMBO_ROW (self->security_method_row));
++  object = g_list_model_get_item (G_LIST_MODEL (self->security_methods), index);
++  method = g_object_get_data (G_OBJECT (object), "value");
++  password = ce_password_row_get_password (self->wep_password_row);
++
++  if (password && *password)
++    {
++      if (g_str_equal (method, "wep"))
++        valid = nm_utils_wep_key_valid (password, NM_WEP_KEY_TYPE_KEY);
++      else
++        valid = nm_utils_wep_key_valid (password, NM_WEP_KEY_TYPE_PASSPHRASE);
++    }
++
++  ce_password_row_set_error (self->wep_password_row, !valid);
++  self->has_error = !valid;
++}
++
++static void
++wpa_password_changed_cb (CeSecurityPage *self)
++{
++  const gchar *password;
++  gboolean valid = FALSE;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  password = ce_password_row_get_password (self->wpa_password_row);
++  if (password && *password)
++    valid = nm_utils_wpa_psk_valid (password);
++
++  ce_password_row_set_error (self->wpa_password_row, !valid);
++  self->has_error = !valid;
++}
++
++/* Modified from ce-page-security.c */
++static NMUtilsSecurityType
++security_page_get_type (CeSecurityPage *self)
++{
++  NMSettingWirelessSecurity *setting;
++  const char *key_mgmt, *auth_alg;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++  g_return_val_if_fail (self->connection, NMU_SEC_NONE);
++
++  setting = nm_connection_get_setting_wireless_security (self->connection);
++
++  if (!setting)
++    return NMU_SEC_NONE;
++
++  key_mgmt = nm_setting_wireless_security_get_key_mgmt (setting);
++  auth_alg = nm_setting_wireless_security_get_auth_alg (setting);
++
++  /* No IEEE 802.1x */
++  if (!strcmp (key_mgmt, "none"))
++    return NMU_SEC_STATIC_WEP;
++
++  if (!strcmp (key_mgmt, "ieee8021x"))
++    {
++      if (auth_alg && !strcmp (auth_alg, "leap"))
++        return NMU_SEC_LEAP;
++      return NMU_SEC_DYNAMIC_WEP;
++    }
++
++  if (!strcmp (key_mgmt, "wpa-none") ||
++      !strcmp (key_mgmt, "wpa-psk"))
++    {
++      if (security_has_proto (setting, "rsn"))
++        return NMU_SEC_WPA2_PSK;
++      else
++        return NMU_SEC_WPA_PSK;
++    }
++
++  if (!strcmp (key_mgmt, "wpa-eap"))
++    {
++      if (security_has_proto (setting, "rsn"))
++        return NMU_SEC_WPA2_ENTERPRISE;
++      else
++        return NMU_SEC_WPA_ENTERPRISE;
++    }
++
++  return NMU_SEC_INVALID;
++}
++
++static void
++connection_list_item_changed_cb (CeSecurityPage *self)
++{
++  g_autoptr(HdyValueObject) object = NULL;
++  NMConnection *connection;
++  gint index;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  index = hdy_combo_row_get_selected_index (HDY_COMBO_ROW (self->connection_list_row));
++  if (index == -1)
++    return;
++
++  /* New connection */
++  if (index == 0)
++    {
++      gtk_widget_set_sensitive (GTK_WIDGET (self->name_box), TRUE);
++      gtk_entry_set_text (self->name_entry, "");
++      ce_password_row_set_password (self->wpa_password_row, "");
++      ce_password_row_set_password (self->wep_password_row, "");
++      hdy_combo_row_set_selected_index (self->security_method_row, 0);
++
++      return;
++    }
++
++  gtk_widget_set_sensitive (GTK_WIDGET (self->name_box), FALSE);
++
++  object = g_list_model_get_item (G_LIST_MODEL (self->connection_list), index);
++  connection = g_object_get_data (G_OBJECT (object), "value");
++  g_assert (connection);
++  g_set_object (&self->connection, connection);
++  g_set_object (&self->orig_connection, connection);
++
++  gtk_entry_set_text (self->name_entry, nm_connection_get_id (connection));
++  ce_security_page_refresh (self);
++}
++
++static void
++security_page_modified_cb (CeSecurityPage *self)
++{
++  g_autoptr(HdyValueObject) object = NULL;
++  gchar *method;
++  gint index;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  index = hdy_combo_row_get_selected_index (HDY_COMBO_ROW (self->security_method_row));
++  if (index == -1)
++    return;
++
++  object = g_list_model_get_item (G_LIST_MODEL (self->security_methods), index);
++  g_assert (G_IS_OBJECT (object));
++  method = g_object_get_data (G_OBJECT (object), "value");
++
++  self->has_error = FALSE;
++
++  if (g_str_equal (method, "wpa"))
++    {
++      gtk_widget_hide (GTK_WIDGET (self->wep_password_row));
++      gtk_widget_show (GTK_WIDGET (self->wpa_password_row));
++      wpa_password_changed_cb (self);
++    }
++  else if (g_str_has_prefix (method, "wep"))
++    {
++      gtk_widget_hide (GTK_WIDGET (self->wpa_password_row));
++      gtk_widget_show (GTK_WIDGET (self->wep_password_row));
++      wep_password_changed_cb (self);
++    }
++
++  if (self->allow_create && !self->has_error)
++    {
++      const gchar *name;
++
++      name = gtk_entry_get_text (self->name_entry);
++
++      if (!name || !*name)
++        self->has_error = TRUE;
++    }
++
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static void
++ce_security_page_load_wpa (CeSecurityPage            *self,
++                           NMSettingWirelessSecurity *setting)
++{
++  const gchar *password;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++  g_assert (self->security_type == NMU_SEC_WPA_PSK ||
++            self->security_type == NMU_SEC_WPA2_PSK);
++
++  password = nm_setting_wireless_security_get_psk (setting);
++
++  ce_password_row_set_password (self->wpa_password_row, password);
++  hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->security_method_row), 1);
++}
++
++static void
++ce_security_page_load_wep (CeSecurityPage            *self,
++                           NMSettingWirelessSecurity *setting)
++{
++  const gchar *auth, *password;
++  NMWepKeyType type;
++  gint index;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++  g_assert (self->security_type == NMU_SEC_STATIC_WEP);
++
++  type = nm_setting_wireless_security_get_wep_key_type (setting);
++  auth = nm_setting_wireless_security_get_auth_alg (setting);
++
++  if (type == NM_WEP_KEY_TYPE_PASSPHRASE)
++    hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->security_method_row), 3);
++  else
++    hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->security_method_row), 2);
++
++  g_warning ("auth: %s", auth);
++  if (auth && g_str_equal (auth, "shared"))
++    hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->wep_authentication_row), 1);
++  else
++    hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->wep_authentication_row), 0);
++
++  index = nm_setting_wireless_security_get_wep_tx_keyidx (setting);
++  hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->wep_index_row), index);
++
++  password = nm_setting_wireless_security_get_wep_key (setting, index);
++  ce_password_row_set_password (self->wep_password_row, password);
++}
++
++static void
++ce_security_page_update (CeSecurityPage *self)
++{
++  NMSettingWirelessSecurity *setting;
++  NMUtilsSecurityType security_type;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  setting = nm_connection_get_setting_wireless_security (self->connection);
++  security_type = security_page_get_type (self);
++  self->security_type = security_type;
++
++  if (security_type != NMU_SEC_NONE &&
++      NM_IS_REMOTE_CONNECTION (self->orig_connection))
++    {
++      g_autoptr(GVariant) secrets = NULL;
++      g_autoptr(GError) error = NULL;
++
++      secrets = nm_remote_connection_get_secrets (NM_REMOTE_CONNECTION (self->orig_connection),
++                                                  NM_SETTING_WIRELESS_SECURITY_SETTING_NAME,
++                                                  NULL, &error);
++      if (!error)
++        nm_connection_update_secrets (self->connection,
++                                      NM_SETTING_WIRELESS_SECURITY_SETTING_NAME,
++                                      secrets, &error);
++      if (error)
++        g_warning ("Error: %s", error->message);
++    }
++
++  if (security_type == NMU_SEC_NONE)
++    hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->security_method_row), 0);
++  else if (security_type == NMU_SEC_WPA_PSK ||
++           security_type == NMU_SEC_WPA2_PSK)
++    ce_security_page_load_wpa (self, setting);
++  else if (security_type == NMU_SEC_STATIC_WEP)
++    ce_security_page_load_wep (self, setting);
++  else
++    g_return_if_reached ();
++
++  nm_connection_clear_secrets (self->connection);
++  security_page_modified_cb (self);
++}
++
++static void
++ce_security_page_populate_connection_list (CeSecurityPage *self)
++{
++  HdyValueObject *object;
++  const GPtrArray *connections;
++  g_autoptr(GPtrArray) valid_connections = NULL;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  if (!self->nm_client || !self->device)
++    return;
++
++  if (!gtk_widget_get_visible (GTK_WIDGET (self->connection_list_row)))
++    return;
++
++  object = hdy_value_object_new_string (_("New"));
++  g_object_set_data (G_OBJECT (object), "value", NULL);
++  g_list_store_append (self->connection_list, object);
++  g_object_unref (object);
++
++  connections = nm_client_get_connections (self->nm_client);
++  valid_connections = nm_device_filter_connections (self->device, connections);
++
++  for (int i = 0; i < valid_connections->len; i++)
++    {
++      NMConnection *connection;
++      g_autofree gchar *mac_address = NULL;
++      g_autofree gchar *item = NULL;
++
++      connection = valid_connections->pdata[i];
++
++      object = hdy_value_object_new_string (nm_connection_get_id (connection));
++      g_object_set_data_full (G_OBJECT (object), "value",
++                              g_object_ref (connection), g_object_unref);
++      g_list_store_append (self->connection_list, object);
++      g_object_unref (object);
++    }
++}
++
++static void
++ce_security_page_populate_stores (CeSecurityPage *self)
++{
++  HdyValueObject *object;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  /* Don’t change the order items are added.  It’ll break the code */
++
++  /* Security methods */
++  object = hdy_value_object_new_string (_("None"));
++  g_object_set_data (G_OBJECT (object), "value", "off");
++  g_list_store_append (self->security_methods, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("WPA & WPA2 Personal"));
++  g_object_set_data (G_OBJECT (object), "value", "wpa");
++  g_list_store_append (self->security_methods, object);
++  g_object_unref (object);
++
++
++  object = hdy_value_object_new_string (_("WEP 40/128-bit Key (Hex or ASCII)"));
++  g_object_set_data (G_OBJECT (object), "value", "wep");
++  g_list_store_append (self->security_methods, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("WEP 128-bit Passphrase"));
++  g_object_set_data (G_OBJECT (object), "value", "wep128");
++  g_list_store_append (self->security_methods, object);
++  g_object_unref (object);
++
++
++  /* WEP Indexes */
++  object = hdy_value_object_new_string (_("1 (Default)"));
++  g_list_store_append (self->wep_indexes, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string ("2");
++  g_list_store_append (self->wep_indexes, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string ("3");
++  g_list_store_append (self->wep_indexes, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string ("4");
++  g_list_store_append (self->wep_indexes, object);
++  g_object_unref (object);
++
++
++  /* WEP Authentications */
++  object = hdy_value_object_new_string (_("Open System"));
++  g_list_store_append (self->wep_authentications, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("Shared Key"));
++  g_list_store_append (self->wep_authentications, object);
++  g_object_unref (object);
++}
++
++static void
++wep_index_changed_cb (CeSecurityPage *self)
++{
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static void
++wep_authentication_changed_cb (CeSecurityPage *self)
++{
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  g_signal_emit (self, signals[CHANGED], 0);
++}
++
++static void
++ce_security_page_set_property (GObject      *object,
++                               guint         prop_id,
++                               const GValue *value,
++                               GParamSpec   *pspec)
++{
++  CeSecurityPage *self = CE_SECURITY_PAGE (object);
++
++  switch (prop_id)
++    {
++    case PROP_ALLOW_CREATE:
++      self->allow_create = g_value_get_boolean (value);
++      break;
++
++    default:
++      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
++    }
++}
++
++static void
++ce_security_page_constructed (GObject *object)
++{
++  CeSecurityPage *self = CE_SECURITY_PAGE (object);
++
++  if (self->allow_create)
++    {
++      /* When allow_create set, the name will be empty, and thus set error */
++      self->has_error = TRUE;
++      gtk_entry_set_text (self->name_entry, "");
++      hdy_combo_row_set_selected_index (self->security_method_row, 0);
++      gtk_widget_show (GTK_WIDGET (self->connection_list_row));
++    }
++
++  G_OBJECT_CLASS (ce_security_page_parent_class)->constructed (object);
++}
++
++static void
++ce_security_page_finalize (GObject *object)
++{
++  CeSecurityPage *self = CE_SECURITY_PAGE (object);
++
++  g_clear_object (&self->security_methods);
++  g_clear_object (&self->wep_indexes);
++  g_clear_object (&self->wep_authentications);
++
++  g_clear_object (&self->device);
++  g_clear_object (&self->connection);
++  g_clear_object (&self->orig_connection);
++  g_clear_object (&self->nm_client);
++
++  G_OBJECT_CLASS (ce_security_page_parent_class)->finalize (object);
++}
++
++static void
++ce_security_page_class_init (CeSecurityPageClass *klass)
++{
++  GObjectClass   *object_class = G_OBJECT_CLASS (klass);
++  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
++
++  object_class->set_property = ce_security_page_set_property;
++  object_class->constructed = ce_security_page_constructed;
++  object_class->finalize = ce_security_page_finalize;
++
++  properties[PROP_ALLOW_CREATE] =
++    g_param_spec_boolean ("allow-create",
++                          "Allow Create",
++                          "Allow Creating new connection",
++                          FALSE,
++                          G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |G_PARAM_STATIC_STRINGS);
++
++  g_object_class_install_properties (object_class, N_PROPS, properties);
++
++  signals[CHANGED] =
++    g_signal_new ("changed",
++                  G_OBJECT_CLASS_TYPE (object_class),
++                  G_SIGNAL_RUN_FIRST,
++                  0, NULL, NULL,
++                  g_cclosure_marshal_VOID__VOID,
++                  G_TYPE_NONE, 0);
++
++  gtk_widget_class_set_template_from_resource (widget_class,
++                                               "/org/gnome/control-center/"
++                                               "network/ce-security-page.ui");
++
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, main_list_box);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, connection_list_row);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, name_box);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, name_entry);
++
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, security_method_row);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, wpa_password_row);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, wep_password_row);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, wep_index_row);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, wep_authentication_row);
++
++  gtk_widget_class_bind_template_callback (widget_class, connection_list_item_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, security_page_modified_cb);
++
++  gtk_widget_class_bind_template_callback (widget_class, wep_index_changed_cb);
++  gtk_widget_class_bind_template_callback (widget_class, wep_authentication_changed_cb);
++
++  g_type_ensure (CE_TYPE_PASSWORD_ROW);
++}
++
++static void
++ce_security_page_init (CeSecurityPage *self)
++{
++  gtk_widget_init_template (GTK_WIDGET (self));
++
++  self->connection_list = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
++  hdy_combo_row_bind_name_model (HDY_COMBO_ROW (self->connection_list_row),
++                                 G_LIST_MODEL (self->connection_list),
++                                 (HdyComboRowGetNameFunc) hdy_value_object_dup_string,
++                                 NULL, NULL);
++
++  self->security_methods = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
++  self->wep_indexes = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
++  self->wep_authentications = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
++  ce_security_page_populate_stores (self);
++
++  hdy_combo_row_bind_name_model (HDY_COMBO_ROW (self->security_method_row),
++                                 G_LIST_MODEL (self->security_methods),
++                                 (HdyComboRowGetNameFunc) hdy_value_object_dup_string,
++                                 NULL, NULL);
++
++  hdy_combo_row_bind_name_model (HDY_COMBO_ROW (self->wep_index_row),
++                                 G_LIST_MODEL (self->wep_indexes),
++                                 (HdyComboRowGetNameFunc) hdy_value_object_dup_string,
++                                 NULL, NULL);
++
++  hdy_combo_row_bind_name_model (HDY_COMBO_ROW (self->wep_authentication_row),
++                                 G_LIST_MODEL (self->wep_authentications),
++                                 (HdyComboRowGetNameFunc) hdy_value_object_dup_string,
++                                 NULL, NULL);
++
++  gtk_list_box_set_header_func (GTK_LIST_BOX (self->main_list_box),
++                                cc_list_box_update_header_func,
++                                NULL, NULL);
++
++}
++
++void
++ce_security_page_set_nm_client (CeSecurityPage *self,
++                                NMClient       *nm_client)
++{
++  g_return_if_fail (CE_IS_SECURITY_PAGE (self));
++  g_return_if_fail (NM_IS_CLIENT (nm_client));
++
++  g_set_object (&self->nm_client, nm_client);
++}
++
++void
++ce_security_page_set_connection (CeSecurityPage *self,
++                                 NMConnection   *orig_connection,
++                                 NMConnection   *connection,
++                                 NMDevice       *device)
++{
++  g_return_if_fail (CE_IS_SECURITY_PAGE (self));
++  g_return_if_fail (!connection || NM_IS_CONNECTION (connection));
++  g_return_if_fail (!orig_connection || NM_IS_CONNECTION (orig_connection));
++  g_return_if_fail (NM_IS_DEVICE (device));
++
++  g_set_object (&self->connection, connection);
++  g_set_object (&self->orig_connection, orig_connection);
++  g_set_object (&self->device, device);
++
++  ce_security_page_populate_connection_list (self);
++}
++
++void
++ce_security_page_refresh (CeSecurityPage *self)
++{
++  g_return_if_fail (CE_IS_SECURITY_PAGE (self));
++
++  ce_password_row_set_visible (self->wpa_password_row, FALSE);
++  ce_security_page_update (self);
++}
++
++void
++ce_security_page_save_connection (CeSecurityPage *self)
++{
++  NMSetting *setting;
++  g_autoptr(HdyValueObject) object = NULL;
++  const gchar *method, *password;
++  gint index;
++
++  g_return_if_fail (CE_IS_SECURITY_PAGE (self));
++
++  if (!self->connection)
++    {
++      const gchar *str;
++      g_autoptr(GBytes) ssid = NULL;
++
++      g_return_if_fail (self->allow_create);
++
++      self->connection = nm_simple_connection_new ();
++      setting = nm_setting_wireless_new ();
++      str = gtk_entry_get_text (self->name_entry);
++      ssid = g_bytes_new_static (str, strlen (str));
++      g_object_set (setting, "ssid", ssid, NULL);
++      nm_connection_add_setting (self->connection, setting);
++
++      setting = nm_setting_connection_new ();
++      g_object_set (setting, "id", gtk_entry_get_text (self->name_entry), NULL);
++      nm_connection_add_setting (self->connection, setting);
++    }
++
++  index = hdy_combo_row_get_selected_index (HDY_COMBO_ROW (self->security_method_row));
++  if (index == -1 || self->connection == NULL)
++    g_return_if_reached ();
++
++  nm_connection_remove_setting (self->connection, NM_TYPE_SETTING_WIRELESS_SECURITY);
++  nm_connection_remove_setting (self->connection, NM_TYPE_SETTING_802_1X);
++
++  if (index == 0)
++    return;
++
++  object = g_list_model_get_item (G_LIST_MODEL (self->security_methods), index);
++  g_assert (G_IS_OBJECT (object));
++  method = g_object_get_data (G_OBJECT (object), "value");
++
++  setting = nm_setting_wireless_security_new ();
++  nm_connection_add_setting (self->connection, setting);
++  nm_setting_set_secret_flags (setting, NM_SETTING_WIRELESS_SECURITY_PSK,
++                               NM_SETTING_SECRET_FLAG_NONE, NULL);
++  if (g_str_equal (method, "wpa"))
++    {
++      password = ce_password_row_get_password (self->wpa_password_row);
++
++      g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_PSK, password, NULL);
++      g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_KEY_MGMT, "wpa-psk", NULL);
++    }
++
++  if (g_str_has_prefix (method, "wep"))
++    {
++      if (g_str_equal (method, "wep"))
++        g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_WEP_KEY_TYPE, NM_WEP_KEY_TYPE_KEY, NULL);
++      else
++        g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_WEP_KEY_TYPE, NM_WEP_KEY_TYPE_PASSPHRASE, NULL);
++
++      index = hdy_combo_row_get_selected_index (HDY_COMBO_ROW (self->wep_authentication_row));
++      g_object_set (setting, "auth-alg", (index == 0) ? "open" : "shared", NULL);
++
++      password = ce_password_row_get_password (self->wep_password_row);
++      index = hdy_combo_row_get_selected_index (HDY_COMBO_ROW (self->wep_index_row));
++      nm_setting_wireless_security_set_wep_key (NM_SETTING_WIRELESS_SECURITY (setting), index, password);
++
++      g_object_set (setting,
++                    NM_SETTING_WIRELESS_SECURITY_KEY_MGMT, "none",
++                    NM_SETTING_WIRELESS_SECURITY_WEP_TX_KEYIDX, index,
++                    NULL);
++    }
++}
++
++NMConnection *
++ce_security_page_get_connection  (CeSecurityPage *self)
++{
++  g_return_val_if_fail (CE_IS_SECURITY_PAGE (self), NULL);
++
++  return self->connection;
++}
++
++gboolean
++ce_security_page_has_error (CeSecurityPage *self)
++{
++  g_return_val_if_fail (CE_IS_SECURITY_PAGE (self), TRUE);
++
++  return self->has_error;
++}
+--- /dev/null
++++ b/panels/network/connection-editor/ce-security-page.h
+@@ -0,0 +1,45 @@
++/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
++/* ce-security-page.h
++ *
++ * Copyright 2019 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#include <gtk/gtk.h>
++
++G_BEGIN_DECLS
++
++#define CE_TYPE_SECURITY_PAGE (ce_security_page_get_type())
++G_DECLARE_FINAL_TYPE (CeSecurityPage, ce_security_page, CE, SECURITY_PAGE, GtkBox)
++
++void          ce_security_page_set_nm_client   (CeSecurityPage *self,
++                                                NMClient       *nm_client);
++void          ce_security_page_set_connection  (CeSecurityPage *self,
++                                                NMConnection   *orig_connection,
++                                                NMConnection   *connection,
++                                                NMDevice       *device);
++void          ce_security_page_save_connection (CeSecurityPage *self);
++NMConnection *ce_security_page_get_connection  (CeSecurityPage *self);
++void         ce_security_page_refresh          (CeSecurityPage *self);
++gboolean     ce_security_page_has_error        (CeSecurityPage *self);
++
++G_END_DECLS
+--- /dev/null
++++ b/panels/network/connection-editor/ce-security-page.ui
+@@ -0,0 +1,102 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <template class="CeSecurityPage" parent="GtkBox">
++    <property name="orientation">vertical</property>
++    <child>
++      <object class="GtkListBox" id="main_list_box">
++        <property name="visible">1</property>
++        <property name="margin-bottom">32</property>
++        <property name="selection-mode">none</property>
++        <style>
++          <class name="frame" />
++        </style>
++
++        <!-- Connection List -->
++        <child>
++          <object class="HdyComboRow" id="connection_list_row">
++            <property name="visible">0</property>
++            <property name="title" translatable="yes">Connection</property>
++            <signal name="notify::selected-index" handler="connection_list_item_changed_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- Network Name -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible" bind-source="connection_list_row" bind-property="visible" bind-flags="sync-create" />
++            <child>
++              <object class="GtkBox" id="name_box">
++                <property name="visible">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">12</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Network Name</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="name_entry">
++                    <property name="visible">1</property>
++                    <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- Security Method -->
++        <child>
++          <object class="HdyComboRow" id="security_method_row">
++            <property name="visible">1</property>
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive"/>
++            <property name="title" translatable="yes">Security</property>
++            <signal name="notify::selected-index" handler="security_page_modified_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Personal -->
++        <child>
++          <object class="CePasswordRow" id="wpa_password_row">
++            <property name="visible">0</property>
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- WEP -->
++        <child>
++          <object class="CePasswordRow" id="wep_password_row">
++            <property name="visible">0</property>
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- WEP index -->
++        <child>
++          <object class="HdyComboRow" id="wep_index_row">
++            <property name="visible" bind-source="wep_password_row" bind-property="visible" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <property name="title" translatable="yes">WEP index</property>
++            <signal name="notify::selected-index" handler="wep_index_changed_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- WEP Authentication -->
++        <child>
++          <object class="HdyComboRow" id="wep_authentication_row">
++            <property name="visible" bind-source="wep_password_row" bind-property="visible" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <property name="title" translatable="yes">WEP Authentication</property>
++            <signal name="notify::selected-index" handler="wep_authentication_changed_cb" swapped="yes" />
++          </object>
++        </child>
++
++      </object>
++    </child>
++  </template>
++</interface>
+--- a/panels/network/connection-editor/connection-editor.gresource.xml
++++ b/panels/network/connection-editor/connection-editor.gresource.xml
+@@ -1,6 +1,11 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <gresources>
+   <gresource prefix="/org/gnome/control-center/network">
++    <file preprocess="xml-stripblanks">cc-connection-editor.ui</file>
++    <file preprocess="xml-stripblanks">ce-security-page.ui</file>
++    <file preprocess="xml-stripblanks">ce-details-page.ui</file>
++    <file preprocess="xml-stripblanks">ce-ip-page.ui</file>
++    <file preprocess="xml-stripblanks">ce-password-row.ui</file>
+     <file preprocess="xml-stripblanks">8021x-security-page.ui</file>
+     <file preprocess="xml-stripblanks">connection-editor.ui</file>
+     <file preprocess="xml-stripblanks">details-page.ui</file>
+--- a/panels/network/connection-editor/meson.build
++++ b/panels/network/connection-editor/meson.build
+@@ -1,6 +1,11 @@
+ name = 'connection-editor'
+ 
+ sources = files(
++  'cc-connection-editor.c',
++  'ce-security-page.c',
++  'ce-details-page.c',
++  'ce-ip-page.c',
++  'ce-password-row.c',
+   'ce-page-8021x-security.c',
+   'ce-page-details.c',
+   'ce-page-ethernet.c',
+@@ -15,6 +20,11 @@
+ )
+ 
+ resource_data = files(
++  'cc-connection-editor.ui',
++  'ce-security-page.ui',
++  'ce-details-page.ui',
++  'ce-ip-page.ui',
++  'ce-password-row.ui',
+   '8021x-security-page.ui',
+   'connection-editor.ui',
+   'details-page.ui',

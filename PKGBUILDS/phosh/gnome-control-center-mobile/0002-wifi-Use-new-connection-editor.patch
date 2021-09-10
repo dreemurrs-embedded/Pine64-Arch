@@ -1,0 +1,29 @@
+From dd41ce56dff1735e7d8ca1b0ae3d124eb1b96717 Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Thu, 19 Sep 2019 20:44:12 +0530
+Subject: [PATCH 4/6] wifi: Use new connection editor
+
+---
+ panels/network/net-device-wifi.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: gnome-control-center/panels/network/net-device-wifi.c
+===================================================================
+--- gnome-control-center.orig/panels/network/net-device-wifi.c	2021-05-05 00:54:34.917000000 +0000
++++ gnome-control-center/panels/network/net-device-wifi.c	2021-05-05 00:54:34.914000000 +0000
+@@ -937,6 +937,7 @@
+         return 0;
+ }
+ 
++#include "connection-editor/cc-connection-editor.h"
+ static void
+ show_details_for_row (NetDeviceWifi *self, CcWifiConnectionRow *row, CcWifiConnectionList *list)
+ {
+@@ -950,6 +951,7 @@
+         connection = cc_wifi_connection_row_get_connection (row);
+         ap = cc_wifi_connection_row_best_access_point (row);
+ 
++#include "use-new-editor.c"
+         editor = net_connection_editor_new (GTK_WINDOW (window), connection, self->device, ap, self->client);
+         net_connection_editor_run (editor);
+ }

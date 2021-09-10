@@ -1,0 +1,53 @@
+From 6b17fb910b923637f1d22412df1d88c3fbe157bf Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Tue, 17 Sep 2019 13:26:28 +0400
+Subject: [PATCH 2/7] datetime: Fix timezone selection map
+
+So as to fit on small screen
+---
+ panels/datetime/cc-datetime-panel.ui | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/panels/datetime/cc-datetime-panel.ui b/panels/datetime/cc-datetime-panel.ui
+index dc7519c18..3284839c1 100644
+--- a/panels/datetime/cc-datetime-panel.ui
++++ b/panels/datetime/cc-datetime-panel.ui
+@@ -100,7 +100,7 @@
+   <object class="GtkDialog" id="timezone_dialog">
+     <property name="can_focus">False</property>
+     <property name="title" translatable="yes">Time Zone</property>
+-    <property name="resizable">False</property>
++    <property name="resizable">1</property>
+     <property name="type_hint">dialog</property>
+     <property name="use_header_bar">1</property>
+     <signal name="delete-event" handler="gtk_widget_hide_on_delete"/>
+@@ -116,7 +116,7 @@
+                 <property name="halign">center</property>
+                 <property name="margin_start">5</property>
+                 <property name="margin_end">5</property>
+-                <property name="width_chars">40</property>
++                <property name="width_chars">30</property>
+                 <property name="primary_icon_name">edit-find-symbolic</property>
+                 <property name="primary_icon_activatable">False</property>
+                 <property name="primary_icon_sensitive">False</property>
+@@ -131,14 +131,15 @@
+         <property name="orientation">vertical</property>
+         <property name="spacing">2</property>
+         <child>
+-          <object class="GtkFrame" id="aspectmap">
++          <object class="GtkScrolledWindow" id="aspectmap">
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+             <property name="margin_start">5</property>
+             <property name="margin_end">5</property>
+             <property name="margin_top">5</property>
+             <property name="margin_bottom">5</property>
+-            <property name="label_xalign">0</property>
++            <property name="vscrollbar-policy">never</property>
++            <property name="overlay-scrolling">0</property>
+             <child>
+               <placeholder/>
+             </child>
+-- 
+2.30.2
+
