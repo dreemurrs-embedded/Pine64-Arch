@@ -1,0 +1,74 @@
+From 1886c2028ebd8e7ef48c55c2289cace2d860e311 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Fri, 2 Aug 2019 18:32:31 +0200
+Subject: [PATCH] ContactSheet: Add make call and send sms button
+
+This adds a button to make calls via the default handler for tel:
+and a button to send sms via the default handler for sms:
+
+The buttons are hidden when no handler is available
+---
+ src/contacts-contact-sheet.vala | 28 ++++++++++++++++++++++++----
+ src/contacts-utils.vala         | 18 ++++++++++++++++++
+ 2 files changed, 42 insertions(+), 4 deletions(-)
+
+diff --git a/src/contacts-contact-sheet.vala b/src/contacts-contact-sheet.vala
+index 480494af..467a61a0 100644
+--- a/src/contacts-contact-sheet.vala
++++ b/src/contacts-contact-sheet.vala
+@@ -201,7 +205,23 @@ public class Contacts.ContactSheet : ContactForm {
+           add_row_with_label (TypeSet.phone.format_type (phone), phone.value);
+         }
+ #else
+-        add_row_with_label (TypeSet.phone.format_type (phone), phone.value);
++        // Show a call button when we have a hanlder for it
++        Gtk.Button call_button = null;
++        Gtk.Button sms_button = null;
++        if (AppInfo.get_all_for_type ("x-scheme-handler/tel").length () > 0) {
++          call_button = create_button ("call-start-symbolic");
++          call_button.clicked.connect (() => {
++            Utils.start_call (phone.value);
++          });
++        }
++        if (AppInfo.get_all_for_type ("x-scheme-handler/sms").length () > 0) {
++          sms_button = create_button ("mail-unread-symbolic");
++          sms_button.clicked.connect (() => {
++            Utils.send_sms (phone.value);
++          });
++        }
++
++        add_row_with_label (TypeSet.phone.format_type (phone), phone.value, call_button, sms_button);
+ #endif
+       }
+     }
+diff --git a/src/contacts-utils.vala b/src/contacts-utils.vala
+index b8858194..adbff296 100644
+--- a/src/contacts-utils.vala
++++ b/src/contacts-utils.vala
+@@ -112,6 +112,24 @@ namespace Contacts.Utils {
+     var request = new TelepathyGLib.AccountChannelRequest(account, request_dict, int64.MAX);
+     request.ensure_channel_async.begin ("org.freedesktop.Telepathy.Client.Empathy.Call", null);
+   }
++#else
++  public void start_call (string number) {
++    var uri = "tel:" + Uri.escape_string (number, "+" , false);
++    try {
++      Gtk.show_uri_on_window (null, uri, 0);
++    } catch (Error e) {
++      debug ("Couldn't launch URI \"%s\": %s", uri, e.message);
++    }
++  }
++
++  public void send_sms (string number) {
++    var uri = "sms:" + Uri.escape_string (number, "+" , false);
++    try {
++      Gtk.show_uri_on_window (null, uri, 0);
++    } catch (Error e) {
++      debug ("Couldn't launch URI \"%s\": %s", uri, e.message);
++    }
++  }
+ #endif
+ 
+   public T? get_first<T> (Gee.Collection<T> collection) {
+-- 
+2.26.2
