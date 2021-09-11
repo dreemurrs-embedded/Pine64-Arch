@@ -5,8 +5,8 @@ buildarch=8
 
 pkgbase=linux-pine64
 _desc="Pine64 PinePhone"
-pkgver=5.13.14
-pkgrel=2
+pkgver=5.14.1
+pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -14,7 +14,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="c4a2fbc2f0a45daae78ce5817c7b896c8f9bc55c"
+_commit="0edb808bfcc549375f8c7e5f3e86f649dd8de3de"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'enable-hdmi-output-pinetab.patch'
@@ -261,8 +261,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('ab7f0445a45b156d069ca136e64102ff'
-         '50a448d5d92313796c958f5009bca94c'
+md5sums=('97b9683c39d6b3064685d82bc29a5fd8'
+         '2535da2b42eb647c6adadb3d17045b04'
          '979a787cf84bef9c60da78e72ec96550'
          'f79300740a7350d2d24ab5e120831b52'
          '85d8339bc3d5daf45aa579d578ef0255'
