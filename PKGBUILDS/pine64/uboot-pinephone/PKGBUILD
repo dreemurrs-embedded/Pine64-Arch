@@ -4,8 +4,8 @@
 buildarch=8
 
 pkgname=uboot-pinephone
-pkgver=v2021.01_rc4
-pkgrel=3
+pkgver=v2021.07_rc4
+pkgrel=1
 pkgdesc="U-Boot for PinePhone (contains crust scp firmware)"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -15,8 +15,8 @@ makedepends=('bc' 'python' 'swig' 'dtc' 'python-setuptools')
 install=${pkgname}.install
 backup=("boot/boot.txt")
 
-_commit_uboot="7492749fec31b1086bc8933bf113a766aea021aa"
-_commit_atf="ddf9d186a0060eec0beecc69ebe717053ea0f572"
+_commit_uboot="89cb280f35abc0f2b0b66ddec035d1ebf1674e64"
+_commit_atf="fb6953b28903d6ba4b097c19ee90ea75f5aa4e74"
 
 source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/archive/${_commit_uboot}/u-boot-${_commit_uboot}.tar.gz"
         "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/crust-firmware/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
@@ -27,15 +27,15 @@ source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/ar
         'boot.txt'
         'mkscr'
         'scp.bin')
-md5sums=('1164b7e402a752cc9bec6be2f7d9dfae'
-         '968fa8240c3cfe43d97007c0c50ecbdc'
+md5sums=('470606502bdfd4c1f1492d8f0fc451a1'
+         '4c1beabd0d926920f5c8de0b521b6d93'
          '348a6943a1c220047ce5312b59da95b6'
          'bdb8e9686df7fccbedf8577a8d3e350a'
          '061a510280d16bddf16679cf0d23bf6e'
          '98ad5f31b1d7ff2e6e03555f29ebc6e6'
          '90caaaf7c972240e2992c5c46102b2e9'
          '021623a04afd29ac3f368977140cfbfd'
-         'd0568f89aac3969b94f15f0b371b9834')
+         'e2fb38f602fdf17d5b554462f130333c')
 
 prepare() {
   cd arm-trusted-firmware-${_commit_atf}
