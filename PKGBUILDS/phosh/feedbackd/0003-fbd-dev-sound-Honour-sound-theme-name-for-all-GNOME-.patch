@@ -1,0 +1,44 @@
+From f7d75e6ed1b71417f0a2754817012dd4165f7257 Mon Sep 17 00:00:00 2001
+From: Evangelos Ribeiro Tzaras <devrtz@fortysixandtwo.eu>
+Date: Thu, 22 Jul 2021 02:28:06 +0200
+Subject: [PATCH 3/4] fbd-dev-sound: Honour sound theme name for all GNOME
+ based desktops
+
+Phosh recently changed to XDG_CURRENT_DESKTOP=GNOME:Phosh and has since stopped
+using the configured theme and instead used the fallback freedesktop theme.
+
+Closes #41
+---
+ src/fbd-dev-sound.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/fbd-dev-sound.c b/src/fbd-dev-sound.c
+index 02c60b5..c81ac6c 100644
+--- a/src/fbd-dev-sound.c
++++ b/src/fbd-dev-sound.c
+@@ -114,14 +114,20 @@ initable_init (GInitable     *initable,
+ {
+   FbdDevSound *self = FBD_DEV_SOUND (initable);
+   const char *desktop;
++  gboolean gnome_session = FALSE;
+ 
+   self->playbacks = g_hash_table_new (g_direct_hash, g_direct_equal);
+-  self->ctx = gsound_context_new(NULL, error);
++  self->ctx = gsound_context_new (NULL, error);
+   if (!self->ctx)
+     return FALSE;
+ 
+   desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+-  if (!g_strcmp0 (desktop, "GNOME")) {
++  if (desktop) {
++    g_auto (GStrv) components = g_strsplit (desktop, ":", -1);
++    gnome_session = g_strv_contains ((const char * const *)components, "GNOME");
++  }
++
++  if (gnome_session) {
+     self->sound_settings = g_settings_new (GNOME_SOUND_SCHEMA_ID);
+ 
+     g_signal_connect_object (self->sound_settings, "changed::" GNOME_SOUND_KEY_THEME_NAME,
+-- 
+2.33.0
+
