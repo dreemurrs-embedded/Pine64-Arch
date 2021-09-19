@@ -3,7 +3,7 @@
 
 pkgname=anbox
 pkgver=0_git20210625
-pkgrel=1
+pkgrel=2
 arch=(x86_64 armv7h aarch64)
 url="http://anbox.io/"
 license=('GPL3')
@@ -90,5 +90,5 @@ md5sums=('94f0e718785e28cbbd4119fa0fd771a1'
          '654183805a524635454632712db618ed'
          '5a4356199eb722a970274e3255250399'
          'a1bb2cb220c3a24d06138ec5824d1898'
-         '587b14d7f5d9143d896e589668485bfc'
+         'dc6d34a9fb214b1e82ff0e2ab64ff89a'
          '59f64a172dfebed502e5f82a2b220784')
