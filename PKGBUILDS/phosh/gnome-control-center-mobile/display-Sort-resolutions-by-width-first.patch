@@ -1,0 +1,35 @@
+From: Benjamin Berg <bberg@redhat.com>
+Date: Thu, 21 Jan 2021 17:31:28 +0100
+Subject: display: Sort resolutions by width first
+
+We used to sort by area, but really, that is more confusing than
+helpful. Instead, sort by width then height.
+
+Fixes: #1237
+(cherry picked from commit feb762dde9f5cceffd9e8da6b30fa1ed2e58b428)
+---
+ panels/display/cc-display-settings.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/panels/display/cc-display-settings.c b/panels/display/cc-display-settings.c
+index 49ddcf0..383936e 100644
+--- a/panels/display/cc-display-settings.c
++++ b/panels/display/cc-display-settings.c
+@@ -208,11 +208,12 @@ sort_modes_by_area_desc (CcDisplayMode *a, CcDisplayMode *b)
+   cc_display_mode_get_resolution (a, &wa, &ha);
+   cc_display_mode_get_resolution (b, &wb, &hb);
+ 
+-  /* Prefer wide screen if the size is equal */
+-  res = wb*hb - wa*ha;
+-  if (res == 0)
+-    return wb - wa;
+-  return res;
++  /* Sort first by width, then height.
++   * We used to sort by area, but that can be confusing. */
++  res = wb - wa;
++  if (res)
++    return res;
++  return hb - ha;
+ }
+ 
+ static gint

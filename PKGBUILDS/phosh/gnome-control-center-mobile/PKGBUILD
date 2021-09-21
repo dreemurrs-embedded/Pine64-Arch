@@ -5,7 +5,7 @@
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
 pkgver=3.38.6
-pkgrel=1
+pkgrel=2
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-control-center"
 license=(GPL2)
@@ -52,6 +52,14 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_co
         shell-Hide-some-panels-on-phones.patch
         user-accounts-Constrain-passwords-to-digits-on-phone.patch
         user-panel-hide-add-user-unlock-buttons.patch
+        display-Sort-resolutions-by-width-first.patch
+        display-config-Use-G_APPROX_VALUE-to-compare-scale-double.patch
+        display-config-Expose-the-supported-scales-as-a-reffed-GA.patch
+        display-config-Filter-invalid-modes-and-scales-when-setti.patch
+        display-settings-Show-scaling-values-using-a-combo-box-wh.patch
+        display-Prevent-snapping-unmodified-display.patch
+        shell-Mirror-the-main-leaflet-s-folded-property.patch
+        display-Use-ComboBox-when-folded.patch
         # mobian
         0002-search-ellipsize-button-label-to-fit-small-screens.patch
         0003-usage-ellipsize-labels-to-fit-small-screens.patch
@@ -83,6 +91,14 @@ sha256sums=('SKIP'
             'ac1c218bc582f1533e66e799a4a8a77e818fa7b4430718c07d54151c311fff08'
             '0866afc5acd31e20a47a604b8d6f458fd94afc62ba1b20f71857719e6822fc59'
             'cbd0b44fc8881e07c3be169100f728a758a41f85aa5b10c94bc711dc74fc61ff'
+            '7b28219cdd82290b2b2f53283bcd36e1c3e6ed9de16e4d6d53f9cdff8b23bbfd'
+            'ac644ff6d3c0ee378159f5a25f39b420485a3819bed379f19271cf453b6ef26e'
+            '69caab5624ce1530cc2deda5c92858c1ada48433fd8c5729cdd9f6935db310eb'
+            '6b8bdad3799a81ae26ed4c7539b1394cd5f6f412183b1a9cbed267f96fab7f79'
+            'cffddfee1dac908062dfc9de1428e374bf22e945fe11c8a6ce956d9a3b762e16'
+            '156a1cf520fb10e2a3b18ff0efec4aeb2d921d61dfb512e7bd9a12346a21c379'
+            'b99e89c4e2f53d9442c7c21f41bae15e8e2d449ebb287881b9903a958b8c942e'
+            'd0f44e143633bbcd450a7ba6448eb845984faeda42513bce553cf77410011cf4'
             '6ecf0e6c3dcba4e3f96e3a1231b79076d481836684ecc22c1dd707838ccde322'
             '58c7c22b6ef68c96006cd5e0ca50b89f16274fc2110888fcc7f3fefc580f73f6'
             '7a9afc5a28919894194f33eb8067ed6dae85247aa2a8ad9457a7341c9dde5033'
