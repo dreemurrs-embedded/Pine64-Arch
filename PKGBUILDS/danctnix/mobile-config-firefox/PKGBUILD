@@ -1,21 +1,21 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=mobile-config-firefox
 pkgver=2.2.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Mobile and privacy friendly configuration for Firefox"
 arch=(any)
 url="https://gitlab.com/postmarketOS/mobile-config-firefox"
 license=('GPL3')
 depends=(firefox)
 source=($pkgname-$pkgver.tar.gz::https://gitlab.com/postmarketOS/mobile-config-firefox/-/archive/$pkgver/$pkgname-$pkgver.tar.gz
-	distro_links.html
-	disable-proton-ui.patch)
+  https://gitlab.com/postmarketOS/mobile-config-firefox/-/merge_requests/19.patch
+  distro_links.html)
 
 prepare() {
   cp distro_links.html $pkgname-$pkgver/src/homepage/distro_links.html
 
   cd $pkgname-$pkgver
-  patch -p1 -N < ../disable-proton-ui.patch
+  patch -p1 -N < ../19.patch
 }
 
 package() {
@@ -23,5 +23,5 @@ package() {
   make DESTDIR="$pkgdir" DISTRO="ArchMobile" install
 }
 md5sums=('13b030d839d4376a5d98579bf4c4779a'
-         '62df34150b3c188bfcbd60df5f5ee2b3'
-         'e7bfdad2defb6ce3886f79c3b5b40992')
+         'd4227f90d38b5742ca15cd8f83b09e2d'
+         '62df34150b3c188bfcbd60df5f5ee2b3')
