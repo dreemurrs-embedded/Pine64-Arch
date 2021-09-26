@@ -1,8 +1,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 # Contributor: Bart Ribbers <bribbers@disroot.org>
 
-_pkgver_images_system="17.1-20210920"
-_pkgver_images_vendor="17.1-20210920"
+_pkgver_images_system="17.1-20210925"
+_pkgver_images_vendor="17.1-20210925"
 pkgname=waydroid-image
 pkgver="${_pkgver_images_system//-/_}"
 pkgrel=1
@@ -34,11 +34,11 @@ package() {
   mv "$srcdir/vendor.img" "$pkgdir/usr/share/waydroid-extra/images"
 }
 
-sha256sums_x86_64=('de11171c801cd4157280f11b15968406fa3f7d7d9e3166882a8062c54545d3f7'
-                   '0009e068fd92eab53d46e3a0f04ee0143b8641080699295b2fcdd55d74373429')
-sha256sums_i686=('a6c1a030c05b4586e06c5edafe7f6e5835385c700a6a63a212120510e5bc1d87'
-                 'ce18109c9d037c31da2d181605c90ed874ade8fe6877c65168fb5752b175ec83')
-sha256sums_armv7h=('f9481a07cca7073eab232f13d93089739ce179d9ca842e83d36232a75ee19575'
-                   'd637d8d2588bb17769bf4e3229e0fe3d709be01c672b208c1624cbace950543b')
-sha256sums_aarch64=('8771529860d86b4200fff50c72e3667a163b701d264a7e10000135470bc78bcc'
-                    '9d915060146033bd520008934eb9b2ce3326402733bced213b7c90290b166fe0')
+sha256sums_x86_64=('68699fde4cad8dd256a0ecc7e0d007a0047c73b8729ac09ff78fc8ab7f4ce313'
+                   '3868a54e6404fec68b9759766ffc47f149af53aece7a7b74ff93799dafcd37a8')
+sha256sums_i686=('356716467216637c9fd89d26426c38a02bb08ce72ea16fbf3e42bda9b9671e73'
+                 'e9d2934bc53166c31c74d0d6c0c0e0df73f68817387ca5bc0360b39f992cf39a')
+sha256sums_armv7h=('869cc052fbf2067a7cc684a4263d027dcbbd7c19131f19edc7f82fc0c0249824'
+                   'f2442863d92d8b70beecc1e5014753fb036feee4a6ad38c03313928a79fdd23c')
+sha256sums_aarch64=('4a8696c31451e388efc3d3e195205920732a750e3ab0869f999fd8d6c4e93b9a'
+                    '93c92e258bc7d04b2e84261fa2cca4fcbf4b2f7c7d82bf3e9f652a08e8c2d060')
