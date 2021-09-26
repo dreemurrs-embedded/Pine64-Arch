@@ -12,6 +12,7 @@ The multiboot image uses a custom kernel image and may not perform well. Use our
 
 - Device: (PinePhone or PineTab?)
 - Kernel Version : $(uname -r)
+- UI: 
 
 ### Steps to reproduce
 <!-- Describe what causes your bug to occur -->
