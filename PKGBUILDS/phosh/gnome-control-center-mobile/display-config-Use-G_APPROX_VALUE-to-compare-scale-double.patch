@@ -4,8 +4,6 @@ Subject: display-config: Use G_APPROX_VALUE to compare scale doubles
 
 It's not safe to compare double values directly, use G_APPROX_VALUE with
 DBL_EPSILON instead.
-
-(cherry picked from commit 89cb1d99cbd3bda4eddebc0612fee207e86c49cd)
 ---
  panels/display/cc-display-config-dbus.c | 13 +++++++++----
  panels/display/cc-display-settings.c    |  7 +++++--

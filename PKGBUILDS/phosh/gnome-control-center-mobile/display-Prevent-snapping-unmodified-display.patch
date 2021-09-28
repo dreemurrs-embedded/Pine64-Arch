@@ -10,7 +10,6 @@ Note that this really is a bug in the snapping code. But that code is a
 mess and not fireing the signal is a good thing either way.
 
 Closes: #1412
-(cherry picked from commit 9d14644caf3aeaa7859d9459ec24a7a461136227)
 ---
  panels/display/cc-display-settings.c | 7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)

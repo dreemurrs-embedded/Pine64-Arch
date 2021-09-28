@@ -9,11 +9,11 @@ Subject: [PATCH] shell: Hide some panels on phones
  2 files changed, 54 insertions(+)
  create mode 100644 shell/phone-panels.h
 
-diff --git a/shell/cc-panel-loader.c b/shell/cc-panel-loader.c
-index f20384394..6cb42d2fe 100644
---- a/shell/cc-panel-loader.c
-+++ b/shell/cc-panel-loader.c
-@@ -224,6 +224,7 @@ cc_panel_loader_load_by_name (CcShell     *shell,
+Index: gnome-control-center/shell/cc-panel-loader.c
+===================================================================
+--- gnome-control-center.orig/shell/cc-panel-loader.c	2021-07-28 23:43:55.837000000 +0000
++++ gnome-control-center/shell/cc-panel-loader.c	2021-07-28 23:43:55.833000000 +0000
+@@ -233,6 +233,7 @@
  
  #endif /* CC_PANEL_LOADER_NO_GTYPES */
  
@@ -21,7 +21,7 @@ index f20384394..6cb42d2fe 100644
  /**
   * cc_panel_loader_fill_model:
   * @model: a #CcShellModel
-@@ -238,6 +239,7 @@ cc_panel_loader_fill_model (CcShellModel *model)
+@@ -247,6 +248,7 @@
  {
    guint i;
  
@@ -29,11 +29,10 @@ index f20384394..6cb42d2fe 100644
    for (i = 0; i < panels_vtable_len; i++)
      {
        g_autoptr(GDesktopAppInfo) app = NULL;
-diff --git a/shell/phone-panels.h b/shell/phone-panels.h
-new file mode 100644
-index 000000000..e8a446c48
---- /dev/null
-+++ b/shell/phone-panels.h
+Index: gnome-control-center/shell/phone-panels.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/shell/phone-panels.h	2021-07-28 23:43:55.833000000 +0000
 @@ -0,0 +1,52 @@
 +static CcPanelLoaderVtable phone_panels[] =
 +  {
@@ -87,6 +86,3 @@ index 000000000..e8a446c48
 +    panels_vtable = phone_panels;
 +    panels_vtable_len = G_N_ELEMENTS (phone_panels);
 +  }
--- 
-2.31.0
-

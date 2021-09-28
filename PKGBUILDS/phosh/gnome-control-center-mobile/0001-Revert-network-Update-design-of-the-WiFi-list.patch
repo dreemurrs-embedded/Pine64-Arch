@@ -1,0 +1,340 @@
+From af14ea2b16f7b64959bc65562c3df05cbad411c6 Mon Sep 17 00:00:00 2001
+From: undef <gitlab@undef.tools>
+Date: Thu, 29 Jul 2021 11:09:41 +0000
+Subject: [PATCH] Revert "network: Update design of the WiFi list."
+
+This reverts commit 64a2e54ec65b64eb55cddbe01b8fbb93b329d4c7.
+---
+ panels/network/cc-wifi-connection-row.c   | 20 +++---
+ panels/network/cc-wifi-connection-row.ui  | 52 ++++++++--------
+ panels/network/lock-small-symbolic.svg    | 74 -----------------------
+ panels/network/network.gresource.xml      |  2 -
+ panels/network/warning-small-symbolic.svg | 64 --------------------
+ 5 files changed, 38 insertions(+), 174 deletions(-)
+ delete mode 100644 panels/network/lock-small-symbolic.svg
+ delete mode 100644 panels/network/warning-small-symbolic.svg
+
+diff --git a/panels/network/cc-wifi-connection-row.c b/panels/network/cc-wifi-connection-row.c
+index cee92db61..83486b238 100644
+--- a/panels/network/cc-wifi-connection-row.c
++++ b/panels/network/cc-wifi-connection-row.c
+@@ -32,7 +32,7 @@ struct _CcWifiConnectionRow
+   GPtrArray       *aps;
+   NMConnection    *connection;
+ 
+-  GtkLabel        *active_label;
++  GtkImage        *active_icon;
+   GtkStack        *button_stack;
+   GtkCheckButton  *checkbutton;
+   GtkSpinner      *connecting_spinner;
+@@ -255,40 +255,40 @@ update_ui (CcWifiConnectionRow *self)
+         gtk_stack_set_visible_child_name (self->button_stack, "empty");
+     }
+ 
+-  gtk_widget_set_visible (GTK_WIDGET (self->active_label), active);
++  gtk_widget_set_visible (GTK_WIDGET (self->active_icon), active);
+ 
+   if (security != NM_AP_SEC_UNKNOWN && security != NM_AP_SEC_NONE && security != NM_AP_SEC_OWE)
+     {
+-      const gchar *icon_path;
++      gchar *icon_name;
+ 
+       gtk_widget_set_child_visible (GTK_WIDGET (self->encrypted_icon), TRUE);
+       if (security == NM_AP_SEC_WEP)
+ 	{
+-          icon_path = "/org/gnome/control-center/network/warning-small-symbolic.svg";
++          icon_name = "channel-insecure-symbolic";
+ 	  gtk_widget_set_tooltip_text (GTK_WIDGET (self->encrypted_icon), _("Insecure network (WEP)"));
+ 	}
+       else if (security == NM_AP_SEC_WPA)
+ 	{
+-          icon_path = "/org/gnome/control-center/network/lock-small-symbolic.svg";
++          icon_name = "network-wireless-encrypted-symbolic";
+           gtk_widget_set_tooltip_text (GTK_WIDGET (self->encrypted_icon), _("Secure network (WPA)"));
+ 	}
+       else if (security == NM_AP_SEC_WPA2)
+ 	{
+-          icon_path = "/org/gnome/control-center/network/lock-small-symbolic.svg";
++          icon_name = "network-wireless-encrypted-symbolic";
+           gtk_widget_set_tooltip_text (GTK_WIDGET (self->encrypted_icon), _("Secure network (WPA2)"));
+ 	}
+ 	  else if (security == NM_AP_SEC_SAE)
+ 	{
+-          icon_path = "/org/gnome/control-center/network/lock-small-symbolic.svg";
++          icon_name = "network-wireless-encrypted-symbolic";
+           gtk_widget_set_tooltip_text (GTK_WIDGET (self->encrypted_icon), _("Secure network (WPA3)"));
+ 	}
+       else
+ 	{
+-          icon_path = "/org/gnome/control-center/network/lock-small-symbolic.svg";
++          icon_name = "network-wireless-encrypted-symbolic";
+           gtk_widget_set_tooltip_text (GTK_WIDGET (self->encrypted_icon), _("Secure network"));
+ 	}
+ 
+-      gtk_image_set_from_resource (self->encrypted_icon, icon_path);
++      g_object_set (self->encrypted_icon, "icon-name", icon_name, NULL);
+     }
+   else
+     {
+@@ -458,7 +458,7 @@ cc_wifi_connection_row_class_init (CcWifiConnectionRowClass *klass)
+ 
+   gtk_widget_class_set_template_from_resource (widget_class, "/org/gnome/control-center/network/cc-wifi-connection-row.ui");
+ 
+-  gtk_widget_class_bind_template_child (widget_class, CcWifiConnectionRow, active_label);
++  gtk_widget_class_bind_template_child (widget_class, CcWifiConnectionRow, active_icon);
+   gtk_widget_class_bind_template_child (widget_class, CcWifiConnectionRow, button_stack);
+   gtk_widget_class_bind_template_child (widget_class, CcWifiConnectionRow, checkbutton);
+   gtk_widget_class_bind_template_child (widget_class, CcWifiConnectionRow, connecting_spinner);
+diff --git a/panels/network/cc-wifi-connection-row.ui b/panels/network/cc-wifi-connection-row.ui
+index 38bb8a988..034cb915a 100644
+--- a/panels/network/cc-wifi-connection-row.ui
++++ b/panels/network/cc-wifi-connection-row.ui
+@@ -27,25 +27,12 @@
+           </object>
+         </child>
+         <child>
+-          <object class="GtkBox">
++          <object class="GtkImage" id="strength_icon">
+             <property name="visible">True</property>
+-            <property name="valign">center</property>
++            <property name="can_focus">False</property>
+             <property name="margin_right">6</property>
+-            <child>
+-              <object class="GtkImage" id="strength_icon">
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="icon_name">network-wireless-signal-excellent-symbolic</property>
+-                <property name="icon_size">1</property>
+-              </object>
+-            </child>
+-            <child>
+-              <object class="GtkImage" id="encrypted_icon">
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="valign">end</property>
+-              </object>
+-            </child>
++            <property name="icon_name">network-wireless-signal-excellent-symbolic</property>
++            <property name="icon_size">1</property>
+           </object>
+         </child>
+         <child>
+@@ -53,7 +40,6 @@
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+             <property name="halign">start</property>
+-            <property name="hexpand">True</property>
+             <property name="margin_top">12</property>
+             <property name="margin_bottom">12</property>
+             <property name="label" translatable="no">Connection/SSID</property>
+@@ -61,14 +47,31 @@
+           </object>
+         </child>
+         <child>
+-          <object class="GtkLabel" id="active_label">
++          <object class="GtkImage" id="active_icon">
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+-            <property name="margin_end">6</property>
+-            <property name="label" translatable="yes">Connected</property>
+-            <style>
+-              <class name="dim-label"/>
+-            </style>
++            <property name="icon_name">object-select-symbolic</property>
++            <property name="icon_size">1</property>
++          </object>
++        </child>
++        <child>
++          <object class="GtkImage" id="encrypted_icon">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <property name="hexpand">True</property>
++            <property name="halign">end</property>
++            <property name="icon_name">network-wireless-encrypted-symbolic</property>
++            <property name="icon_size">1</property>
++          </object>
++        </child>
++        <child>
++          <object class="GtkSeparator" id="configure_separator">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <property name="margin_bottom">6</property>
++            <property name="margin_left">6</property>
++            <property name="margin_right">6</property>
++            <property name="margin_top">6</property>
+           </object>
+         </child>
+         <child>
+@@ -102,6 +105,7 @@
+                 </child>
+                 <style>
+                   <class name="image-button"/>
++                  <class name="circular"/>
+                 </style>
+               </object>
+               <packing>
+diff --git a/panels/network/lock-small-symbolic.svg b/panels/network/lock-small-symbolic.svg
+deleted file mode 100644
+index 3ff1b7e19..000000000
+--- a/panels/network/lock-small-symbolic.svg
++++ /dev/null
+@@ -1,74 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+-<svg
+-   xmlns:dc="http://purl.org/dc/elements/1.1/"
+-   xmlns:cc="http://creativecommons.org/ns#"
+-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+-   xmlns:svg="http://www.w3.org/2000/svg"
+-   xmlns="http://www.w3.org/2000/svg"
+-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+-   width="10"
+-   height="10"
+-   viewBox="0 0 10 10"
+-   version="1.1"
+-   id="svg5"
+-   sodipodi:docname="lock-small-symbolic.svg"
+-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+-  <metadata
+-     id="metadata11">
+-    <rdf:RDF>
+-      <cc:Work
+-         rdf:about="">
+-        <dc:format>image/svg+xml</dc:format>
+-        <dc:type
+-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+-        <dc:title></dc:title>
+-      </cc:Work>
+-    </rdf:RDF>
+-  </metadata>
+-  <defs
+-     id="defs9" />
+-  <sodipodi:namedview
+-     pagecolor="#ffffff"
+-     bordercolor="#666666"
+-     borderopacity="1"
+-     objecttolerance="10"
+-     gridtolerance="10"
+-     guidetolerance="10"
+-     inkscape:pageopacity="0"
+-     inkscape:pageshadow="2"
+-     inkscape:window-width="1920"
+-     inkscape:window-height="1016"
+-     id="namedview7"
+-     showgrid="true"
+-     inkscape:zoom="50.383226"
+-     inkscape:cx="8.3347858"
+-     inkscape:cy="3.7007884"
+-     inkscape:window-x="0"
+-     inkscape:window-y="0"
+-     inkscape:window-maximized="1"
+-     inkscape:current-layer="svg5"
+-     inkscape:document-rotation="0">
+-    <inkscape:grid
+-       type="xygrid"
+-       id="grid831" />
+-  </sodipodi:namedview>
+-  <g
+-     id="g856"
+-     transform="translate(12.40027)">
+-    <rect
+-       ry="0"
+-       y="4"
+-       x="-11.40027"
+-       height="6"
+-       width="8"
+-       id="rect13312"
+-       style="color:#bebebe;display:inline;overflow:visible;visibility:visible;fill:#2e3436;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none" />
+-    <path
+-       style="color:#bebebe;display:inline;overflow:visible;visibility:visible;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#2e3436;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none"
+-       d="M -9.40027,6 V 3 c 2.5e-4,-2 2.00025,-2 2.00025,-2 0,0 2,0 2,2 v 3"
+-       id="path13000"
+-       inkscape:connector-curvature="0"
+-       sodipodi:nodetypes="ccccc" />
+-  </g>
+-</svg>
+diff --git a/panels/network/network.gresource.xml b/panels/network/network.gresource.xml
+index b056d4b59..9feae08f1 100644
+--- a/panels/network/network.gresource.xml
++++ b/panels/network/network.gresource.xml
+@@ -14,7 +14,5 @@
+ 
+     <!-- Wi-Fi panel -->
+     <file preprocess="xml-stripblanks">cc-wifi-panel.ui</file>
+-    <file preprocess="xml-stripblanks">lock-small-symbolic.svg</file>
+-    <file preprocess="xml-stripblanks">warning-small-symbolic.svg</file>
+   </gresource>
+ </gresources>
+diff --git a/panels/network/warning-small-symbolic.svg b/panels/network/warning-small-symbolic.svg
+deleted file mode 100644
+index 1ba253e39..000000000
+--- a/panels/network/warning-small-symbolic.svg
++++ /dev/null
+@@ -1,64 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+-<svg
+-   xmlns:dc="http://purl.org/dc/elements/1.1/"
+-   xmlns:cc="http://creativecommons.org/ns#"
+-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+-   xmlns:svg="http://www.w3.org/2000/svg"
+-   xmlns="http://www.w3.org/2000/svg"
+-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+-   width="10"
+-   height="10"
+-   viewBox="0 0 10 10"
+-   version="1.1"
+-   id="svg5"
+-   sodipodi:docname="warning-small-symbolic.svg"
+-   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)">
+-  <metadata
+-     id="metadata11">
+-    <rdf:RDF>
+-      <cc:Work
+-         rdf:about="">
+-        <dc:format>image/svg+xml</dc:format>
+-        <dc:type
+-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+-        <dc:title />
+-      </cc:Work>
+-    </rdf:RDF>
+-  </metadata>
+-  <defs
+-     id="defs9" />
+-  <sodipodi:namedview
+-     pagecolor="#ffffff"
+-     bordercolor="#666666"
+-     borderopacity="1"
+-     objecttolerance="10"
+-     gridtolerance="10"
+-     guidetolerance="10"
+-     inkscape:pageopacity="0"
+-     inkscape:pageshadow="2"
+-     inkscape:window-width="1920"
+-     inkscape:window-height="1016"
+-     id="namedview7"
+-     showgrid="false"
+-     inkscape:zoom="20.172754"
+-     inkscape:cx="8.1840485"
+-     inkscape:cy="-4.2164187"
+-     inkscape:window-x="0"
+-     inkscape:window-y="0"
+-     inkscape:window-maximized="1"
+-     inkscape:current-layer="svg5"
+-     inkscape:document-rotation="0">
+-    <inkscape:grid
+-       type="xygrid"
+-       id="grid831" />
+-  </sodipodi:namedview>
+-  <g
+-     id="g868"
+-     style="opacity:1">
+-    <path
+-       id="path872"
+-       style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#f57900;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+-       d="M 5.0136719 0 C 4.6299657 -0.00525415 4.2770886 0.20950752 4.1054688 0.55273438 L 0.10546875 8.5527344 C -0.22691966 9.2176835 0.2566028 9.9999764 1 10 L 9 10 C 9.7433972 9.9999764 10.22692 9.2176835 9.8945312 8.5527344 L 5.8945312 0.55273438 C 5.7273166 0.21831824 5.3875286 0.00510321 5.0136719 0 z M 4 3 L 6 3 L 6 5.5 C 6 5.5 6 6 5.5 6 L 4.5 6 C 4 6 4 5.5 4 5.5 L 4 3 z M 4.5 7 L 5.5 7 C 5.777 7 6 7.223 6 7.5 L 6 8.5 C 6 8.777 5.777 9 5.5 9 L 4.5 9 C 4.223 9 4 8.777 4 8.5 L 4 7.5 C 4 7.223 4.223 7 4.5 7 z " />
+-  </g>
+-</svg>
+-- 
+2.30.2
+

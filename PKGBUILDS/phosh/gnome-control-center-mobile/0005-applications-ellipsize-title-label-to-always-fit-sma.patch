@@ -8,8 +8,10 @@ Subject: [PATCH] applications: ellipsize title label to always fit small
  panels/applications/cc-applications-panel.ui | 1 +
  1 file changed, 1 insertion(+)
 
---- a/panels/applications/cc-applications-panel.ui
-+++ b/panels/applications/cc-applications-panel.ui
+Index: gnome-control-center/panels/applications/cc-applications-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/applications/cc-applications-panel.ui	2021-07-28 23:43:55.977000000 +0000
++++ gnome-control-center/panels/applications/cc-applications-panel.ui	2021-07-28 23:43:55.973000000 +0000
 @@ -413,6 +413,7 @@
    </template>
    <object class="GtkLabel" id="title_label">

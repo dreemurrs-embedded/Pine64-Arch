@@ -11,8 +11,6 @@ scaling values in high dpi setups.
 So, in case scaling is possible, show them as buttons if they fit the
 buttons limit, otherwise fallback to a combo box that is consistent with
 the rest of the UI and will allow to use any valid scaling value.
-
-(cherry picked from commit 632cb3c907922d4449e5758d218612ad5d8735c6)
 ---
  panels/display/cc-display-settings.c  | 103 ++++++++++++++++++++++++++--------
  panels/display/cc-display-settings.ui |  11 +++-

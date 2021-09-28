@@ -78,11 +78,11 @@ Fixes https://gitlab.gnome.org/GNOME/gnome-control-center/issues/132
  create mode 100644 panels/wwan/meson.build
  create mode 100644 panels/wwan/wwan.gresource.xml
 
-diff --git a/meson.build b/meson.build
-index 48044cc98..46852255d 100644
---- a/meson.build
-+++ b/meson.build
-@@ -226,6 +226,10 @@ config_h.set('BUILD_NETWORK', host_is_linux,
+Index: gnome-control-center/meson.build
+===================================================================
+--- gnome-control-center.orig/meson.build	2021-07-28 23:43:55.604000000 +0000
++++ gnome-control-center/meson.build	2021-07-28 23:43:55.593000000 +0000
+@@ -228,6 +228,10 @@
               description: 'Define to 1 to build the Network panel')
  config_h.set('HAVE_NETWORK_MANAGER', host_is_linux,
               description: 'Define to 1 if NetworkManager is available')
@@ -93,10 +93,10 @@ index 48044cc98..46852255d 100644
  
  if host_is_linux_not_s390
    # gnome-bluetooth
-diff --git a/panels/common/gnome-control-center.rules.in b/panels/common/gnome-control-center.rules.in
-index 971ffac63..22cf785e0 100644
---- a/panels/common/gnome-control-center.rules.in
-+++ b/panels/common/gnome-control-center.rules.in
+Index: gnome-control-center/panels/common/gnome-control-center.rules.in
+===================================================================
+--- gnome-control-center.orig/panels/common/gnome-control-center.rules.in	2021-07-28 23:43:55.604000000 +0000
++++ gnome-control-center/panels/common/gnome-control-center.rules.in	2021-07-28 23:43:55.593000000 +0000
 @@ -1,6 +1,7 @@
  polkit.addRule(function(action, subject) {
  	if ((action.id == "org.freedesktop.locale1.set-locale" ||
@@ -105,11 +105,11 @@ index 971ffac63..22cf785e0 100644
  	     action.id == "org.freedesktop.hostname1.set-static-hostname" ||
  	     action.id == "org.freedesktop.hostname1.set-hostname" ||
  	     action.id == "org.gnome.controlcenter.datetime.configure") &&
-diff --git a/panels/meson.build b/panels/meson.build
-index 2f4fdc5e3..9b9fc34f4 100644
---- a/panels/meson.build
-+++ b/panels/meson.build
-@@ -26,7 +26,8 @@ panels = [
+Index: gnome-control-center/panels/meson.build
+===================================================================
+--- gnome-control-center.orig/panels/meson.build	2021-07-28 23:43:55.604000000 +0000
++++ gnome-control-center/panels/meson.build	2021-07-28 23:43:55.593000000 +0000
+@@ -26,7 +26,8 @@
    'sound',
    'universal-access',
    'usage',
@@ -119,11 +119,11 @@ index 2f4fdc5e3..9b9fc34f4 100644
  ]
  
  if host_is_linux
-diff --git a/panels/network/cc-network-panel.c b/panels/network/cc-network-panel.c
-index fc97fbca8..57d639072 100644
---- a/panels/network/cc-network-panel.c
-+++ b/panels/network/cc-network-panel.c
-@@ -382,6 +382,30 @@ update_bluetooth_section (CcNetworkPanel *self)
+Index: gnome-control-center/panels/network/cc-network-panel.c
+===================================================================
+--- gnome-control-center.orig/panels/network/cc-network-panel.c	2021-07-28 23:43:55.604000000 +0000
++++ gnome-control-center/panels/network/cc-network-panel.c	2021-07-28 23:43:55.593000000 +0000
+@@ -382,6 +382,30 @@
          gtk_widget_set_visible (self->container_bluetooth, self->bluetooth_devices->len > 0);
  }
  
@@ -154,7 +154,7 @@ index fc97fbca8..57d639072 100644
  static void
  panel_add_device (CcNetworkPanel *self, NMDevice *device)
  {
-@@ -428,6 +452,10 @@ panel_add_device (CcNetworkPanel *self, NMDevice *device)
+@@ -425,6 +449,10 @@
                                             nm_device_get_udi (device));
                                  return;
                          }
@@ -165,11 +165,10 @@ index fc97fbca8..57d639072 100644
                  }
  
                  device_mobile = net_device_mobile_new (self->client, device, modem_object);
-diff --git a/panels/wwan/cc-wwan-apn-dialog.c b/panels/wwan/cc-wwan-apn-dialog.c
-new file mode 100644
-index 000000000..3d06b3a33
---- /dev/null
-+++ b/panels/wwan/cc-wwan-apn-dialog.c
+Index: gnome-control-center/panels/wwan/cc-wwan-apn-dialog.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-apn-dialog.c	2021-07-28 23:43:55.594000000 +0000
 @@ -0,0 +1,413 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-apn-dialog.c
@@ -584,11 +583,10 @@ index 000000000..3d06b3a33
 +                       "device", device,
 +                       NULL);
 +}
-diff --git a/panels/wwan/cc-wwan-apn-dialog.h b/panels/wwan/cc-wwan-apn-dialog.h
-new file mode 100644
-index 000000000..0e9885836
---- /dev/null
-+++ b/panels/wwan/cc-wwan-apn-dialog.h
+Index: gnome-control-center/panels/wwan/cc-wwan-apn-dialog.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-apn-dialog.h	2021-07-28 23:43:55.594000000 +0000
 @@ -0,0 +1,40 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-apn-dialog.h
@@ -630,11 +628,10 @@ index 000000000..0e9885836
 +                                           CcWwanDevice    *device);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-apn-dialog.ui b/panels/wwan/cc-wwan-apn-dialog.ui
-new file mode 100644
-index 000000000..25e840f70
---- /dev/null
-+++ b/panels/wwan/cc-wwan-apn-dialog.ui
+Index: gnome-control-center/panels/wwan/cc-wwan-apn-dialog.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-apn-dialog.ui	2021-07-28 23:43:55.594000000 +0000
 @@ -0,0 +1,248 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -884,11 +881,10 @@ index 000000000..25e840f70
 +  <!-- A simple hack to create a radio button group -->
 +  <object class="GtkRadioButton" id="apn_radio_button" />
 +</interface>
-diff --git a/panels/wwan/cc-wwan-data.c b/panels/wwan/cc-wwan-data.c
-new file mode 100644
-index 000000000..ea995bedb
---- /dev/null
-+++ b/panels/wwan/cc-wwan-data.c
+Index: gnome-control-center/panels/wwan/cc-wwan-data.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-data.c	2021-07-28 23:43:55.595000000 +0000
 @@ -0,0 +1,1440 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-data.c
@@ -2330,11 +2326,10 @@ index 000000000..ea995bedb
 +  if (self->default_apn)
 +    self->default_apn->modified = TRUE;
 +}
-diff --git a/panels/wwan/cc-wwan-data.h b/panels/wwan/cc-wwan-data.h
-new file mode 100644
-index 000000000..9572b862d
---- /dev/null
-+++ b/panels/wwan/cc-wwan-data.h
+Index: gnome-control-center/panels/wwan/cc-wwan-data.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-data.h	2021-07-28 23:43:55.595000000 +0000
 @@ -0,0 +1,93 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-data.h
@@ -2429,11 +2424,10 @@ index 000000000..9572b862d
 +                                              int            priority);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-details-dialog.c b/panels/wwan/cc-wwan-details-dialog.c
-new file mode 100644
-index 000000000..e44c26486
---- /dev/null
-+++ b/panels/wwan/cc-wwan-details-dialog.c
+Index: gnome-control-center/panels/wwan/cc-wwan-details-dialog.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-details-dialog.c	2021-07-28 23:43:55.595000000 +0000
 @@ -0,0 +1,257 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-network-dialog.c
@@ -2692,11 +2686,10 @@ index 000000000..e44c26486
 +                       "device", device,
 +                       NULL);
 +}
-diff --git a/panels/wwan/cc-wwan-details-dialog.h b/panels/wwan/cc-wwan-details-dialog.h
-new file mode 100644
-index 000000000..7e7812cde
---- /dev/null
-+++ b/panels/wwan/cc-wwan-details-dialog.h
+Index: gnome-control-center/panels/wwan/cc-wwan-details-dialog.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-details-dialog.h	2021-07-28 23:43:55.595000000 +0000
 @@ -0,0 +1,40 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-details-dialog.h
@@ -2738,11 +2731,10 @@ index 000000000..7e7812cde
 +                                                 CcWwanDevice *device);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-details-dialog.ui b/panels/wwan/cc-wwan-details-dialog.ui
-new file mode 100644
-index 000000000..9dc2b782c
---- /dev/null
-+++ b/panels/wwan/cc-wwan-details-dialog.ui
+Index: gnome-control-center/panels/wwan/cc-wwan-details-dialog.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-details-dialog.ui	2021-07-28 23:43:55.595000000 +0000
 @@ -0,0 +1,321 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -3065,11 +3057,10 @@ index 000000000..9dc2b782c
 +
 +  </template>
 +</interface>
-diff --git a/panels/wwan/cc-wwan-device-page.c b/panels/wwan/cc-wwan-device-page.c
-new file mode 100644
-index 000000000..78348073b
---- /dev/null
-+++ b/panels/wwan/cc-wwan-device-page.c
+Index: gnome-control-center/panels/wwan/cc-wwan-device-page.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-device-page.c	2021-07-28 23:43:55.596000000 +0000
 @@ -0,0 +1,620 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-device-page.c
@@ -3691,11 +3682,10 @@ index 000000000..78348073b
 +
 +  self->sim_index = sim_index;
 +}
-diff --git a/panels/wwan/cc-wwan-device-page.h b/panels/wwan/cc-wwan-device-page.h
-new file mode 100644
-index 000000000..923346a89
---- /dev/null
-+++ b/panels/wwan/cc-wwan-device-page.h
+Index: gnome-control-center/panels/wwan/cc-wwan-device-page.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-device-page.h	2021-07-28 23:43:55.596000000 +0000
 @@ -0,0 +1,42 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-device-page.h
@@ -3739,11 +3729,10 @@ index 000000000..923346a89
 +                                                     gint              sim_index);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-device-page.ui b/panels/wwan/cc-wwan-device-page.ui
-new file mode 100644
-index 000000000..f77bd707d
---- /dev/null
-+++ b/panels/wwan/cc-wwan-device-page.ui
+Index: gnome-control-center/panels/wwan/cc-wwan-device-page.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-device-page.ui	2021-07-28 23:43:55.596000000 +0000
 @@ -0,0 +1,270 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -4015,11 +4004,10 @@ index 000000000..f77bd707d
 +    </widgets>
 +  </object>
 +</interface>
-diff --git a/panels/wwan/cc-wwan-device.c b/panels/wwan/cc-wwan-device.c
-new file mode 100644
-index 000000000..01dfd96a2
---- /dev/null
-+++ b/panels/wwan/cc-wwan-device.c
+Index: gnome-control-center/panels/wwan/cc-wwan-device.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-device.c	2021-07-28 23:43:55.597000000 +0000
 @@ -0,0 +1,1340 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-device.c
@@ -5361,11 +5349,10 @@ index 000000000..01dfd96a2
 +
 +  return TRUE;
 +}
-diff --git a/panels/wwan/cc-wwan-device.h b/panels/wwan/cc-wwan-device.h
-new file mode 100644
-index 000000000..e484bcf30
---- /dev/null
-+++ b/panels/wwan/cc-wwan-device.h
+Index: gnome-control-center/panels/wwan/cc-wwan-device.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-device.h	2021-07-28 23:43:55.597000000 +0000
 @@ -0,0 +1,152 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-device.h
@@ -5519,11 +5506,10 @@ index 000000000..e484bcf30
 +                                                       MMModemLock          lock);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-errors-private.h b/panels/wwan/cc-wwan-errors-private.h
-new file mode 100644
-index 000000000..761b82f35
---- /dev/null
-+++ b/panels/wwan/cc-wwan-errors-private.h
+Index: gnome-control-center/panels/wwan/cc-wwan-errors-private.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-errors-private.h	2021-07-28 23:43:55.597000000 +0000
 @@ -0,0 +1,104 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-errors-private.h
@@ -5629,11 +5615,10 @@ index 000000000..761b82f35
 +
 +  return _("Unknown Error");
 +}
-diff --git a/panels/wwan/cc-wwan-mode-dialog.c b/panels/wwan/cc-wwan-mode-dialog.c
-new file mode 100644
-index 000000000..751043e40
---- /dev/null
-+++ b/panels/wwan/cc-wwan-mode-dialog.c
+Index: gnome-control-center/panels/wwan/cc-wwan-mode-dialog.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-mode-dialog.c	2021-07-28 23:43:55.597000000 +0000
 @@ -0,0 +1,327 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-mode-dialog.c
@@ -5962,11 +5947,10 @@ index 000000000..751043e40
 +                       "device", device,
 +                       NULL);
 +}
-diff --git a/panels/wwan/cc-wwan-mode-dialog.h b/panels/wwan/cc-wwan-mode-dialog.h
-new file mode 100644
-index 000000000..2399f0b7b
---- /dev/null
-+++ b/panels/wwan/cc-wwan-mode-dialog.h
+Index: gnome-control-center/panels/wwan/cc-wwan-mode-dialog.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-mode-dialog.h	2021-07-28 23:43:55.598000000 +0000
 @@ -0,0 +1,40 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-mode-dialog.h
@@ -6008,11 +5992,10 @@ index 000000000..2399f0b7b
 +                                           CcWwanDevice *device);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-mode-dialog.ui b/panels/wwan/cc-wwan-mode-dialog.ui
-new file mode 100644
-index 000000000..352ec4e70
---- /dev/null
-+++ b/panels/wwan/cc-wwan-mode-dialog.ui
+Index: gnome-control-center/panels/wwan/cc-wwan-mode-dialog.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-mode-dialog.ui	2021-07-28 23:43:55.598000000 +0000
 @@ -0,0 +1,55 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -6069,11 +6052,10 @@ index 000000000..352ec4e70
 +    </action-widgets>
 +  </template>
 +</interface>
-diff --git a/panels/wwan/cc-wwan-network-dialog.c b/panels/wwan/cc-wwan-network-dialog.c
-new file mode 100644
-index 000000000..3745accb2
---- /dev/null
-+++ b/panels/wwan/cc-wwan-network-dialog.c
+Index: gnome-control-center/panels/wwan/cc-wwan-network-dialog.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-network-dialog.c	2021-07-28 23:43:55.598000000 +0000
 @@ -0,0 +1,444 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-network-dialog.c
@@ -6519,11 +6501,10 @@ index 000000000..3745accb2
 +                       "device", device,
 +                       NULL);
 +}
-diff --git a/panels/wwan/cc-wwan-network-dialog.h b/panels/wwan/cc-wwan-network-dialog.h
-new file mode 100644
-index 000000000..1818a0876
---- /dev/null
-+++ b/panels/wwan/cc-wwan-network-dialog.h
+Index: gnome-control-center/panels/wwan/cc-wwan-network-dialog.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-network-dialog.h	2021-07-28 23:43:55.598000000 +0000
 @@ -0,0 +1,40 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-network-dialog.h
@@ -6565,11 +6546,10 @@ index 000000000..1818a0876
 +                                                 CcWwanDevice *device);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-network-dialog.ui b/panels/wwan/cc-wwan-network-dialog.ui
-new file mode 100644
-index 000000000..9d5372cc6
---- /dev/null
-+++ b/panels/wwan/cc-wwan-network-dialog.ui
+Index: gnome-control-center/panels/wwan/cc-wwan-network-dialog.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-network-dialog.ui	2021-07-28 23:43:55.598000000 +0000
 @@ -0,0 +1,186 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -6757,11 +6737,10 @@ index 000000000..9d5372cc6
 +    </action-widgets>
 +  </template>
 +</interface>
-diff --git a/panels/wwan/cc-wwan-panel.c b/panels/wwan/cc-wwan-panel.c
-new file mode 100644
-index 000000000..5c9499bcf
---- /dev/null
-+++ b/panels/wwan/cc-wwan-panel.c
+Index: gnome-control-center/panels/wwan/cc-wwan-panel.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-panel.c	2021-07-28 23:43:55.599000000 +0000
 @@ -0,0 +1,771 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-panel.c
@@ -7534,11 +7513,10 @@ index 000000000..5c9499bcf
 +
 +  wwan_update_panel_visibility (mm_manager);
 +}
-diff --git a/panels/wwan/cc-wwan-panel.h b/panels/wwan/cc-wwan-panel.h
-new file mode 100644
-index 000000000..57d2dae26
---- /dev/null
-+++ b/panels/wwan/cc-wwan-panel.h
+Index: gnome-control-center/panels/wwan/cc-wwan-panel.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-panel.h	2021-07-28 23:43:55.599000000 +0000
 @@ -0,0 +1,36 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-panel.h
@@ -7576,11 +7554,10 @@ index 000000000..57d2dae26
 +void                 cc_wwan_panel_static_init_func              (void);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-panel.ui b/panels/wwan/cc-wwan-panel.ui
-new file mode 100644
-index 000000000..5258c42c3
---- /dev/null
-+++ b/panels/wwan/cc-wwan-panel.ui
+Index: gnome-control-center/panels/wwan/cc-wwan-panel.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-panel.ui	2021-07-28 23:43:55.599000000 +0000
 @@ -0,0 +1,336 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -7918,11 +7895,10 @@ index 000000000..5258c42c3
 +    </child>
 +  </object>
 +</interface>
-diff --git a/panels/wwan/cc-wwan-sim-lock-dialog.c b/panels/wwan/cc-wwan-sim-lock-dialog.c
-new file mode 100644
-index 000000000..70d8699c0
---- /dev/null
-+++ b/panels/wwan/cc-wwan-sim-lock-dialog.c
+Index: gnome-control-center/panels/wwan/cc-wwan-sim-lock-dialog.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-sim-lock-dialog.c	2021-07-28 23:43:55.599000000 +0000
 @@ -0,0 +1,322 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-network-dialog.c
@@ -8246,11 +8222,10 @@ index 000000000..70d8699c0
 +                       "device", device,
 +                       NULL);
 +}
-diff --git a/panels/wwan/cc-wwan-sim-lock-dialog.h b/panels/wwan/cc-wwan-sim-lock-dialog.h
-new file mode 100644
-index 000000000..b6d1d5a9e
---- /dev/null
-+++ b/panels/wwan/cc-wwan-sim-lock-dialog.h
+Index: gnome-control-center/panels/wwan/cc-wwan-sim-lock-dialog.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-sim-lock-dialog.h	2021-07-28 23:43:55.599000000 +0000
 @@ -0,0 +1,40 @@
 +/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-wwan-sim-lock-dialog.h
@@ -8292,11 +8267,10 @@ index 000000000..b6d1d5a9e
 +                                                  CcWwanDevice *device);
 +
 +G_END_DECLS
-diff --git a/panels/wwan/cc-wwan-sim-lock-dialog.ui b/panels/wwan/cc-wwan-sim-lock-dialog.ui
-new file mode 100644
-index 000000000..9c7d26589
---- /dev/null
-+++ b/panels/wwan/cc-wwan-sim-lock-dialog.ui
+Index: gnome-control-center/panels/wwan/cc-wwan-sim-lock-dialog.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/cc-wwan-sim-lock-dialog.ui	2021-07-28 23:43:55.600000000 +0000
 @@ -0,0 +1,309 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -8607,11 +8581,10 @@ index 000000000..9c7d26589
 +
 +  </template>
 +</interface>
-diff --git a/panels/wwan/gnome-wwan-panel.desktop.in.in b/panels/wwan/gnome-wwan-panel.desktop.in.in
-new file mode 100644
-index 000000000..1fc55eff7
---- /dev/null
-+++ b/panels/wwan/gnome-wwan-panel.desktop.in.in
+Index: gnome-control-center/panels/wwan/gnome-wwan-panel.desktop.in.in
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/gnome-wwan-panel.desktop.in.in	2021-07-28 23:43:55.600000000 +0000
 @@ -0,0 +1,16 @@
 +[Desktop Entry]
 +Name=Mobile
@@ -8629,11 +8602,10 @@ index 000000000..1fc55eff7
 +StartupNotify=true
 +# Translators: Search terms to find the WWAN panel. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
 +Keywords=cellular;wwan;telephony;sim;mobile;
-diff --git a/panels/wwan/meson.build b/panels/wwan/meson.build
-new file mode 100644
-index 000000000..8c1b02f26
---- /dev/null
-+++ b/panels/wwan/meson.build
+Index: gnome-control-center/panels/wwan/meson.build
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/meson.build	2021-07-28 23:43:55.600000000 +0000
 @@ -0,0 +1,61 @@
 +gcr_dep = [dependency('gcr-3')]
 +
@@ -8696,11 +8668,10 @@ index 000000000..8c1b02f26
 +         dependencies : deps,
 +               c_args : cflags
 +)
-diff --git a/panels/wwan/wwan.gresource.xml b/panels/wwan/wwan.gresource.xml
-new file mode 100644
-index 000000000..f128a164a
---- /dev/null
-+++ b/panels/wwan/wwan.gresource.xml
+Index: gnome-control-center/panels/wwan/wwan.gresource.xml
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/wwan/wwan.gresource.xml	2021-07-28 23:43:55.600000000 +0000
 @@ -0,0 +1,12 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<gresources>
@@ -8714,11 +8685,11 @@ index 000000000..f128a164a
 +    <file preprocess="xml-stripblanks">cc-wwan-apn-dialog.ui</file>
 +  </gresource>
 +</gresources>
-diff --git a/shell/cc-panel-list.c b/shell/cc-panel-list.c
-index d425067d7..463b1f69a 100644
---- a/shell/cc-panel-list.c
-+++ b/shell/cc-panel-list.c
-@@ -387,6 +387,7 @@ static const gchar * const panel_order[] = {
+Index: gnome-control-center/shell/cc-panel-list.c
+===================================================================
+--- gnome-control-center.orig/shell/cc-panel-list.c	2021-07-28 23:43:55.604000000 +0000
++++ gnome-control-center/shell/cc-panel-list.c	2021-07-28 23:43:55.600000000 +0000
+@@ -381,6 +381,7 @@
    /* Main page */
    "wifi",
    "network",
@@ -8726,11 +8697,11 @@ index d425067d7..463b1f69a 100644
    "mobile-broadband",
    "bluetooth",
    "background",
-diff --git a/shell/cc-panel-loader.c b/shell/cc-panel-loader.c
-index f20384394..65b6555a1 100644
---- a/shell/cc-panel-loader.c
-+++ b/shell/cc-panel-loader.c
-@@ -64,6 +64,9 @@ extern GType cc_user_panel_get_type (void);
+Index: gnome-control-center/shell/cc-panel-loader.c
+===================================================================
+--- gnome-control-center.orig/shell/cc-panel-loader.c	2021-07-28 23:43:55.604000000 +0000
++++ gnome-control-center/shell/cc-panel-loader.c	2021-07-28 23:44:00.000000000 +0000
+@@ -64,6 +64,9 @@
  #ifdef BUILD_WACOM
  extern GType cc_wacom_panel_get_type (void);
  #endif /* BUILD_WACOM */
@@ -8740,7 +8711,7 @@ index f20384394..65b6555a1 100644
  extern GType cc_location_panel_get_type (void);
  extern GType cc_camera_panel_get_type (void);
  extern GType cc_microphone_panel_get_type (void);
-@@ -79,6 +82,9 @@ extern void cc_wifi_panel_static_init_func (void);
+@@ -79,6 +82,9 @@
  #ifdef BUILD_WACOM
  extern void cc_wacom_panel_static_init_func (void);
  #endif /* BUILD_WACOM */
@@ -8750,7 +8721,7 @@ index f20384394..65b6555a1 100644
  
  #define PANEL_TYPE(name, get_type, init_func) { name, get_type, init_func }
  
-@@ -129,6 +135,9 @@ static CcPanelLoaderVtable default_panels[] =
+@@ -129,6 +135,9 @@
  #ifdef BUILD_WACOM
    PANEL_TYPE("wacom",            cc_wacom_panel_get_type,                cc_wacom_panel_static_init_func),
  #endif
@@ -8760,6 +8731,3 @@ index f20384394..65b6555a1 100644
  };
  
  /* Override for the panel vtable. When NULL, the default_panels will
--- 
-2.31.0
-

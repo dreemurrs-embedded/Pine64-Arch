@@ -8,10 +8,10 @@ Allow the downstream fork of GTK to maximize it.
  panels/online-accounts/online-accounts.ui | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/panels/online-accounts/online-accounts.ui b/panels/online-accounts/online-accounts.ui
-index c101964d9..c6dfb860a 100644
---- a/panels/online-accounts/online-accounts.ui
-+++ b/panels/online-accounts/online-accounts.ui
+Index: gnome-control-center/panels/online-accounts/online-accounts.ui
+===================================================================
+--- gnome-control-center.orig/panels/online-accounts/online-accounts.ui	2021-07-28 23:43:55.688000000 +0000
++++ gnome-control-center/panels/online-accounts/online-accounts.ui	2021-07-28 23:43:55.684000000 +0000
 @@ -185,7 +185,6 @@
      <property name="can_focus">False</property>
      <property name="type_hint">dialog</property>
@@ -20,6 +20,3 @@ index c101964d9..c6dfb860a 100644
      <property name="modal">True</property>
      <signal name="delete-event" handler="on_edit_account_dialog_delete_event" object="CcGoaPanel" swapped="yes" />
      <child type="titlebar">
--- 
-2.30.2
-

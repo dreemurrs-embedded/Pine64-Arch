@@ -9,24 +9,10 @@ Subject: [PATCH 1/8] Add patches to check if phone
  2 files changed, 24 insertions(+)
  create mode 100644 panels/common/pureos.h
 
-diff --git a/panels/common/list-box-helper.h b/panels/common/list-box-helper.h
-index f3c2553c9..dce767990 100644
---- a/panels/common/list-box-helper.h
-+++ b/panels/common/list-box-helper.h
-@@ -20,6 +20,8 @@
- 
- #include <gtk/gtk.h>
- 
-+#include "pureos.h"
-+
- #define CC_TYPE_LIST_BOX_ROW (cc_list_box_row_get_type ())
- G_DECLARE_FINAL_TYPE (CcListBoxRow, cc_list_box_row, CC, LIST_BOX_ROW, GtkListBoxRow)
- 
-diff --git a/panels/common/pureos.h b/panels/common/pureos.h
-new file mode 100644
-index 000000000..2e31d7e07
---- /dev/null
-+++ b/panels/common/pureos.h
+Index: gnome-control-center/panels/common/pureos.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/common/pureos.h	2021-07-28 23:43:55.774000000 +0000
 @@ -0,0 +1,22 @@
 +#include <gtk/gtk.h>
 +
@@ -50,5 +36,3 @@ index 000000000..2e31d7e07
 +
 +  return is_phone;
 +}
--- 
-2.31.0

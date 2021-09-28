@@ -7,8 +7,6 @@ elements around or to expose the size via an out value.
 
 Given this is a private API anyway there's no risk for modifying the
 array, so it's something safe to use anyways.
-
-(cherry picked from commit a3392176a9610ce854ea02fbb521b1fd12faa425)
 ---
  panels/display/cc-display-config-dbus.c |  6 +++---
  panels/display/cc-display-config.c      |  2 +-

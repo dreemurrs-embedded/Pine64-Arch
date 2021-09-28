@@ -18,8 +18,6 @@ temporary one in this case where unappliable scales are skipped.
 
 As per this we can just use around the scales array length as the number
 of visible buttons.
-
-(cherry picked from commit 266622e99ef2b36da036f24173627d7c4bad293d)
 ---
  panels/display/cc-display-config-dbus.c | 124 ++++++++++++++++++++++++++------
  panels/display/cc-display-settings.c    |  20 +-----

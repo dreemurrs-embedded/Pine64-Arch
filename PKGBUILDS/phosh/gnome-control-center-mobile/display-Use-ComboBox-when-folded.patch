@@ -17,10 +17,10 @@ more tweaks to shrink to smaller sizes.
  3 files changed, 65 insertions(+), 40 deletions(-)
 
 diff --git a/panels/display/cc-display-panel.c b/panels/display/cc-display-panel.c
-index 07156a1..746cbcc 100644
+index 3e238c2..48a8d1e 100644
 --- a/panels/display/cc-display-panel.c
 +++ b/panels/display/cc-display-panel.c
-@@ -398,6 +398,7 @@ static void
+@@ -456,6 +456,7 @@ static void
  cc_display_panel_dispose (GObject *object)
  {
    CcDisplayPanel *self = CC_DISPLAY_PANEL (object);
@@ -28,7 +28,7 @@ index 07156a1..746cbcc 100644
  
    reset_titlebar (CC_DISPLAY_PANEL (object));
  
-@@ -415,6 +416,8 @@ cc_display_panel_dispose (GObject *object)
+@@ -473,6 +474,8 @@ cc_display_panel_dispose (GObject *object)
  
    g_clear_pointer ((GtkWidget **) &self->night_light_dialog, gtk_widget_destroy);
  
@@ -37,7 +37,7 @@ index 07156a1..746cbcc 100644
    G_OBJECT_CLASS (cc_display_panel_parent_class)->dispose (object);
  }
  
-@@ -586,12 +589,26 @@ on_primary_display_selected_index_changed_cb (CcDisplayPanel *panel)
+@@ -644,12 +647,26 @@ on_primary_display_selected_index_changed_cb (CcDisplayPanel *panel)
    update_apply_button (panel);
  }
  
@@ -64,7 +64,7 @@ index 07156a1..746cbcc 100644
    G_OBJECT_CLASS (cc_display_panel_parent_class)->constructed (object);
  }
  
-@@ -869,7 +886,7 @@ reset_current_config (CcDisplayPanel *panel)
+@@ -927,7 +944,7 @@ reset_current_config (CcDisplayPanel *panel)
  
    if (!current)
      return;
@@ -74,7 +74,7 @@ index 07156a1..746cbcc 100644
    panel->current_config = current;
  
 diff --git a/panels/display/cc-display-settings.c b/panels/display/cc-display-settings.c
-index c9f89f2..3a6e325 100644
+index a4f914e..efda194 100644
 --- a/panels/display/cc-display-settings.c
 +++ b/panels/display/cc-display-settings.c
 @@ -35,6 +35,8 @@ struct _CcDisplaySettings
@@ -114,7 +114,7 @@ index c9f89f2..3a6e325 100644
 -          value_object = hdy_value_object_new_collect (G_TYPE_STRING, scale_str);
 -          g_list_store_append (self->scale_list, value_object);
 -          g_object_set_data_full (G_OBJECT (value_object), "scale",
--                                  g_memdup (&scale, sizeof (double)), g_free);
+-                                  g_memdup2 (&scale, sizeof (double)), g_free);
 -          if (is_selected)
 -            hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->scale_combo_row),
 -                                              g_list_model_get_n_items (G_LIST_MODEL (self->scale_list)) - 1);
@@ -123,7 +123,7 @@ index c9f89f2..3a6e325 100644
 -        {
 -          GtkWidget *scale_btn = gtk_radio_button_new_with_label_from_widget (group, scale_str);
 -          g_object_set_data_full (G_OBJECT (scale_btn), "scale",
--                                  g_memdup (&scale, sizeof (double)), g_free);
+-                                  g_memdup2 (&scale, sizeof (double)), g_free);
 -
 -          if (!group)
 -            group = GTK_RADIO_BUTTON (scale_btn);
@@ -142,7 +142,7 @@ index c9f89f2..3a6e325 100644
 +      value_object = hdy_value_object_new_collect (G_TYPE_STRING, scale_str);
 +      g_list_store_append (self->scale_list, value_object);
 +      g_object_set_data_full (G_OBJECT (value_object), "scale",
-+                              g_memdup (&scale, sizeof (double)), g_free);
++                              g_memdup2 (&scale, sizeof (double)), g_free);
 +      if (is_selected)
 +        hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->scale_combo_row),
 +                                          g_list_model_get_n_items (G_LIST_MODEL (self->scale_list)) - 1);
@@ -150,7 +150,7 @@ index c9f89f2..3a6e325 100644
 +      /* ButtonBox */
 +      scale_btn = gtk_radio_button_new_with_label_from_widget (group, scale_str);
 +      g_object_set_data_full (G_OBJECT (scale_btn), "scale",
-+                              g_memdup (&scale, sizeof (double)), g_free);
++                              g_memdup2 (&scale, sizeof (double)), g_free);
 +
 +      if (!group)
 +        group = GTK_RADIO_BUTTON (scale_btn);

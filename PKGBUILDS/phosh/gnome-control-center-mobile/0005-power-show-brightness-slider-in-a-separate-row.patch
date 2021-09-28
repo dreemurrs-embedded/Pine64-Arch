@@ -8,27 +8,16 @@ Fixes https://source.puri.sm/Librem5/gnome-control-center/issues/85
  panels/power/cc-power-panel.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/panels/power/cc-power-panel.c b/panels/power/cc-power-panel.c
-index 044f633f9..665efd0ab 100644
---- a/panels/power/cc-power-panel.c
-+++ b/panels/power/cc-power-panel.c
-@@ -1538,6 +1538,7 @@ add_brightness_row (CcPowerPanel       *self,
-   row = no_prelight_row_new ();
-   gtk_widget_show (row);
-   box = row_box_new ();
-+  gtk_orientable_set_orientation (GTK_ORIENTABLE (box), GTK_ORIENTATION_VERTICAL);
-   gtk_container_add (GTK_CONTAINER (row), box);
-   title = row_title_new (text, NULL, &label);
-   gtk_box_pack_start (GTK_BOX (box), title, FALSE, TRUE, 0);
-@@ -1876,7 +1877,7 @@ add_power_saving_section (CcPowerPanel *self)
-   self->brightness_row = row;
+Index: gnome-control-center/panels/power/cc-power-panel.c
+===================================================================
+--- gnome-control-center.orig/panels/power/cc-power-panel.c	2021-07-28 23:43:55.715000000 +0000
++++ gnome-control-center/panels/power/cc-power-panel.c	2021-07-28 23:43:55.711000000 +0000
+@@ -1595,7 +1595,7 @@
+       self->power_profiles_row[profile] = row;
+       gtk_widget_show (GTK_WIDGET (row));
+       gtk_container_add (GTK_CONTAINER (self->power_profile_listbox), GTK_WIDGET (row));
+-      gtk_size_group_add_widget (self->row_sizegroup, GTK_WIDGET (row));
++      /* gtk_size_group_add_widget (self->row_sizegroup, row); */
  
-   gtk_container_add (GTK_CONTAINER (widget), row);
--  gtk_size_group_add_widget (self->row_sizegroup, row);
-+  /* gtk_size_group_add_widget (self->row_sizegroup, row); */
- 
-   /* ambient light sensor */
-   self->iio_proxy_watch_id =
--- 
-2.30.2
-
+       /* Connect radio button to group */
+       button = cc_power_profile_row_get_radio_button (row);
