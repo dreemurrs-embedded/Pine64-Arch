@@ -1,18 +1,18 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=calls
-pkgver=0.3.4
+pkgver=41.0
 pkgrel=1
 pkgdesc="The phone app"
-url="https://source.puri.sm/Librem5/calls"
+url="https://gitlab.gnome.org/GNOME/calls"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
          'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager' 'callaudiod' 'sofia-sip')
 makedepends=('meson' 'ninja' 'vala')
-source=(https://source.puri.sm/Librem5/calls/-/archive/v$pkgver/calls-v$pkgver.tar.gz)
+source=(https://gitlab.gnome.org/GNOME/calls/-/archive/$pkgver/calls-$pkgver.tar.gz)
 
 build() {
-    arch-meson $pkgname-v$pkgver output
+    arch-meson $pkgname-$pkgver output
     ninja -C output
 }
 
@@ -20,4 +20,4 @@ package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('8ccedc896cf05a7de6f0301985a39891')
+md5sums=('128c54ac1b41b96452bfd4b2cde5ba4b')
