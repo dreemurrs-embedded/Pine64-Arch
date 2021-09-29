@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=calls
-pkgver=0.3.4
-pkgrel=2
+pkgver=41.1
+pkgrel=1
 pkgdesc="Make and receive PSTN phone calls"
 url="https://gitlab.gnome.org/GNOME/calls"
 license=('GPL')
@@ -10,9 +10,8 @@ depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
          'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager' 'callaudiod' 'sofia-sip'
          'wayland-protocols')
 makedepends=('meson' 'ninja' 'vala' 'git')
-_commit="4948148bfeb0730197c5f3faf7d507a248fcf579" # tags/0.3.4
-source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit"
-        367.patch)
+_commit="7b45de69df5a5312f702d79a23ae5e87979857ef" # tags/41.1
+source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
 
 prepare() {
   cd calls
@@ -36,5 +35,4 @@ package() {
   DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('SKIP'
-         'a8a152f16645e9299ebc44d80f0b445d')
+md5sums=('SKIP')
