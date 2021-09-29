@@ -3,7 +3,7 @@
 
 pkgname=gnome-usage-mobile
 _pkgname=gnome-usage
-pkgver=3.38.0
+pkgver=3.38.1
 pkgrel=1
 pkgdesc="GNOME application to view information about use of system resources"
 arch=(aarch64)
@@ -15,7 +15,7 @@ optdepends=('accountsservice: show user tags for processes'
             'gamemode: show processes requesting game mode')
 provides=("$_pkgname=$pkgver")
 conflicts=("$_pkgname")
-_commit=9f1a9b3c74ee42d2cd917aa0ef2e7938f4389003  # tags/3.38.0^0
+_commit=4745bb5e8f2a44a35cb410020dcf6e54e73bd6e1  # tags/3.38.1^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-usage.git#commit=$_commit"
         '0001-Add-libgtherm-dependency.patch'
         '0002-Add-initial-thermal-view.patch'
