@@ -42,7 +42,7 @@ index 592e6837..d29b9257 100644
 +						      GTK_ICON_SIZE_BUTTON);
  		}
  		break;
- 	case AS_APP_STATE_QUEUED_FOR_INSTALL:
+ 	case GS_APP_STATE_QUEUED_FOR_INSTALL:
 @@ -134,18 +143,27 @@ gs_app_row_refresh_button (GsAppRow *app_row, gboolean missing_search_result)
  		gtk_widget_set_visible (priv->button, TRUE);
  		/* TRANSLATORS: this is a button next to the search results that
@@ -53,7 +53,7 @@ index 592e6837..d29b9257 100644
 +					      "system-software-install-symbolic",
 +					      GTK_ICON_SIZE_BUTTON);
  		break;
- 	case AS_APP_STATE_UPDATABLE_LIVE:
+ 	case GS_APP_STATE_UPDATABLE_LIVE:
  		gtk_widget_set_visible (priv->button, TRUE);
  		if (priv->show_update) {
  			/* TRANSLATORS: this is a button in the updates panel
@@ -66,25 +66,25 @@ index 592e6837..d29b9257 100644
  		} else {
  			/* TRANSLATORS: this is a button next to the search results that
  			 * allows the application to be easily removed */
--			gtk_button_set_label (GTK_BUTTON (priv->button), _("Remove"));
+-			gtk_button_set_label (GTK_BUTTON (priv->button), _("Uninstall"));
 +			gtk_stack_set_visible_child (GTK_STACK (priv->button_stack), priv->button_image);
 +			gtk_image_set_from_icon_name (GTK_IMAGE (priv->button_image),
 +						      "edit-delete-symbolic",
 +						      GTK_ICON_SIZE_BUTTON);
  		}
  		break;
- 	case AS_APP_STATE_UPDATABLE:
+ 	case GS_APP_STATE_UPDATABLE:
 @@ -154,19 +172,24 @@ gs_app_row_refresh_button (GsAppRow *app_row, gboolean missing_search_result)
  			gtk_widget_set_visible (priv->button, TRUE);
  		/* TRANSLATORS: this is a button next to the search results that
  		 * allows the application to be easily removed */
--		gtk_button_set_label (GTK_BUTTON (priv->button), _("Remove"));
+-		gtk_button_set_label (GTK_BUTTON (priv->button), _("Uninstall"));
 +		gtk_stack_set_visible_child (GTK_STACK (priv->button_stack), priv->button_image);
 +		gtk_image_set_from_icon_name (GTK_IMAGE (priv->button_image),
 +					      "edit-delete-symbolic",
 +					      GTK_ICON_SIZE_BUTTON);
  		break;
- 	case AS_APP_STATE_INSTALLING:
+ 	case GS_APP_STATE_INSTALLING:
  		gtk_widget_set_visible (priv->button, TRUE);
  		/* TRANSLATORS: this is a button next to the search results that
  		 * shows the status of an application being installed */
@@ -92,11 +92,11 @@ index 592e6837..d29b9257 100644
 +		gtk_stack_set_visible_child (GTK_STACK (priv->button_stack), priv->button_spinner);
 +		gtk_spinner_start (GTK_SPINNER (priv->button_spinner));
  		break;
- 	case AS_APP_STATE_REMOVING:
+ 	case GS_APP_STATE_REMOVING:
  		gtk_widget_set_visible (priv->button, TRUE);
  		/* TRANSLATORS: this is a button next to the search results that
  		 * shows the status of an application being erased */
--		gtk_button_set_label (GTK_BUTTON (priv->button), _("Removing"));
+-		gtk_button_set_label (GTK_BUTTON (priv->button), _("Uninstalling"));
 +		gtk_stack_set_visible_child (GTK_STACK (priv->button_stack), priv->button_spinner);
 +		gtk_spinner_start (GTK_SPINNER (priv->button_spinner));
  		break;
@@ -112,11 +112,12 @@ index 592e6837..d29b9257 100644
  	gtk_widget_class_bind_template_child_private (widget_class, GsAppRow, spinner);
  	gtk_widget_class_bind_template_child_private (widget_class, GsAppRow, label);
  	gtk_widget_class_bind_template_child_private (widget_class, GsAppRow, label_warning);
-@@ -648,7 +674,6 @@ gs_app_row_set_size_groups (GsAppRow *app_row,
- 	gtk_size_group_add_widget (image, priv->image);
- 	gtk_size_group_add_widget (name, priv->name_box);
- 	gtk_size_group_add_widget (desc, priv->description_box);
--	gtk_size_group_add_widget (button, priv->button);
+@@ -648,8 +674,6 @@ gs_app_row_set_size_groups (GsAppRow *app_row,
+ 		gtk_size_group_add_widget (name, priv->name_box);
+ 	if (desc != NULL)
+ 		gtk_size_group_add_widget (desc, priv->description_box);
+-	if (button != NULL)
+-		gtk_size_group_add_widget (button, priv->button);
  }
  
  void

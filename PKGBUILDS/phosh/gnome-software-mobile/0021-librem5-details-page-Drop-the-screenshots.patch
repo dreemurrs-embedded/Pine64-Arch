@@ -14,7 +14,7 @@ index 8eb07bd3..e740bc1e 100644
 --- a/src/gs-details-page.c
 +++ b/src/gs-details-page.c
 @@ -21,7 +21,6 @@
- #include "gs-app-addon-row.h"
+ #include "gs-description-box.h"
  #include "gs-history-dialog.h"
  #include "gs-origin-popover-row.h"
 -#include "gs-screenshot-image.h"
@@ -33,14 +33,14 @@ index 8eb07bd3..e740bc1e 100644
  	GtkWidget		*button_details_launch;
  	GtkWidget		*button_details_add_shortcut;
 @@ -118,7 +113,6 @@ struct _GsDetailsPage
- 	GtkWidget		*label_licenses_intro;
- 	GtkWidget		*list_box_addons;
+ 	GtkWidget		*row_latest_version;
+ 	GtkWidget		*version_history_button;
  	GtkWidget		*box_reviews;
 -	GtkWidget		*box_details_screenshot_fallback;
  	GtkWidget		*histogram;
  	GtkWidget		*button_review;
  	GtkWidget		*list_box_reviews;
-@@ -469,191 +463,6 @@ gs_details_page_notify_state_changed_cb (GsApp *app,
+@@ -469,192 +463,6 @@ gs_details_page_notify_state_changed_cb (GsApp *app,
  	g_idle_add (gs_details_page_switch_to_idle, g_object_ref (self));
  }
  
@@ -65,7 +65,6 @@ index 8eb07bd3..e740bc1e 100644
 -{
 -	GsScreenshotImage *ssthumb;
 -	AsScreenshot *ss;
--	g_autoptr(GList) children = NULL;
 -
 -	if (row == NULL)
 -		return;
@@ -93,7 +92,7 @@ index 8eb07bd3..e740bc1e 100644
 -	gtk_widget_show (self->box_details_screenshot);
 -
 -	/* treat screenshots differently */
--	if (gs_app_get_kind (self->app) == AS_APP_KIND_FONT) {
+-	if (gs_app_get_kind (self->app) == AS_COMPONENT_KIND_FONT) {
 -		gs_container_remove_all (GTK_CONTAINER (self->box_details_screenshot_thumbnails));
 -		gs_container_remove_all (GTK_CONTAINER (self->box_details_screenshot_main));
 -		screenshots = gs_app_get_screenshots (self->app);
@@ -101,7 +100,7 @@ index 8eb07bd3..e740bc1e 100644
 -			ss = g_ptr_array_index (screenshots, i);
 -
 -			/* set caption */
--			label = gtk_label_new (as_screenshot_get_caption (ss, NULL));
+-			label = gtk_label_new (as_screenshot_get_caption (ss));
 -			g_object_set (label,
 -				      "xalign", 0.0,
 -				      "max-width-chars", 10,
@@ -130,15 +129,15 @@ index 8eb07bd3..e740bc1e 100644
 -	/* fallback warning */
 -	screenshots = gs_app_get_screenshots (self->app);
 -	switch (gs_app_get_kind (self->app)) {
--	case AS_APP_KIND_GENERIC:
--	case AS_APP_KIND_CODEC:
--	case AS_APP_KIND_ADDON:
--	case AS_APP_KIND_SOURCE:
--	case AS_APP_KIND_FIRMWARE:
--	case AS_APP_KIND_DRIVER:
--	case AS_APP_KIND_INPUT_METHOD:
--	case AS_APP_KIND_LOCALIZATION:
--	case AS_APP_KIND_RUNTIME:
+-	case AS_COMPONENT_KIND_GENERIC:
+-	case AS_COMPONENT_KIND_CODEC:
+-	case AS_COMPONENT_KIND_ADDON:
+-	case AS_COMPONENT_KIND_REPOSITORY:
+-	case AS_COMPONENT_KIND_FIRMWARE:
+-	case AS_COMPONENT_KIND_DRIVER:
+-	case AS_COMPONENT_KIND_INPUT_METHOD:
+-	case AS_COMPONENT_KIND_LOCALIZATION:
+-	case AS_COMPONENT_KIND_RUNTIME:
 -		gtk_widget_set_visible (self->box_details_screenshot_fallback, FALSE);
 -		break;
 -	default:
@@ -170,6 +169,8 @@ index 8eb07bd3..e740bc1e 100644
 -			gs_screenshot_image_set_size (GS_SCREENSHOT_IMAGE (ssmain),
 -						      AS_IMAGE_NORMAL_WIDTH,
 -						      AS_IMAGE_NORMAL_HEIGHT);
+-			gtk_style_context_add_class (gtk_widget_get_style_context (ssmain),
+-						     "screenshot-image-main");
 -			gs_screenshot_image_load_async (GS_SCREENSHOT_IMAGE (ssmain), NULL);
 -
 -			/* when we're offline, the load will be immediate, so we
@@ -252,8 +253,8 @@ index 8eb07bd3..e740bc1e 100644
  	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, button_details_launch);
  	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, button_details_add_shortcut);
 @@ -2748,7 +2552,6 @@ gs_details_page_class_init (GsDetailsPageClass *klass)
- 	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, label_failed);
- 	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, list_box_addons);
+ 	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, row_latest_version);
+ 	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, version_history_button);
  	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, box_reviews);
 -	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, box_details_screenshot_fallback);
  	gtk_widget_class_bind_template_child (widget_class, GsDetailsPage, histogram);
