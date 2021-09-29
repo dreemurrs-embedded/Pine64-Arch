@@ -17,7 +17,7 @@ This is imported from HdySwipeable and HdySwipeTracker from libhandy 1.0.2.
  create mode 100644 gtk/hdy-swipeable.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 2d0a384..09c47c0 100644
+index 0e873f4..0a523ba 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -366,6 +366,8 @@ gtk_private_type_h_sources =	\
@@ -29,7 +29,7 @@ index 2d0a384..09c47c0 100644
  	hdy-view-switcher-private.h
  
  
-@@ -610,6 +612,8 @@ gtk_private_h_sources =		\
+@@ -609,6 +611,8 @@ gtk_private_h_sources =		\
  	hdy-navigation-direction-private.h	\
  	hdy-shadow-helper-private.h	\
  	hdy-squeezer-private.h	\
@@ -38,7 +38,7 @@ index 2d0a384..09c47c0 100644
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
-@@ -994,6 +998,8 @@ gtk_base_c_sources = 		\
+@@ -993,6 +997,8 @@ gtk_base_c_sources = 		\
  	hdy-navigation-direction.c	\
  	hdy-squeezer.c	\
  	hdy-shadow-helper.c	\
@@ -1726,7 +1726,7 @@ index 0000000..916abd9
 +  rect->height = gtk_widget_get_allocated_height (GTK_WIDGET (self));
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index c951dcc..c3d5edc 100644
+index ec78b5a..7e4659e 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -388,6 +388,8 @@ gtk_sources = files(

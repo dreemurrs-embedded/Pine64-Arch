@@ -14,7 +14,7 @@ This is imported from HdyNavigationDirection from libhandy 1.0.0.
  create mode 100644 gtk/hdy-navigation-direction.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index ff8a255..2d0a384 100644
+index dbf079b..0e873f4 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
@@ -25,7 +25,7 @@ index ff8a255..2d0a384 100644
  	hdy-squeezer-private.h	\
  	hdy-view-switcher-private.h
  
-@@ -606,6 +607,7 @@ gtk_private_h_sources =		\
+@@ -605,6 +606,7 @@ gtk_private_h_sources =		\
  	hdy-animation-private.h	\
  	hdy-cairo-private.h	\
  	hdy-css-private.h	\
@@ -33,7 +33,7 @@ index ff8a255..2d0a384 100644
  	hdy-shadow-helper-private.h	\
  	hdy-squeezer-private.h	\
  	hdy-view-switcher-bar-private.h	\
-@@ -989,6 +991,7 @@ gtk_base_c_sources = 		\
+@@ -988,6 +990,7 @@ gtk_base_c_sources = 		\
  	gdkpixbufutils.c	\
  	hdy-animation.c	\
  	hdy-css.c	\
@@ -114,7 +114,7 @@ index 0000000..35b9ab4
 + * Since: 1.0
 + */
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 580be08..c951dcc 100644
+index 6b6e874..ec78b5a 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -385,6 +385,7 @@ gtk_sources = files(

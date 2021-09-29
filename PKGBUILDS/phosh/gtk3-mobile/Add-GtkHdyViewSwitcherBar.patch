@@ -15,10 +15,10 @@ This is imported from HdyViewSwitcherBar from libhandy 1.0.0.
  create mode 100644 gtk/ui/hdy-view-switcher-bar.ui
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 1e7f108..12cba66 100644
+index 87de9c3..648b398 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -603,6 +603,7 @@ gtk_private_h_sources =		\
+@@ -602,6 +602,7 @@ gtk_private_h_sources =		\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
  	hdy-css-private.h	\
@@ -26,7 +26,7 @@ index 1e7f108..12cba66 100644
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
  	open-type-layout.h	\
-@@ -982,6 +983,7 @@ gtk_base_c_sources = 		\
+@@ -981,6 +982,7 @@ gtk_base_c_sources = 		\
  	gdkpixbufutils.c	\
  	hdy-css.c	\
  	hdy-view-switcher.c	\
@@ -34,7 +34,7 @@ index 1e7f108..12cba66 100644
  	hdy-view-switcher-button.c	\
  	language-names.c	\
  	script-names.c
-@@ -1243,6 +1245,7 @@ templates =				\
+@@ -1242,6 +1244,7 @@ templates =				\
  	ui/gtktooltipwindow.ui		\
  	ui/gtkvolumebutton.ui		\
  	ui/gtksidebarrow.ui		\
@@ -491,7 +491,7 @@ index 0000000..39d2aa4
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_REVEAL]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 0e7e7f2..0bdf438 100644
+index b009f2f..51bb1f2 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -384,6 +384,7 @@ gtk_sources = files(

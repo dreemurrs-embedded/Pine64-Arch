@@ -28,10 +28,10 @@ index 32dd762..79ef3ca 100644
 +$flap_border: rgba(0, 0, 0, if($variant == 'light', 0.05, 0.2));
 +$flap_outline: rgba(255, 255, 255, if($variant == 'light', 0.2, 0.05));
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index fd993fc..9aa8860 100644
+index 57c9890..3b970c1 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
-@@ -4837,3 +4837,190 @@ popover.emoji-completion contents row box {
+@@ -4853,3 +4853,190 @@ popover.emoji-completion contents row box {
  popover.emoji-completion .emoji:hover {
    background: $popover_hover_color;
  }
@@ -223,10 +223,10 @@ index fd993fc..9aa8860 100644
 +  }
 +}
 diff --git a/gtk/theme/Adwaita/gtk-contained-dark.css b/gtk/theme/Adwaita/gtk-contained-dark.css
-index 00b0f57..504ca02 100644
+index 32b7fb9..9797b3a 100644
 --- a/gtk/theme/Adwaita/gtk-contained-dark.css
 +++ b/gtk/theme/Adwaita/gtk-contained-dark.css
-@@ -1949,6 +1949,73 @@ popover.emoji-completion contents row box { padding: 2px 10px; }
+@@ -1955,6 +1955,73 @@ popover.emoji-completion contents row box { padding: 2px 10px; }
  
  popover.emoji-completion .emoji:hover { background: #424242; }
  
@@ -301,10 +301,10 @@ index 00b0f57..504ca02 100644
  /*
  widget text/foreground color */
 diff --git a/gtk/theme/Adwaita/gtk-contained.css b/gtk/theme/Adwaita/gtk-contained.css
-index e7098f5..e38176c 100644
+index 729b1fc..72946ec 100644
 --- a/gtk/theme/Adwaita/gtk-contained.css
 +++ b/gtk/theme/Adwaita/gtk-contained.css
-@@ -1965,6 +1965,73 @@ popover.emoji-completion contents row box { padding: 2px 10px; }
+@@ -1971,6 +1971,73 @@ popover.emoji-completion contents row box { padding: 2px 10px; }
  
  popover.emoji-completion .emoji:hover { background: white; }
  
@@ -392,10 +392,10 @@ index f9c038b..1ce6f24 100644
 +$flap_border: $borders_color;
 +$flap_outline: transparent;
 diff --git a/gtk/theme/HighContrast/gtk-contained-inverse.css b/gtk/theme/HighContrast/gtk-contained-inverse.css
-index 10115a8..c3dee8d 100644
+index e35c276..eb633dc 100644
 --- a/gtk/theme/HighContrast/gtk-contained-inverse.css
 +++ b/gtk/theme/HighContrast/gtk-contained-inverse.css
-@@ -2028,3 +2028,70 @@ popover.emoji-completion arrow { border: none; background: none; }
+@@ -2034,3 +2034,70 @@ popover.emoji-completion arrow { border: none; background: none; }
  popover.emoji-completion contents row box { padding: 2px 10px; }
  
  popover.emoji-completion .emoji:hover { background: #424242; }
@@ -467,10 +467,10 @@ index 10115a8..c3dee8d 100644
 +
 +flap > outline { min-width: 1px; min-height: 1px; background: transparent; }
 diff --git a/gtk/theme/HighContrast/gtk-contained.css b/gtk/theme/HighContrast/gtk-contained.css
-index 5d95105..0684091 100644
+index e0c37f5..95d09e5 100644
 --- a/gtk/theme/HighContrast/gtk-contained.css
 +++ b/gtk/theme/HighContrast/gtk-contained.css
-@@ -2044,3 +2044,70 @@ popover.emoji-completion arrow { border: none; background: none; }
+@@ -2050,3 +2050,70 @@ popover.emoji-completion arrow { border: none; background: none; }
  popover.emoji-completion contents row box { padding: 2px 10px; }
  
  popover.emoji-completion .emoji:hover { background: white; }
