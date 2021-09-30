@@ -1,6 +1,6 @@
 From: Alexander Mikhaylenko <alexander.mikhaylenko@puri.sm>
 Date: Tue, 29 Sep 2020 13:13:55 +0500
-Subject: librem5: Disable create_delete_dir test
+Subject: tests: Disable create_delete_dir test
 
 While it works locally and on arm01, it fails in gitlab CI, presumably
 because all 3 directories are writable there. Let's disable it for now.
