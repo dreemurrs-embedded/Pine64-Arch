@@ -1,23 +1,40 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=calls
 pkgver=0.3.4
-pkgrel=1
-pkgdesc="The phone app"
-url="https://source.puri.sm/Librem5/calls"
+pkgrel=2
+pkgdesc="Make and receive PSTN phone calls"
+url="https://gitlab.gnome.org/GNOME/calls"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
-         'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager' 'callaudiod' 'sofia-sip')
-makedepends=('meson' 'ninja' 'vala')
-source=(https://source.puri.sm/Librem5/calls/-/archive/v$pkgver/calls-v$pkgver.tar.gz)
+         'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager' 'callaudiod' 'sofia-sip'
+         'wayland-protocols')
+makedepends=('meson' 'ninja' 'vala' 'git')
+_commit="4948148bfeb0730197c5f3faf7d507a248fcf579" # tags/0.3.4
+source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit"
+        367.patch)
+
+prepare() {
+  cd calls
+
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+}
 
 build() {
-    arch-meson $pkgname-v$pkgver output
-    ninja -C output
+  arch-meson calls output
+  ninja -C output
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C output install
+  DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('8ccedc896cf05a7de6f0301985a39891')
+md5sums=('SKIP'
+         'a8a152f16645e9299ebc44d80f0b445d')
