@@ -6,7 +6,7 @@
 pkgname=gnome-software-mobile
 _pkgname=gnome-software
 pkgver=40.4
-pkgrel=1
+pkgrel=2
 pkgdesc="GNOME Software Tools (w/ Purism patches)"
 url="https://gitlab.gnome.org/GNOME/gnome-software"
 arch=(x86_64 armv7h aarch64)
@@ -39,7 +39,8 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-software.git#commit=$_commit"
         0022-librem5-update-dialog-Don-t-show-a-double-back-butto.patch
         0023-librem5-update-dialog-Reduce-the-default-width.patch
         0024-Revert-Launch-software-properties-gtk-in-place-of-the-sources-dialog.patch
-        0025-category-page-fix-ui-template.patch)
+        0025-category-page-fix-ui-template.patch
+        0026-GsUpdatesSection-Always-present-Download-button-befo.patch)
 sha256sums=('SKIP'
             '7d1e568e3cc96e97444868937f8ef926c80f8208d3f8c639a655d7045fb5cf03'
             'd784f4ee5223148ee292f82fe880815566edd4418ae3f8b61e48f7b1f8316d8b'
@@ -64,7 +65,8 @@ sha256sums=('SKIP'
             '62089b348ce24ecda70e7db710668ea7319d7d70940449ebc24901104aa51e6c'
             'ef18e6b913caafee92bd619c9340f869cd121c8c4c34415a6c423fe5e0d1ff74'
             'bfd10ec468ec3a6c15e0872dab099a6e99b525155470cffdfd03506a90e8f6a4'
-            '147d5e5f164cba96e861b2e87e6a0f55c10ca4d1e1ce8e3fddfad1f9d935073d')
+            '147d5e5f164cba96e861b2e87e6a0f55c10ca4d1e1ce8e3fddfad1f9d935073d'
+            '664739d51db9a4255eb16e2162e5367ceba14459fd78b72a263775a4e1726a9d')
 
 pkgver() {
   cd $_pkgname
