@@ -7,7 +7,7 @@ url="https://git.sr.ht/~martijnbraam/numberstation"
 arch=(any)
 license=('MIT')
 depends=(python3 python-gobject gtk3 libhandy python-pyotp python-keyring)
-makedepends=(python-setuptools)
+makedepends=(python-setuptools meson)
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~martijnbraam/numberstation/archive/${pkgver}.tar.gz")
 
 build() {
