@@ -1,0 +1,3 @@
+[submodule "PKGBUILDS/danctnix/waydroid"]
+	path = PKGBUILDS/danctnix/waydroid
+	url = https://aur.archlinux.org/waydroid.git
