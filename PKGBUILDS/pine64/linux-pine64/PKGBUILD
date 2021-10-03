@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pine64
 _desc="Pine64 PinePhone"
 pkgver=5.14.9
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -237,10 +237,6 @@ _package-headers() {
   echo "Remove unwanted files..."
   find ${_builddir} -name '*.orig' -printf 'Removing %P\n' -delete
 
-  echo "Fixing permissions..."
-  find -P "${_builddir}" -type f -print | xargs chmod -v 0644
-  find -P "${_builddir}" -type d -print | xargs chmod -v 0755
-
   echo "Stripping build tools..."
   local _binary _strip
   while read -rd '' _binary; do
@@ -266,7 +262,7 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('914e665f6f6116af479ed22618ec3381'
-         'c280fd22dcfcc283fe2049cc8885700e'
+         '7edc4081ca555517aa76df8d89f28e61'
          '979a787cf84bef9c60da78e72ec96550'
          'f79300740a7350d2d24ab5e120831b52'
          '85d8339bc3d5daf45aa579d578ef0255'
