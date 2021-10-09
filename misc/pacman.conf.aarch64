@@ -82,19 +82,19 @@ Server = https://p64.arikawa-hi.me/phosh/aarch64/
 Server = https://p64.arikawa-hi.me/danctnix/aarch64/
 
 [core]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+Server = http://mirror.archlinuxarm.org/aarch64/$repo
 
 [extra]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+Server = http://mirror.archlinuxarm.org/aarch64/$repo
 
 [community]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+Server = http://mirror.archlinuxarm.org/aarch64/$repo
 
 [alarm]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+Server = http://mirror.archlinuxarm.org/aarch64/$repo
 
 [aur]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
+Server = http://mirror.archlinuxarm.org/aarch64/$repo
 
 # An example of a custom package repository.  See the pacman manpage for
 # tips on creating your own repositories.
