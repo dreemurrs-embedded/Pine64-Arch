@@ -3,9 +3,9 @@
 
 buildarch=8
 
-pkgbase=linux-pine64
-_desc="Pine64 PinePhone"
-pkgver=5.14.10
+pkgbase=linux-megi
+_desc="Megous Kernel"
+pkgver=5.14.12
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -14,7 +14,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="910a78428c2bd07fed3f0a3d738af3443246e56b"
+_commit="f56e7d6932ab8913998fea1ba4d4f19a9c1845c4"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -110,6 +110,7 @@ _package() {
   optdepends=('crda: to set the correct wireless channels of your country')
   provides=('kernel26' "linux=${pkgver}")
   conflicts=('linux')
+  replaces=('linux-pine64')
   backup=("etc/mkinitcpio.d/${pkgbase}.preset")
   install=${pkgname}.install
 
@@ -162,6 +163,7 @@ _package() {
 _package-headers() {
   pkgdesc="Header files and scripts for building modules for linux kernel - ${_desc}"
   provides=("linux-headers=${pkgver}")
+  replaces=('linux-pine64-headers')
   conflicts=('linux-headers')
 
   cd linux-$_commit
@@ -244,8 +246,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('3beb3580abcc16bb51dec46395a0783a'
-         '4355938709b97b9e2cc316bfb15a3ec9'
+md5sums=('10f49483fadd606a22f277b6699db72d'
+         '3597ccaab2370cab33100f9a7a6ae498'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
