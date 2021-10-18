@@ -3,7 +3,7 @@
 pkgname=ofonoctl
 _pyname=ofonoctl
 pkgver=0.4.0
-pkgrel=5.3
+pkgrel=6
 pkgdesc='test/control application for the ofono daemon'
 arch=('any')
 url="https://git.sr.ht/~martijnbraam/ofonoctl"
@@ -14,7 +14,7 @@ _pypiprefix="${_pyname%${_pyname#?}}"
 source=("https://files.pythonhosted.org/packages/source/$_pypiprefix/$_pyname/$_pyname-$pkgver.tar.gz"
         'ofonoctl.service')
 md5sums=('c0ac0a38f950b4b6bd10d5c4f2335d26'
-         'dc7a325752acdef6cea575085d4d8c54')
+         'cdf35a4efe1ba2db594cd042d27f4929')
 
 build() {
   cd $pkgname-$pkgver
