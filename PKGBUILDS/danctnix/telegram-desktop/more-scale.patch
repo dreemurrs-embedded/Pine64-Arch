@@ -1,0 +1,15 @@
+diff --git a/Telegram/SourceFiles/settings/settings_main.cpp b/Telegram/SourceFiles/settings/settings_main.cpp
+index a40cb6f21..3b5dd885d 100644
+--- a/Telegram/SourceFiles/settings/settings_main.cpp
++++ b/Telegram/SourceFiles/settings/settings_main.cpp
+@@ -193,8 +193,8 @@ void SetupInterfaceScale(
+ 
+ 	static const auto ScaleValues = [&] {
+ 		auto values = (cIntRetinaFactor() > 1)
+-			? std::vector<int>{ 100, 110, 120, 130, 140, 150 }
+-			: std::vector<int>{ 100, 125, 150, 200, 250, 300 };
++			? std::vector<int>{ 80, 90, 100, 110, 120, 130, 140, 150 }
++			: std::vector<int>{ 50, 75, 100, 125, 150, 200, 250, 300 };
+ 		if (cConfigScale() == style::kScaleAuto) {
+ 			return values;
+ 		}
