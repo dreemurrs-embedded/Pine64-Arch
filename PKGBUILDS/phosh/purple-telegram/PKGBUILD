@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=purple-telegram
-pkgver=1.4.4
+pkgver=1.4.7
 pkgrel=1
 pkgdesc="Purple Telegram plugin"
 url="https://github.com/majn/telegram-purple"
@@ -8,23 +8,28 @@ license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('glib2' 'libpurple' 'libwebp')
 makedepends=('git')
-_commit="d39e178b531585e445f46f317ae1ffa0d27a1bf6"
-source=("git+https://github.com/majn/telegram-purple.git#commit=$_commit")
+_commit="7d1d61be591d181295e470b38f508867bbf0efa9" # tags/v1.4.7
+source=($pkgname::git+https://github.com/majn/telegram-purple.git#commit=$_commit)
+
+pkgver() {
+  cd "$pkgname"
+  git describe --tags | sed 's/^v//;s/-/+/g'
+}
 
 prepare() {
-    cd telegram-purple
-    git submodule update --init --recursive
+  cd "$pkgname"
+  git submodule update --init --recursive
 }
 
 build() {
-    cd telegram-purple
-    ./configure
-    make
+  cd "$pkgname"
+  ./configure
+  make
 }
 
 package() {
-    cd telegram-purple
-    DESTDIR="$pkgdir" make install
+  cd "$pkgname"
+  DESTDIR="$pkgdir" make install
 }
 
 md5sums=('SKIP')
