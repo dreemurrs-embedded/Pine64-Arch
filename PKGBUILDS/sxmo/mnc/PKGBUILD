@@ -1,6 +1,6 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=mnc
-pkgver=0.3
+pkgver=0.4
 pkgrel=1
 pkgdesc="get the time in seconds to next cron job"
 url="https://git.sr.ht/~anjan/mnc"
@@ -21,4 +21,4 @@ package() {
   mkdir -p "$pkgdir"/usr/bin
   install mnc "$pkgdir"/usr/bin
 }
-sha256sums=('f381f7e6b7051e771d7a31f95001f477a824803342a211938a983b0686ff8874')
+sha512sums=('22f6ce2a6da34ce0d70fb9e6608e1cbd14ac1dd16e38700a01c627b3ea4d43c4492db528708b9e6efc1b018ef8091434da43f3641e3f34648a68239c26bc249d')
