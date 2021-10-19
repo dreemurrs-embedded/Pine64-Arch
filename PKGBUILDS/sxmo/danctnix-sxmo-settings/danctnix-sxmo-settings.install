@@ -1,0 +1,13 @@
+post_install() {
+  systemctl enable ModemManager
+  systemctl enable bluetooth
+  systemctl enable sxmo-xdm-config
+  systemctl enable sxmo-setpermissions
+}
+
+post_remove() {
+  systemctl disable ModemManager
+  systemctl disable bluetooth
+  systemctl disable sxmo-xdm-config
+  systemctl disable sxmo-setpermissions
+}
