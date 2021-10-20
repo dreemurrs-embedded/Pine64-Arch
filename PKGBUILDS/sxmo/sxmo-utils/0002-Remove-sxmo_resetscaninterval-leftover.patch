@@ -1,0 +1,35 @@
+From 822585e0632d8709c96286561d0075be7e8a4131 Mon Sep 17 00:00:00 2001
+From: Danct12 <danct12@disroot.org>
+Date: Wed, 20 Oct 2021 15:59:09 +0700
+Subject: [PATCH sxmo-utils] Remove sxmo_resetscaninterval leftover
+
+Signed-off-by: Danct12 <danct12@disroot.org>
+---
+ Makefile                                    | 1 -
+ configs/networkmanager/resetscaninterval.sh | 2 --
+ 2 files changed, 3 deletions(-)
+ delete mode 100755 configs/networkmanager/resetscaninterval.sh
+
+diff --git a/Makefile b/Makefile
+index f7be066..e55c5e9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -53,7 +53,6 @@ install: $(PROGRAMS)
+ 
+ 	mkdir -p $(DESTDIR)/etc/NetworkManager/dispatcher.d
+ 	install -D -m 0755 -T configs/networkmanager/updatestatusbar.sh $(DESTDIR)/etc/NetworkManager/dispatcher.d/10-updatestatusbar.sh
+-	install -D -m 0755 -T configs/networkmanager/resetscaninterval.sh $(DESTDIR)/etc/NetworkManager/dispatcher.d/20-resetscaninterval.sh
+ 
+ 	# Bin
+ 	install -D -t $(DESTDIR)$(PREFIX)/bin scripts/*/*
+diff --git a/configs/networkmanager/resetscaninterval.sh b/configs/networkmanager/resetscaninterval.sh
+deleted file mode 100755
+index 0b04f35..0000000
+--- a/configs/networkmanager/resetscaninterval.sh
++++ /dev/null
+@@ -1,2 +0,0 @@
+-#!/bin/sh
+-sxmo_resetscaninterval.sh
+-- 
+2.33.1
+
