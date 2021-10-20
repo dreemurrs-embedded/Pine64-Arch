@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=feedbackd
-pkgver=0.0.0+git20210426
-pkgrel=3
+pkgver=0.0.0+git20211018
+pkgrel=1
 pkgdesc="A daemon to provide haptic (and later more) feedback on events"
 url="https://source.puri.sm/Librem5/feedbackd"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -10,24 +10,7 @@ depends=('gobject-introspection' 'gsound' 'json-glib' 'libgudev')
 makedepends=('meson' 'vala')
 _fbdthemes_commit="1602d415aed30b1a67c0ff270551230725b8ef92" # branch/master
 source=(https://source.puri.sm/Librem5/${pkgname}/-/archive/v${pkgver}/${pkgname}-v${pkgver}.tar.gz
-  https://source.puri.sm/Librem5/feedbackd-device-themes/-/archive/1602d415aed30b1a67c0ff270551230725b8ef92/feedbackd-device-themes-${_fbdthemes_commit}.tar.gz
-  0001-fbd-feedback-manager-Make-sure-theme-path-components.patch
-  0002-feedback-manager-Search-for-default-theme-under-XDG_.patch
-  0003-fbd-dev-sound-Honour-sound-theme-name-for-all-GNOME-.patch
-  0004-cli-Fix-changing-global-profile.patch)
-
-prepare() {
-  cd ${pkgname}-v${pkgver}
-
-  local src
-  for src in "${source[@]}"; do
-    src="${src%%::*}"
-    src="${src##*/}"
-    [[ $src = *.patch ]] || continue
-    msg2 "Applying patch $src..."
-    patch -Np1 < "../$src"
-  done
-}
+        https://source.puri.sm/Librem5/feedbackd-device-themes/-/archive/1602d415aed30b1a67c0ff270551230725b8ef92/feedbackd-device-themes-${_fbdthemes_commit}.tar.gz)
 
 build() {
   arch-meson ${pkgname}-v${pkgver} output
@@ -49,9 +32,5 @@ package() {
     -exec cp {} ${pkgdir}/usr/share/feedbackd/themes \;
 }
 
-md5sums=('d51bda9892b2503a2b417c172c63e225'
-         'd8bd3c60c3e65cad899685f3e69cb2a1'
-         '1177397f8e9876671dbfbab74b1cca99'
-         '4d7f79cb8c122d415ce9beaaeef1bf1e'
-         '035b02cb7bef0a05a7e98c8d86b80305'
-         'bb75b61a423b7f0b16e4e229a37b9801')
+md5sums=('3a9cc76d2bed9d49cfac1a69f5d03047'
+         'd8bd3c60c3e65cad899685f3e69cb2a1')
