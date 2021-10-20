@@ -1,7 +1,7 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-utils
 pkgver=1.5.3
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -12,7 +12,7 @@ depends=('sxmo-dmenu' 'sxmo-dwm' 'sxmo-st' 'svkbd' 'lisgd' 'clickclack' 'mnc' 'p
          'networkmanager' 'sfeed' 'sxiv' 'terminus-font' 'unclutter' 'otf-latin-modern' 'ttf-dejavu'
          'v4l-utils' 'vis' 'w3m' 'xcalib' 'xclip' 'xdotool' 'xorg-xdpyinfo' 'xorg-xinput' 'xorg-xprop'
          'xorg-xrandr' 'xorg-xrdb' 'xsel' 'xorg-xset' 'xorg-xsetroot' 'xorg-xwininfo' 'youtube-dl'
-         'busybox' 'bluez' 'bluez-utils' 'otf-latin-modern')
+         'busybox' 'bluez' 'bluez-utils' 'otf-latin-modern' 'libnotify')
 makedepends=('libx11' 'xorgproto' 'linux-headers')
 optdepends=('feh: set wallpaper')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
