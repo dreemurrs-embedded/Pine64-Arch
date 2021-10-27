@@ -1,13 +1,13 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=kgx
-pkgver=0.2.1
-pkgrel=2
+pkgver=0.4.0
+pkgrel=1
 pkgdesc="A minimal terminal for GNOME"
 url="https://gitlab.gnome.org/ZanderBrown/kgx"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('vte3' 'gtk3' 'glib2' 'libhandy0' 'libgtop')
-makedepends=('meson')
+depends=('vte3' 'gtk3' 'glib2' 'libhandy' 'libgtop' 'sassc')
+makedepends=('meson' 'libnautilus-extension')
 source=(https://gitlab.gnome.org/ZanderBrown/kgx/-/archive/$pkgver/kgx-$pkgver.tar.gz)
 
 build() {
@@ -18,4 +18,4 @@ build() {
 package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
-md5sums=('5eb8f51a7884853c09a6c307771aaa54')
+md5sums=('4bf0400653473bb7ef537eea656a3016')
