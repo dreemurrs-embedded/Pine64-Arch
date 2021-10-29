@@ -1,0 +1,32 @@
+[Unit]
+Description=Visual Voicemail Daemon
+After=ModemManager.service
+ConditionUser=!root
+
+[Service]
+ExecStart=/usr/bin/vvmd -d
+
+Restart=on-failure
+RestartSec=10s
+
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+NoNewPrivileges=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+UMask=0077
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictRealtime=yes
+PrivateDevices=yes
+PrivateMounts=yes
+PrivateTmp=yes
+PrivateUsers=yes
+ProtectClock=yes
+ProtectSystem=yes
+ProtectHostname=yes
+RestrictSUIDSGID=yes
+
+[Install]
+WantedBy=default.target
