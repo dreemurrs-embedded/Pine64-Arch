@@ -1,0 +1,9 @@
+[Unit]
+Description=Transfer files through the USB port via MTP
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/umtprd
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Configure USB gadget
+Before=umtp-responder.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/alarm-usb-gadget setup
+ExecStop=/usr/sbin/alarm-usb-gadget reset
+RemainAfterExit=yes
+
+[Install]
+RequiredBy=umtp-responder.service

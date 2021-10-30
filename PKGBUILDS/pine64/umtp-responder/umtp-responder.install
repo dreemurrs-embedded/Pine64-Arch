@@ -1,0 +1,9 @@
+post_install() {
+  systemctl enable alarm-usb-gadget.service
+  systemctl enable umtp-responder.service
+}
+
+post_remove() {
+  systemctl disable alarm-usb-gadget.service
+  systemctl disable umtp-responder.service
+}

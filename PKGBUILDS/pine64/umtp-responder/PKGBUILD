@@ -1,0 +1,47 @@
+# Maintainer: Jolly Roberts jolly.development@gmail.com
+pkgname="umtp-responder"
+_pkgname="uMTP-Responder"
+_shortname="umtprd"
+pkgver="1.3.6"
+pkgrel="1"
+pkgdesc="Lightweight USB Media Transfer Protocol (MTP) responder daemon for GNU/Linux"
+arch=('aarch64')
+url="https://github.com/viveris/uMTP-Responder"
+license=('GPLv3')
+source=(
+	"https://github.com/viveris/uMTP-Responder/archive/refs/tags/umtprd-${pkgver}.tar.gz"
+	"alarm-usb-gadget"
+	"alarm-usb-gadget.service"
+	"override.conf"
+	"umtprd.conf"
+	"umtp-responder.service"
+)
+md5sums=(
+	"26bddcafca129b656fb81b100035a9c1"
+	"5c49c4e7572982212c4a64a7d31771cd"
+	"8aa94e8e9b9f17d0a3a90b7b288e2e13"
+	"c51157a0a6661a9887c8f9c2cea65b9d"
+	"8c0f3609aa3cb6ca2d49a4a3a247522c"
+	"0fb24e4fd8fc9e5aa82489846e8c544a"
+)
+prepare=(
+  cp "alarm-usb-gadget" $srcdir/
+  cp "alarm-usb-gadget.service" $srcdir/
+  cp "override.conf" $srcdir/
+  cp "umtprd.conf" $srcdir/
+  cp "umtp-responder.service" $srcdir/
+)
+build(){
+  cd $srcdir/$_pkgname-$_shortname-$pkgver
+  make
+}
+package(){
+  install=umtp-responder.install
+  install -Dm755 alarm-usb-gadget -t $pkgdir/usr/bin
+  install -Dm644 alarm-usb-gadget.service -t $pkgdir/usr/lib/systemd/system
+  install -Dm644 override.conf -t $pkgdir/usr/lib/systemd/system/umtp-responder.service.d
+  install -Dm644 umtprd.conf -t $pkgdir/etc/umtprd
+  install -Dm644 umtp-responder.service -t $pkgdir/usr/lib/systemd/system
+  cd $srcdir/$_pkgname-$_shortname-$pkgver
+  install -Dm755 "$_shortname" -t "$pkgdir/usr/bin"
+}
