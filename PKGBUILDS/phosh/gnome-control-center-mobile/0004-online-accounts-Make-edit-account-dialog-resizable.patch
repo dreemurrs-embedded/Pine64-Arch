@@ -1,0 +1,22 @@
+From 16214de00e2f3f2fc8a95ada62882a42371e80a7 Mon Sep 17 00:00:00 2001
+From: Alexander Mikhaylenko <alexander.mikhaylenko@puri.sm>
+Date: Tue, 13 Oct 2020 14:24:03 +0500
+Subject: [PATCH 4/7] online-accounts: Make edit account dialog resizable
+
+Allow the downstream fork of GTK to maximize it.
+---
+ panels/online-accounts/online-accounts.ui | 1 -
+ 1 file changed, 1 deletion(-)
+
+Index: gnome-control-center/panels/online-accounts/online-accounts.ui
+===================================================================
+--- gnome-control-center.orig/panels/online-accounts/online-accounts.ui	2021-07-28 23:43:55.688000000 +0000
++++ gnome-control-center/panels/online-accounts/online-accounts.ui	2021-07-28 23:43:55.684000000 +0000
+@@ -185,7 +185,6 @@
+     <property name="can_focus">False</property>
+     <property name="type_hint">dialog</property>
+     <property name="use_header_bar">1</property>
+-    <property name="resizable">False</property>
+     <property name="modal">True</property>
+     <signal name="delete-event" handler="on_edit_account_dialog_delete_event" object="CcGoaPanel" swapped="yes" />
+     <child type="titlebar">

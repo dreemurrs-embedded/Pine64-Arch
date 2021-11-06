@@ -13,10 +13,10 @@ This is imported from HdyShadowHelper from libhandy 1.0.2.
  create mode 100644 gtk/hdy-shadow-helper.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 96d8c10..ff8a255 100644
+index 99f6a5c..dbf079b 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -606,6 +606,7 @@ gtk_private_h_sources =		\
+@@ -605,6 +605,7 @@ gtk_private_h_sources =		\
  	hdy-animation-private.h	\
  	hdy-cairo-private.h	\
  	hdy-css-private.h	\
@@ -24,7 +24,7 @@ index 96d8c10..ff8a255 100644
  	hdy-squeezer-private.h	\
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
-@@ -989,6 +990,7 @@ gtk_base_c_sources = 		\
+@@ -988,6 +989,7 @@ gtk_base_c_sources = 		\
  	hdy-animation.c	\
  	hdy-css.c	\
  	hdy-squeezer.c	\
@@ -535,7 +535,7 @@ index 0000000..69583c4
 +  cairo_restore (cr);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 065140e..580be08 100644
+index 22dfdd0..6b6e874 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -385,6 +385,7 @@ gtk_sources = files(

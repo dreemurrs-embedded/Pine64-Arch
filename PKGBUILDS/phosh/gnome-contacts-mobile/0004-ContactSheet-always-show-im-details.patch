@@ -1,0 +1,43 @@
+From f3e981a1ce9f2bd6860eb980687bc479595711ef Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Thu, 28 Nov 2019 17:30:46 +0100
+Subject: [PATCH] ContactSheet: always show im details
+
+---
+ src/contacts-contact-sheet.vala | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/contacts-contact-sheet.vala b/src/contacts-contact-sheet.vala
+index ec8d5a78..d24cd41d 100644
+--- a/src/contacts-contact-sheet.vala
++++ b/src/contacts-contact-sheet.vala
+@@ -255,11 +255,11 @@ public class Contacts.ContactSheet : Grid {
+   }
+ 
+   private void add_im_addresses (Persona persona) {
+-#if HAVE_TELEPATHY
+     var im_details = persona as ImDetails;
+     if (im_details != null) {
+       foreach (var protocol in im_details.im_addresses.get_keys ()) {
+         foreach (var id in im_details.im_addresses[protocol]) {
++#if HAVE_TELEPATHY
+           if (persona is Tpf.Persona) {
+             var button = create_button ("user-available-symbolic");
+             button.clicked.connect (() => {
+@@ -274,10 +274,12 @@ public class Contacts.ContactSheet : Grid {
+             });
+             add_row_with_label (ImService.get_display_name (protocol), id.value, button);
+           }
++#else
++          add_row_with_label (ImService.get_display_name (protocol), id.value);
++#endif
+         }
+       }
+     }
+-#endif
+   }
+ 
+   private void add_urls (Persona persona) {
+-- 
+2.26.2
+

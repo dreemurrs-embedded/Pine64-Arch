@@ -1,0 +1,144 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Fri, 28 May 2021 23:11:57 +0200
+Subject: display-config: Expose the supported scales as a reffed GArray
+
+It's just a nicer api and allows us to avoid having to count all the
+elements around or to expose the size via an out value.
+
+Given this is a private API anyway there's no risk for modifying the
+array, so it's something safe to use anyways.
+---
+ panels/display/cc-display-config-dbus.c |  6 +++---
+ panels/display/cc-display-config.c      |  2 +-
+ panels/display/cc-display-config.h      |  4 ++--
+ panels/display/cc-display-settings.c    | 17 ++++++++++-------
+ 4 files changed, 16 insertions(+), 13 deletions(-)
+
+diff --git a/panels/display/cc-display-config-dbus.c b/panels/display/cc-display-config-dbus.c
+index d97841b..fee9b0e 100644
+--- a/panels/display/cc-display-config-dbus.c
++++ b/panels/display/cc-display-config-dbus.c
+@@ -87,12 +87,12 @@ cc_display_mode_dbus_get_resolution (CcDisplayMode *pself,
+     *h = self->height;
+ }
+ 
+-static const double *
++static GArray *
+ cc_display_mode_dbus_get_supported_scales (CcDisplayMode *pself)
+ {
+   CcDisplayModeDBus *self = CC_DISPLAY_MODE_DBUS (pself);
+ 
+-  return (const double *) self->supported_scales->data;
++  return g_array_ref (self->supported_scales);
+ }
+ 
+ static double
+@@ -148,7 +148,7 @@ cc_display_mode_dbus_get_freq_f (CcDisplayMode *pself)
+ static void
+ cc_display_mode_dbus_init (CcDisplayModeDBus *self)
+ {
+-  self->supported_scales = g_array_new (TRUE, TRUE, sizeof (double));
++  self->supported_scales = g_array_new (FALSE, FALSE, sizeof (double));
+ }
+ 
+ static void
+diff --git a/panels/display/cc-display-config.c b/panels/display/cc-display-config.c
+index 08b4c48..a78b33f 100644
+--- a/panels/display/cc-display-config.c
++++ b/panels/display/cc-display-config.c
+@@ -96,7 +96,7 @@ cc_display_mode_get_resolution (CcDisplayMode *self, int *w, int *h)
+   return CC_DISPLAY_MODE_GET_CLASS (self)->get_resolution (self, w, h);
+ }
+ 
+-const double *
++GArray *
+ cc_display_mode_get_supported_scales (CcDisplayMode *self)
+ {
+   return CC_DISPLAY_MODE_GET_CLASS (self)->get_supported_scales (self);
+diff --git a/panels/display/cc-display-config.h b/panels/display/cc-display-config.h
+index fa5b3a5..d83fa8e 100644
+--- a/panels/display/cc-display-config.h
++++ b/panels/display/cc-display-config.h
+@@ -78,7 +78,7 @@ struct _CcDisplayModeClass
+   GObjectClass parent_class;
+ 
+   void          (*get_resolution)       (CcDisplayMode *self, int *w, int *h);
+-  const double* (*get_supported_scales) (CcDisplayMode *self);
++  GArray*       (*get_supported_scales) (CcDisplayMode *self);
+   double        (*get_preferred_scale)  (CcDisplayMode *self);
+   gboolean      (*is_interlaced)        (CcDisplayMode *self);
+   int           (*get_freq)             (CcDisplayMode *self);
+@@ -244,7 +244,7 @@ char*             cc_display_monitor_dup_ui_number_name     (CcDisplayMonitor  *
+ void              cc_display_mode_get_resolution            (CcDisplayMode     *mode,
+                                                              int               *width,
+                                                              int               *height);
+-const double*     cc_display_mode_get_supported_scales      (CcDisplayMode     *self);
++GArray*           cc_display_mode_get_supported_scales      (CcDisplayMode     *self);
+ double            cc_display_mode_get_preferred_scale       (CcDisplayMode     *self);
+ gboolean          cc_display_mode_is_interlaced             (CcDisplayMode     *mode);
+ int               cc_display_mode_get_freq                  (CcDisplayMode     *mode);
+diff --git a/panels/display/cc-display-settings.c b/panels/display/cc-display-settings.c
+index 598075c..90ca074 100644
+--- a/panels/display/cc-display-settings.c
++++ b/panels/display/cc-display-settings.c
+@@ -19,6 +19,7 @@
+  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+  */
+ 
++#include <float.h>
+ #include <handy.h>
+ #include <glib/gi18n.h>
+ #include <float.h>
+@@ -233,7 +234,8 @@ cc_display_settings_rebuild_ui (CcDisplaySettings *self)
+   CcDisplayMode *current_mode;
+   GtkRadioButton *group = NULL;
+   gint buttons = 0;
+-  const gdouble *scales, *scale;
++  g_autoptr(GArray) scales = NULL;
++  gint i;
+ 
+   self->idle_udpate_id = 0;
+ 
+@@ -392,19 +394,20 @@ cc_display_settings_rebuild_ui (CcDisplaySettings *self)
+   /* Scale row is usually shown. */
+   gtk_container_foreach (GTK_CONTAINER (self->scale_bbox), (GtkCallback) gtk_widget_destroy, NULL);
+   scales = cc_display_mode_get_supported_scales (current_mode);
+-  for (scale = scales; *scale != 0.0; scale++)
++  for (i = 0; i < scales->len; i++)
+     {
+       g_autofree gchar *scale_str = NULL;
++      double scale = g_array_index (scales, double, i);
+       GtkWidget *scale_btn;
+ 
+       if (!cc_display_config_is_scaled_mode_valid (self->config,
+                                                    current_mode,
+-                                                   *scale) &&
++                                                   scale) &&
+           !G_APPROX_VALUE (cc_display_monitor_get_scale (self->selected_output),
+-                           *scale, DBL_EPSILON))
++                           scale, DBL_EPSILON))
+         continue;
+ 
+-      scale_str = make_scale_string (*scale);
++      scale_str = make_scale_string (scale);
+ 
+       scale_btn = gtk_radio_button_new_with_label_from_widget (group, scale_str);
+       if (!group)
+@@ -412,7 +415,7 @@ cc_display_settings_rebuild_ui (CcDisplaySettings *self)
+       gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON (scale_btn), FALSE);
+       g_object_set_data_full (G_OBJECT (scale_btn),
+                               "scale",
+-                              g_memdup (scale, sizeof (gdouble)),
++                              g_memdup (&scale, sizeof (gdouble)),
+                               g_free);
+       gtk_widget_show (scale_btn);
+       gtk_container_add (GTK_CONTAINER (self->scale_bbox), scale_btn);
+@@ -422,7 +425,7 @@ cc_display_settings_rebuild_ui (CcDisplaySettings *self)
+                                self, 0);
+ 
+       if (G_APPROX_VALUE (cc_display_monitor_get_scale (self->selected_output),
+-                          *scale, DBL_EPSILON))
++                          scale, DBL_EPSILON))
+         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (scale_btn), TRUE);
+ 
+       buttons += 1;

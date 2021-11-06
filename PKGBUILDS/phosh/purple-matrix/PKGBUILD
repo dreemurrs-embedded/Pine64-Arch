@@ -1,16 +1,21 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=purple-matrix
-pkgver=0_git20191229
-pkgrel=0
+pkgver=0.0.0+149+g88f9558
+pkgrel=1
 pkgdesc="Purple Matrix plugin"
 url="https://github.com/matrix-org/purple-matrix"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('glib2' 'libpurple' 'json-glib' 'http-parser')
+depends=('glib2' 'libpurple' 'json-glib' 'http-parser' 'libolm')
 makedepends=('git')
-_commit="1d23385e6c22f63591fcbfc85c09999953c388ed"
+_commit="88f9558049e74da4eb8c2dbf4030d42c10cc2fa0" # branch/master
 source=(git+https://github.com/matrix-org/purple-matrix.git#commit=$_commit
         enable-optimization.patch)
+
+pkgver() {
+  cd "$pkgname"
+  git describe --tags | sed 's/^v//;s/-/+/g'
+}
 
 prepare() {
     cd $pkgname
@@ -19,10 +24,7 @@ prepare() {
 
 build() {
     cd $pkgname
-
-    # We'll package OLM later, but currently E2EE is partially working
-    # as only decryption works.
-    make MATRIX_NO_E2E=1
+    make
 }
 
 package() {

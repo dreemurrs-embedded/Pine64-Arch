@@ -1,0 +1,24 @@
+# Maintainer: dni <office@dnilabs.com>
+pkgname=mnc
+pkgver=0.4
+pkgrel=1
+pkgdesc="get the time in seconds to next cron job"
+url="https://git.sr.ht/~anjan/mnc"
+arch=('x86_64' 'armv7h' 'aarch64')
+license=('Unlicense')
+makedepends=('go' 'binutils')
+source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~anjan/mnc/archive/$pkgver.tar.gz")
+
+build() {
+  cd "$pkgname-$pkgver"
+  export GOFLAGS="$GOFLAGS -modcacherw"
+  go build mnc.go
+  strip mnc
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  mkdir -p "$pkgdir"/usr/bin
+  install mnc "$pkgdir"/usr/bin
+}
+sha512sums=('22f6ce2a6da34ce0d70fb9e6608e1cbd14ac1dd16e38700a01c627b3ea4d43c4492db528708b9e6efc1b018ef8091434da43f3641e3f34648a68239c26bc249d')

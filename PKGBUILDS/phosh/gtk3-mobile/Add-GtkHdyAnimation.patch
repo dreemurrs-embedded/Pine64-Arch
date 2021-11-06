@@ -13,10 +13,10 @@ This is imported from HdyAnimation from libhandy 1.0.2.
  create mode 100644 gtk/hdy-animation.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 12cba66..ef9c90a 100644
+index 648b398..94dc775 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -602,6 +602,7 @@ gtk_private_h_sources =		\
+@@ -601,6 +601,7 @@ gtk_private_h_sources =		\
  	gtkwindowprivate.h	\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
@@ -24,7 +24,7 @@ index 12cba66..ef9c90a 100644
  	hdy-css-private.h	\
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
-@@ -981,6 +982,7 @@ gtk_base_c_sources = 		\
+@@ -980,6 +981,7 @@ gtk_base_c_sources = 		\
  	gtkwin32draw.c		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
@@ -348,7 +348,7 @@ index 0000000..0de1128
 +  return p * p * p + 1;
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 0bdf438..3c97a01 100644
+index 51bb1f2..5c2ba51 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -383,6 +383,7 @@ gtk_sources = files(

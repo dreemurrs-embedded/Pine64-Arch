@@ -1,46 +1,52 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.12.0
+pkgver=0.14.0
 pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://source.puri.sm/Librem5/phosh"
+url="https://gitlab.gnome.org/World/Phosh/phosh"
 license=('GPL')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell' 'upower' 'libpulse'
-         'gcr' 'feedbackd' 'libnm' 'phoc')
+         'gcr' 'feedbackd' 'libnm' 'phoc' 'callaudiod')
 makedepends=('meson' 'ninja')
 _commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
-source=("https://source.puri.sm/Librem5/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
-	"https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
-	'pam_phosh'
-	'sm.puri.OSK0.desktop'
-	'phosh.service')
+_commit_libcall_ui="465f6add090b623fb80c6c5cbb9ab2880ff531a4"
+source=("https://gitlab.gnome.org/World/Phosh/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
+        "https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
+        "https://gitlab.gnome.org/guidog/libcall-ui/-/archive/$_commit_libcall_ui/libcall-ui-$_commit_libcall_ui.tar.gz"
+        'pam_phosh'
+        'sm.puri.OSK0.desktop'
+        'phosh.service')
 
 prepare() {
-	cd ${pkgname}-v${pkgver}
+    cd ${pkgname}-v${pkgver}
 
-	rm -r subprojects/gvc
-	mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
+    rm -r subprojects/gvc
+    mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
+
+    rm -r subprojects/libcall-ui
+    mv "$srcdir/libcall-ui-$_commit_libcall_ui" subprojects/libcall-ui
 }
 
 build() {
-	arch-meson ${pkgname}-v${pkgver} output
-	ninja -C output
+    arch-meson ${pkgname}-v${pkgver} output -Dsystemd=true
+    ninja -C output
 }
 
 package() {
-	DESTDIR="$pkgdir" ninja -C output install
+    DESTDIR="$pkgdir" ninja -C output install
 
-	install -Dm644 "$srcdir"/phosh.service \
-		"$pkgdir"/usr/lib/systemd/system/phosh.service
-	install -Dm644 "$srcdir"/pam_phosh \
-		"$pkgdir"/etc/pam.d/phosh
-	install -Dm644 "$srcdir"/sm.puri.OSK0.desktop \
-		"$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
+    install -Dm644 "$srcdir"/phosh.service \
+        "$pkgdir"/usr/lib/systemd/system/phosh.service
+    install -Dm644 "$srcdir"/pam_phosh \
+        "$pkgdir"/etc/pam.d/phosh
+    install -Dm644 "$srcdir"/sm.puri.OSK0.desktop \
+        "$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
-md5sums=('704b18444d48afb2fb53b96c8ee9f49b'
+md5sums=('73c5f5e1310cbfcf12537796c3f3dfaa'
          'c08f04485db11997525c139346faecc8'
+         'bd1569dc4925fc873ec32ca477559725'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
-         'efeeab2f55315f576c88e45c494edc7c')
+         '8fad8bdef9442f81cfd1cfd468f9c6fb')

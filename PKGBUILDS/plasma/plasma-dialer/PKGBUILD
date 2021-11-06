@@ -3,8 +3,8 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-dialer
-pkgver=21.06
-pkgrel=2
+pkgver=21.08
+pkgrel=1
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
@@ -13,7 +13,7 @@ depends=('desktop-file-utils' 'ofono' 'kcontacts' 'libqofono-qt5' 'kpeople' 'tel
 makedepends=('cmake' 'extra-cmake-modules' 'kdoctools')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-md5sums=('d5303a2804feb372df2a1203608ed8b4')
+md5sums=('146d276d7c54e3a90c7e876a20794ebe')
 
 prepare() {
   mkdir -p build

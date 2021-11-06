@@ -1,0 +1,26 @@
+From 8fc4f25a88fc26ac4a85e331b9d5e1e6e92453d0 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Fri, 13 Dec 2019 13:16:26 +0100
+Subject: [PATCH] Sheet: use user-available-symbolic for send sms btn
+
+Fixes https://source.puri.sm/Librem5/gnome-contacts/issues/28
+---
+ src/contacts-contact-sheet.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/contacts-contact-sheet.vala b/src/contacts-contact-sheet.vala
+index d24cd41d..1904718d 100644
+--- a/src/contacts-contact-sheet.vala
++++ b/src/contacts-contact-sheet.vala
+@@ -242,7 +242,7 @@ public class Contacts.ContactSheet : Grid {
+           });
+         }
+         if (AppInfo.get_all_for_type ("x-scheme-handler/sms").length () > 0) {
+-          sms_button = create_button ("mail-unread-symbolic");
++          sms_button = create_button ("user-available-symbolic");
+           sms_button.clicked.connect (() => {
+             Utils.send_sms (phone.get_normalised ());
+           });
+-- 
+2.26.2
+

@@ -1,0 +1,83 @@
+From: =?utf-8?q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Tue, 24 Aug 2021 18:23:51 +0200
+Subject: shell: Mirror the main leaflet's 'folded' property
+
+This makes it simpler for panels to check whether g-c-c
+is in folded state.
+---
+ shell/cc-window.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/shell/cc-window.c b/shell/cc-window.c
+index de4eccc..c9a7bf0 100644
+--- a/shell/cc-window.c
++++ b/shell/cc-window.c
+@@ -81,6 +81,8 @@ struct _CcWindow
+   CcPanel *active_panel;
+   GSettings *settings;
+ 
++  gboolean folded;
++
+   CcPanelListView previous_list_view;
+ };
+ 
+@@ -93,7 +95,8 @@ enum
+ {
+   PROP_0,
+   PROP_ACTIVE_PANEL,
+-  PROP_MODEL
++  PROP_MODEL,
++  PROP_FOLDED,
+ };
+ 
+ /* Auxiliary methods */
+@@ -766,6 +769,10 @@ cc_window_get_property (GObject    *object,
+       g_value_set_object (value, self->store);
+       break;
+ 
++    case PROP_FOLDED:
++      g_value_set_boolean (value, self->folded);
++      break;
++
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+     }
+@@ -790,6 +797,10 @@ cc_window_set_property (GObject      *object,
+       self->store = g_value_dup_object (value);
+       break;
+ 
++    case PROP_FOLDED:
++      self->folded = g_value_get_boolean (value);
++      break;
++
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+     }
+@@ -876,6 +887,14 @@ cc_window_class_init (CcWindowClass *klass)
+                                                         CC_TYPE_SHELL_MODEL,
+                                                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS));
+ 
++  g_object_class_install_property (object_class,
++                                   PROP_FOLDED,
++                                   g_param_spec_boolean ("folded",
++                                                         "Folded",
++                                                         "Whether the window is foled",
++                                                         FALSE,
++                                                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
++
+   gtk_widget_class_set_template_from_resource (widget_class, "/org/gnome/ControlCenter/gtk/cc-window.ui");
+ 
+   gtk_widget_class_bind_template_child (widget_class, CcWindow, back_revealer);
+@@ -921,6 +940,12 @@ cc_window_init (CcWindow *self)
+   self->previous_panels = g_queue_new ();
+   self->previous_list_view = cc_panel_list_get_view (self->panel_list);
+ 
++  g_object_bind_property (self->main_leaflet,
++                          "folded",
++                          self,
++                          "folded",
++                          G_BINDING_SYNC_CREATE);
++
+   /* Add a custom CSS class on development builds */
+   if (in_flatpak_sandbox ())
+     gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET (self)), "devel");

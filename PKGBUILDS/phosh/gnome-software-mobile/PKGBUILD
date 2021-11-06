@@ -4,18 +4,18 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gnome-software-mobile
-pkgver=3.38.2
-pkgrel=1
+_pkgname=gnome-software
+pkgver=40.4
+pkgrel=2
 pkgdesc="GNOME Software Tools (w/ Purism patches)"
 url="https://gitlab.gnome.org/GNOME/gnome-software"
 arch=(x86_64 armv7h aarch64)
 license=(GPL2)
-makedepends=(appstream-glib gnome-desktop libpackagekit-glib flatpak fwupd ostree
+makedepends=(appstream gsettings-desktop-schemas libpackagekit-glib flatpak fwupd
              docbook-xsl git gobject-introspection gspell gtk-doc meson valgrind
-             gnome-online-accounts libxmlb libhandy)
-_commit=fcafd7ed2c8c3a8ca8062f409aac304ceb30def2
-source=(https://gitlab.gnome.org/GNOME/gnome-software/-/archive/$_commit/gnome-software-$_commit.tar.bz2
-        0001-meson-Add-dependency-on-libhandy-1.0.0.patch
+             gnome-online-accounts libxmlb malcontent libhandy)
+_commit=70c23e4a227551f96c2410f47a2d0f862eb2cb1d # tags/40.4^0
+source=("git+https://gitlab.gnome.org/GNOME/gnome-software.git#commit=$_commit"
         0002-shell-Make-the-search-bar-adaptive.patch
         0003-shell-Give-a-title-and-an-icon-to-the-main-stack-pag.patch
         0004-updates-page-Notify-the-stack-when-it-needs-attentio.patch
@@ -39,13 +39,13 @@ source=(https://gitlab.gnome.org/GNOME/gnome-software/-/archive/$_commit/gnome-s
         0022-librem5-update-dialog-Don-t-show-a-double-back-butto.patch
         0023-librem5-update-dialog-Reduce-the-default-width.patch
         0024-Revert-Launch-software-properties-gtk-in-place-of-the-sources-dialog.patch
-        0025-category-page-fix-ui-template.patch)
-sha256sums=('bdfab7cdfd153e4ffeeab623a67a9add28140738985ebb0a96a7f2a34f04d92a'
-            '305ab16c92a777789617ed4641a40c908b18491f74c6f16de4843c9a4f0cc027'
+        0025-category-page-fix-ui-template.patch
+        0026-GsUpdatesSection-Always-present-Download-button-befo.patch)
+sha256sums=('SKIP'
             '7d1e568e3cc96e97444868937f8ef926c80f8208d3f8c639a655d7045fb5cf03'
             'd784f4ee5223148ee292f82fe880815566edd4418ae3f8b61e48f7b1f8316d8b'
             '7033ba4fdb7b52cebda127f5fbae49ea2e21e3255aca049712c9a52e627cbc06'
-            'bb250c7d131f358d7e90707934cb8087b0dfb66085f4e57d195f91ad1612b3f9'
+            '5d4c028b11c342a9027dac175f4cab51ddeb575625c967b6f96e8d194352f464'
             'd0661262e708fec068763b839f1b3cc12eaa5581c09838559bdba8f2736516aa'
             '42d2fff2ec34698821e79f114f09f6baa51116639187e6c3909c1e343986b76e'
             'd6452f420e6a2d07b4158daeef7194e55146fe746e6660da5580713628414475'
@@ -54,21 +54,27 @@ sha256sums=('bdfab7cdfd153e4ffeeab623a67a9add28140738985ebb0a96a7f2a34f04d92a'
             '8d99a0d043ba17861ed7bcfdbf5d50021f002c707240302bbb68f7cc8c5c429f'
             '24e9b356eebd5fbb4098540c1e98757eaa965145e061d0144356e0e4359333a2'
             '352ab1df137fa047c5a3869878bbec7b9a1e6d8295020f806406e17a43da4cc8'
-            '54a921de34b3112f7c00a7023486749bc2b7baef1aef48719928bf591ecda5ab'
+            'b6cf21d7298f30496f27d35c3d5db90aa807524a5cbb017c13bdf85d51255fc9'
             'c3f6055fcd0adfa06b44c867d234b10f88f1e2a320cde2425b681e3f7083f730'
             '1a8d7e25d743bdb51772b4bd690ac83e1f8c04063e135e8d0214ee9ade2cdd22'
             '03afa4e61dfd4e18cb86777935106d2d4fb0912b7e373e31d54b3f60bec7918b'
             'f0bc28c6609bebd58695901d5e5ab146d156a79ba8cc6ff5210171f1ae2ee101'
             'd962eb06d3b2a6cb084966113cd9ac7e5c189deb2a60fa183e4c1d831154e1a1'
             '54b9bf686d64ca91c066a4a6beb618ad37fcb029110da14435ca30660ed2da4f'
-            '9aebc597d614389cc2e93532cfdf63b7bbda25d51a133a9726767e3cfa64e6d5'
+            'd792b4001b905412605682100e4cdbc4a525198aa8312b95c2c35018c018a19c'
             '62089b348ce24ecda70e7db710668ea7319d7d70940449ebc24901104aa51e6c'
             'ef18e6b913caafee92bd619c9340f869cd121c8c4c34415a6c423fe5e0d1ff74'
             'bfd10ec468ec3a6c15e0872dab099a6e99b525155470cffdfd03506a90e8f6a4'
-            '147d5e5f164cba96e861b2e87e6a0f55c10ca4d1e1ce8e3fddfad1f9d935073d')
+            '147d5e5f164cba96e861b2e87e6a0f55c10ca4d1e1ce8e3fddfad1f9d935073d'
+            '664739d51db9a4255eb16e2162e5367ceba14459fd78b72a263775a4e1726a9d')
+
+pkgver() {
+  cd $_pkgname
+  git describe --tags | sed 's/^GNOME_SOFTWARE_//;s/_/./g;s/-/+/g'
+}
 
 prepare() {
-  cd gnome-software-$_commit
+  cd $_pkgname
 
   local src
   for src in "${source[@]}"; do
@@ -81,8 +87,8 @@ prepare() {
 }
 
 build() {
-  arch-meson gnome-software-$_commit build -Dmalcontent=false -Dsysprof=disabled
-  ninja -C build
+  arch-meson $_pkgname build -Dsysprof=disabled
+  meson compile -C build
 }
 
 check() {
@@ -93,11 +99,11 @@ check() {
 package() {
   provides=(gnome-software gnome-software-packagekit-plugin)
   conflicts=(gnome-software gnome-software-packagekit-plugin)
-  depends=(libxmlb gnome-desktop gsettings-desktop-schemas gspell libpackagekit-glib
-           gnome-online-accounts appstream-glib archlinux-appstream-data packagekit)
+  depends=(libxmlb gsettings-desktop-schemas gspell libpackagekit-glib
+           gnome-online-accounts appstream libhandy archlinux-appstream-data packagekit)
   optdepends=('flatpak: Flatpak support plugin'
               'fwupd: fwupd support plugin'
-              'ostree: OSTree support plugin')
+              'malcontent: Parental control plugin')
 
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

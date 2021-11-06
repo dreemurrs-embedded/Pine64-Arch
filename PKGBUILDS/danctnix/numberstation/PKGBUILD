@@ -1,0 +1,22 @@
+# Maintainer: Martijn Braam <martijn@brixit.nl>
+pkgname=numberstation
+pkgver=0.6.0
+pkgrel=1
+pkgdesc="A simple GTK TOTP token generator"
+url="https://git.sr.ht/~martijnbraam/numberstation"
+arch=(any)
+license=('MIT')
+depends=(python3 python-gobject gtk3 libhandy python-pyotp python-keyring)
+makedepends=(python-setuptools meson)
+source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~martijnbraam/numberstation/archive/${pkgver}.tar.gz")
+
+build() {
+    arch-meson $pkgname-$pkgver build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}
+
+md5sums=('167b2ac38d788aaca8d1932b93edb7e1')

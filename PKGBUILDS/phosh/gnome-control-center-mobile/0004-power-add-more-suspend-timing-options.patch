@@ -1,0 +1,28 @@
+From 7c6347bf9cf38d82d1d8e07f973f23c1ca2b871a Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Mon, 25 May 2020 21:03:38 +0200
+Subject: [PATCH 4/4] power: add more suspend timing options
+
+---
+ panels/power/cc-power-panel.ui | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+Index: gnome-control-center/panels/power/cc-power-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/power/cc-power-panel.ui	2021-07-28 23:43:55.957000000 +0000
++++ gnome-control-center/panels/power/cc-power-panel.ui	2021-07-28 23:43:55.953000000 +0000
+@@ -10,6 +10,14 @@
+     </columns>
+     <data>
+       <row>
++        <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">5 minutes</col>
++        <col id="1">300</col>
++      </row>
++      <row>
++        <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">10 minutes</col>
++        <col id="1">600</col>
++      </row>
++      <row>
+         <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">15 minutes</col>
+         <col id="1">900</col>
+       </row>

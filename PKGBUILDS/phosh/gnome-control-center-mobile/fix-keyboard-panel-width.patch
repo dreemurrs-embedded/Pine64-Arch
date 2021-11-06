@@ -1,0 +1,20 @@
+Index: gnome-control-center/panels/keyboard/cc-keyboard-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/keyboard/cc-keyboard-panel.ui	2021-09-20 11:39:25.882000000 +0000
++++ gnome-control-center/panels/keyboard/cc-keyboard-panel.ui	2021-09-20 11:39:25.879000000 +0000
+@@ -96,6 +96,7 @@
+                                     <property name="visible">True</property>
+                                     <property name="margin_left">6</property>
+                                     <property name="use_underline">True</property>
++                                    <property name="wrap">True</property>
+                                     <property name="label" translatable="yes">Use the _same source for all windows</property>
+                                   </object>
+                                 </child>
+@@ -123,6 +124,7 @@
+                                     <property name="visible">True</property>
+                                     <property name="margin_left">6</property>
+                                     <property name="use_underline">True</property>
++                                    <property name="wrap">True</property>
+                                     <property name="label" translatable="yes">Switch input sources _individually for each window</property>
+                                   </object>
+                                 </child>

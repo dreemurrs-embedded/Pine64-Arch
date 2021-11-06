@@ -1,0 +1,60 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Sven-Hendrik Haase <svenstaro@gmail.com>
+# Contributor: hexchain <i@hexchain.org>
+
+# DANCTNIX: This patches Telegram Desktop so that it can be more adaptive on mobile.
+pkgname=telegram-desktop
+pkgver=3.1.11
+pkgrel=1
+pkgdesc='Official Telegram Desktop client'
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://desktop.telegram.org/"
+license=('GPL3')
+depends=('hunspell' 'ffmpeg' 'hicolor-icon-theme' 'lz4' 'minizip' 'openal' 'ttf-opensans'
+         'qt5-imageformats' 'qt5-svg' 'xxhash' 'libdbusmenu-qt5' 'kwayland' 'glibmm'
+         'rnnoise' 'pipewire' 'libxtst' 'libxrandr' 'jemalloc' 'libtg_owt')
+makedepends=('cmake' 'git' 'ninja' 'python' 'range-v3' 'tl-expected' 'microsoft-gsl'
+             'extra-cmake-modules' 'gtk3' 'webkit2gtk')
+optdepends=('gtk3: GTK environment integration'
+            'webkit2gtk: embedded browser features'
+            'xdg-desktop-portal: desktop integration')
+source=("https://github.com/telegramdesktop/tdesktop/releases/download/v${pkgver}/tdesktop-${pkgver}-full.tar.gz"
+        'small-sizes.patch'
+        'more-scale.patch')
+sha512sums=('7d67f2895797d4f7f1edd5e5e7e8509044fad5d5cfe6bbdb5613689da9519dab2fde707a452aad6788193addf84f2ebcc69342955607e0be8507397c22557709'
+            '413a2bb5dc8ff582c97351ba35158f5926c157465c72545f488ea5d5dde1a048fc339dcb158c0e17cd5baa1d600b8ff7acdd86262254ddd18585559413871566'
+            '452ebf8a8c2bf841521ebd304ad6c0212a2939f16ed9b278eb3b0327e608867d1ed86b4ef4e24ad18d3fcb40ce9e01fcdfe4e8c694ac4e5525176fef7974e781')
+
+prepare() {
+    cd tdesktop-$pkgver-full
+
+    local src
+    for src in "${source[@]}"; do
+        src="${src%%::*}"
+        src="${src##*/}"
+        [[ $src = *.patch ]] || continue
+        msg2 "Applying patch: $src..."
+        patch -Np1 < "../$src"
+    done
+}
+
+build() {
+    cd tdesktop-$pkgver-full
+
+    # Turns out we're allowed to use the official API key that telegram uses for their snap builds:
+    # https://github.com/telegramdesktop/tdesktop/blob/8fab9167beb2407c1153930ed03a4badd0c2b59f/snap/snapcraft.yaml#L87-L88
+    # Thanks @primeos!
+    cmake \
+        -B build \
+        -G Ninja \
+        -DCMAKE_INSTALL_PREFIX="/usr" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DTDESKTOP_API_ID=611335 \
+        -DTDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c
+    ninja -C build
+}
+
+package() {
+    cd tdesktop-$pkgver-full
+    DESTDIR=$pkgdir ninja -C build install
+}

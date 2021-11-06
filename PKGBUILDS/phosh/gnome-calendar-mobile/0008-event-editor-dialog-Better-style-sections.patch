@@ -1,0 +1,107 @@
+From b0b489ce3ed26e59eca24ed4c164bd841fe3a92c Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 11 Oct 2021 15:46:20 +0200
+Subject: [PATCH] event-editor-dialog: Better style sections
+
+This gives them rounded corners and separators.
+---
+ src/gui/event-editor/gcal-notes-section.ui     |  4 ++++
+ src/gui/event-editor/gcal-reminders-section.ui |  8 ++++----
+ src/gui/event-editor/gcal-schedule-section.ui  |  2 +-
+ src/gui/event-editor/gcal-summary-section.ui   |  2 +-
+ src/theme/Adwaita.css                          | 15 +++++++++++++++
+ 5 files changed, 25 insertions(+), 6 deletions(-)
+
+diff --git a/src/gui/event-editor/gcal-notes-section.ui b/src/gui/event-editor/gcal-notes-section.ui
+index 8b7bbe61..4b19336f 100644
+--- a/src/gui/event-editor/gcal-notes-section.ui
++++ b/src/gui/event-editor/gcal-notes-section.ui
+@@ -2,6 +2,10 @@
+ <interface>
+   <template class="GcalNotesSection" parent="GtkBin">
+     <property name="can_focus">False</property>
++    <style>
++      <class name="notes-section" />
++    </style>
++
+ 
+     <child>
+       <object class="GtkBox">
+diff --git a/src/gui/event-editor/gcal-reminders-section.ui b/src/gui/event-editor/gcal-reminders-section.ui
+index 2241db72..6286e25c 100644
+--- a/src/gui/event-editor/gcal-reminders-section.ui
++++ b/src/gui/event-editor/gcal-reminders-section.ui
+@@ -4,10 +4,6 @@
+     <property name="can_focus">False</property>
+     <property name="orientation">vertical</property>
+ 
+-    <style>
+-      <class name="frame" />
+-    </style>
+-
+     <child>
+       <object class="GtkListBox" id="alarms_listbox">
+         <property name="visible">True</property>
+@@ -15,6 +11,10 @@
+         <property name="selection_mode">none</property>
+         <signal name="row-activated" handler="on_alarms_listbox_row_activated_cb" object="GcalRemindersSection" swapped="no" />
+ 
++        <style>
++          <class name="content" />
++        </style>
++
+         <child>
+           <object class="GtkListBoxRow" id="new_alarm_row">
+             <property name="visible">True</property>
+diff --git a/src/gui/event-editor/gcal-schedule-section.ui b/src/gui/event-editor/gcal-schedule-section.ui
+index 5654d377..2ef21da6 100644
+--- a/src/gui/event-editor/gcal-schedule-section.ui
++++ b/src/gui/event-editor/gcal-schedule-section.ui
+@@ -10,7 +10,7 @@
+         <property name="selection-mode">none</property>
+ 
+         <style>
+-          <class name="frame" />
++          <class name="content" />
+         </style>
+ 
+         <!-- All Day -->
+diff --git a/src/gui/event-editor/gcal-summary-section.ui b/src/gui/event-editor/gcal-summary-section.ui
+index 75a77b66..3f1fa1f8 100644
+--- a/src/gui/event-editor/gcal-summary-section.ui
++++ b/src/gui/event-editor/gcal-summary-section.ui
+@@ -9,7 +9,7 @@
+         <property name="selection-mode">none</property>
+ 
+         <style>
+-          <class name="frame" />
++          <class name="content" />
+         </style>
+ 
+         <!-- Summary -->
+diff --git a/src/theme/Adwaita.css b/src/theme/Adwaita.css
+index 7658eb4d..a572f1ea 100644
+--- a/src/theme/Adwaita.css
++++ b/src/theme/Adwaita.css
+@@ -498,3 +498,18 @@ monthpopover > box {
+   padding: 12px;
+   background: @theme_bg_color;
+ }
++
++.notes-section .frame {
++  border-radius: 8px;
++  -gtk-outline-radius: 7px;
++  border-color: alpha(@borders, 0.7);
++}
++
++.notes-section .frame > textview.view {
++  border-radius: 8px;
++  padding: 8px;
++}
++
++.notes-section .frame > textview.view > text {
++  background: none;
++}
+-- 
+2.30.2
+

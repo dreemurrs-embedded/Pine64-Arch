@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinetab
-pkgver=0.3
+pkgver=0.4.0
 pkgrel=1
 pkgdesc="UCM files for PineTab"
 arch=(any)
@@ -11,10 +11,10 @@ source=(HiFi.conf PineTab.conf)
 
 package() {
 	install -D -m644 "$srcdir"/PineTab.conf \
-		"$pkgdir"/usr/share/alsa/ucm2/PineTab/PineTab.conf
+		"$pkgdir"/usr/share/alsa/ucm2/simple-card/PineTab.conf
 	install -D -m644 "$srcdir"/HiFi.conf \
 		"$pkgdir"/usr/share/alsa/ucm2/PineTab/HiFi.conf
 }
 
 md5sums=('929a19fb01e6d6960a98b0bbdd3491ac'
-         'f8ae7fd98ea74cba1504b78b9921c6f0')
+         '002f06ca99501a682d7407a5e9e850eb')

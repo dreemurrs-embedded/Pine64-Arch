@@ -1,0 +1,23 @@
+From cd74cde4f0c6a86393ad45cff35406ec5d565375 Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Fri, 20 Sep 2019 14:20:08 +0530
+Subject: [PATCH 8/8] user-panel: hide add user, unlock buttons
+
+---
+ panels/user-accounts/cc-user-panel.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+Index: gnome-control-center/panels/user-accounts/cc-user-panel.c
+===================================================================
+--- gnome-control-center.orig/panels/user-accounts/cc-user-panel.c	2021-07-28 23:43:55.880000000 +0000
++++ gnome-control-center/panels/user-accounts/cc-user-panel.c	2021-07-28 23:43:55.876000000 +0000
+@@ -1541,7 +1541,8 @@
+         shell = cc_panel_get_shell (CC_PANEL (self));
+         cc_shell_embed_widget_in_header (shell, GTK_WIDGET (self->add_user_button), GTK_POS_RIGHT);
+ 
+-        cc_permission_infobar_set_permission (self->permission_infobar, self->permission);
++        if (pureos_get_is_phone ())
++                gtk_widget_hide (GTK_WIDGET (self->permission_infobar));
+         cc_permission_infobar_set_title (self->permission_infobar, _("Unlock to Add Users and Change Settings"));
+ }
+ 

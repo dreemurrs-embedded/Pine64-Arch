@@ -1,0 +1,82 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+# Contributor: Jan de Groot <jgc@archlinux.org>
+
+pkgname=gnome-calendar-mobile
+_pkgname=gnome-calendar
+pkgver=41.0
+pkgrel=1
+pkgdesc="Simple and beautiful calendar application designed to perfectly fit the GNOME desktop"
+url="https://wiki.gnome.org/Apps/Calendar"
+arch=(x86_64 armv7h aarch64)
+license=(GPL)
+depends=(evolution-data-server gsettings-desktop-schemas gnome-control-center
+         libdazzle libhandy)
+makedepends=(git meson)
+optdepends=('evolution: ICS file import')
+provides=('gnome-calendar')
+conflicts=('gnome-calendar')
+_commit=ab9b5b218abe0cbd00b4facf0241f4e5a0555b62  # tags/41.0^0
+source=("git+https://gitlab.gnome.org/GNOME/gnome-calendar.git#commit=$_commit"
+        # Purism patches for adaptive UI
+        0001-Add-calendar-today-symbolic.patch
+        0002-window-Move-the-today-button-towards-the-center.patch
+        0003-window-Make-the-Today-button-adaptive.patch
+        0004-window-Strictly-center-the-view-switcher.patch
+        0005-window-Relocate-the-view-switcher-to-the-bottom-when.patch
+        0006-event-widget-Wrap-by-word.patch
+        0007-event-editor-dialog-Use-HdyPreferencesGroup-and-HdyP.patch
+        0008-event-editor-dialog-Better-style-sections.patch
+        0009-appdata-Declare-the-supported-controls-and-displays.patch
+        0010-window-Reduce-the-minimum-height.patch
+        0011-data-Add-form-factors-to-desktop-file-to-mark-it-as-as-ad.patch
+        # Mobian patches for fixing build
+        0001-build-fix-build-with-meson-0.60.0.patch
+        0002-quick-add-popover-reduce-width-to-fit-phone-screens.patch)
+sha256sums=('SKIP'
+            '565e459ca8e41befc34b56fa50cb30ce58867903461ba335144b31f2387f85b9'
+            '8a0cb41d8a04ba5e962efbd27bb0054a73a03902316305907124183d71e8ebbf'
+            'a6c5ddaa61a868f10774a8302a7a43654f7021b2bbe303c35a2a63715e9dfc03'
+            'c41519054a4791f9e6a6d18bdf2a86e5b8ac47b997b2f7c1cac03ab4c6c3c9f4'
+            'fa0ea2ec45329578d4d96e1a94c4dbb5809376375cd51865ce63e1288fc8e3a9'
+            '65b0b6018c5d753e448b198fe7470c24774ba23ba051bde63678f7f7d73097cb'
+            '44632e43e1477f7f37a510418b27c3471547a2247c69a16a0d898fb2a8c051df'
+            '3d6d44f958e58f7086ee4fcc5658fa23dc94d829c1f7ff1e5e9cafea00028ed8'
+            'c49a9140edc1d8a9e5d7bd83ce9c121820288f629d0794f13bd26e9c643776c9'
+            'e878d3957d191191ae6a13dde6e55171a5c6dcb7a61a0c9b6b8d0826023fbf1b'
+            '4af176a75d05f783b31aae63eedfa581c1cc3f4f1d6b34989d3cb7871dcefbc9'
+            'ba3e91a5bdd18e9e6b24eba1347949975ecaa1e3aa2ad29cc962500b0c06d899'
+            '4a619f38725863a0a9cf30f102a8e7234773acd99d994fdc170c0743f6df9e95')
+
+pkgver() {
+  cd $_pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd $_pkgname
+
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    msg2 "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+}
+
+build() {
+  arch-meson $_pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}
+
+# vim:set ts=2 sw=2 et:

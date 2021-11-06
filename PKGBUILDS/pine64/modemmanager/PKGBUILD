@@ -4,8 +4,8 @@
 
 pkgbase=modemmanager
 pkgname=(modemmanager libmm-glib)
-pkgver=1.16.4
-pkgrel=1
+pkgver=1.18.0
+pkgrel=2
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
 url="https://www.freedesktop.org/wiki/Software/ModemManager/"
@@ -13,15 +13,13 @@ license=(GPL2 LGPL2.1)
 depends=(systemd libgudev polkit ppp libqmi libmbim
          mobile-broadband-provider-info)
 makedepends=(gtk-doc gobject-introspection vala autoconf-archive git)
-_commit=e0048b690cfd93da4fa47be110008bac260462a8  # tags/1.16.4
+_commit=4ccbfcd0167b5e6134eba5da34c33b8b0b5b1619  # tags/1.18.0
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
-        '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch'
-        '8bc90b713159fe8a2415f272bbe9224ab3fd68e9.patch'
-        'a6599706345a398376e003bd1a4a57679a4f2b95.patch')
+        'modemmanager-polkit.rules'
+        '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
 sha256sums=('SKIP'
-            '6272b09b59ba7a395f86502083ea2609a885ffa696c8acd20ed99cb18b6de92b'
-            'aba1c59c4dd883fa87a61a09d88f8fbe2fd2291828f51db9330854945a1aeb6e'
-            '535fb66553c88febdcea40974de36274f5790d736520f9f2c531fe5cfa6880b0')
+            '2255d33e53047943c9da6edd1e8b66397718d4bba1ead968708e4b6dd3101b98'
+            '6272b09b59ba7a395f86502083ea2609a885ffa696c8acd20ed99cb18b6de92b')
 
 pkgver() {
   cd ModemManager
@@ -33,8 +31,6 @@ prepare() {
 
   # PinePhone Patches
   patch -p1 -N < ../0001-mm-broadband-modem-improve-voice-capabilities-detect.patch
-  patch -p1 -N < ../8bc90b713159fe8a2415f272bbe9224ab3fd68e9.patch
-  patch -p1 -N < ../a6599706345a398376e003bd1a4a57679a4f2b95.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
@@ -73,8 +69,12 @@ package_modemmanager() {
   make DESTDIR="$pkgdir" -C libmm-glib uninstall
   make DESTDIR="$pkgdir" -C vapi uninstall
 
+  install -d -o root -g 102 -m 750 "${pkgdir}/usr/share/polkit-1/rules.d"
+  install -m644 -D "$srcdir/modemmanager-polkit.rules" \
+        "$pkgdir/usr/share/polkit-1/rules.d/01-org.freedesktop.ModemManager.rules"
+
   # Disable suspend/resume hooks for the EG25-G modem in the PinePhone
-  sed -i -e 's|bin/ModemManager|bin/ModemManager --test-no-suspend-resume|g' \
+  sed -i -e 's|bin/ModemManager|bin/ModemManager --test-quick-suspend-resume|g' \
         "$pkgdir/usr/lib/systemd/system/ModemManager.service"
 
   # Some stuff to move is left over

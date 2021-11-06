@@ -1,0 +1,21 @@
+From c83a57e411a02fe1d003d1242b04abc52949aae6 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Thu, 19 Sep 2019 17:27:58 +0200
+Subject: [PATCH] UserAccount: fix window resizing issue
+
+---
+ panels/user-accounts/cc-user-panel.ui | 1 +
+ 1 file changed, 1 insertion(+)
+
+Index: gnome-control-center/panels/user-accounts/cc-user-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/user-accounts/cc-user-panel.ui	2021-07-28 23:43:55.575000000 +0000
++++ gnome-control-center/panels/user-accounts/cc-user-panel.ui	2021-07-28 23:44:01.000000000 +0000
+@@ -40,6 +40,7 @@
+     <child>
+       <object class="GtkStack" id="stack">
+         <property name="visible">True</property>
++        <property name="homogeneous">False</property>
+         <property name="visible-child">no_users_box</property>
+         <child>
+           <object class="GtkOverlay" id="users_overlay">

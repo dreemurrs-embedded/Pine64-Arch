@@ -1,0 +1,34 @@
+# Maintainer: dni <office@dnilabs.com>
+pkgname=pn
+pkgver=0.9.0
+pkgrel=1
+pkgdesc="libphonenumber command-line wrapper"
+url="https://github.com/Orange-OpenSource/pn"
+arch=('x86_64' 'armv7h' 'aarch64')
+license=('Apache-2.0')
+makedepends=('cmake' 'icu' 'libphonenumber' 'gawk')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+
+build() {
+  cd "$pkgname-$pkgver"
+  if [ "$CBUILD" != "$CHOST" ]; then
+    CMAKE_CROSSOPTS="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_HOST_SYSTEM_NAME=Linux"
+  fi
+  cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_SHARED_LIBS=True \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+    -DCMAKE_C_FLAGS="$CFLAGS" \
+    $CMAKE_CROSSOPTS
+  cmake --build build
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  DESTDIR="$pkgdir" cmake --build build --target install
+  mv "$pkgdir/usr/man" "$pkgdir/usr/share/"
+}
+
+sha512sums=('345a80e812da016d6e6dd77be932c2735d9630e0ad626516774e1455de8b2722')

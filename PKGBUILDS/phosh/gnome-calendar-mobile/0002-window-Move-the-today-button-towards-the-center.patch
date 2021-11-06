@@ -1,0 +1,55 @@
+From 28313b50da160881f24ae28c8f25fcc4a8ee33bd Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 11 Oct 2021 14:07:59 +0200
+Subject: [PATCH] window: Move the today button towards the center
+
+This will help making it adaptive.
+---
+ src/gui/gcal-window.ui | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/src/gui/gcal-window.ui b/src/gui/gcal-window.ui
+index 46ea361a..3434ce54 100644
+--- a/src/gui/gcal-window.ui
++++ b/src/gui/gcal-window.ui
+@@ -185,18 +185,6 @@
+                 </child>
+               </object>
+             </child>
+-            <child>
+-              <object class="GtkButton" id="today_button">
+-                <property name="label" translatable="yes">Today</property>
+-                <property name="visible">True</property>
+-                <property name="can_focus">True</property>
+-                <property name="receives_default">True</property>
+-                <property name="action-name">win.today</property>
+-                <accelerator key="t" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
+-                <accelerator key="Down" modifiers="GDK_MOD1_MASK" signal="clicked"/>
+-                <accelerator key="Home" signal="clicked"/>
+-              </object>
+-            </child>
+             <child>
+               <object class="GtkBox" id="button_box">
+                 <property name="visible">True</property>
+@@ -237,6 +225,18 @@
+                 </style>
+               </object>
+             </child>
++            <child>
++              <object class="GtkButton" id="today_button">
++                <property name="label" translatable="yes">Today</property>
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="receives_default">True</property>
++                <property name="action-name">win.today</property>
++                <accelerator key="t" modifiers="GDK_CONTROL_MASK" signal="clicked"/>
++                <accelerator key="Down" modifiers="GDK_MOD1_MASK" signal="clicked"/>
++                <accelerator key="Home" signal="clicked"/>
++              </object>
++            </child>
+             <child type="title">
+               <object class="HdyViewSwitcher" id="views_switcher">
+                 <property name="visible">True</property>
+-- 
+2.30.2
+

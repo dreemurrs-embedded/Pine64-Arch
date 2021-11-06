@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=siglo
-pkgver=0.8.2
+pkgver=0.9.5
 pkgrel=1
 pkgdesc="GTK app to sync InfiniTime watch with PinePhone"
 arch=(any)
@@ -8,7 +8,7 @@ url="https://github.com/alexr4535/siglo"
 license=('MPL')
 depends=(bluez bluez-utils python python-gobject dbus-python python-gatt python-requests python-pyxdg)
 makedepends=(git meson)
-_commit=1af26dbe594e83254f4cf9c753a953cdfdbb2d37 # tags/v0.8.2
+_commit=bd38ac297ab0b68635effa0b347e9d3ae05aa6a5 # tags/v0.9.5
 source=("git+https://github.com/alexr4535/siglo.git#commit=$_commit")
 
 pkgver() {

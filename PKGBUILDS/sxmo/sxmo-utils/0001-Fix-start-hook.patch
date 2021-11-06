@@ -1,0 +1,26 @@
+From 626d32139689a2ca93d5464c4fee76b71c089ebb Mon Sep 17 00:00:00 2001
+From: Danct12 <danct12@disroot.org>
+Date: Wed, 20 Oct 2021 15:31:10 +0700
+Subject: [PATCH sxmo-utils] Fix start hook
+
+---
+ configs/default_hooks/start | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/configs/default_hooks/start b/configs/default_hooks/start
+index 506572b..8d0d5b4 100644
+--- a/configs/default_hooks/start
++++ b/configs/default_hooks/start
+@@ -1,6 +1,8 @@
++#!/usr/bin/env sh
++
+ # include common definitions
+ # shellcheck source=scripts/core/sxmo_common.sh
+-. "$(dirname "$0")/sxmo_common.sh"
++. "$(which sxmo_common.sh)"
+ 
+ echo "$DBUS_SESSION_BUS_ADDRESS" > "$CACHEDIR"/dbus.bus
+ 
+-- 
+2.33.1
+

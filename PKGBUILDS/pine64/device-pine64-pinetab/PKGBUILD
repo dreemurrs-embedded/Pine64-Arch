@@ -1,12 +1,12 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab
-pkgver=0.1
-pkgrel=9
+pkgver=0.2
+pkgrel=2
 pkgdesc="PineTab device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=(linux-pine64
+depends=(linux-megi
 	uboot-pinephone
 	rtl8723bt-firmware
 	ov5640-firmware
@@ -35,4 +35,4 @@ md5sums=('b0912b95d7d810a0f161d9bd79fc162b'
          '5b09f56730748532e169173d124f7cad'
          '340993065eb26f928700733369be2d9b'
          '1504e684e5a2aec439e0674cdfc9d3c1'
-         'f81b3527b3a47df6253263001f059bff')
+         'df623da01912f5ce89c178639fc22656')

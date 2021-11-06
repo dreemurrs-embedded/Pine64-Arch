@@ -1,0 +1,12 @@
+# Maintainer: dni <office@dnilabs.com>
+pkgname=danctnix-sxmo-ui-meta
+pkgver=1.5.1
+pkgrel=1
+pkgdesc="Sxmo: Simple X Mobile - A Pinephone UI that is simple and suckless"
+url="https://sr.ht/~mil/Sxmo/"
+arch=('any')
+depends=('danctnix-sxmo-settings' 'dnsmasq' 'polkit' 'sxmo-utils' 'sxmo-xdm-config')
+license=('MIT')
+replaces=('sxmo-alarm')
+
+

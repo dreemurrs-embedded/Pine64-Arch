@@ -1,11 +1,16 @@
 [Unit]
 Description=Phosh, a shell for mobile phones
-Documentation=https://source.puri.sm/Librem5/phosh
+Documentation=https://gitlab.gnome.org/World/Phosh/phosh
 
-# Make sure we are started after logins are permitted.
-After=systemd-user-sessions.service
-# If Plymouth is used, we want to start when it is on its way out.
-After=plymouth-quit-wait.service
+# replaces the getty
+Conflicts=getty@tty1.service
+After=getty@tty1.service
+
+# Needs all the dependencies of the services it's replacing
+# (currently getty@tty1.service):
+After=rc-local.service plymouth-quit-wait.service systemd-user-sessions.service
+
+OnFailure=getty@tty1.service
 
 # D-Bus is necessary for contacting logind. Logind is required.
 Wants=dbus.socket
@@ -25,6 +30,9 @@ Before=graphical.target
 ConditionPathExists=/dev/tty0
 
 [Service]
+Environment=XDG_CURRENT_DESKTOP=GNOME:Phosh
+Environment=XDG_SESSION_DESKTOP=phosh
+Environment=XDG_SESSION_TYPE=wayland
 ExecStart=/usr/bin/phosh
 TimeoutStartSec=30
 User=1000

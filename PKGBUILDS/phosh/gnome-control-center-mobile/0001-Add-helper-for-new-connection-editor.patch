@@ -1,0 +1,65 @@
+From b67acba17e2563f855ed772dd61f66756b1f708e Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Thu, 19 Sep 2019 20:43:52 +0530
+Subject: [PATCH 1/2] Add helper for new connection editor
+
+---
+ panels/network/use-new-editor.c | 49 +++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+ create mode 100644 panels/network/use-new-editor.c
+
+Index: gnome-control-center/panels/network/use-new-editor.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/use-new-editor.c	2021-07-29 09:36:53.230000000 +0000
+@@ -0,0 +1,50 @@
++/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
++ *
++ * Copyright 2021 Purism SPC
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Author(s):
++ *   Mohammed Sadiq <sadiq@sadiqpk.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++/* This is a temporary patch for net-device-wifi.c to use new
++ * hotspot dialog to be used until new version is released. */
++
++
++
++if (pureos_get_is_phone ())
++  {
++    CcConnectionEditor *new_editor;
++
++    new_editor = g_object_get_data (G_OBJECT (self), "network-editor");
++    if (!new_editor)
++      {
++        GtkWindow *parent;
++
++        parent = GTK_WINDOW (gtk_widget_get_toplevel (GTK_WIDGET (row)));
++        new_editor = CC_CONNECTION_EDITOR (cc_connection_editor_new (parent, self->client));
++        g_object_set_data (G_OBJECT (self), "network-editor", new_editor);
++      }
++
++    cc_connection_editor_set_connection (new_editor, connection, self->device);
++    cc_connection_editor_set_ap (new_editor, ap);
++
++    gtk_dialog_run (GTK_DIALOG (new_editor));
++    gtk_widget_hide (GTK_WIDGET (new_editor));
++
++    return;
++  }

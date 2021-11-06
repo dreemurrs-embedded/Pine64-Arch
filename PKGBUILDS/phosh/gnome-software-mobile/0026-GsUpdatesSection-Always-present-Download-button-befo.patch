@@ -1,0 +1,70 @@
+From 464934ea47ca2f25cef4aedd53beb409979a2f94 Mon Sep 17 00:00:00 2001
+From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Date: Thu, 23 Sep 2021 14:03:14 +0200
+Subject: [PATCH] GsUpdatesSection: Always present "Download" button before
+ "Restart & Update"
+
+"prepared-update" can get removed when refreshing package lists,
+in which case an update attempt will fail. Re-requesting the download
+is enough to recreate the update package, so presenting "download"
+option to the user even if everything is already downloaded before
+allowing them to actually trigger the update should workaround this
+problem.
+
+Closes #40
+---
+ src/gs-updates-section.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/src/gs-updates-section.c b/src/gs-updates-section.c
+index f925b1fb..b21715ee 100644
+--- a/src/gs-updates-section.c
++++ b/src/gs-updates-section.c
+@@ -39,6 +39,7 @@ struct _GsUpdatesSection
+ 	GtkWidget		*button_cancel;
+ 	GtkStack		*button_stack;
+ 	GtkWidget		*section_header;
++	gboolean		 downloaded;
+ };
+ 
+ G_DEFINE_TYPE (GsUpdatesSection, gs_updates_section, GTK_TYPE_LIST_BOX)
+@@ -279,7 +280,7 @@ _update_buttons (GsUpdatesSection *self)
+ 
+ 	if (self->kind == GS_UPDATES_SECTION_KIND_OFFLINE_FIRMWARE ||
+ 	    self->kind == GS_UPDATES_SECTION_KIND_OFFLINE) {
+-		if (_all_offline_updates_downloaded (self))
++		if (_all_offline_updates_downloaded (self) && self->downloaded)
+ 			gtk_stack_set_visible_child_name (self->button_stack, "update");
+ 		else
+ 			gtk_stack_set_visible_child_name (self->button_stack, "download");
+@@ -353,11 +354,15 @@ _download_finished_cb (GObject *object, GAsyncResult *res, gpointer user_data)
+ 	g_autoptr(GError) error = NULL;
+ 	g_autoptr(GsAppList) list = NULL;
+ 
++	self->downloaded = TRUE;
++
+ 	/* get result */
+ 	list = gs_plugin_loader_job_process_finish (GS_PLUGIN_LOADER (object), res, &error);
+ 	if (list == NULL) {
+-		if (!g_error_matches (error, GS_PLUGIN_ERROR, GS_PLUGIN_ERROR_CANCELLED))
++		if (!g_error_matches (error, GS_PLUGIN_ERROR, GS_PLUGIN_ERROR_CANCELLED)) {
+ 			g_warning ("failed to download updates: %s", error->message);
++			self->downloaded = FALSE;
++		}
+ 	}
+ 
+ 	g_clear_object (&self->cancellable);
+@@ -538,7 +543,9 @@ _app_row_activated_cb (GtkListBox *list_box, GtkListBoxRow *row, GsUpdatesSectio
+ static void
+ gs_updates_section_show (GtkWidget *widget)
+ {
+-	_update_buttons (GS_UPDATES_SECTION (widget));
++	GsUpdatesSection *self = GS_UPDATES_SECTION (widget);
++	self->downloaded = FALSE;
++	_update_buttons (self);
+ 
+ 	GTK_WIDGET_CLASS (gs_updates_section_parent_class)->show (widget);
+ }
+-- 
+2.33.0
+

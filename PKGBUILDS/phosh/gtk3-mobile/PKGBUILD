@@ -3,172 +3,152 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.27
-pkgrel=3
+pkgver=3.24.30+90+g20be04f7ac
+pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
-depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2 dconf
-         libxcomposite libxdamage pango shared-mime-info at-spi2-atk wayland libxkbcommon
-         adwaita-icon-theme json-glib librsvg wayland-protocols desktop-file-utils mesa
-         cantarell-fonts colord rest libcups libcanberra fribidi)
-makedepends=(gobject-introspection gtk-doc git glib2-docs sassc)
+depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2
+         dconf libxcomposite libxdamage pango shared-mime-info at-spi2-atk
+         wayland libxkbcommon adwaita-icon-theme json-glib librsvg
+         desktop-file-utils mesa cantarell-fonts libcolord rest libcups
+         libcanberra fribidi iso-codes libcloudproviders tracker3
+         gtk-update-icon-cache)
+makedepends=(gobject-introspection gtk-doc git glib2-docs sassc meson
+             wayland-protocols)
 license=(LGPL)
-install=gtk3.install
-_commit=c7df3b9e9790012e6c5fbad6a4f4519bcf75561f  # tags/3.24.27^0
-source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$_commit/gtk-$_commit.tar.bz2"
-        settings.ini
+_commit=20be04f7ac4a2081ce34768397873b7551e17c69  # gtk-3-24
+source=("git+https://gitlab.gnome.org/GNOME/gtk.git#commit=$_commit"
         gtk-query-immodules-3.0.hook
-        aboutdialog-Port-to-phones.patch
-        Add-GtkHdyClamp.patch
-        Add-GtkHdyFlap.patch
-        Add-GtkHdyNavigationDirection.patch
-        Add-GtkHdyShadowHelper.patch
-        Add-GtkHdySqueezer.patch
-        Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
-        Add-GtkHdyViewSwitcherBar.patch
+        # Purism patches
+        librem5-Drop-reftests.patch
         Add-GtkHdyViewSwitcherButton.patch
         Add-GtkHdyViewSwitcher.patch
+        Add-GtkHdyViewSwitcherBar.patch
         Add-GtkHdyAnimation.patch
+        Add-GtkHdySqueezer.patch
         Add-GtkHdyViewSwitcherTitle.patch
-        Add-org.gtk.Settings.Purism.patch
+        Add-GtkHdyShadowHelper.patch
+        Add-GtkHdyNavigationDirection.patch
+        Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
+        Add-GtkHdyClamp.patch
+        Add-GtkHdyFlap.patch
+        theme-Add-libhandy-styles.patch
         Add-padding-for-HdyViewSwitcherTitle.patch
-        Add-the-view-sidebar-symbolic-icon.patch
         hdy-flap-Use-natural-size-for-folding-instead-of-minimum.patch
-        demos-examples-tests-Don-t-distribute-built-files.patch
-        dialog-Maximize-resizable-dialogs-on-phones.patch
-        events-Compress-touch-update-events.patch
-        gdk-Don-t-distribute-generated-files-in-tarballs.patch
+        Add-org.gtk.Settings.Purism.patch
         gtkprivate-Add-an-API-to-check-if-phone.patch
-        gtk-Really-don-t-distribute-built-files.patch
+        aboutdialog-Port-to-phones.patch
+        Add-the-view-sidebar-symbolic-icon.patch
+        Port-file-chooser-to-phones.patch
+        messagedialog-Set-orientation-based-on-device.patch
+        dialog-Maximize-resizable-dialogs-on-phones.patch
+        window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
         headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
         infobar-Move-the-action-area-below-on-the-phone.patch
-        librem5-Drop-reftests.patch
-        printunixdialog-Adapt-for-phones.patch
-        messagedialog-Set-orientation-based-on-device.patch
-        Port-file-chooser-to-phones.patch
         Reduce-the-font-chooser-minimum-size.patch
-        scrolledwindow-Set-deceleration-value-based-on-the-device.patch
-        theme-Add-libhandy-styles.patch
+        printunixdialog-Adapt-for-phones.patch
         window-Disable-window-dragging-on-phones.patch
-        window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
         librem5-Make-GtkShortcutsWindow-adaptive.patch
-        gdk-wayland-Take-transform-into-account-when-setting-phys.patch
-        gtkapplication-dbus-Fetch-inital-screen-saver-state-async.patch)
-sha256sums=('755d24b0990fc5e590115fcd9a23e70e35f0bfa28faa740e106e9ca1dc57f6be'
-            '01fc1d81dc82c4a052ac6e25bf9a04e7647267cc3017bc91f9ce3e63e5eb9202'
+        scrolledwindow-Set-deceleration-value-based-on-the-device.patch
+        events-Compress-touch-update-events.patch)
+sha256sums=('SKIP'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
-            'f5a46311e324a21ba84378f7afcf84a6b63bf30863f87819082abaf69e07ffea'
-            '98320be2cebe9becdb8e80f06b202ed241ac42f97fed26cfc2138d857bfb4cd8'
-            'e83b3065efb402fac20d61cbcb4f9e9ead0b1ae8d401b1d1f369de9fdb1d579f'
-            'f252da6b99f004ee7264d68e7a401badcdd1bbeea6f7407b60e4cfc6d08ffb44'
-            'c8c008a26770f2bf6f5f09a697d77c6d1d945866c4031218d75782c77bad0ce1'
-            '6d4dfdca4ea36a2e4a0427d794de007d1f6b97395a47ff5e85911a5772bbb966'
-            'f3ea4002c6be62129b7a4ef71c3ae3b0d3e7327badaab8e0466bb39e1a36ccc1'
-            '0ab599df456629ae8769cc1f81e727264745ce5301ccf17fa4914c23a3d9f39b'
-            '669f3dec1fcee38ca7861b98f8e23a7b7478e0675bc10efeacc6b89f26b821b7'
-            '91eb025a859983815dc5587a6bb394fcb83c43c0bb765710383fd56200da5844'
-            '6a42a7153661778eeeffa505dccb6d68342329a8c06b1c42f7e525e841767111'
-            '1717d0e5fa4329672b81c586cdd462baf9e1b0aba78d3d4d27b414ee129b350e'
-            '22be9fdc7105b9504be6744a11fa41428e722177678af38ed8d32ed3dc129fc1'
-            '84a99ae34534bf52c6b8b98cb80bd1aa515b1e12e957ae26dbb27da852e8c736'
-            '51a95d6064bdfd89527d9a9a1e057db2e4a3c79aabdbc5f906b6be910eb05eec'
+            'eb23fd4fb6fdf355b3d9c8502772eb5bafc5a6c498de37b994d26354153d0c36'
+            'e4bf5a6d4a4d9841241d4dd30b0bfa81d93aa1f107392b1dbb3beee7e2fe0a5d'
+            '223d6f9411882754fce173a24f481c5b3b73c252cd61bf5c0cec76858042ea9e'
+            'd82cd38b32a7389a11f0afaa998d79b2005638587f194b4098a1ad091579b418'
+            '35bdee4c4d947fa5ebfc751565a61cff77892defb1d47e23a114b971f2801fa3'
+            'c7abe65030476ff937bf1cae92d20e3b687272bf7912105506f84370e577fa5b'
+            'c0d407ec37f78e54e66742bef569161d94186050c3b1554bdff1e8ff818073d0'
+            'b4b4359bcc058cda1ee3aa1fb6cfd7b7b60bb3791ceb5832fb03bb20ff860298'
+            'ae6f2df77cb50dbec30780a8550df33685e115113185190503ed7f9a2c798524'
+            '6ce74ea7d90ffa33e4feec4c8436adaffd10c5bb1b51eafc76a95a84b3eb0e3a'
+            '0d0a535702c1097e130c1663e60140f37ca8d521f80e1f32b51db6b14619d382'
+            'deb83fc619d98da1c5f7c0610469c067134d7192feabf2f98731f80dd190459f'
+            'af35d2a2c47b8c91b3e39b4b04c3e5292fefa14d041514eb31a32af6dfd4226c'
+            '8c2c46c698fc016f78e249d8f5e58cc9d05f2b30428545932317f01d4c1db060'
             'dd45a31922dd3f991510231db2b6bba177b6bba87391359cb3c0f952efe35e8d'
-            '68db37056d39785da655f680decbd669bd67a4f0b3861c2687a7c59e5a514ff9'
-            '2a19167711aa4acf675150401072686e3d5e2045c3611ded748d33a3495bdbbc'
-            '7dc4f66d115dec74bf5affae180e5de5e299b47410b2532473b3fb8a34aee709'
-            '842f5221aeeae82d0d86356dc4566bc6d57060819b57957da1c178fcab61b7c8'
+            '75db1095d96bce920888c5d66f4226581789a43b16f4552926281b78e840a939'
             'ff47029358fba059bb8ea7206638dbc5ea1162ea54177359348c14bb142dfc61'
-            'bce0a688ba8efb4986d5e4cd756371eeaf0c40a756d9bf116db6a907336cf505'
+            'f5a46311e324a21ba84378f7afcf84a6b63bf30863f87819082abaf69e07ffea'
+            'f13faf9e642de8e2ec1119aa4c836734a745b72f17d3749d4bff8594506dc2e2'
+            'e1b2e006f1aa32964301d3995947dc741402301402dfdf8cec0e28b08eb40914'
+            '54c1d3819d0c42107921b5a3ed7bc02e63bf8acc40a3e11382d27de323079c86'
+            '2a19167711aa4acf675150401072686e3d5e2045c3611ded748d33a3495bdbbc'
+            '4298dbfb786d26162f3012b86975669a3538903eb8fc103c354385ca64dd0c15'
             '5a1bd1b7a6398f941a2c5a2f106f8e58ba94ff7f0dba8f96fb9e74551e821177'
             '1ddc7c6d1416acc7fd115791641340f7235f43cb8193458a5b4f5ad7d6041f69'
-            'eb23fd4fb6fdf355b3d9c8502772eb5bafc5a6c498de37b994d26354153d0c36'
-            'f81d536f84b589fa2bdf516c7f7a07083da5a0729467203a918fb8f715b366a7'
-            'acfc8b2d8a4820eb7b98a7fcc0e7b7d998fd789fc28afbe257d6fd0f5a190184'
-            '3ed0c8ffe5bed8a26cb0d4534728ca4c2acdcc660efb2dd2b06a2795b1e5c05b'
             '2e6b997431443c53449af401bc5d4a3645c55ba3268809cf5c28cdfbe98e379c'
-            '7c524fd9dc1d954bac76a0ec0f0b17b7e370f22e6243eaf1592b5c12b91fb060'
-            'dc7f02d63d11c28bd2c1e930754cf4c3fa8375556198d5c0744e53f25b17621b'
+            'f81d536f84b589fa2bdf516c7f7a07083da5a0729467203a918fb8f715b366a7'
             '680a7de058d00f49ddac543392151502e9daca8f72a5ffd00543c4e93a9b6311'
-            '4298dbfb786d26162f3012b86975669a3538903eb8fc103c354385ca64dd0c15'
             '7b6d71ac78967c7bcf45c3f9b458874373dcf5ac7b8df451df9dbe7d42e07a6d'
-            'e58cc66bf32cbf268cb5c9398f527585b73ea160ad57e81fdf2925e013e56947'
-            '43f6ae61a0dea25fed1f8a601ea8152fe550f3724377358ef806c6b98705528f')
+            '5b9e000106dbe67a8678c25ef70f8afc74edb8b348ce21445109539afdcfc486'
+            '7dc4f66d115dec74bf5affae180e5de5e299b47410b2532473b3fb8a34aee709')
+
+pkgver() {
+  cd gtk
+  git describe --tags | sed 's/-/+/g'
+}
 
 prepare() {
-  cd gtk-$_commit
+  cd gtk
 
-  # apply phone patches
-  msg2 "Applying Purism GTK patches"
-  patch -p1 -N < ../gdk-Don-t-distribute-generated-files-in-tarballs.patch
-  patch -p1 -N < ../gtk-Really-don-t-distribute-built-files.patch
-  patch -p1 -N < ../demos-examples-tests-Don-t-distribute-built-files.patch
-  patch -p1 -N < ../librem5-Drop-reftests.patch
-  patch -p1 -N < ../Add-GtkHdyViewSwitcherButton.patch
-  patch -p1 -N < ../Add-GtkHdyViewSwitcher.patch
-  patch -p1 -N < ../Add-GtkHdyViewSwitcherBar.patch
-  patch -p1 -N < ../Add-GtkHdyAnimation.patch
-  patch -p1 -N < ../Add-GtkHdySqueezer.patch
-  patch -p1 -N < ../Add-GtkHdyViewSwitcherTitle.patch
-  patch -p1 -N < ../Add-GtkHdyShadowHelper.patch
-  patch -p1 -N < ../Add-GtkHdyNavigationDirection.patch
-  patch -p1 -N < ../Add-GtkHdySwipeable-and-GtkHdySwipeTracker.patch
-  patch -p1 -N < ../Add-GtkHdyClamp.patch
-  patch -p1 -N < ../Add-GtkHdyFlap.patch
-  patch -p1 -N < ../theme-Add-libhandy-styles.patch
-  patch -p1 -N < ../Add-padding-for-HdyViewSwitcherTitle.patch
-  patch -p1 -N < ../Add-org.gtk.Settings.Purism.patch
-  patch -p1 -N < ../gtkprivate-Add-an-API-to-check-if-phone.patch
-  patch -p1 -N < ../aboutdialog-Port-to-phones.patch
-  patch -p1 -N < ../Add-the-view-sidebar-symbolic-icon.patch
-  patch -p1 -N < ../Port-file-chooser-to-phones.patch
-  patch -p1 -N < ../hdy-flap-Use-natural-size-for-folding-instead-of-minimum.patch
-  patch -p1 -N < ../messagedialog-Set-orientation-based-on-device.patch
-  patch -p1 -N < ../scrolledwindow-Set-deceleration-value-based-on-the-device.patch
-  patch -p1 -N < ../dialog-Maximize-resizable-dialogs-on-phones.patch
-  patch -p1 -N < ../window-Maximize-resizable-pseudo-dialogs-on-mobile.patch
-  patch -p1 -N < ../headerbar-Use-a-back-button-in-dialogs-on-mobile.patch
-  patch -p1 -N < ../infobar-Move-the-action-area-below-on-the-phone.patch
-  patch -p1 -N < ../Reduce-the-font-chooser-minimum-size.patch
-  patch -p1 -N < ../printunixdialog-Adapt-for-phones.patch
-  patch -p1 -N < ../window-Disable-window-dragging-on-phones.patch
-  patch -p1 -N < ../events-Compress-touch-update-events.patch
-  patch -p1 -N < ../librem5-Make-GtkShortcutsWindow-adaptive.patch
-  patch -p1 -N < ../gdk-wayland-Take-transform-into-account-when-setting-phys.patch
-  patch -p1 -N < ../gtkapplication-dbus-Fetch-inital-screen-saver-state-async.patch
-
-  NOCONFIGURE=1 ./autogen.sh
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    msg2 "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
 }
 
 build() {
-  cd gtk-$_commit
+  CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
+  local meson_options=(
+    -D broadway_backend=true
+    -D cloudproviders=true
+    -D tracker3=true
+    -D colord=yes
+    -D gtk_doc=true
+    -D man=true
+  )
 
-  ./configure --prefix=/usr \
-    --sysconfdir=/etc \
-    --localstatedir=/var \
-    --disable-schemas-compile \
-    --enable-x11-backend \
-    --enable-broadway-backend \
-    --enable-wayland-backend
-
-  #https://bugzilla.gnome.org/show_bug.cgi?id=655517
-  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-
-  make
+  arch-meson gtk build "${meson_options[@]}"
+  meson compile -C build
 }
 
 package() {
-  depends+=(gtk-update-icon-cache)
   provides=(gtk3 gtk3-print-backends libgtk-3.so libgdk-3.so libgailutil-3.so)
   conflicts=(gtk3 gtk3-print-backends)
+  install=gtk3.install
 
-  DESTDIR="$pkgdir" make -C gtk-$_commit install
+  meson install -C build --destdir "$pkgdir"
 
-  install -Dt "$pkgdir/usr/share/gtk-3.0" -m644 settings.ini
+  install -Dm644 /dev/stdin "$pkgdir/usr/share/gtk-3.0/settings.ini" <<END
+[Settings]
+gtk-icon-theme-name = Adwaita
+gtk-theme-name = Adwaita
+gtk-font-name = Cantarell 11
+END
+
   install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 gtk-query-immodules-3.0.hook
 
-  rm "$pkgdir/usr/bin/gtk-update-icon-cache"
-  rm "$pkgdir/usr/share/man/man1/gtk-update-icon-cache.1"
+  cd "$pkgdir"
+
+  rm usr/bin/gtk-update-icon-cache
+  rm usr/share/man/man1/gtk-update-icon-cache.1
+
+  # provided by gtk3-docs
+  rm -r usr/share/gtk-doc
+
+  # provided by gtk3-demos
+  rm -r usr/bin/gtk3-{demo,demo-application,icon-browser,widget-factory}
+  rm -r usr/share/applications/gtk3-{demo,icon-browser,widget-factory}.desktop
+  rm -r usr/share/glib-2.0/schemas/org.gtk.Demo.gschema.xml
+  rm -r usr/share/icons/hicolor/*/apps/gtk3-{demo,widget-factory}[-.]*
+  rm -r usr/share/man/man1/gtk3-{demo,demo-application,icon-browser,widget-factory}.1
 }
 
 # vim:set ts=2 sw=2 et:

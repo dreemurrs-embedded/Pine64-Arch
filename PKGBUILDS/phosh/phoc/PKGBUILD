@@ -1,33 +1,31 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.8.0
+pkgver=0.9.0
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://source.puri.sm/Librem5/phoc"
+url="https://gitlab.gnome.org/World/Phosh/phoc"
 license=('GPL')
 depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'mutter'
-         'xcb-util-errors' 'xcb-util-wm')
+         'xcb-util-errors' 'xcb-util-wm' 'wayland-protocols')
 makedepends=('meson' 'ninja')
 
 # We don't want to maintain the wlroots package, so we static compile it
-_wlroots_ver="0.12.0"
-source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
-        https://github.com/swaywm/wlroots/releases/download/${_wlroots_ver}/wlroots-${_wlroots_ver}.tar.gz
-        Revert-layer-shell-error-on-0-dimension-without-anchors.diff)
+_wlroots_commit="5413b1ec61c6e3390929db595c0ec92f92ea2594"
+source=(https://gitlab.gnome.org/World/Phosh/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
+        https://source.puri.sm/Librem5/wlroots/-/archive/${_wlroots_commit}/wlroots-${_wlroots_commit}.tar.gz)
 
 prepare() {
 	rm -r ${pkgname}-v${pkgver}/subprojects/wlroots
-	mv wlroots-${_wlroots_ver} ${pkgname}-v${pkgver}/subprojects/wlroots
-
-	cd ${pkgname}-v${pkgver}/subprojects/wlroots
-	patch -p1 -N < ${srcdir}/Revert-layer-shell-error-on-0-dimension-without-anchors.diff
+	mv wlroots-${_wlroots_commit} ${pkgname}-v${pkgver}/subprojects/wlroots
 }
 
 build() {
 	arch-meson ${pkgname}-v${pkgver} output -Dtests=false \
 		-Dwlroots:logind-provider=systemd \
-		-Dwlroots:libseat=disabled
+		-Dwlroots:libseat=disabled \
+		-Dembed-wlroots=enabled \
+		--default-library=static
 	ninja -C output
 }
 
@@ -42,6 +40,5 @@ package() {
 	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('66c5525722690b24de8e3489a0a52747'
-         'bc9dbfef37385dbe0f4fe129d2329be5'
-         '1ddc7fac33b1a20da0a9fd688453d292')
+md5sums=('d86e00b631af3af5ed127bfd898ad909'
+         '65de7563a03281e822de0e5452ee851d')

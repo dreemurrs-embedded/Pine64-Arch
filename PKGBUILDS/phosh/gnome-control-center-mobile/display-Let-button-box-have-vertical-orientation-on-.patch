@@ -1,0 +1,53 @@
+From d1d0715001c9633f2adde75c983215240ca99234 Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Tue, 15 Sep 2020 16:38:08 +0530
+Subject: [PATCH 2/8] display: Let button box have vertical orientation on
+ phone
+
+So that they fit better on small screens
+
+The vertical orientation is set only on phones (ie, when
+"org.gtk.Settings.Purism" "is-phone" property is set)
+---
+ panels/display/cc-display-panel.c  | 7 +++++++
+ panels/display/cc-display-panel.ui | 2 ++
+ 2 files changed, 9 insertions(+)
+
+Index: gnome-control-center/panels/display/cc-display-panel.c
+===================================================================
+--- gnome-control-center.orig/panels/display/cc-display-panel.c	2021-07-29 00:48:45.964000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.c	2021-07-29 00:49:03.491000000 +0000
+@@ -20,6 +20,8 @@
+ 
+ #include "cc-display-panel.h"
+ 
++#include "pureos.h"
++
+ #include <gtk/gtk.h>
+ #include <glib/gi18n.h>
+ #include <stdlib.h>
+@@ -1236,4 +1238,11 @@
+   gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
+                                              GTK_STYLE_PROVIDER (provider),
+                                              GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
++
++  if (pureos_get_is_phone ())
++    gtk_orientable_set_orientation (GTK_ORIENTABLE (self->output_selection_two_buttonbox),
++                                    GTK_ORIENTATION_VERTICAL);
++  else
++    gtk_orientable_set_orientation (GTK_ORIENTABLE (self->output_selection_two_buttonbox),
++                                    GTK_ORIENTATION_HORIZONTAL);
+ }
+Index: gnome-control-center/panels/display/cc-display-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/display/cc-display-panel.ui	2021-07-29 00:48:45.964000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.ui	2021-07-29 00:48:45.960000000 +0000
+@@ -84,6 +84,8 @@
+                                 <property name="can_focus">False</property>
+                                 <property name="homogeneous">True</property>
+                                 <property name="layout_style">expand</property>
++                                <property name="orientation" bind-source="output_selection_two_buttonbox"
++                                          bind-property="orientation" bind-flags="sync-create" />
+                                 <child>
+                                   <object class="GtkRadioButton" id="config_type_single">
+                                     <property name="label" translatable="yes">Single Display</property>

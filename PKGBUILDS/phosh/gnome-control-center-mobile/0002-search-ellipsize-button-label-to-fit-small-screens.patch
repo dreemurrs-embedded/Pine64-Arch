@@ -1,0 +1,29 @@
+From e0419a6ab54ba27a92e99868cd75aa8ae7ad20f7 Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Mon, 25 May 2020 16:55:44 +0200
+Subject: [PATCH 2/2] search: ellipsize button label to fit small screens
+
+---
+ panels/search/cc-search-panel.ui | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+Index: gnome-control-center/panels/search/cc-search-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/search/cc-search-panel.ui	2021-07-28 23:43:55.918000000 +0000
++++ gnome-control-center/panels/search/cc-search-panel.ui	2021-07-28 23:43:55.914000000 +0000
+@@ -56,7 +56,14 @@
+   <object class="GtkButton" id="settings_button">
+     <property name="visible">True</property>
+     <property name="can-focus">True</property>
+-    <property name="label" translatable="yes">Search Locations</property>
+     <signal name="clicked" handler="settings_button_clicked" object="CcSearchPanel" swapped="no"/>
++      <child>
++        <object class="GtkLabel">
++          <property name="visible">True</property>
++          <property name="can_focus">False</property>
++          <property name="label" translatable="yes">Search Locations</property>
++          <property name="ellipsize">end</property>
++        </object>
++      </child>
+   </object>
+ </interface>

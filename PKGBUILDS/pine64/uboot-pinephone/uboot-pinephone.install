@@ -8,6 +8,8 @@ flash_uboot() {
   echo "For the PinePhone:"
   echo "# dd if=/boot/u-boot-sunxi-with-spl-pinephone-DRAMSPEED.bin of=/dev/mmcblk0 bs=8k seek=1 for PinePhone SD"
   echo "# dd if=/boot/u-boot-sunxi-with-spl-pinephone-DRAMSPEED.bin of=/dev/mmcblk2 bs=8k seek=1 for PinePhone eMMC"
+  echo
+  echo "Recommended DRAM Speed: 528"
 }
 
 ## arg 1:  the new package version

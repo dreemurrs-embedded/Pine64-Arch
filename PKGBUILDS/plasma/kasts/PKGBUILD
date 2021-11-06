@@ -1,0 +1,35 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Dan Johansen <strit@manjaro.org>
+# Contributor: Bernhard Landauer <bernhard@manjaro.org>
+# Contributor: Furkan K. <furkan@fkardame.com>
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+
+pkgname=kasts
+pkgver=21.08
+pkgrel=1
+pkgdesc="Kirigami-based podcast player"
+arch=('x86_64' 'aarch64')
+url="https://www.plasma-mobile.org/"
+license=('GPL-2.0-or-later')
+depends=('kcoreaddons' 'ki18n' 'kconfig' 'kirigami2' 'syndication' 'qt5-multimedia')
+makedepends=('cmake' 'extra-cmake-modules')
+source=("http://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
+md5sums=('909bcfac73dbf5bfb378456a7780d7a2')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+} 

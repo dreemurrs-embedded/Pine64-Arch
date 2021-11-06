@@ -1,0 +1,8 @@
+// Let geoclue modify ModemManager for location gathering
+polkit.addRule(function(action, subject) {
+    if ((action.id == "org.freedesktop.ModemManager1.Device.Control" ||
+	action.id == "org.freedesktop.ModemManager1.Location") &&
+        subject.isInGroup("geoclue")) {
+        return "yes";
+    }
+});

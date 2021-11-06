@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=osk-sdl
-pkgver=0.63
+pkgver=0.66
 pkgrel=1
 pkgdesc="SDL2 On-screen Keyboard for FDE"
 arch=(x86_64 armv7h aarch64)
@@ -27,6 +27,6 @@ package() {
   install -Dm644 ${srcdir}/osk-sdl-hooks ${pkgdir}/usr/lib/initcpio/hooks/osk-sdl
   install -Dm644 ${srcdir}/osk-sdl-install ${pkgdir}/usr/lib/initcpio/install/osk-sdl
 }
-md5sums=('ba068c95e616b2c9ea618a64a934e28a'
+md5sums=('fb608060dea423d221bdfff9a6101624'
          '2c8345e95abd0f28b495c4e7039e3c2d'
          '241a9cf1013df82665411d92a6f92ba1')

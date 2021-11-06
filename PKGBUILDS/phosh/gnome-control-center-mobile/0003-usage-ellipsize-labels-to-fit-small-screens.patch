@@ -1,0 +1,100 @@
+From 159cb69ca9507750e676e714fce0fa2a50d5634a Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Mon, 25 May 2020 17:20:45 +0200
+Subject: [PATCH 3/3] usage: ellipsize labels to fit small screens
+
+---
+ panels/usage/cc-usage-panel.ui | 37 ++++++++++++++++++++++++++++------
+ 1 file changed, 31 insertions(+), 6 deletions(-)
+
+Index: gnome-control-center/panels/usage/cc-usage-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/usage/cc-usage-panel.ui	2021-07-28 23:43:55.936000000 +0000
++++ gnome-control-center/panels/usage/cc-usage-panel.ui	2021-07-28 23:43:55.933000000 +0000
+@@ -27,6 +27,7 @@
+                   <object class="GtkLabel">
+                     <property name="visible">true</property>
+                     <property name="label" translatable="yes">File History</property>
++                    <property name="wrap">1</property>
+                     <property name="xalign">0</property>
+                     <attributes>
+                       <attribute name="weight" value="bold" />
+@@ -79,6 +80,7 @@
+                                 <property name="use_underline">1</property>
+                                 <property name="mnemonic_widget">retain_history_combo</property>
+                                 <property name="sensitive" bind-source="retain_history_combo" bind-property="sensitive"/>
++                                <property name="ellipsize">1</property>
+                                 <property name="xalign">0</property>
+                                 <property name="valign">center</property>
+                               </object>
+@@ -116,9 +118,16 @@
+                       <object class="GtkButton" id="clear_recent_button">
+                         <property name="visible">true</property>
+                         <property name="valign">center</property>
+-                        <property name="label" translatable="yes">_Clear History…</property>
+-                        <property name="use_underline">1</property>
+                         <signal name="clicked" handler="clear_recent" swapped="yes"/>
++                        <child>
++                          <object class="GtkLabel">
++                            <property name="visible">True</property>
++                            <property name="can_focus">False</property>
++                            <property name="label" translatable="yes">_Clear History…</property>
++                            <property name="ellipsize">end</property>
++                            <property name="use-underline">true</property>
++                          </object>
++                        </child>
+                         <style>
+                           <class name="destructive-action"/>
+                         </style>
+@@ -132,6 +141,7 @@
+                   <object class="GtkLabel">
+                     <property name="visible">true</property>
+                     <property name="margin-top">18</property>
++                    <property name="wrap">1</property>
+                     <property name="label" translatable="yes">Trash &amp; Temporary Files</property>
+                     <property name="xalign">0</property>
+                     <attributes>
+@@ -194,6 +204,7 @@
+                               <object class="GtkLabel">
+                                 <property name="visible">true</property>
+                                 <property name="label" translatable="yes">Automatically Delete _Period</property>
++                                <property name="ellipsize">end</property>
+                                 <property name="use_underline">1</property>
+                                 <property name="mnemonic_widget">purge_after_combo</property>
+                                 <property name="sensitive" bind-source="purge_after_combo" bind-property="sensitive"/>
+@@ -235,8 +246,15 @@
+                         <property name="visible">true</property>
+                         <property name="halign">end</property>
+                         <property name="valign">center</property>
+-                        <property name="label" translatable="yes">_Empty Trash…</property>
+-                        <property name="use-underline">true</property>
++                        <child>
++                          <object class="GtkLabel">
++                            <property name="visible">True</property>
++                            <property name="can_focus">False</property>
++                            <property name="label" translatable="yes">_Empty Trash…</property>
++                            <property name="ellipsize">end</property>
++                            <property name="use-underline">true</property>
++                          </object>
++                        </child>
+                         <style>
+                           <class name="destructive-action"/>
+                         </style>
+@@ -247,8 +265,15 @@
+                         <property name="visible">true</property>
+                         <property name="halign">end</property>
+                         <property name="valign">center</property>
+-                        <property name="label" translatable="yes">_Delete Temporary Files…</property>
+-                        <property name="use-underline">true</property>
++                        <child>
++                          <object class="GtkLabel">
++                            <property name="visible">True</property>
++                            <property name="can_focus">False</property>
++                            <property name="label" translatable="yes">_Delete Temporary Files…</property>
++                            <property name="use-underline">true</property>
++                            <property name="ellipsize">end</property>
++                          </object>
++                        </child>
+                           <style>
+                             <class name="destructive-action"/>
+                           </style>

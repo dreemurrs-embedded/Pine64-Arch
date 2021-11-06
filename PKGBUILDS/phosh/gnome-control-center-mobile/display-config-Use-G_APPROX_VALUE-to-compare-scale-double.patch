@@ -1,0 +1,88 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Sat, 29 May 2021 18:38:18 +0200
+Subject: display-config: Use G_APPROX_VALUE to compare scale doubles
+
+It's not safe to compare double values directly, use G_APPROX_VALUE with
+DBL_EPSILON instead.
+---
+ panels/display/cc-display-config-dbus.c | 13 +++++++++----
+ panels/display/cc-display-settings.c    |  7 +++++--
+ 2 files changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/panels/display/cc-display-config-dbus.c b/panels/display/cc-display-config-dbus.c
+index cdc8f8a..d97841b 100644
+--- a/panels/display/cc-display-config-dbus.c
++++ b/panels/display/cc-display-config-dbus.c
+@@ -17,6 +17,7 @@
+  *
+  */
+ 
++#include <float.h>
+ #include <math.h>
+ #include <gio/gio.h>
+ 
+@@ -110,8 +111,12 @@ cc_display_mode_dbus_is_supported_scale (CcDisplayMode *pself,
+ 
+   guint i;
+   for (i = 0; i < self->supported_scales->len; i++)
+-    if (g_array_index (self->supported_scales, double, i) == scale)
+-      return TRUE;
++    {
++      double v = g_array_index (self->supported_scales, double, i);
++
++      if (G_APPROX_VALUE (v, scale, DBL_EPSILON))
++        return TRUE;
++    }
+   return FALSE;
+ }
+ 
+@@ -246,7 +251,7 @@ cc_display_logical_monitor_equal (const CcDisplayLogicalMonitor *m1,
+ 
+   return m1->x == m2->x &&
+     m1->y == m2->y &&
+-    m1->scale == m2->scale &&
++    G_APPROX_VALUE (m1->scale, m2->scale, DBL_EPSILON) &&
+     m1->rotation == m2->rotation &&
+     m1->primary == m2->primary;
+ }
+@@ -700,7 +705,7 @@ cc_display_monitor_dbus_set_scale (CcDisplayMonitor *pself,
+   if (!self->logical_monitor)
+     return;
+ 
+-  if (self->logical_monitor->scale != scale)
++  if (!G_APPROX_VALUE (self->logical_monitor->scale, scale, DBL_EPSILON))
+     {
+       self->logical_monitor->scale = scale;
+ 
+diff --git a/panels/display/cc-display-settings.c b/panels/display/cc-display-settings.c
+index 383936e..598075c 100644
+--- a/panels/display/cc-display-settings.c
++++ b/panels/display/cc-display-settings.c
+@@ -21,6 +21,7 @@
+ 
+ #include <handy.h>
+ #include <glib/gi18n.h>
++#include <float.h>
+ #include <math.h>
+ #include "list-box-helper.h"
+ #include "cc-display-settings.h"
+@@ -399,7 +400,8 @@ cc_display_settings_rebuild_ui (CcDisplaySettings *self)
+       if (!cc_display_config_is_scaled_mode_valid (self->config,
+                                                    current_mode,
+                                                    *scale) &&
+-          cc_display_monitor_get_scale (self->selected_output) != *scale)
++          !G_APPROX_VALUE (cc_display_monitor_get_scale (self->selected_output),
++                           *scale, DBL_EPSILON))
+         continue;
+ 
+       scale_str = make_scale_string (*scale);
+@@ -419,7 +421,8 @@ cc_display_settings_rebuild_ui (CcDisplaySettings *self)
+                                G_CALLBACK (on_scale_btn_active_changed_cb),
+                                self, 0);
+ 
+-      if (cc_display_monitor_get_scale (self->selected_output) == *scale)
++      if (G_APPROX_VALUE (cc_display_monitor_get_scale (self->selected_output),
++                          *scale, DBL_EPSILON))
+         gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (scale_btn), TRUE);
+ 
+       buttons += 1;
