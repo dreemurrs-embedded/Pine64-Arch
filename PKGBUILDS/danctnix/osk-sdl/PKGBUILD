@@ -22,7 +22,10 @@ package() {
 
   # DejaVu is on a different directory than default
   sed -i 's/\/usr\/share\/fonts\/ttf-dejavu/\/usr\/share\/fonts\/TTF/g' ${pkgdir}/etc/osk.conf
-
+  
+  # Change enter key colour
+  sed -i 's/003C00/3584E4/' ${pkgdir}/etc/osk.conf
+  
   # Install initramfs
   install -Dm644 ${srcdir}/osk-sdl-hooks ${pkgdir}/usr/lib/initcpio/hooks/osk-sdl
   install -Dm644 ${srcdir}/osk-sdl-install ${pkgdir}/usr/lib/initcpio/install/osk-sdl
