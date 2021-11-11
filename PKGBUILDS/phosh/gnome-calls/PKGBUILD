@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=gnome-calls
 pkgver=41.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Make and receive PSTN phone calls"
 url="https://gitlab.gnome.org/GNOME/calls"
 license=('GPL')
