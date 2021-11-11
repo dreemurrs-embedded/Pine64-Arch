@@ -1,0 +1,682 @@
+diff --git a/Makefile b/Makefile
+index 02b6dab373ddb..b792b6c178691 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 14
+-SUBLEVEL = 16
++SUBLEVEL = 17
+ EXTRAVERSION =
+ NAME = Opossums on Parade
+ 
+diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
+index 939ca220bf78d..518e88780574e 100644
+--- a/drivers/amba/bus.c
++++ b/drivers/amba/bus.c
+@@ -379,9 +379,6 @@ static int amba_device_try_add(struct amba_device *dev, struct resource *parent)
+ 	void __iomem *tmp;
+ 	int i, ret;
+ 
+-	WARN_ON(dev->irq[0] == (unsigned int)-1);
+-	WARN_ON(dev->irq[1] == (unsigned int)-1);
+-
+ 	ret = request_resource(parent, &dev->res);
+ 	if (ret)
+ 		goto err_out;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu.h b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+index a1c5bd2859fc3..d90dc5efc3340 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+@@ -1073,8 +1073,6 @@ struct amdgpu_device {
+ 	char				product_name[32];
+ 	char				serial[20];
+ 
+-	struct amdgpu_autodump		autodump;
+-
+ 	atomic_t			throttling_logging_enabled;
+ 	struct ratelimit_state		throttling_logging_rs;
+ 	uint32_t                        ras_hw_enabled;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
+index 83db7d8fa1508..a0f197eaaec0a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
+@@ -27,7 +27,6 @@
+ #include <linux/pci.h>
+ #include <linux/uaccess.h>
+ #include <linux/pm_runtime.h>
+-#include <linux/poll.h>
+ 
+ #include "amdgpu.h"
+ #include "amdgpu_pm.h"
+@@ -37,85 +36,7 @@
+ #include "amdgpu_securedisplay.h"
+ #include "amdgpu_fw_attestation.h"
+ 
+-int amdgpu_debugfs_wait_dump(struct amdgpu_device *adev)
+-{
+ #if defined(CONFIG_DEBUG_FS)
+-	unsigned long timeout = 600 * HZ;
+-	int ret;
+-
+-	wake_up_interruptible(&adev->autodump.gpu_hang);
+-
+-	ret = wait_for_completion_interruptible_timeout(&adev->autodump.dumping, timeout);
+-	if (ret == 0) {
+-		pr_err("autodump: timeout, move on to gpu recovery\n");
+-		return -ETIMEDOUT;
+-	}
+-#endif
+-	return 0;
+-}
+-
+-#if defined(CONFIG_DEBUG_FS)
+-
+-static int amdgpu_debugfs_autodump_open(struct inode *inode, struct file *file)
+-{
+-	struct amdgpu_device *adev = inode->i_private;
+-	int ret;
+-
+-	file->private_data = adev;
+-
+-	ret = down_read_killable(&adev->reset_sem);
+-	if (ret)
+-		return ret;
+-
+-	if (adev->autodump.dumping.done) {
+-		reinit_completion(&adev->autodump.dumping);
+-		ret = 0;
+-	} else {
+-		ret = -EBUSY;
+-	}
+-
+-	up_read(&adev->reset_sem);
+-
+-	return ret;
+-}
+-
+-static int amdgpu_debugfs_autodump_release(struct inode *inode, struct file *file)
+-{
+-	struct amdgpu_device *adev = file->private_data;
+-
+-	complete_all(&adev->autodump.dumping);
+-	return 0;
+-}
+-
+-static unsigned int amdgpu_debugfs_autodump_poll(struct file *file, struct poll_table_struct *poll_table)
+-{
+-	struct amdgpu_device *adev = file->private_data;
+-
+-	poll_wait(file, &adev->autodump.gpu_hang, poll_table);
+-
+-	if (amdgpu_in_reset(adev))
+-		return POLLIN | POLLRDNORM | POLLWRNORM;
+-
+-	return 0;
+-}
+-
+-static const struct file_operations autodump_debug_fops = {
+-	.owner = THIS_MODULE,
+-	.open = amdgpu_debugfs_autodump_open,
+-	.poll = amdgpu_debugfs_autodump_poll,
+-	.release = amdgpu_debugfs_autodump_release,
+-};
+-
+-static void amdgpu_debugfs_autodump_init(struct amdgpu_device *adev)
+-{
+-	init_completion(&adev->autodump.dumping);
+-	complete_all(&adev->autodump.dumping);
+-	init_waitqueue_head(&adev->autodump.gpu_hang);
+-
+-	debugfs_create_file("amdgpu_autodump", 0600,
+-		adev_to_drm(adev)->primary->debugfs_root,
+-		adev, &autodump_debug_fops);
+-}
+ 
+ /**
+  * amdgpu_debugfs_process_reg_op - Handle MMIO register reads/writes
+@@ -1588,7 +1509,6 @@ int amdgpu_debugfs_init(struct amdgpu_device *adev)
+ 	}
+ 
+ 	amdgpu_ras_debugfs_create_all(adev);
+-	amdgpu_debugfs_autodump_init(adev);
+ 	amdgpu_rap_debugfs_init(adev);
+ 	amdgpu_securedisplay_debugfs_init(adev);
+ 	amdgpu_fw_attestation_debugfs_init(adev);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.h
+index 141a8474e24f2..8b641f40fdf66 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.h
+@@ -26,10 +26,6 @@
+ /*
+  * Debugfs
+  */
+-struct amdgpu_autodump {
+-	struct completion		dumping;
+-	struct wait_queue_head		gpu_hang;
+-};
+ 
+ int amdgpu_debugfs_regs_init(struct amdgpu_device *adev);
+ int amdgpu_debugfs_init(struct amdgpu_device *adev);
+@@ -37,4 +33,3 @@ void amdgpu_debugfs_fini(struct amdgpu_device *adev);
+ void amdgpu_debugfs_fence_init(struct amdgpu_device *adev);
+ void amdgpu_debugfs_firmware_init(struct amdgpu_device *adev);
+ void amdgpu_debugfs_gem_init(struct amdgpu_device *adev);
+-int amdgpu_debugfs_wait_dump(struct amdgpu_device *adev);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index cd8cc7d31b49c..08e53ff747282 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2380,10 +2380,6 @@ static int amdgpu_device_ip_init(struct amdgpu_device *adev)
+ 	if (!adev->gmc.xgmi.pending_reset)
+ 		amdgpu_amdkfd_device_init(adev);
+ 
+-	r = amdgpu_amdkfd_resume_iommu(adev);
+-	if (r)
+-		goto init_failed;
+-
+ 	amdgpu_fru_get_product_info(adev);
+ 
+ init_failed:
+@@ -4411,10 +4407,6 @@ int amdgpu_device_pre_asic_reset(struct amdgpu_device *adev,
+ 	if (reset_context->reset_req_dev == adev)
+ 		job = reset_context->job;
+ 
+-	/* no need to dump if device is not in good state during probe period */
+-	if (!adev->gmc.xgmi.pending_reset)
+-		amdgpu_debugfs_wait_dump(adev);
+-
+ 	if (amdgpu_sriov_vf(adev)) {
+ 		/* stop the data exchange thread */
+ 		amdgpu_virt_fini_data_exchange(adev);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index 5ba8a4f353440..ef64fb8f1bbf5 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -875,6 +875,9 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
+ 
+ 	svm_migrate_init((struct amdgpu_device *)kfd->kgd);
+ 
++	if(kgd2kfd_resume_iommu(kfd))
++		goto device_iommu_error;
++
+ 	if (kfd_resume(kfd))
+ 		goto kfd_resume_error;
+ 
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+index 4c8edfdc3cac8..f3e2ef74078a2 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+@@ -247,6 +247,7 @@ static ssize_t dp_link_settings_write(struct file *f, const char __user *buf,
+ {
+ 	struct amdgpu_dm_connector *connector = file_inode(f)->i_private;
+ 	struct dc_link *link = connector->dc_link;
++	struct dc *dc = (struct dc *)link->dc;
+ 	struct dc_link_settings prefer_link_settings;
+ 	char *wr_buf = NULL;
+ 	const uint32_t wr_buf_size = 40;
+@@ -313,7 +314,7 @@ static ssize_t dp_link_settings_write(struct file *f, const char __user *buf,
+ 	prefer_link_settings.lane_count = param[0];
+ 	prefer_link_settings.link_rate = param[1];
+ 
+-	dp_retrain_link_dp_test(link, &prefer_link_settings, false);
++	dc_link_set_preferred_training_settings(dc, &prefer_link_settings, NULL, link, true);
+ 
+ 	kfree(wr_buf);
+ 	return size;
+diff --git a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
+index fc77592d88a96..4bf1fdd933441 100644
+--- a/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
++++ b/drivers/gpu/drm/i915/gt/intel_execlists_submission.c
+@@ -2091,10 +2091,6 @@ static void __execlists_unhold(struct i915_request *rq)
+ 			if (p->flags & I915_DEPENDENCY_WEAK)
+ 				continue;
+ 
+-			/* Propagate any change in error status */
+-			if (rq->fence.error)
+-				i915_request_set_error_once(w, rq->fence.error);
+-
+ 			if (w->engine != rq->engine)
+ 				continue;
+ 
+diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+index 5aa5ddefd22d2..f0f073bf72a48 100644
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -11021,12 +11021,6 @@ enum skl_power_gate {
+ #define  DC_STATE_DEBUG_MASK_CORES	(1 << 0)
+ #define  DC_STATE_DEBUG_MASK_MEMORY_UP	(1 << 1)
+ 
+-#define BXT_P_CR_MC_BIOS_REQ_0_0_0	_MMIO(MCHBAR_MIRROR_BASE_SNB + 0x7114)
+-#define  BXT_REQ_DATA_MASK			0x3F
+-#define  BXT_DRAM_CHANNEL_ACTIVE_SHIFT		12
+-#define  BXT_DRAM_CHANNEL_ACTIVE_MASK		(0xF << 12)
+-#define  BXT_MEMORY_FREQ_MULTIPLIER_HZ		133333333
+-
+ #define BXT_D_CR_DRP0_DUNIT8			0x1000
+ #define BXT_D_CR_DRP0_DUNIT9			0x1200
+ #define  BXT_D_CR_DRP0_DUNIT_START		8
+@@ -11057,9 +11051,7 @@ enum skl_power_gate {
+ #define  BXT_DRAM_TYPE_LPDDR4			(0x2 << 22)
+ #define  BXT_DRAM_TYPE_DDR4			(0x4 << 22)
+ 
+-#define SKL_MEMORY_FREQ_MULTIPLIER_HZ		266666666
+ #define SKL_MC_BIOS_DATA_0_0_0_MCHBAR_PCU	_MMIO(MCHBAR_MIRROR_BASE_SNB + 0x5E04)
+-#define  SKL_REQ_DATA_MASK			(0xF << 0)
+ 
+ #define SKL_MAD_INTER_CHANNEL_0_0_0_MCHBAR_MCMAIN _MMIO(MCHBAR_MIRROR_BASE_SNB + 0x5000)
+ #define  SKL_DRAM_DDR_TYPE_MASK			(0x3 << 0)
+diff --git a/drivers/gpu/drm/i915/intel_dram.c b/drivers/gpu/drm/i915/intel_dram.c
+index 50fdea84ba706..300dfe239b8cc 100644
+--- a/drivers/gpu/drm/i915/intel_dram.c
++++ b/drivers/gpu/drm/i915/intel_dram.c
+@@ -244,7 +244,6 @@ static int
+ skl_get_dram_info(struct drm_i915_private *i915)
+ {
+ 	struct dram_info *dram_info = &i915->dram_info;
+-	u32 mem_freq_khz, val;
+ 	int ret;
+ 
+ 	dram_info->type = skl_get_dram_type(i915);
+@@ -255,17 +254,6 @@ skl_get_dram_info(struct drm_i915_private *i915)
+ 	if (ret)
+ 		return ret;
+ 
+-	val = intel_uncore_read(&i915->uncore,
+-				SKL_MC_BIOS_DATA_0_0_0_MCHBAR_PCU);
+-	mem_freq_khz = DIV_ROUND_UP((val & SKL_REQ_DATA_MASK) *
+-				    SKL_MEMORY_FREQ_MULTIPLIER_HZ, 1000);
+-
+-	if (dram_info->num_channels * mem_freq_khz == 0) {
+-		drm_info(&i915->drm,
+-			 "Couldn't get system memory bandwidth\n");
+-		return -EINVAL;
+-	}
+-
+ 	return 0;
+ }
+ 
+@@ -350,24 +338,10 @@ static void bxt_get_dimm_info(struct dram_dimm_info *dimm, u32 val)
+ static int bxt_get_dram_info(struct drm_i915_private *i915)
+ {
+ 	struct dram_info *dram_info = &i915->dram_info;
+-	u32 dram_channels;
+-	u32 mem_freq_khz, val;
+-	u8 num_active_channels, valid_ranks = 0;
++	u32 val;
++	u8 valid_ranks = 0;
+ 	int i;
+ 
+-	val = intel_uncore_read(&i915->uncore, BXT_P_CR_MC_BIOS_REQ_0_0_0);
+-	mem_freq_khz = DIV_ROUND_UP((val & BXT_REQ_DATA_MASK) *
+-				    BXT_MEMORY_FREQ_MULTIPLIER_HZ, 1000);
+-
+-	dram_channels = val & BXT_DRAM_CHANNEL_ACTIVE_MASK;
+-	num_active_channels = hweight32(dram_channels);
+-
+-	if (mem_freq_khz * num_active_channels == 0) {
+-		drm_info(&i915->drm,
+-			 "Couldn't get system memory bandwidth\n");
+-		return -EINVAL;
+-	}
+-
+ 	/*
+ 	 * Now read each DUNIT8/9/10/11 to check the rank of each dimms.
+ 	 */
+diff --git a/drivers/media/firewire/firedtv-avc.c b/drivers/media/firewire/firedtv-avc.c
+index 2bf9467b917d1..71991f8638e6b 100644
+--- a/drivers/media/firewire/firedtv-avc.c
++++ b/drivers/media/firewire/firedtv-avc.c
+@@ -1165,7 +1165,11 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int length)
+ 		read_pos += program_info_length;
+ 		write_pos += program_info_length;
+ 	}
+-	while (read_pos < length) {
++	while (read_pos + 4 < length) {
++		if (write_pos + 4 >= sizeof(c->operand) - 4) {
++			ret = -EINVAL;
++			goto out;
++		}
+ 		c->operand[write_pos++] = msg[read_pos++];
+ 		c->operand[write_pos++] = msg[read_pos++];
+ 		c->operand[write_pos++] = msg[read_pos++];
+@@ -1177,13 +1181,17 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int length)
+ 		c->operand[write_pos++] = es_info_length >> 8;
+ 		c->operand[write_pos++] = es_info_length & 0xff;
+ 		if (es_info_length > 0) {
++			if (read_pos >= length) {
++				ret = -EINVAL;
++				goto out;
++			}
+ 			pmt_cmd_id = msg[read_pos++];
+ 			if (pmt_cmd_id != 1 && pmt_cmd_id != 4)
+ 				dev_err(fdtv->device, "invalid pmt_cmd_id %d at stream level\n",
+ 					pmt_cmd_id);
+ 
+-			if (es_info_length > sizeof(c->operand) - 4 -
+-					     write_pos) {
++			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
++			    es_info_length > length - read_pos) {
+ 				ret = -EINVAL;
+ 				goto out;
+ 			}
+diff --git a/drivers/media/firewire/firedtv-ci.c b/drivers/media/firewire/firedtv-ci.c
+index 9363d005e2b61..e0d57e09dab0c 100644
+--- a/drivers/media/firewire/firedtv-ci.c
++++ b/drivers/media/firewire/firedtv-ci.c
+@@ -134,6 +134,8 @@ static int fdtv_ca_pmt(struct firedtv *fdtv, void *arg)
+ 	} else {
+ 		data_length = msg->msg[3];
+ 	}
++	if (data_length > sizeof(msg->msg) - data_pos)
++		return -EINVAL;
+ 
+ 	return avc_ca_pmt(fdtv, &msg->msg[data_pos], data_length);
+ }
+diff --git a/drivers/net/ethernet/sfc/ethtool_common.c b/drivers/net/ethernet/sfc/ethtool_common.c
+index bf1443539a1a4..bd552c7dffcb1 100644
+--- a/drivers/net/ethernet/sfc/ethtool_common.c
++++ b/drivers/net/ethernet/sfc/ethtool_common.c
+@@ -563,20 +563,14 @@ int efx_ethtool_get_link_ksettings(struct net_device *net_dev,
+ {
+ 	struct efx_nic *efx = netdev_priv(net_dev);
+ 	struct efx_link_state *link_state = &efx->link_state;
+-	u32 supported;
+ 
+ 	mutex_lock(&efx->mac_lock);
+ 	efx_mcdi_phy_get_link_ksettings(efx, cmd);
+ 	mutex_unlock(&efx->mac_lock);
+ 
+ 	/* Both MACs support pause frames (bidirectional and respond-only) */
+-	ethtool_convert_link_mode_to_legacy_u32(&supported,
+-						cmd->link_modes.supported);
+-
+-	supported |= SUPPORTED_Pause | SUPPORTED_Asym_Pause;
+-
+-	ethtool_convert_legacy_u32_to_link_mode(cmd->link_modes.supported,
+-						supported);
++	ethtool_link_ksettings_add_link_mode(cmd, supported, Pause);
++	ethtool_link_ksettings_add_link_mode(cmd, supported, Asym_Pause);
+ 
+ 	if (LOOPBACK_INTERNAL(efx)) {
+ 		cmd->base.speed = link_state->speed;
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index 8bbe2a7bb1412..2b1b944d4b281 100644
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -1367,8 +1367,6 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ 	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
+ 	bool is_ndisc = ipv6_ndisc_frame(skb);
+ 
+-	nf_reset_ct(skb);
+-
+ 	/* loopback, multicast & non-ND link-local traffic; do not push through
+ 	 * packet taps again. Reset pkt_type for upper layers to process skb.
+ 	 * For strict packets with a source LLA, determine the dst using the
+@@ -1431,8 +1429,6 @@ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
+ 	skb->skb_iif = vrf_dev->ifindex;
+ 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
+ 
+-	nf_reset_ct(skb);
+-
+ 	if (ipv4_is_multicast(ip_hdr(skb)->daddr))
+ 		goto out;
+ 
+diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
+index 67f4db662402b..c7592143f2eb9 100644
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -604,15 +604,6 @@ static int wcn36xx_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
+ 				}
+ 			}
+ 		}
+-		/* FIXME: Only enable bmps support when encryption is enabled.
+-		 * For any reasons, when connected to open/no-security BSS,
+-		 * the wcn36xx controller in bmps mode does not forward
+-		 * 'wake-up' beacons despite AP sends DTIM with station AID.
+-		 * It could be due to a firmware issue or to the way driver
+-		 * configure the station.
+-		 */
+-		if (vif->type == NL80211_IFTYPE_STATION)
+-			vif_priv->allow_bmps = true;
+ 		break;
+ 	case DISABLE_KEY:
+ 		if (!(IEEE80211_KEY_FLAG_PAIRWISE & key_conf->flags)) {
+@@ -913,7 +904,6 @@ static void wcn36xx_bss_info_changed(struct ieee80211_hw *hw,
+ 				    vif->addr,
+ 				    bss_conf->aid);
+ 			vif_priv->sta_assoc = false;
+-			vif_priv->allow_bmps = false;
+ 			wcn36xx_smd_set_link_st(wcn,
+ 						bss_conf->bssid,
+ 						vif->addr,
+diff --git a/drivers/net/wireless/ath/wcn36xx/pmc.c b/drivers/net/wireless/ath/wcn36xx/pmc.c
+index 2d0780fefd477..2936aaf532738 100644
+--- a/drivers/net/wireless/ath/wcn36xx/pmc.c
++++ b/drivers/net/wireless/ath/wcn36xx/pmc.c
+@@ -23,10 +23,7 @@ int wcn36xx_pmc_enter_bmps_state(struct wcn36xx *wcn,
+ {
+ 	int ret = 0;
+ 	struct wcn36xx_vif *vif_priv = wcn36xx_vif_to_priv(vif);
+-
+-	if (!vif_priv->allow_bmps)
+-		return -ENOTSUPP;
+-
++	/* TODO: Make sure the TX chain clean */
+ 	ret = wcn36xx_smd_enter_bmps(wcn, vif);
+ 	if (!ret) {
+ 		wcn36xx_dbg(WCN36XX_DBG_PMC, "Entered BMPS\n");
+diff --git a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
+index 0feb235b5a426..7989aee004194 100644
+--- a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
++++ b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
+@@ -128,7 +128,6 @@ struct wcn36xx_vif {
+ 	enum wcn36xx_hal_bss_type bss_type;
+ 
+ 	/* Power management */
+-	bool allow_bmps;
+ 	enum wcn36xx_power_state pw_state;
+ 
+ 	u8 bss_index;
+diff --git a/drivers/scsi/scsi.c b/drivers/scsi/scsi.c
+index d26025cf5de35..71dd0989c78ab 100644
+--- a/drivers/scsi/scsi.c
++++ b/drivers/scsi/scsi.c
+@@ -553,8 +553,10 @@ EXPORT_SYMBOL(scsi_device_get);
+  */
+ void scsi_device_put(struct scsi_device *sdev)
+ {
+-	module_put(sdev->host->hostt->module);
++	struct module *mod = sdev->host->hostt->module;
++
+ 	put_device(&sdev->sdev_gendev);
++	module_put(mod);
+ }
+ EXPORT_SYMBOL(scsi_device_put);
+ 
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index c0d31119d6d7b..ed05c3565e831 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -448,9 +448,12 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
+ 	struct scsi_vpd *vpd_pg80 = NULL, *vpd_pg83 = NULL;
+ 	struct scsi_vpd *vpd_pg0 = NULL, *vpd_pg89 = NULL;
+ 	unsigned long flags;
++	struct module *mod;
+ 
+ 	sdev = container_of(work, struct scsi_device, ew.work);
+ 
++	mod = sdev->host->hostt->module;
++
+ 	scsi_dh_release_device(sdev);
+ 
+ 	parent = sdev->sdev_gendev.parent;
+@@ -501,11 +504,17 @@ static void scsi_device_dev_release_usercontext(struct work_struct *work)
+ 
+ 	if (parent)
+ 		put_device(parent);
++	module_put(mod);
+ }
+ 
+ static void scsi_device_dev_release(struct device *dev)
+ {
+ 	struct scsi_device *sdp = to_scsi_device(dev);
++
++	/* Set module pointer as NULL in case of module unloading */
++	if (!try_module_get(sdp->host->hostt->module))
++		sdp->host->hostt->module = NULL;
++
+ 	execute_in_process_context(scsi_device_dev_release_usercontext,
+ 				   &sdp->ew);
+ }
+diff --git a/drivers/soc/imx/gpcv2.c b/drivers/soc/imx/gpcv2.c
+index 34a9ac1f2b9b1..8b7a01773aec2 100644
+--- a/drivers/soc/imx/gpcv2.c
++++ b/drivers/soc/imx/gpcv2.c
+@@ -244,6 +244,8 @@ static int imx_pgc_power_up(struct generic_pm_domain *genpd)
+ 		goto out_regulator_disable;
+ 	}
+ 
++	reset_control_assert(domain->reset);
++
+ 	if (domain->bits.pxx) {
+ 		/* request the domain to power up */
+ 		regmap_update_bits(domain->regmap, GPC_PU_PGC_SW_PUP_REQ,
+@@ -266,8 +268,6 @@ static int imx_pgc_power_up(struct generic_pm_domain *genpd)
+ 				  GPC_PGC_CTRL_PCR);
+ 	}
+ 
+-	reset_control_assert(domain->reset);
+-
+ 	/* delay for reset to propagate */
+ 	udelay(5);
+ 
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index 99ff2d23be05e..0f8b7c93310ea 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -2775,7 +2775,6 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ {
+ 	int retval;
+ 	struct usb_device *rhdev;
+-	struct usb_hcd *shared_hcd;
+ 
+ 	if (!hcd->skip_phy_initialization && usb_hcd_is_primary_hcd(hcd)) {
+ 		hcd->phy_roothub = usb_phy_roothub_alloc(hcd->self.sysdev);
+@@ -2936,26 +2935,13 @@ int usb_add_hcd(struct usb_hcd *hcd,
+ 		goto err_hcd_driver_start;
+ 	}
+ 
+-	/* starting here, usbcore will pay attention to the shared HCD roothub */
+-	shared_hcd = hcd->shared_hcd;
+-	if (!usb_hcd_is_primary_hcd(hcd) && shared_hcd && HCD_DEFER_RH_REGISTER(shared_hcd)) {
+-		retval = register_root_hub(shared_hcd);
+-		if (retval != 0)
+-			goto err_register_root_hub;
+-
+-		if (shared_hcd->uses_new_polling && HCD_POLL_RH(shared_hcd))
+-			usb_hcd_poll_rh_status(shared_hcd);
+-	}
+-
+ 	/* starting here, usbcore will pay attention to this root hub */
+-	if (!HCD_DEFER_RH_REGISTER(hcd)) {
+-		retval = register_root_hub(hcd);
+-		if (retval != 0)
+-			goto err_register_root_hub;
++	retval = register_root_hub(hcd);
++	if (retval != 0)
++		goto err_register_root_hub;
+ 
+-		if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
+-			usb_hcd_poll_rh_status(hcd);
+-	}
++	if (hcd->uses_new_polling && HCD_POLL_RH(hcd))
++		usb_hcd_poll_rh_status(hcd);
+ 
+ 	return retval;
+ 
+@@ -2999,7 +2985,6 @@ EXPORT_SYMBOL_GPL(usb_add_hcd);
+ void usb_remove_hcd(struct usb_hcd *hcd)
+ {
+ 	struct usb_device *rhdev = hcd->self.root_hub;
+-	bool rh_registered;
+ 
+ 	dev_info(hcd->self.controller, "remove, state %x\n", hcd->state);
+ 
+@@ -3010,7 +2995,6 @@ void usb_remove_hcd(struct usb_hcd *hcd)
+ 
+ 	dev_dbg(hcd->self.controller, "roothub graceful disconnect\n");
+ 	spin_lock_irq (&hcd_root_hub_lock);
+-	rh_registered = hcd->rh_registered;
+ 	hcd->rh_registered = 0;
+ 	spin_unlock_irq (&hcd_root_hub_lock);
+ 
+@@ -3020,8 +3004,7 @@ void usb_remove_hcd(struct usb_hcd *hcd)
+ 	cancel_work_sync(&hcd->died_work);
+ 
+ 	mutex_lock(&usb_bus_idr_lock);
+-	if (rh_registered)
+-		usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
++	usb_disconnect(&rhdev);		/* Sets rhdev to NULL */
+ 	mutex_unlock(&usb_bus_idr_lock);
+ 
+ 	/*
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index cb730683f898f..4e32b96ccc889 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -692,7 +692,6 @@ int xhci_run(struct usb_hcd *hcd)
+ 		if (ret)
+ 			xhci_free_command(xhci, command);
+ 	}
+-	set_bit(HCD_FLAG_DEFER_RH_REGISTER, &hcd->flags);
+ 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
+ 			"Finished xhci_run for USB2 roothub");
+ 
+diff --git a/include/linux/usb/hcd.h b/include/linux/usb/hcd.h
+index 2c1fc9212cf28..548a028f2dabb 100644
+--- a/include/linux/usb/hcd.h
++++ b/include/linux/usb/hcd.h
+@@ -124,7 +124,6 @@ struct usb_hcd {
+ #define HCD_FLAG_RH_RUNNING		5	/* root hub is running? */
+ #define HCD_FLAG_DEAD			6	/* controller has died? */
+ #define HCD_FLAG_INTF_AUTHORIZED	7	/* authorize interfaces? */
+-#define HCD_FLAG_DEFER_RH_REGISTER	8	/* Defer roothub registration */
+ 
+ 	/* The flags can be tested using these macros; they are likely to
+ 	 * be slightly faster than test_bit().
+@@ -135,7 +134,6 @@ struct usb_hcd {
+ #define HCD_WAKEUP_PENDING(hcd)	((hcd)->flags & (1U << HCD_FLAG_WAKEUP_PENDING))
+ #define HCD_RH_RUNNING(hcd)	((hcd)->flags & (1U << HCD_FLAG_RH_RUNNING))
+ #define HCD_DEAD(hcd)		((hcd)->flags & (1U << HCD_FLAG_DEAD))
+-#define HCD_DEFER_RH_REGISTER(hcd) ((hcd)->flags & (1U << HCD_FLAG_DEFER_RH_REGISTER))
+ 
+ 	/*
+ 	 * Specifies if interfaces are authorized by default
+diff --git a/sound/usb/mixer_maps.c b/sound/usb/mixer_maps.c
+index c5794e83fd800..8f6823df944ff 100644
+--- a/sound/usb/mixer_maps.c
++++ b/sound/usb/mixer_maps.c
+@@ -528,6 +528,10 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
+ 		.id = USB_ID(0x2573, 0x0008),
+ 		.map = maya44_map,
+ 	},
++	{
++		.id = USB_ID(0x2708, 0x0002), /* Audient iD14 */
++		.ignore_ctl_error = 1,
++	},
+ 	{
+ 		/* KEF X300A */
+ 		.id = USB_ID(0x27ac, 0x1000),
+@@ -538,6 +542,10 @@ static const struct usbmix_ctl_map usbmix_ctl_maps[] = {
+ 		.id = USB_ID(0x25c4, 0x0003),
+ 		.map = scms_usb3318_map,
+ 	},
++	{
++		.id = USB_ID(0x30be, 0x0101), /*  Schiit Hel */
++		.ignore_ctl_error = 1,
++	},
+ 	{
+ 		/* Bose Companion 5 */
+ 		.id = USB_ID(0x05a7, 0x1020),

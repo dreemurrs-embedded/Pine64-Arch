@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=5.14.15
+pkgver=5.14.17
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -14,13 +14,14 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="40eab8a5733abd5d15be45da623bd52dbd882f7a"
+_commit="c64910d048cfb5519ec7d7c6ca4f8f962faa9aa5"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
         # Patches
+        '5.14.16-17.patch'
         # PinePhone Patches
         'dts-pinephone-drop-modem-power-node.patch'
         'pp-keyboard.patch'
@@ -247,11 +248,12 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('be8ca8bdf9a49b4a6a46f5cf26841c76'
-         'c2e0035a13e4752a313fb58bc80f3293'
+md5sums=('4ba5d25b864b12501ca4da39166ca8c0'
+         '3d58fc18dbee71a9d3d73b6b75ae9565'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
+         'a5f9c7e7b6001ee65bcfc43a33e63662'
          '10d200e0a964f24cdb744678a758e22b'
          '5b44a02d5374c02a151c21798d11cf78'
          '40fc9dae55d2be3430108173f7e57494'
