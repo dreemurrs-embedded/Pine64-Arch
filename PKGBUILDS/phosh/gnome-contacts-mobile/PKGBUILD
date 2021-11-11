@@ -5,7 +5,7 @@
 pkgname=gnome-contacts-mobile
 _pkgname=gnome-contacts
 pkgver=40.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Contacts Manager for GNOME - Forked for Purism patches"
 url="https://wiki.gnome.org/Apps/Contacts"
 arch=(x86_64 armv7h aarch64)
