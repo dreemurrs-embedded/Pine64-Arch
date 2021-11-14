@@ -1,0 +1,24 @@
+# Maintainer: Aren <aren@peacevolution.org>
+
+pkgname=wvkbd
+pkgver=0.5
+pkgrel=1
+pkgdesc='On-screen keyboard for wlroots'
+url='https://github.com/jjsullivan5196/wvkbd'
+arch=('x86_64' 'armv7h' 'aarch64')
+license=('GPL3')
+makedepends=('fontconfig' 'wayland' 'libxkbcommon' 'pango')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/jjsullivan5196/wvkbd/archive/refs/tags/v$pkgver.tar.gz")
+sha512sums=('cdfa3f93a068776bf71205f1aaf29c518afaa9e5c032e55361fd0d8250276b42013eef349cc8586b8651fd43cf9dc21541ac0bde90e8479307a90287ef0a4e50')
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  make
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  make PREFIX=/usr DESTDIR="$pkgdir" install
+}
