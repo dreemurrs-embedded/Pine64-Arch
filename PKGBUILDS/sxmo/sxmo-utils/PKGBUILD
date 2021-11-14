@@ -1,65 +1,191 @@
 # Maintainer: dni <office@dnilabs.com>
-pkgname=sxmo-utils
-pkgver=1.5.3
-pkgrel=3
+# Contributor: Aren <aren@peacevolution.org>
+
+pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
+pkgver=1.6.0
+pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
-depends=('sxmo-dmenu' 'sxmo-dwm' 'sxmo-st' 'svkbd' 'lisgd' 'clickclack' 'mnc' 'pn' 'nerd-fonts-fira-mono'
-         'bc' 'alsa-utils' 'autocutsel' 'bemenu' 'codemadness-frontends' 'conky' 'curl' 'dunst' 'ffmpeg'
-         'nerd-fonts-terminus' 'geoclue' 'inotify-tools' 'light' 'mediainfo' 'modemmanager' 'mpv' 'ncurses'
-         'networkmanager' 'sfeed' 'sxiv' 'terminus-font' 'unclutter' 'otf-latin-modern' 'ttf-dejavu'
-         'v4l-utils' 'vis' 'w3m' 'xcalib' 'xclip' 'xdotool' 'xorg-xdpyinfo' 'xorg-xinput' 'xorg-xprop'
-         'xorg-xrandr' 'xorg-xrdb' 'xsel' 'xorg-xset' 'xorg-xsetroot' 'xorg-xwininfo' 'youtube-dl'
-         'busybox' 'bluez' 'bluez-utils' 'otf-latin-modern' 'libnotify')
 makedepends=('libx11' 'xorgproto' 'linux-headers')
-optdepends=('feh: set wallpaper')
+install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
-        '0001-Fix-start-hook.patch'
-        '0002-Remove-sxmo_resetscaninterval-leftover.patch'
+        '0001-Disable-wayout-destkop-widget.patch'
         'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
         'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
         'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
         'sxmo-setpermissions.service')
+backup=('etc/doas.conf')
 
 prepare() {
   cd "$pkgname-$pkgver"
-  patch -p1 < ../0001-Fix-start-hook.patch
-  patch -p1 < ../0002-Remove-sxmo_resetscaninterval-leftover.patch
+  patch -p1 < ../0001-Disable-wayout-destkop-widget.patch
+
+  # Use dunst instead because of issues between mako and sxmo-sway on arch
+  sed -i 's@mako@dunst@g' configs/appcfg/sway_template
+
+  # Use systemd to start & stop user services
+  sed -e 's@setsid -f mmsdtng@systemctl --user start mmsd-tng.service@g' \
+      -e 's@pkill mmsdtng@systemctl --user stop mmsd-tng.service@g' \
+      -i scripts/core/sxmo_mmsdconfig.sh
+
+  # the unclutter executable has a different name on arch than on alpine
+  sed -i 's@unclutter-xfixes@unclutter@g' configs/appcfg/xinit_template
+
+  # Don't start a dbus session when starting sxmo
+  sed -i 's@dbus-run-session@@g' scripts/core/sxmo_winit.sh
+  sed -i 's@dbus-run-session@@g' scripts/core/sxmo_xinit.sh
 }
 
-package() {
+package_sxmo-utils() {
+  depends=(
+    # Core cli dependencies
+    'alsa-utils'
+    'bc'
+    'bluez'
+    'bluez-utils'
+    'busybox'
+    'curl'
+    'curl'
+    'doas'
+    'ffmpeg'
+    'gawk'
+    'geoclue'
+    'inotify-tools'
+    'gojq'
+    'mmsd-tng'
+    'mnc' # for suspend
+    'modemmanager'
+    'ncurses' # for the weather script
+    'networkmanager'
+    'pn'
+    'v4l-utils'
+    'vis'
+
+    # Core GUI dependencies
+    'sxmo-ui'
+    'clickclack'
+    'dunst'
+    'libnotify'
+    'light'
+    'lisgd'
+    'mediainfo'
+    'mpv'
+    'nerd-fonts-fira-mono' # system font
+    'nerd-fonts-terminus'
+    'sxmo-bemenu')
+  optdepends=('codemadness-frontends: Youtube & Reddit scripts'
+              'feh: Set the dwm wallpaper'
+              'sfeed: Rss and atom feeds'
+              'youtube-dl: Play videos from the web'
+              'w3m')
+
   cd "$pkgname-$pkgver"
+
   mkdir -p "$pkgdir/etc/modules-load.d/"
   printf %b "snd-aloop" > "$pkgdir/etc/modules-load.d/sxmo.conf"
   mkdir -p "$pkgdir/etc/modprobe.d/"
   printf %b "options snd slots=,snd-aloop" > "$pkgdir/etc/modprobe.d/sxmo.conf"
 
-  make DESTDIR=$pkgdir install
+  make DESTDIR="$pkgdir" install
 
   # Fix upgrade menu to use pacman
-  sed -i 's@echo "Updating all packages from repositories"@@g' "$pkgdir/usr/bin/sxmo_upgrade.sh"
-  sed -i 's@sudo apk update@@g' "$pkgdir/usr/bin/sxmo_upgrade.sh"
-  sed -i 's@sudo apk upgrade@sudo pacman -Syu@g' "$pkgdir/usr/bin/sxmo_upgrade.sh"
+  sed -i 's@echo "Updating all packages from repositories"@set -e@g' "$pkgdir/usr/bin/sxmo_upgrade.sh"
+  sed -i 's@doas apk update@@g' "$pkgdir/usr/bin/sxmo_upgrade.sh"
+  sed -i 's@apk upgrade@pacman -Syu@g' "$pkgdir/usr/bin/sxmo_upgrade.sh"
 
   # Fix sxmo_timezonechange.sh to use arch command timedatectl
-  sed -i 's@sudo setup-timezone -z@sudo timedatectl set-timezone@g' "$pkgdir/usr/bin/sxmo_timezonechange.sh"
+  sed -i 's@doas setup-timezone -z@timedatectl set-timezone@g' "$pkgdir/usr/bin/sxmo_timezonechange.sh"
 
+  # Disable management of user daemons to avoid conflicting with systemd
+  sed -i 's@mmsdtng &@:@g' "$pkgdir/usr/share/sxmo/default_hooks/start"
+  sed -i '/checkmmsd/a return' "$pkgdir/usr/bin/sxmo_mms.sh"
+
+  # TODO: these should be installe to /usr if possible
   install -Dm644 "$srcdir/rootfs-etc-NetworkManager-conf.d-00-sxmo.conf" "$pkgdir/etc/NetworkManager/conf.d/00-sxmo.conf"
   install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-00-sxmo.rules" "$pkgdir/etc/polkit-1/rules.d/00-sxmo.rules"
   install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules" "$pkgdir/etc/polkit-1/rules.d/50-org.freedesktop.NetworkManager.rules"
 
   # fix directory permissions
+  # TODO: should be done upstream
   chmod 750 "$pkgdir/etc/polkit-1/rules.d"
-  chmod 750 "$pkgdir/etc/sudoers.d"
+  chmod 750 "$pkgdir/etc/doas.d"
+
+  # HACK: doas is built without --with-doas-confdir so install the sxmo config directly
+  echo "permit :wheel" > "$pkgdir/etc/doas.conf"
+  cat "$pkgdir/etc/doas.d/sxmo.conf" >> "$pkgdir/etc/doas.conf"
 
   install -Dm644 "$srcdir/sxmo-setpermissions.service" "$pkgdir/usr/lib/systemd/system/sxmo-setpermissions.service"
+
+  # Remove openrc components that aren't used on arch
+  rm -r "$pkgdir/etc/init.d"
+
+  # Remove session files, and only install them we install the ui package
+  rm -r "$pkgdir/usr/share/wayland-sessions/"
+  rm -r "$pkgdir/usr/share/xsessions/"
 }
 
-sha512sums=('02b02142368ac3bc0ccfd64b5c1d776b5a3e21c3ef21ae0958dcf691a497792d14ae576a75b63a29be531eb08ef5d9415bb1751ee85aef8ffb13b6f2e409deb4'
-            '0b3b676020b2f5b92c5952627edd5923e5ac88226be10087fc40842b839302f91fd345b9de0e26ee775d2d90a4c745074591ec4a6ac8c9112e019f8232029840'
-            'c19acd78d35cd2c66946c1b2810c0751366056da9785574ed4eeec52732eb4a232ffe24653a5bc9599676a879cdc7bc357f36fc666d17e96749cab5cf746e9ea'
+package_sxmo-ui-sway-meta() {
+  pkgdesc="Packages required to use sway as a ui for sxmo"
+  url="https://sr.ht/~mil/Sxmo/"
+  arch=('any')
+  provides=('sxmo-ui')
+  install=
+  depends=('foot'
+           'grim'
+           'mako'
+           'seatd'
+           'slurp'
+           'swaybg'
+           'swayidle'
+           'sxmo-sway'
+           'wayout'
+           'wl-clipboard'
+           'wtype'
+           'wvkbd'
+           'xorg-xwayland')
+
+  install -Dm644 "$pkgbase-$pkgver/configs/applications/swmo.desktop" \
+    "$pkgdir/usr/share/wayland-sessions/swmo.desktop"
+}
+
+package_sxmo-ui-dwm-meta() {
+  pkgdesc="Packages required to use dwm as a ui for sxmo"
+  url="https://sr.ht/~mil/Sxmo/"
+  arch=('any')
+  provides=('sxmo-ui')
+  install=
+  depends=('autocutsel'
+           'conky'
+           'ttf-dejavu' # for conky
+           'otf-latin-modern' # for conky
+           'terminus-font' # dmenu & xcalc
+           'svkbd'
+           'sxiv'
+           'sxmo-dmenu'
+           'sxmo-dwm'
+           'sxmo-st'
+           'unclutter'
+           'xcalib'
+           'xclip'
+           'xdotool'
+           'xsel'
+           'xorg-xdpyinfo'
+           'xorg-xinput'
+           'xorg-xprop'
+           'xorg-xrandr'
+           'xorg-xrdb'
+           'xorg-xset'
+           'xorg-xsetroot'
+           'xorg-xwininfo')
+
+  install -Dm644 "$pkgbase-$pkgver/configs/applications/sxmo.desktop" \
+    "$pkgdir/usr/share/xsessions/sxmo.desktop"
+}
+
+sha512sums=('ef98d0f144d3657d32d5f3e2f78ffef556d72ce7a8b763f050db2f99a26207e27da9702cc533f8bfa255b032077e30c3434d6823b3fca50e5121f98ea7332b92'
+            '416e3ade4255ca2530875523d6f27e9868fea737be90fa161a6217baf0d88c8c04052369ccfab7560eb19984e8744edc202b257e457a1eba818ec6e0a841e02a'
             '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
             '6e42f9acc015a21596cdf2d35eb5a80e8fbe97959aabf129861c8e1016bbebad5c706126730515494a0fcb33ad38fd6cd971048d2b5340557a803febf41967a4'
             '4c8f047c4608d89409a44db6370ca225d42e186323f42d0c564edb34f18c84a69a500a89cc2c31d5f0e5c292aa94ea20eaf8213e3e266b8f9e959c3d4ce9fb58'

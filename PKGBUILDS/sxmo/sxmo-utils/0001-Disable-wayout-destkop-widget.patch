@@ -1,0 +1,12 @@
+diff --git a/configs/default_hooks/desktop_widget b/configs/default_hooks/desktop_widget
+index 899fc62c..37ad5446 100644
+--- a/configs/default_hooks/desktop_widget
++++ b/configs/default_hooks/desktop_widget
+@@ -14,6 +14,7 @@ pangodraw() {
+ }
+ 
+ if [ -n "$WAYLAND_DISPLAY" ] && command -v wayout > /dev/null; then
++	exit
+ 	# For wayland we use wayout:
+ 	(
+ 		pangodraw
