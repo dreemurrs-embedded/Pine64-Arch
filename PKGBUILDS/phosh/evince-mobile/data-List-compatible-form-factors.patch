@@ -9,20 +9,23 @@ This will allow the app to be available in Phosh and PureOS Store.
  2 files changed, 6 insertions(+)
 
 diff --git a/data/org.gnome.Evince.desktop.in.in b/data/org.gnome.Evince.desktop.in.in
-index d4f5d01..0b697b9 100644
+index e7bcf31e..ce471436 100644
 --- a/data/org.gnome.Evince.desktop.in.in
 +++ b/data/org.gnome.Evince.desktop.in.in
-@@ -12,3 +12,5 @@ Type=Application
- Icon=org.gnome.Evince
+@@ -13,6 +13,8 @@ Icon=@PACKAGE_ICON_NAME@
  Categories=GNOME;GTK;Office;Viewer;Graphics;2DGraphics;VectorGraphics;
  MimeType=@EVINCE_MIME_TYPES@;
+ Actions=new-window;
 +# Translators: Do NOT translate or transliterate this text (these are enum types)!
 +X-Purism-FormFactor=Workstation;Mobile;
+ 
+ [Desktop Action new-window]
+ Name=New Window
 diff --git a/org.gnome.Evince.appdata.xml.in b/org.gnome.Evince.appdata.xml.in
-index e81cc72..dfb9f5c 100644
+index 4ca6b3aa..f99540fd 100644
 --- a/org.gnome.Evince.appdata.xml.in
 +++ b/org.gnome.Evince.appdata.xml.in
-@@ -222,4 +222,8 @@
+@@ -252,4 +252,8 @@
      <release version="3.32.0" date="2019-03-14" />
      <release version="3.30.3" date="2019-09-29" />
    </releases>
@@ -31,3 +34,6 @@ index e81cc72..dfb9f5c 100644
 +    <value key="Purism::form_factor">mobile</value>
 +  </custom>
  </component>
+-- 
+2.33.1
+
