@@ -10,9 +10,9 @@ So that it fits smaller screens well
 
 Index: gnome-control-center/panels/display/cc-display-panel.c
 ===================================================================
---- gnome-control-center.orig/panels/display/cc-display-panel.c	2021-07-28 23:43:55.667000000 +0000
-+++ gnome-control-center/panels/display/cc-display-panel.c	2021-07-28 23:44:00.000000000 +0000
-@@ -1167,7 +1167,7 @@
+--- gnome-control-center.orig/panels/display/cc-display-panel.c	2021-10-23 07:56:40.403000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.c	2021-10-23 07:56:48.000000000 +0000
+@@ -1170,7 +1170,7 @@
    self->arrangement = cc_display_arrangement_new (NULL);
  
    gtk_widget_show (GTK_WIDGET (self->arrangement));

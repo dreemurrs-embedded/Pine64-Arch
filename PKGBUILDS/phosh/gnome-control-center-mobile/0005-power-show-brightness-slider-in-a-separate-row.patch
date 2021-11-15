@@ -10,9 +10,9 @@ Fixes https://source.puri.sm/Librem5/gnome-control-center/issues/85
 
 Index: gnome-control-center/panels/power/cc-power-panel.c
 ===================================================================
---- gnome-control-center.orig/panels/power/cc-power-panel.c	2021-07-28 23:43:55.715000000 +0000
-+++ gnome-control-center/panels/power/cc-power-panel.c	2021-07-28 23:43:55.711000000 +0000
-@@ -1595,7 +1595,7 @@
+--- gnome-control-center.orig/panels/power/cc-power-panel.c	2021-10-23 07:56:40.439000000 +0000
++++ gnome-control-center/panels/power/cc-power-panel.c	2021-10-23 07:56:40.436000000 +0000
+@@ -1467,7 +1467,7 @@
        self->power_profiles_row[profile] = row;
        gtk_widget_show (GTK_WIDGET (row));
        gtk_container_add (GTK_CONTAINER (self->power_profile_listbox), GTK_WIDGET (row));

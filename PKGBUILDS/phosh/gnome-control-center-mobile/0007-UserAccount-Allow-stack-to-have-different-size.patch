@@ -12,8 +12,8 @@ window to exceed the size of screen
 
 Index: gnome-control-center/panels/user-accounts/cc-user-panel.ui
 ===================================================================
---- gnome-control-center.orig/panels/user-accounts/cc-user-panel.ui	2021-07-28 23:43:55.757000000 +0000
-+++ gnome-control-center/panels/user-accounts/cc-user-panel.ui	2021-07-28 23:43:55.754000000 +0000
+--- gnome-control-center.orig/panels/user-accounts/cc-user-panel.ui	2021-10-23 07:56:40.476000000 +0000
++++ gnome-control-center/panels/user-accounts/cc-user-panel.ui	2021-10-23 07:56:40.473000000 +0000
 @@ -42,6 +42,7 @@
          <property name="visible">True</property>
          <property name="homogeneous">False</property>

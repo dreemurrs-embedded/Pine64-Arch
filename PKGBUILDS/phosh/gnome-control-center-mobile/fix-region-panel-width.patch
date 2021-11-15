@@ -1,8 +1,8 @@
 Index: gnome-control-center/panels/region/cc-region-panel.ui
 ===================================================================
---- gnome-control-center.orig/panels/region/cc-region-panel.ui	2021-09-20 11:24:24.000000000 +0000
-+++ gnome-control-center/panels/region/cc-region-panel.ui	2021-09-20 11:26:10.672000000 +0000
-@@ -42,6 +42,7 @@
+--- gnome-control-center.orig/panels/region/cc-region-panel.ui	2021-10-23 07:56:40.720000000 +0000
++++ gnome-control-center/panels/region/cc-region-panel.ui	2021-10-23 07:56:45.000000000 +0000
+@@ -86,6 +86,7 @@
                      <property name="visible">True</property>
                      <property name="can_focus">False</property>
                      <property name="xalign">0</property>
@@ -10,7 +10,7 @@ Index: gnome-control-center/panels/region/cc-region-panel.ui
                      <property name="label" translatable="yes">The language used for text in windows and web pages.</property>
                      <style>
                        <class name="dim-label"/>
-@@ -167,6 +168,7 @@
+@@ -211,6 +212,7 @@
                      <property name="visible">True</property>
                      <property name="can_focus">False</property>
                      <property name="xalign">0</property>

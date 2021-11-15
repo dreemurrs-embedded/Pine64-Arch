@@ -9,8 +9,8 @@ Subject: [PATCH 4/4] power: add more suspend timing options
 
 Index: gnome-control-center/panels/power/cc-power-panel.ui
 ===================================================================
---- gnome-control-center.orig/panels/power/cc-power-panel.ui	2021-07-28 23:43:55.957000000 +0000
-+++ gnome-control-center/panels/power/cc-power-panel.ui	2021-07-28 23:43:55.953000000 +0000
+--- gnome-control-center.orig/panels/power/cc-power-panel.ui	2021-10-23 07:56:40.667000000 +0000
++++ gnome-control-center/panels/power/cc-power-panel.ui	2021-10-23 07:56:40.664000000 +0000
 @@ -10,6 +10,14 @@
      </columns>
      <data>

@@ -9,8 +9,8 @@ Subject: Add form factors to desktop and appdata files
 
 Index: gnome-control-center/shell/appdata/gnome-control-center.appdata.xml.in
 ===================================================================
---- gnome-control-center.orig/shell/appdata/gnome-control-center.appdata.xml.in	2021-07-28 23:43:55.899000000 +0000
-+++ gnome-control-center/shell/appdata/gnome-control-center.appdata.xml.in	2021-07-28 23:43:55.896000000 +0000
+--- gnome-control-center.orig/shell/appdata/gnome-control-center.appdata.xml.in	2021-10-23 07:56:40.606000000 +0000
++++ gnome-control-center/shell/appdata/gnome-control-center.appdata.xml.in	2021-10-23 07:56:40.602000000 +0000
 @@ -26,6 +26,10 @@
      <kudo>SearchProvider</kudo>
      <kudo>UserDocs</kudo>
@@ -24,8 +24,8 @@ Index: gnome-control-center/shell/appdata/gnome-control-center.appdata.xml.in
      <value key="Purism::form_factor">workstation</value>
 Index: gnome-control-center/shell/gnome-control-center.desktop.in.in
 ===================================================================
---- gnome-control-center.orig/shell/gnome-control-center.desktop.in.in	2021-07-28 23:43:55.899000000 +0000
-+++ gnome-control-center/shell/gnome-control-center.desktop.in.in	2021-07-28 23:43:55.896000000 +0000
+--- gnome-control-center.orig/shell/gnome-control-center.desktop.in.in	2021-10-23 07:56:40.606000000 +0000
++++ gnome-control-center/shell/gnome-control-center.desktop.in.in	2021-10-23 07:56:40.602000000 +0000
 @@ -12,6 +12,7 @@
  X-GNOME-Bugzilla-Product=gnome-control-center
  X-GNOME-Bugzilla-Component=shell

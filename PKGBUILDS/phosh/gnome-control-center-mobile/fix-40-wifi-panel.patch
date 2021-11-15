@@ -1,7 +1,7 @@
 Index: gnome-control-center/panels/network/cc-wifi-connection-row.ui
 ===================================================================
---- gnome-control-center.orig/panels/network/cc-wifi-connection-row.ui	2021-08-01 05:07:21.189000000 +0000
-+++ gnome-control-center/panels/network/cc-wifi-connection-row.ui	2021-08-01 05:07:21.185000000 +0000
+--- gnome-control-center.orig/panels/network/cc-wifi-connection-row.ui	2021-10-23 07:56:40.703000000 +0000
++++ gnome-control-center/panels/network/cc-wifi-connection-row.ui	2021-10-23 07:56:40.700000000 +0000
 @@ -65,7 +65,7 @@
              <property name="visible">True</property>
              <property name="can_focus">False</property>
@@ -13,8 +13,8 @@ Index: gnome-control-center/panels/network/cc-wifi-connection-row.ui
              </style>
 Index: gnome-control-center/panels/network/cc-wifi-panel.ui
 ===================================================================
---- gnome-control-center.orig/panels/network/cc-wifi-panel.ui	2021-08-01 05:07:21.189000000 +0000
-+++ gnome-control-center/panels/network/cc-wifi-panel.ui	2021-08-01 05:07:39.330000000 +0000
+--- gnome-control-center.orig/panels/network/cc-wifi-panel.ui	2021-10-23 07:56:40.703000000 +0000
++++ gnome-control-center/panels/network/cc-wifi-panel.ui	2021-10-23 07:56:40.700000000 +0000
 @@ -44,7 +44,7 @@
                          <property name="show-switch">True</property>
                          <property name="bold">True</property>
