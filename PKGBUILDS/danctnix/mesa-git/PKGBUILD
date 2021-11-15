@@ -12,7 +12,7 @@
 
 pkgname=mesa-git
 pkgdesc="an open-source implementation of the OpenGL specification, git version"
-pkgver=22.0.0_devel.146430.272af39be17
+pkgver=22.0.0_devel.147099.9d9de15a020
 pkgrel=1
 arch=('x86_64' 'aarch64')
 makedepends=('git' 'python-mako' 'xorgproto'
@@ -69,8 +69,8 @@ case $MESA_WHICH_LLVM in
         ;;
     4)
         # extra/llvm
-        makedepends+=(llvm=12.0.1 clang)
-        depends+=(llvm-libs=12.0.1)
+        makedepends+=(llvm=13.0.0 clang)
+        depends+=(llvm-libs=13.0.0)
         #makedepends+=(llvm=8.0.1 clang=8.0.1)
         #depends+=(llvm-libs=8.0.1)
         ;;
@@ -98,7 +98,7 @@ prepare() {
 build() {
 #CFLAGS="-Og -g3"
 #CXXFLAGS="-Og -g3"
-  MESON_OPT="-D asm=false --buildtype=release"
+  MESON_OPT="--buildtype=release"
   case "${CARCH}" in
     armv6h)  GALLIUM=",vc4" ;;
     armv7h)  GALLIUM=",etnaviv,kmsro,lima,panfrost,tegra,vc4" ;;
