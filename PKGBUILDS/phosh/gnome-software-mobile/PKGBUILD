@@ -5,8 +5,8 @@
 
 pkgname=gnome-software-mobile
 _pkgname=gnome-software
-pkgver=40.4
-pkgrel=2
+pkgver=41.1
+pkgrel=1
 pkgdesc="GNOME Software Tools (w/ Purism patches)"
 url="https://gitlab.gnome.org/GNOME/gnome-software"
 arch=(x86_64 armv7h aarch64)
@@ -14,59 +14,31 @@ license=(GPL2)
 makedepends=(appstream gsettings-desktop-schemas libpackagekit-glib flatpak fwupd
              docbook-xsl git gobject-introspection gspell gtk-doc meson valgrind
              gnome-online-accounts libxmlb malcontent libhandy)
-_commit=70c23e4a227551f96c2410f47a2d0f862eb2cb1d # tags/40.4^0
+_commit=50ca7df96aad68881c861777b3da73fe8a5cb6b4 # tags/41.1^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-software.git#commit=$_commit"
-        0002-shell-Make-the-search-bar-adaptive.patch
-        0003-shell-Give-a-title-and-an-icon-to-the-main-stack-pag.patch
-        0004-updates-page-Notify-the-stack-when-it-needs-attentio.patch
-        0005-loading-page-Make-it-adaptive.patch
-        0006-shell-Set-a-minimum-size.patch
-        0007-details-page-Make-it-better-fit-in-smaller-narrower-.patch
-        0008-librem5-details-page-Port-to-phones.patch
-        0009-librem5-Drop-the-custom-.needs-attention-style-class.patch
-        0010-librem5-Replace-the-custom-stack-switcher-by-a-view-.patch
-        0011-librem5-updates-page-Drop-the-Checking-label-from-th.patch
-        0012-librem5-updates-section-Make-the-header-vertical.patch
-        0013-librem5-app-row-Make-vertical.patch
-        0014-librem5-app-row-Port-to-phones.patch
-        0015-librem5-review-row-Port-it-to-phones.patch
-        0016-librem5-category-page-Port-to-phones.patch
-        0017-librem5-shell-Make-the-notification-box-vetical.patch
-        0018-librem5-upgrade-banner-Make-it-fit-narrow-screens.patch
-        0019-librem5-updates-page-Make-it-fit-narrow-screens.patch
-        0020-librem5-prefs-dialog-Make-it-adaptive.patch
-        0021-librem5-details-page-Drop-the-screenshots.patch
-        0022-librem5-update-dialog-Don-t-show-a-double-back-butto.patch
-        0023-librem5-update-dialog-Reduce-the-default-width.patch
-        0024-Revert-Launch-software-properties-gtk-in-place-of-the-sources-dialog.patch
-        0025-category-page-fix-ui-template.patch
-        0026-GsUpdatesSection-Always-present-Download-button-befo.patch)
+        0001-assets-Make-the-up-to-date-picture-fit-phones.patch
+        0002-Add-GsInfoWindow.patch
+        0003-metered-data-dialog-Make-it-a-GsInfoWindow-and-a-Hdy.patch
+        0004-updates-page-Move-Checking-from-the-headerbar-to-an-.patch
+        0005-details-page-Make-the-loading-status-fit-phones.patch
+        0006-app-details-page-Drop-the-hardcoded-label-width.patch
+        0007-data-List-compatible-form-factors.patch
+        0008-icon-Ensure-icon-files-exist.patch
+        0009-app-Ensure-themed-icons-exist.patch
+        0010-app-Be-more-strict-with-icon-scales.patch
+        GsUpdatesSection-Always-present-Download-button-before-Re.patch)
 sha256sums=('SKIP'
-            '7d1e568e3cc96e97444868937f8ef926c80f8208d3f8c639a655d7045fb5cf03'
-            'd784f4ee5223148ee292f82fe880815566edd4418ae3f8b61e48f7b1f8316d8b'
-            '7033ba4fdb7b52cebda127f5fbae49ea2e21e3255aca049712c9a52e627cbc06'
-            '5d4c028b11c342a9027dac175f4cab51ddeb575625c967b6f96e8d194352f464'
-            'd0661262e708fec068763b839f1b3cc12eaa5581c09838559bdba8f2736516aa'
-            '42d2fff2ec34698821e79f114f09f6baa51116639187e6c3909c1e343986b76e'
-            'd6452f420e6a2d07b4158daeef7194e55146fe746e6660da5580713628414475'
-            'b98ab493aca36708ba7b47f09ff551729da0d927e9d249be040274ad89f784d7'
-            'a89be87654904f32375814e59eb2d6fbef684f183fcc1f684b3c13e56d8ad370'
-            '8d99a0d043ba17861ed7bcfdbf5d50021f002c707240302bbb68f7cc8c5c429f'
-            '24e9b356eebd5fbb4098540c1e98757eaa965145e061d0144356e0e4359333a2'
-            '352ab1df137fa047c5a3869878bbec7b9a1e6d8295020f806406e17a43da4cc8'
-            'b6cf21d7298f30496f27d35c3d5db90aa807524a5cbb017c13bdf85d51255fc9'
-            'c3f6055fcd0adfa06b44c867d234b10f88f1e2a320cde2425b681e3f7083f730'
-            '1a8d7e25d743bdb51772b4bd690ac83e1f8c04063e135e8d0214ee9ade2cdd22'
-            '03afa4e61dfd4e18cb86777935106d2d4fb0912b7e373e31d54b3f60bec7918b'
-            'f0bc28c6609bebd58695901d5e5ab146d156a79ba8cc6ff5210171f1ae2ee101'
-            'd962eb06d3b2a6cb084966113cd9ac7e5c189deb2a60fa183e4c1d831154e1a1'
-            '54b9bf686d64ca91c066a4a6beb618ad37fcb029110da14435ca30660ed2da4f'
-            'd792b4001b905412605682100e4cdbc4a525198aa8312b95c2c35018c018a19c'
-            '62089b348ce24ecda70e7db710668ea7319d7d70940449ebc24901104aa51e6c'
-            'ef18e6b913caafee92bd619c9340f869cd121c8c4c34415a6c423fe5e0d1ff74'
-            'bfd10ec468ec3a6c15e0872dab099a6e99b525155470cffdfd03506a90e8f6a4'
-            '147d5e5f164cba96e861b2e87e6a0f55c10ca4d1e1ce8e3fddfad1f9d935073d'
-            '664739d51db9a4255eb16e2162e5367ceba14459fd78b72a263775a4e1726a9d')
+            'e7c70b6a879e1dd273b34524312d58bdc7569399c1c06d3e487c3d6ba83631d4'
+            '9eb25cec0a60f80d03bb9d88cfd169092f6f4662019413d3894e4fc5c8e4ce37'
+            'c0f239a3188e8daa011d90afd4fdf8405508a16ce4ad5a91dff96f15ff66de26'
+            '222f3270a864fdde508643cce847718726f30445186e86dea0178bc8dd18b09c'
+            'df214b976695a68ae87836dda92dc7cf5a050e72eb8033d903262e5a65bb6824'
+            '04f09e48ba267fb84c377eaaec09cc3b717287fcec49d37bc8c58ee30d640641'
+            'a0ee9bf30a8859ebbbd212c44e73855e33d80b3fc60f8a2e79e94c438ba07496'
+            'a5c36efec40ad6ef955ef3a7e7e5d2dd610ec4b3f7a57dbcc016c22003bc5942'
+            '6e01d9278bc58c1b494a2964012972308377e8f1a175453ae398bfe0aca40116'
+            'e629242b2472f7962fe8d18390babc33bf6ca40ba3ea17389181b97ce9dc84f6'
+            '16e3ce9de7ce22935352c59d517322c295a5a3e30a710c34e0e1bbab48d3ad9a')
 
 pkgver() {
   cd $_pkgname
