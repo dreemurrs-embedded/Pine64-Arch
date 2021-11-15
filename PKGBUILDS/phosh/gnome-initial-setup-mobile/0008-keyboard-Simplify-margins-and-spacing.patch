@@ -1,0 +1,32 @@
+From 94f2a419ea98e031c5aae716be403c4787d8c12e Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 30 Jul 2019 10:27:33 +0200
+Subject: [PATCH 10/38] keyboard: Simplify margins and spacing
+
+---
+ gnome-initial-setup/pages/keyboard/gis-keyboard-page.ui | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/gnome-initial-setup/pages/keyboard/gis-keyboard-page.ui
++++ b/gnome-initial-setup/pages/keyboard/gis-keyboard-page.ui
+@@ -8,10 +8,10 @@
+ 	<property name="halign">center</property>
+         <property name="valign">fill</property>
+         <property name="orientation">vertical</property>
++        <property name="spacing">18</property>
+         <child>
+           <object class="GisPageHeader" id="header">
+             <property name="visible">True</property>
+-            <property name="margin_top">24</property>
+             <property name="title" translatable="yes">Typing</property>
+             <property name="subtitle" translatable="yes">Select your keyboard layout or an input method.</property>
+             <property name="icon_name">input-keyboard-symbolic</property>
+@@ -20,8 +20,6 @@
+         </child>
+         <child>
+           <object class="CcInputChooser" id="input_chooser">
+-            <property name="margin_top">18</property>
+-            <property name="margin_bottom">18</property>
+             <property name="visible">True</property>
+             <property name="halign">center</property>
+             <property name="valign">start</property>

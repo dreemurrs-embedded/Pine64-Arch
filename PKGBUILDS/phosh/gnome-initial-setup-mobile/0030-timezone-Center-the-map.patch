@@ -1,0 +1,21 @@
+From ee6afbfd6a7b41f3d69ca20e1d9a55f992fbcb36 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 9 Oct 2019 13:11:32 +0200
+Subject: [PATCH 37/38] timezone: Center the map
+
+This avoids the map being too large on desktops.
+---
+ gnome-initial-setup/pages/timezone/gis-timezone-page.ui | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/gnome-initial-setup/pages/timezone/gis-timezone-page.ui
++++ b/gnome-initial-setup/pages/timezone/gis-timezone-page.ui
+@@ -54,7 +54,7 @@
+               <object class="GtkFrame" id="map_frame">
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
+-                <property name="hexpand">True</property>
++                <property name="halign">center</property>
+                 <property name="label_xalign">0</property>
+                 <!-- Add the borders back to the map inside its scrolled window, so it can visually reach the window's border in case the window is too narrow. -->
+                 <property name="margin_start">12</property>

@@ -1,0 +1,73 @@
+From 654cffc9429bc3d64b98be8c94aa5d295f561a08 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 5 Jun 2019 16:10:39 +0200
+Subject: [PATCH 13/38] keyboard: Drop the layout preview
+
+It can't fit on a phone screen so we better drop it.
+---
+ .../pages/keyboard/cc-input-chooser.c         | 38 -------------------
+ 1 file changed, 38 deletions(-)
+
+--- a/gnome-initial-setup/pages/keyboard/cc-input-chooser.c
++++ b/gnome-initial-setup/pages/keyboard/cc-input-chooser.c
+@@ -162,33 +162,6 @@
+ 	return FALSE;
+ }
+ 
+-static gboolean
+-preview_cb (GtkLabel       *label,
+-	    const gchar    *uri,
+-	    CcInputChooser *chooser)
+-{
+-	GtkWidget *row;
+-	InputWidget *widget;
+-	const gchar *layout;
+-	const gchar *variant;
+-	gchar *commandline;
+-
+-	row = gtk_widget_get_parent (GTK_WIDGET (label));
+-	widget = get_input_widget (row);
+-
+-	if (!get_layout (chooser, widget->type, widget->id, &layout, &variant))
+-		return TRUE;
+-
+-	if (variant[0])
+-		commandline = g_strdup_printf ("gkbd-keyboard-display -l \"%s\t%s\"", layout, variant);
+-	else
+-		commandline = g_strdup_printf ("gkbd-keyboard-display -l %s", layout);
+-	g_spawn_command_line_async (commandline, NULL);
+-	g_free (commandline);
+-
+-	return TRUE;
+-}
+-
+ static GtkWidget *
+ input_widget_new (CcInputChooser *chooser,
+ 		   const char *type,
+@@ -196,10 +169,8 @@
+                    gboolean    is_extra)
+ {
+         CcInputChooserPrivate *priv = cc_input_chooser_get_instance_private (chooser);
+-	GtkWidget *label;
+         InputWidget *widget = g_new0 (InputWidget, 1);
+ 	const gchar *name;
+-	gchar *text;
+ 
+ 	if (g_str_equal (type, INPUT_SOURCE_TYPE_XKB)) {
+ 		gnome_xkb_info_get_layout_info (priv->xkb_info, id, &name, NULL, NULL, NULL);
+@@ -236,15 +207,6 @@
+ 	widget->checkmark = gtk_image_new_from_icon_name ("object-select-symbolic", GTK_ICON_SIZE_MENU);
+ 	gtk_box_pack_start (GTK_BOX (widget->box), widget->checkmark, FALSE, TRUE, 0);
+ 	gtk_widget_set_margin_start (widget->checkmark, 10);
+-	gtk_widget_set_margin_end (widget->checkmark, 10);
+-
+-	text = g_strdup_printf ("<a href='preview'>%s</a>", _("Preview"));
+-	label = gtk_label_new ("");
+-	gtk_label_set_markup (GTK_LABEL (label), text);
+-	g_free (text);
+-	g_signal_connect (label, "activate-link",
+-			  G_CALLBACK (preview_cb), chooser);
+-	gtk_box_pack_start (GTK_BOX (widget->box), label, FALSE, TRUE, 0);
+ 
+ 	gtk_widget_show_all (widget->box);
+ 

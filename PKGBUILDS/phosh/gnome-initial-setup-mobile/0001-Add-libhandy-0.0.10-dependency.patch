@@ -1,0 +1,20 @@
+From da1a95e5940aa099d46e6330c36552833e06c812 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 5 Jun 2019 15:28:24 +0200
+Subject: [PATCH 02/38] Add libhandy 0.0.10 dependency
+
+This is needed to access HdyColumn.
+---
+ gnome-initial-setup/meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/gnome-initial-setup/meson.build
++++ b/gnome-initial-setup/meson.build
+@@ -41,6 +41,7 @@
+     dependency ('gdm', version: '>= 3.8.3'),
+     dependency ('geocode-glib-1.0'),
+     dependency ('libgeoclue-2.0', version: '>= 2.3.1'),
++    dependency('libhandy-0.0', version: '>= 0.0.10'),
+     cc.find_library('m', required: false),
+     dependency ('pango', version: '>= 1.32.5'),
+     dependency ('rest-0.7'),
