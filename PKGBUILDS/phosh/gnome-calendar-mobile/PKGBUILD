@@ -5,7 +5,7 @@
 pkgname=gnome-calendar-mobile
 _pkgname=gnome-calendar
 pkgver=41.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Simple and beautiful calendar application designed to perfectly fit the GNOME desktop"
 url="https://wiki.gnome.org/Apps/Calendar"
 arch=(x86_64 armv7h aarch64)
@@ -30,6 +30,16 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-calendar.git#commit=$_commit"
         0009-appdata-Declare-the-supported-controls-and-displays.patch
         0010-window-Reduce-the-minimum-height.patch
         0011-data-Add-form-factors-to-desktop-file-to-mark-it-as-as-ad.patch
+        0012-search-button-Make-the-results-fit-phones.patch
+        0013-calendar-popover-Ensure-it-fits-phones.patch
+        0014-utils-Add-gcal_get_abbreviated_month_name.patch
+        0015-week-header-Show-abbreviated-month-names-if-they-don.patch
+        0016-week-header-Ellipsize-the-Other-events-label.patch
+        0017-event-widget-Reduce-the-slanted-variant-width-a-bit.patch
+        0018-event-widget-Drop-even-the-ellipsis-if-it-doesn-t-fi.patch
+        0019-calendar-management-dialog-Lower-the-width-request.patch
+        0020-calendars-page-Make-the-rows-ellipsize.patch
+        0021-window-Hide-Keyboard-Shortcuts-when-narrow.patch
         # Mobian patches for fixing build
         0001-build-fix-build-with-meson-0.60.0.patch
         0002-quick-add-popover-reduce-width-to-fit-phone-screens.patch)
@@ -45,6 +55,16 @@ sha256sums=('SKIP'
             'c49a9140edc1d8a9e5d7bd83ce9c121820288f629d0794f13bd26e9c643776c9'
             'e878d3957d191191ae6a13dde6e55171a5c6dcb7a61a0c9b6b8d0826023fbf1b'
             '4af176a75d05f783b31aae63eedfa581c1cc3f4f1d6b34989d3cb7871dcefbc9'
+            '2eedee1296878f7faa37efa9844be0549a484d20411de81bb2f28e16037096cf'
+            '9251703684cffc7b2df765cc82cb27129252d68edec34b0bb01c8359293b0f2f'
+            '1d8394b5e3e2c0080b341e6fdfba805a0c8ae6135f74f21cc80a6344a98f1b2e'
+            'f0a34e74fd68da5caa7e1c577abd23deb789ccc4e60a42c44fb90fbfea6e993f'
+            'cf7628dd10078391ad5e35ebf8793fef3487d60f3ae16408b542744abfb55a2e'
+            'ae52ce52d052da99cb0796c200c4d25919751a77689e66ff99724bdcf3c586a9'
+            'b6e4a96269fe20900a93556608f23ac0f838b46e67cdf6c70c12ed8e1c6fd862'
+            'a6e2120cee70a9c94ea847e47e5a0e895c2d5d5464213f1f5e7d2ddcabe9959e'
+            '7762be90edcec9f7ae7c961bb9f40fafcd22b8c3656bcb33168953d6978c6418'
+            'a9d38e8c0347f658de5fa2bb5ab8617ee642d02dc28f3f08f3058b27698bea21'
             'ba3e91a5bdd18e9e6b24eba1347949975ecaa1e3aa2ad29cc962500b0c06d899'
             '4a619f38725863a0a9cf30f102a8e7234773acd99d994fdc170c0743f6df9e95')
 

@@ -1,0 +1,26 @@
+From a9934eadc2cbdbecfc5e9bf7e46094210b87bb5f Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 9 Nov 2021 11:45:15 +0100
+Subject: [PATCH] week-header: Ellipsize the "Other events" label
+
+This helps it fit phones.
+---
+ src/gui/views/gcal-week-header.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/gui/views/gcal-week-header.c b/src/gui/views/gcal-week-header.c
+index a2a78473..9f386e15 100644
+--- a/src/gui/views/gcal-week-header.c
++++ b/src/gui/views/gcal-week-header.c
+@@ -473,6 +473,8 @@ update_overflow (GcalWeekHeader *self)
+           if (!label)
+             {
+               label = gtk_label_new ("");
++              gtk_label_set_ellipsize (GTK_LABEL (label), PANGO_ELLIPSIZE_END);
++              gtk_label_set_xalign (GTK_LABEL (label), 0);
+               gtk_grid_attach (GTK_GRID (self->grid),
+                                label,
+                                i,
+-- 
+2.30.2
+

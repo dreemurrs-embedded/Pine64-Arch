@@ -1,0 +1,35 @@
+From 6aa4c0113c0e246ea4b7f7586409a0576890419e Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 8 Nov 2021 15:01:54 +0100
+Subject: [PATCH] search-button: Make the results fit phones
+
+Fixes https://source.puri.sm/Librem5/debs/gnome-calendar/-/issues/2
+---
+ src/gui/gcal-search-button.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/gui/gcal-search-button.c b/src/gui/gcal-search-button.c
+index 33b3b791..03c07ee7 100644
+--- a/src/gui/gcal-search-button.c
++++ b/src/gui/gcal-search-button.c
+@@ -65,7 +65,7 @@ position_suggestion_popover_func (DzlSuggestionEntry *entry,
+ 
+   dzl_suggestion_entry_window_position_func (entry, area, is_absolute, NULL);
+ 
+-  new_width = MAX (area->width * 2 / 5, MIN_WIDTH);
++  new_width = 360 - RIGHT_MARGIN - RIGHT_MARGIN;
+   area->x += area->width - new_width;
+   area->width = new_width - RIGHT_MARGIN;
+   area->y -= 3;
+@@ -277,6 +277,8 @@ gcal_search_button_init (GcalSearchButton *self)
+                                           self,
+                                           NULL);
+ 
++  dzl_suggestion_entry_set_compact (entry, TRUE);
++
+   controller = dzl_shortcut_controller_find (GTK_WIDGET (entry));
+   dzl_shortcut_controller_add_command_callback (controller,
+                                                 "org.gnome.calendar.search",
+-- 
+2.30.2
+
