@@ -1,0 +1,34 @@
+# Maintainer: Aren <aren@peacevolution.org>
+# Contributer: Caleb Fontenot <foley2431 at gmail dot com>
+
+pkgname=mmsd-tng
+pkgver=1.5
+pkgrel=1
+pkgdesc="Multimedia Messaging Service Daemon - The Next Generation"
+url="https://gitlab.com/kop316/mmsd"
+arch=('x86_64' 'armv7h' 'aarch64')
+license=("GPL2")
+provides=("mmsd")
+conflicts=("mmsd")
+depends=("c-ares" "mobile-broadband-provider-info" "libmm-glib" "libsoup" "libphonenumber")
+makedepends=("meson")
+install=mmsd-tng.install
+source=("$pkgname-$pkgver.tar.bz2::https://gitlab.com/kop316/mmsd/-/archive/$pkgver/mmsd-$pkgver.tar.bz2"
+        "mmsd-tng.service")
+sha512sums=('147692ce3ce2803673517666d4a4f3ed03881de5262b3254df68f6289bd2cd77927e99a929bf56e0dc9f0f0652f694a40df7cc30b86fad191fbeff0384903754'
+            'df8ea75e7e1e66a65c96d7ba90fc97c09273af39df203000cb3b6f8795be9fc3991976ea4ab5e4a8b08de5238ce4eb32b869389e4e8a78d1d62343433308fb34')
+
+build() {
+  arch-meson "mmsd-$pkgver" build -Dbuild-mmsctl=true
+  ninja -C build
+}
+
+check() {
+  ninja -C build test
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+
+  install -Dm644 "mmsd-tng.service" "$pkgdir/usr/lib/systemd/user/mmsd-tng.service"
+}
