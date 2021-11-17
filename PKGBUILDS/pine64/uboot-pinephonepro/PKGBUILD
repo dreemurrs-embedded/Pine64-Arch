@@ -1,0 +1,55 @@
+# U-Boot: Pinephone Pro based on PKGBUILD for RK3399
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Furkan Kardame <furkan@fkardame.com>
+
+pkgname=uboot-pinephonepro
+pkgver=2021.10
+pkgrel=1
+_srcname=u-boot-pine64-pinephonepro
+_commit="d1f4151f02153df16ec26e56f8be338cae72be13"
+_tfaver=2.5
+pkgdesc="U-Boot for Pinephone Pro"
+arch=('aarch64')
+url='https://git.sr.ht/~martijnbraam/u-boot'
+license=('GPL')
+depends=('uboot-tools') # we need this for mkscr
+makedepends=('git' 'arm-none-eabi-gcc' 'dtc' 'bc' 'python3')
+provides=('uboot')
+conflicts=('uboot')
+install=${pkgname}.install
+backup=("boot/boot.txt")
+source=("$_srcname-$_commit.tar.gz::https://git.sr.ht/~martijnbraam/u-boot/archive/$_commit.tar.gz"
+        "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-$_tfaver.tar.gz"
+        'mkscr'
+        'boot.txt')
+sha256sums=('1858fd6dd4d7f44a43f3945ef7a2751b59ef1d94c8696b3523f566ec3fe037da'
+            'ad8a2ffcbcd12d919723da07630fc0840c3c2fba7656d1462e45488e42995d7c'
+            'a4fc8b6b92bc364d6542670d294aa618a8501fb8729f415cc0a3eed776ef0c8e'
+            '45c610f666f35287f9407496d72fbfcf7a3de390206000eb58868a5258c2c282')
+
+#prepare() {
+#  cd u-boot-${pkgver/rc/-rc}
+# Patches based on the work of dhivael and Nadia
+#  cd ../trusted-firmware-a-$_tfaver
+#}
+
+build() {
+  cd trusted-firmware-a-$_tfaver
+  unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+  make PLAT=rk3399
+  cp build/rk3399/release/bl31/bl31.elf ../u-boot-${_commit}
+  cd ../u-boot-${_commit}
+  unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+  make pinephone-pro-rk3399_defconfig
+  echo 'CONFIG_IDENT_STRING=" DanctNIX ARM"' >> .config
+
+  make EXTRAVERSION=-${pkgrel}
+}
+
+package() {
+  cd u-boot-${_commit}
+
+  mkdir -p "${pkgdir}/boot"
+  cp idbloader.img u-boot.itb ../boot.txt ../mkscr  "${pkgdir}/boot/"
+}
+
