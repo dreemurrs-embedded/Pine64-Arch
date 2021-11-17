@@ -1,0 +1,1 @@
+ACTION=="add", KERNEL=="backlight", SUBSYSTEM=="platform", DRIVER=="pwm-backlight", TEST=="lth_brightness", ATTR{lth_brightness}=="*?", RUN+="/bin/sh -c 'echo 12 > /sys/devices/platform/backlight/backlight/backlight/device/lth_brightness'"
