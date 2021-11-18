@@ -2,7 +2,7 @@
 pkgbase=danctnix-tweaks-app
 pkgname=("$pkgbase" "$pkgbase-phosh" "$pkgbase-pinephone")
 pkgver=0.8.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Tweaks tool for phone UIs"
 url="https://github.com/dreemurrs-embedded/danctnix-tweaks"
 license=('LGPL')
@@ -42,7 +42,7 @@ package_danctnix-tweaks-app-phosh() {
 }
 
 package_danctnix-tweaks-app-pinephone() {
-     depends=('danctnix-tweaks-app' 'device-pine64-pinephone')
+     depends=('danctnix-tweaks-app')
 
      mkdir -p "$pkgdir"/usr/share/danctnix-tweaks
      mv "$srcdir"/pinephone.yml "$pkgdir"/usr/share/danctnix-tweaks/pinephone.yml
