@@ -31,4 +31,4 @@ package() {
   mv "$pkgdir/usr/man" "$pkgdir/usr/share/"
 }
 
-sha512sums=('345a80e812da016d6e6dd77be932c2735d9630e0ad626516774e1455de8b2722')
+sha256sums=('345a80e812da016d6e6dd77be932c2735d9630e0ad626516774e1455de8b2722')
