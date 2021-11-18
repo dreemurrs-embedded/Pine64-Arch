@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephonepro
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="PinePhone Pro device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -9,6 +9,7 @@ license=('MIT')
 depends=(
 	danctnix-tweaks
 	linux-megi
+	brcm-firmware
 	uboot-pinephonepro
 	eg25-manager
 	)
