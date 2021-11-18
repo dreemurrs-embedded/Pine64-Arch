@@ -1,0 +1,51 @@
+# Maintainer: Brett Cornwall <ainola@archlinux.org>
+# Maintainer: Maxim Baz <$pkgname at maximbaz dot com>
+# Maintainer (danctnix): Aren <aren@peacevolution.org>
+# Contributor: Omar Pakker
+
+pkgname=sxmo-wlroots
+pkgver=0.13.0.0
+pkgrel=1
+license=('MIT')
+pkgdesc='Modular Wayland compositor library'
+url='https://github.com/swaywm/wlroots'
+arch=('x86_64' 'armv7h' 'aarch64')
+provides=('wlroots')
+conflicts=('wlroots')
+depends=(
+    'libinput'
+    'libseat.so'
+    'libxkbcommon'
+    'opengl-driver'
+    'pixman'
+    'xcb-util-errors'
+    'xcb-util-renderutil'
+    'xcb-util-wm'
+)
+makedepends=(
+    'meson'
+    'ninja'
+    'wayland-protocols'
+    'xorg-xwayland'
+)
+optdepends=(
+    'xorg-xwayland: Xwayland support'
+)
+provides=(
+    'libwlroots.so'
+)
+source=("wlroots-$pkgver.tar.gz::https://git.sr.ht/~stacyharper/wlroots/archive/$pkgver.tar.gz")
+sha256sums=('5c23249188a3bb8833579300cf4d81edc6df6323bf225a8ce6c899415d04f9e7')
+
+build() {
+    # This uses the gles2 renderer because the vulkan one needs extra dependencies
+    arch-meson "wlroots-$pkgver" build \
+        -Drenderers=gles2 \
+        -Dexamples=false
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    install -Dm644 "wlroots-$pkgver/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+}
