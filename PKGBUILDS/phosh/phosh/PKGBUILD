@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
 pkgver=0.14.0
-pkgrel=1
+pkgrel=2
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -14,6 +14,7 @@ _commit_libcall_ui="465f6add090b623fb80c6c5cbb9ab2880ff531a4"
 source=("https://gitlab.gnome.org/World/Phosh/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
         "https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
         "https://gitlab.gnome.org/guidog/libcall-ui/-/archive/$_commit_libcall_ui/libcall-ui-$_commit_libcall_ui.tar.gz"
+        'Revert-docked-manager-Treat-unknown-hardware-as-undo.patch'
         'pam_phosh'
         'sm.puri.OSK0.desktop'
         'phosh.service')
@@ -26,6 +27,9 @@ prepare() {
 
     rm -r subprojects/libcall-ui
     mv "$srcdir/libcall-ui-$_commit_libcall_ui" subprojects/libcall-ui
+
+    # Revert this patch, it seems to break un/docked mode
+    patch -p1 < ../Revert-docked-manager-Treat-unknown-hardware-as-undo.patch
 }
 
 build() {
@@ -47,6 +51,7 @@ package() {
 md5sums=('73c5f5e1310cbfcf12537796c3f3dfaa'
          'c08f04485db11997525c139346faecc8'
          'bd1569dc4925fc873ec32ca477559725'
+         '66a6c8ce27f8df7d4e5e2e8256887717'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
          '8fad8bdef9442f81cfd1cfd468f9c6fb')

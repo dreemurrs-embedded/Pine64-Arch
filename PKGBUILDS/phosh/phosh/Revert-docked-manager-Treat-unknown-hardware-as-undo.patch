@@ -1,0 +1,28 @@
+Subject: [PATCH] Revert "docked-manager: Treat unknown hardware as undocked"
+
+This reverts commit 3b688d164fd1b0d78f8801aeebcaf614c168ce9a.
+---
+ src/docked-manager.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/docked-manager.c b/src/docked-manager.c
+index accf89c..79363e1 100644
+--- a/src/docked-manager.c
++++ b/src/docked-manager.c
+@@ -119,11 +119,10 @@ mode_changed_cb (PhoshDockedManager *self, GParamSpec *pspec, PhoshModeManager *
+ 
+   /*
+    * Desktops, laptops and phones with enough external hardware should get floating
+-   * windows, etc. Unknown hardware is assumed to be a phone.
++   * windows, etc
+    */
+   if (phosh_mode_manager_get_mimicry (manager) != PHOSH_MODE_DEVICE_TYPE_PHONE &&
+-      phosh_mode_manager_get_mimicry (manager) != PHOSH_MODE_DEVICE_TYPE_TABLET &&
+-      phosh_mode_manager_get_mimicry (manager) != PHOSH_MODE_DEVICE_TYPE_UNKNOWN)
++      phosh_mode_manager_get_mimicry (manager) != PHOSH_MODE_DEVICE_TYPE_TABLET)
+     can_dock = TRUE;
+ 
+   if (can_dock == self->can_dock)
+-- 
+2.33.1
+
