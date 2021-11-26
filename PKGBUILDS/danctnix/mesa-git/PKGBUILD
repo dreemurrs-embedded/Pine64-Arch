@@ -12,7 +12,7 @@
 
 pkgname=mesa-git
 pkgdesc="an open-source implementation of the OpenGL specification, git version"
-pkgver=22.0.0_devel.147099.9d9de15a020
+pkgver=22.0.0_devel.147494.db3d76c42d7
 pkgrel=1
 arch=('x86_64' 'aarch64')
 makedepends=('git' 'python-mako' 'xorgproto'
@@ -21,14 +21,13 @@ makedepends=('git' 'python-mako' 'xorgproto'
 depends=('libdrm' 'libxxf86vm' 'libxdamage' 'libxshmfence' 'libelf'
          'libomxil-bellagio' 'libunwind' 'libglvnd' 'wayland' 'lm_sensors' 'libclc' 'glslang')
 optdepends=('opengl-man-pages: for the OpenGL API man pages')
-provides=(mesa=$pkgver-$pkgrel vulkan-intel=$pkgver-$pkgrel vulkan-radeon=$pkgver-$pkgrel vulkan-mesa-layer=$pkgver-$pkgrel  libva-mesa-driver=$pkgver-$pkgrel mesa-vdpau=$pkgver-$pkgrel vulkan-driver opencl- opengl-driver opencl-driver)
-conflicts=('mesa' 'opencl-mesa' 'vulkan-intel' 'vulkan-radeon' 'vulkan-mesa-layer' 'libva-mesa-driver' 'mesa-vdpau')
+provides=('mesa' 'opencl-mesa' 'vulkan-mesa-layer' 'libva-mesa-driver' 'mesa-vdpau' 'vulkan-swrast' 'vulkan-broadcom' 'vulkan-panfrost' 'vulkan-driver' 'mesa-libgl' 'opengl-driver' 'opencl-driver')
+conflicts=('mesa' 'opencl-mesa' 'vulkan-mesa-layer' 'libva-mesa-driver' 'mesa-vdpau' 'vulkan-swrast' 'vulkan-broadcom' 'vulkan-panfrost' 'mesa-libgl')
 #options=('!strip')
 url="https://www.mesa3d.org"
 license=('custom')
 source=('mesa::git+https://gitlab.freedesktop.org/mesa/mesa.git#branch=main'
-        'LICENSE'
-)
+        'LICENSE')
 md5sums=('SKIP'
          '5c65a0fe315dd347e09b1f2826a1df5a')
 sha512sums=('SKIP'
@@ -111,12 +110,13 @@ build() {
     -D platforms=x11,wayland \
     -D dri-drivers=nouveau \
     -D gallium-drivers=freedreno,nouveau,swrast,virgl${GALLIUM} \
-    -D vulkan-drivers= \
+    -D vulkan-drivers=swrast,broadcom,panfrost \
     -D dri3=enabled \
     -D egl=enabled \
     -D gallium-extra-hud=true \
     -D gallium-nine=true \
     -D gallium-omx=bellagio \
+    -D gallium-opencl=icd \
     -D gallium-va=enabled \
     -D gallium-vdpau=enabled \
     -D gallium-xa=disabled \
@@ -132,7 +132,8 @@ build() {
     -D osmesa=true \
     -D shared-glapi=enabled \
     -D valgrind=false $MESON_OPT \
-    -D microsoft-clc=disabled
+    -D microsoft-clc=disabled \
+    -D vulkan-layers=device-select,overlay
        
     meson configure _build
     ninja  $NINJAFLAGS -C _build
