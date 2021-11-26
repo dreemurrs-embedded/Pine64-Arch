@@ -5,8 +5,8 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=5.15.2
-pkgrel=3
+pkgver=5.16_rc2
+pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -14,7 +14,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="d8dbdda829ac2947b1183acefb4388476f1bfff6"
+_commit="a2eb11a2f4b0cb1aa157fd464ff2e77cb193a008"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -33,9 +33,10 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         'enable-hdmi-output-pinetab.patch'
         'dts-pinetab-make-audio-routing-consistent-with-pinephone.patch'
         # Bootsplash
-        '0001-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch'
-        '0002-revert-fbcon-remove-no-op-fbcon_set_origin.patch'
-        '0003-revert-fbcon-remove-soft-scrollback-code.patch'
+        '0001-revert-garbage-collect-fbdev-scrolling-acceleration.patch'
+        '0002-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch'
+        '0003-revert-fbcon-remove-no-op-fbcon_set_origin.patch'
+        '0004-revert-fbcon-remove-soft-scrollback-code.patch'
         '0001-bootsplash.patch'
         '0002-bootsplash.patch'
         '0003-bootsplash.patch'
@@ -246,8 +247,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('a4848f902bfc9eb56a1a5c239b70d7b6'
-         'ce4d291150b6a909e8c5a4e107aefe13'
+md5sums=('84600b4d4e30749bede065fc1a11b2af'
+         '265d73d9a433723e810f14d23d0cba88'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
@@ -259,6 +260,7 @@ md5sums=('a4848f902bfc9eb56a1a5c239b70d7b6'
          '3182f25beb0b76e8abd2e9de8213351d'
          '979a787cf84bef9c60da78e72ec96550'
          '60e9d1ccba52bd2634fbe8034b110e36'
+         '0f597205ea7b91f7024f0ac02ac96975'
          'a31a435ab6cd8e7a47601159d665ce50'
          'fed6ae4ac4c3f56178fa4aca6c934d6f'
          '594d4f69b956eaab3336b4e01f42eda8'
