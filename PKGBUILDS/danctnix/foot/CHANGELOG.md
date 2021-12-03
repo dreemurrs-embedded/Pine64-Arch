@@ -1,5 +1,6 @@
 # Changelog
 
+* [1.10.2](#1-10-2)
 * [1.10.1](#1-10-1)
 * [1.10.0](#1-10-0)
 * [1.9.2](#1-9-2)
@@ -33,6 +34,40 @@
 * [1.2.0](#1-2-0)
 
 
+## 1.10.2
+
+### Added
+
+* New value, `max`, for `[tweak].grapheme-width-method`.
+* Initial support for the [Kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/).
+  Modes supported:
+  - [Disambiguate escape codes](https://sw.kovidgoyal.net/kitty/keyboard-protocol/#disambiguate)
+* “Window menu” (compositor provided) on right clicks on the CSD title
+  bar.
+
+
+### Fixed
+
+* An ongoing mouse selection is now finalized on a pointer leave event
+  (for example by switching workspace while doing a mouse selection).
+* OSC-8 URIs in the last column
+* OSC-8 URIs sometimes being applied to too many, and seemingly
+  unrelated cells (https://codeberg.org/dnkl/foot/issues/816).
+* OSC-8 URIs incorrectly being dropped when resizing the terminal
+  window with the alternate screen active.
+* CSD border not being dimmed when window is not focused.
+* Visual corruption with large CSD borders
+  (https://codeberg.org/dnkl/foot/issues/823).
+* Mouse cursor shape sometimes not being updated correctly.
+* Color palette changes (via OSC 4/104) no longer affect RGB colors
+  (https://codeberg.org/dnkl/foot/issues/678).
+
+
+### Contributors
+
+* Jonas Ådahl
+
+
 ## 1.10.1
 
 ### Added
@@ -51,7 +86,8 @@
   resulting in invalid error messages
   (https://codeberg.org/dnkl/foot/issues/809).
 * OSC-8 data not being cleared when cell is overwritten
-  (https://codeberg.org/dnkl/foot/issues/804).
+  (https://codeberg.org/dnkl/foot/issues/804,
+  https://codeberg.org/dnkl/foot/issues/801).
 
 
 ### Contributors
