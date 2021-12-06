@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.14.0
-pkgrel=2
+pkgver=0.14.1
+pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -10,7 +10,7 @@ depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell'
          'gcr' 'feedbackd' 'libnm' 'phoc' 'callaudiod')
 makedepends=('meson' 'ninja')
 _commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
-_commit_libcall_ui="465f6add090b623fb80c6c5cbb9ab2880ff531a4"
+_commit_libcall_ui="1b3f676273d07e7724f82f7cb9fdedf749578c3a"
 source=("https://gitlab.gnome.org/World/Phosh/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
         "https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
         "https://gitlab.gnome.org/guidog/libcall-ui/-/archive/$_commit_libcall_ui/libcall-ui-$_commit_libcall_ui.tar.gz"
@@ -48,9 +48,9 @@ package() {
         "$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
-md5sums=('73c5f5e1310cbfcf12537796c3f3dfaa'
+md5sums=('9e09d3dd13e8cea4df3016a457481f94'
          'c08f04485db11997525c139346faecc8'
-         'bd1569dc4925fc873ec32ca477559725'
+         '833d9f80c056f8191416c7b41bfec1f7'
          '66a6c8ce27f8df7d4e5e2e8256887717'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
