@@ -81,3 +81,17 @@ setup_usb_network_configfs() {
 setup_usb_network_configfs
 ip address add 10.15.19.82/24 dev usb0
 ip link set usb0 up
+# Setup traffic routing for internet connectivity
+
+echo "Setting up IPv4 traffic routing..."
+iptables -t nat -A POSTROUTING -o wwan0 -j MASQUERADE
+iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i usb0 -o wwan0 -j ACCEPT
+
+echo "Setting up IPv6 traffic routing..."
+ip6tables -t nat -A POSTROUTING -o wwan0 -j MASQUERADE
+ip6tables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+ip6tables -A FORWARD -i usb0 -o wwan0 -j ACCEPT
+
+echo "Setting up rule to prevent packet fragmentation..."
+iptables -t mangle -A FORWARD -o wwan0 -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
