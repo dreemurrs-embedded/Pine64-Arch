@@ -3,7 +3,7 @@
 
 pkgname=plasma-mobile-settings
 pkgver=20211208
-pkgrel=1
+pkgrel=2
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
 license=('GPL')

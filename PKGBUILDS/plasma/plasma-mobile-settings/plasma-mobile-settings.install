@@ -5,6 +5,12 @@ post_upgrade() {
         systemctl disable ofono.service
     fi
 
+    if [[ -e /etc/systemd/system/default.target.wants/ofonoctl.service ||
+         -e /usr/lib/systemd/system/default.target.wants/ofonoctl.service ]]
+    then
+        systemctl disable ofonoctl.service
+    fi
+
     systemctl enable ModemManager.service
 }
 
