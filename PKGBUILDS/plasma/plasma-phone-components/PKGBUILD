@@ -4,27 +4,19 @@
 
 pkgname=plasma-phone-components
 pkgver=5.23.4
-pkgrel=1
+pkgrel=2
 pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('desktop-file-utils' 'plasma-workspace' 'ofono' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'plasma-wayland-session' 'pipewire-media-session')
+depends=('desktop-file-utils' 'plasma-workspace' 'modemmanager-qt' 'kpeople' 'telepathy-qt' 'libphonenumber'
+         'plasma-wayland-session' 'pipewire-media-session')
 makedepends=('git' 'cmake' 'baloo' 'extra-cmake-modules' 'kdoctools')
-source=("https://invent.kde.org/plasma/plasma-phone-components/-/archive/v${pkgver}/plasma-phone-components-v${pkgver}.tar.gz"
-        'revert-modem-manager.patch')
+source=("https://invent.kde.org/plasma/plasma-phone-components/-/archive/v${pkgver}/plasma-phone-components-v${pkgver}.tar.gz")
 install=$pkgname.install
-sha512sums=('721965d2072ff155fccd9efbaeed55ce0366ee93c1bdc21c6e9e08caa1fbee82141cfc993a96bbeb1cbc042ea026a9376716c864ae995fcfa8698f7ac18f05f0'
-            '768ef03d8c2f216ec837cd3cbaccbe0413ed4ed53b556b9d458b6350735cccef94034a09b5d4cadaab8f8ae3bdec043fc7b0d92740e923bb49acbc20fb1e1789')
+sha512sums=('721965d2072ff155fccd9efbaeed55ce0366ee93c1bdc21c6e9e08caa1fbee82141cfc993a96bbeb1cbc042ea026a9376716c864ae995fcfa8698f7ac18f05f0')
 
 prepare() {
-  cd "$pkgname-v${pkgver}"
-
-  # Revert modem manager patch, this can be added back in when it's done
-  patch -p1 < ../revert-modem-manager.patch
-
-  cd "$srcdir"
-
   mkdir -p build
 }
 
