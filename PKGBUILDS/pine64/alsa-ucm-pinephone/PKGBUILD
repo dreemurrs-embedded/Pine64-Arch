@@ -1,12 +1,12 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinephone
 pkgver=0.5.0
-pkgrel=1
+pkgrel=2
 pkgdesc="UCM files for PinePhone"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=(alsa-ucm-conf)
+depends=('alsa-ucm-conf<1.2.6')
 source=(HiFi.conf VoiceCall.conf PinePhone.conf)
 
 package() {
