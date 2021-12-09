@@ -1,12 +1,12 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinetab
 pkgver=0.4.0
-pkgrel=1
+pkgrel=2
 pkgdesc="UCM files for PineTab"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=(alsa-ucm-conf)
+depends=('alsa-ucm-conf<1.2.6')
 source=(HiFi.conf PineTab.conf)
 
 package() {
