@@ -5,13 +5,13 @@
 
 _pkgname=evince
 pkgname=$_pkgname-mobile
-pkgver=41.2
+pkgver=41.3
 pkgrel=1
 pkgdesc='Purism mobile document viewer (PDF, Postscript, djvu, tiff, dvi, XPS, SyncTex support with gedit, comics books (cbr,cbz,cb7 and cbt))'
 url='https://gitlab.gnome.org/GNOME/evince'
 arch=('aarch64')
 license=('GPL')
-_commit=e6d860a3058732c83b3774d705650bc516a294ae  # tags/41.2^0
+_commit=08780f527ac0306f527c48ea6cc77a7b2c6c5fa8  # tags/41.3^0
 source=("git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
         'data-List-compatible-form-factors.patch'
         'properties-view-Reduce-the-label-width-chars.patch'
