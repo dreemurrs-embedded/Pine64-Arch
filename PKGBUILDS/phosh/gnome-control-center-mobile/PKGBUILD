@@ -4,7 +4,7 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=41.1
+pkgver=41.2
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-control-center"
@@ -24,7 +24,7 @@ optdepends=('system-config-printer: Printer settings'
             'openssh: remote login')
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=eb053617651d251d29128525eb18592a2283d0cf  # tags/41.1^0
+_commit=babeb0ce357d55406b0ba0a4597e0513a0419de8  # tags/41.2^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
         # purism
