@@ -1,43 +1,48 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephonepro
 pkgver=0.2
-pkgrel=1
+pkgrel=2
 pkgdesc="PinePhone Pro device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=(
-	danctnix-tweaks
-	linux-megi
-	brcm-firmware
-	uboot-pinephonepro
-	eg25-manager
-	)
+depends=(danctnix-tweaks
+        linux-megi
+        brcm-firmware
+        alsa-ucm-pinephonepro
+        uboot-pinephonepro
+        eg25-manager)
 install="$pkgname.install"
 source=(10-proximity.rules
-	10-pinephone-brightness.rules
-	pinephone-suspend-hook.sh
-	machine-info
-	pulseaudio-pinetweaks.conf
-	gsk-renderer-gl.sh
-	pinephonepro-suspend.conf)
+        10-pinephone-brightness.rules
+        pinephone-suspend-hook.sh
+        machine-info
+        pulseaudio-pinetweaks.conf
+        gsk-renderer-gl.sh
+        pinephonepro-suspend.conf)
 
 package() {
-	# Kanged from Mobian, this is to make iio-sensor-proxy works with proximity sensor.
-	install -Dm644 "$srcdir"/10-proximity.rules "$pkgdir"/usr/lib/udev/rules.d/10-proximity.rules
+    # Kanged from Mobian, this is to make iio-sensor-proxy works with
+    # proximity sensor.
+    install -Dm644 "$srcdir"/10-proximity.rules \
+        "$pkgdir"/usr/lib/udev/rules.d/10-proximity.rules
 
-	# Calibrate minimum brightness
-	install -Dm644 "$srcdir"/10-pinephone-brightness.rules "$pkgdir"/usr/lib/udev/rules.d/10-pinephone-brightness.rules
+    # Calibrate minimum brightness
+    install -Dm644 "$srcdir"/10-pinephone-brightness.rules \
+        "$pkgdir"/usr/lib/udev/rules.d/10-pinephone-brightness.rules
 
-	# Current workaround for suspend
-	install -Dm755 "$srcdir"/pinephone-suspend-hook.sh "$pkgdir"/usr/lib/systemd/system-sleep/pinephone-suspend-hook.sh
-	install -Dm644 "$srcdir"/pinephonepro-suspend.conf "$pkgdir"/usr/lib/systemd/sleep.conf.d/pinephonepro-suspend.conf
+    # Current workaround for suspend
+    install -Dm755 "$srcdir"/pinephone-suspend-hook.sh \
+        "$pkgdir"/usr/lib/systemd/system-sleep/pinephone-suspend-hook.sh
+    install -Dm644 "$srcdir"/pinephonepro-suspend.conf \
+        "$pkgdir"/usr/lib/systemd/sleep.conf.d/pinephonepro-suspend.conf
 
-	install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
+    install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
 
-	install -Dm644 "$srcdir"/pulseaudio-pinetweaks.conf "$pkgdir"/etc/pulse/daemon.conf.d/pinetweaks.conf
+    install -Dm644 "$srcdir"/pulseaudio-pinetweaks.conf \
+        "$pkgdir"/etc/pulse/daemon.conf.d/pinetweaks.conf
 
-	install -Dm755 "$srcdir"/gsk-renderer-gl.sh -t "$pkgdir"/etc/profile.d/
+    install -Dm755 "$srcdir"/gsk-renderer-gl.sh -t "$pkgdir"/etc/profile.d/
 }
 
 md5sums=('b72ff096c022588f72c226283ac328bd'
