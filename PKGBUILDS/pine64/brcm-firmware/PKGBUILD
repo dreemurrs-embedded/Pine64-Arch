@@ -1,5 +1,5 @@
 pkgname=brcm-firmware
-pkgrel=1
+pkgrel=2
 pkgdesc="Firmware files for BCM43 chips"
 makedepends=('git')
 arch=('any')
@@ -7,6 +7,7 @@ url="https://xff.cz/git/linux-firmware"
 license=('custom')
 pkgver=20211027.6e8e591
 options=(!strip)
+depends=('linux-firmware')
 source=("git+https://megous.com/git/linux-firmware")
 md5sums=('SKIP')
 
@@ -27,7 +28,6 @@ package() {
   rm -r ${pkgdir}/usr/lib/firmware/brcm/2020-02-12
 
   cd ${pkgdir}/usr/lib/firmware/brcm
-  cp brcmfmac43456-sdio.pine64,pinebook-pro.txt brcmfmac43455-sdio.pine64,pinephone-pro.txt
-  ln -s brcmfmac43455-sdio.bin brcmfmac43455-sdio.pine64,pinephone-pro.bin
+  rm brcmfmac43362-sdio.bin brcmfmac43455-sdio.bin brcmfmac43455-sdio.clm_blob
 }
 # vim:set ts=2 sw=2 et
