@@ -4,7 +4,7 @@
 
 pkgname=uboot-pinephonepro
 pkgver=2021.10
-pkgrel=2
+pkgrel=3
 _srcname=u-boot-pine64-pinephonepro
 _commit="d1f4151f02153df16ec26e56f8be338cae72be13"
 _tfaver=2.6
@@ -42,6 +42,7 @@ build() {
   unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
   make pinephone-pro-rk3399_defconfig
   echo 'CONFIG_IDENT_STRING=" DanctNIX ARM"' >> .config
+  echo 'CONFIG_BOOTDELAY=0' >> .config
 
   make EXTRAVERSION=-${pkgrel}
 }
