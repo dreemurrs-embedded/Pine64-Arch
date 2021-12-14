@@ -1,19 +1,21 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinephonepro
-pkgver=0.1
-pkgrel=2
+pkgver=0.2
+pkgrel=1
 pkgdesc="UCM files for PinePhone Pro"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
 depends=('alsa-ucm-conf')
-source=(HiFi.conf PinePhonePro.conf)
+source=(HiFi.conf PinePhonePro.conf VoiceCall.conf)
 
 package() {
     install -D -m644 "$srcdir"/PinePhonePro.conf \
         "$pkgdir"/usr/share/alsa/ucm2/Pine64/PinePhonePro/PinePhonePro.conf
     install -D -m644 "$srcdir"/HiFi.conf \
         "$pkgdir"/usr/share/alsa/ucm2/Pine64/PinePhonePro/HiFi.conf
+    install -D -m644 "$srcdir"/VoiceCall.conf \
+        "$pkgdir"/usr/share/alsa/ucm2/Pine64/PinePhonePro/VoiceCall.conf
     ln -s Pine64/PinePhonePro "$pkgdir"/usr/share/alsa/ucm2/PinePhonePro
 
     mkdir -p "$pkgdir"/usr/share/alsa/ucm2/conf.d/simple-card
@@ -21,5 +23,6 @@ package() {
         "$pkgdir"/usr/share/alsa/ucm2/conf.d/simple-card/PinePhonePro.conf
 }
 
-md5sums=('501b680962e48c9b2d9d5ff9f90593a9'
-         'd5f1ea773bb678d75d35effd79cbe4b7')
+md5sums=('10a97508e34180d22fb3d6139dc2b090'
+         'dc390679f9f29059e674b5bb54b3a2a3'
+         '775c706f02eab8038314ff1f2924548f')
