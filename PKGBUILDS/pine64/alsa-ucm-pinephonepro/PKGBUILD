@@ -1,12 +1,12 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinephonepro
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="UCM files for PinePhone Pro"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=('alsa-ucm-conf<1.2.6')
+depends=('alsa-ucm-conf')
 source=(HiFi.conf PinePhonePro.conf)
 
 package() {
