@@ -1,9 +1,9 @@
 # Maintainer: dni <office@dnilabs.com>
-# Contributor: Aren <aren@peacevolution.org>
+# Maintainer: Aren <aren@peacevolution.org>
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
 pkgver=1.6.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -11,7 +11,6 @@ license=('MIT')
 makedepends=('libx11' 'xorgproto' 'linux-headers')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
-        '0001-Disable-wayout-destkop-widget.patch'
         'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
         'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
         'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
@@ -20,7 +19,6 @@ backup=('etc/doas.conf')
 
 prepare() {
   cd "$pkgname-$pkgver"
-  patch -p1 < ../0001-Disable-wayout-destkop-widget.patch
 
   # Use dunst instead because of issues between mako and sxmo-sway on arch
   sed -i 's@mako@dunst@g' configs/appcfg/sway_template
@@ -185,7 +183,6 @@ package_sxmo-ui-dwm-meta() {
 }
 
 sha512sums=('ef98d0f144d3657d32d5f3e2f78ffef556d72ce7a8b763f050db2f99a26207e27da9702cc533f8bfa255b032077e30c3434d6823b3fca50e5121f98ea7332b92'
-            '416e3ade4255ca2530875523d6f27e9868fea737be90fa161a6217baf0d88c8c04052369ccfab7560eb19984e8744edc202b257e457a1eba818ec6e0a841e02a'
             '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
             '6e42f9acc015a21596cdf2d35eb5a80e8fbe97959aabf129861c8e1016bbebad5c706126730515494a0fcb33ad38fd6cd971048d2b5340557a803febf41967a4'
             '4c8f047c4608d89409a44db6370ca225d42e186323f42d0c564edb34f18c84a69a500a89cc2c31d5f0e5c292aa94ea20eaf8213e3e266b8f9e959c3d4ce9fb58'
