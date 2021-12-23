@@ -1,7 +1,7 @@
 # Maintainer: Aren <aren@peacevolution.org>
 
 pkgname=wayout
-pkgver=0.1.1
+pkgver=0.1.2
 pkgrel=1
 pkgdesc="A desktop widget for Wayland desktops"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -10,7 +10,7 @@ license=('GPL3')
 depends=('wayland' 'pango')
 makedepends=('meson' 'ninja' 'wayland-protocols' 'cairo' 'scdoc')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~proycon/wayout/archive/$pkgver.tar.gz")
-sha512sums=('c330d22c5d3ecc4de04591fb3de398de2f7e4bf1937b76b3bbe3d043b11cc90ea7311c6bd283da567796a4b06da634c0c100e083c49f162e125f69f54dae9204')
+sha512sums=('002874ceb8b91c1541a5f0be402ff4fb702160119624c1f4c0c2a2eeba87d5a2d24d91715c692cb88c2a24a8cf8820f1487c7c74485ab08d4a1febb478d33593')
 
 build() {
   arch-meson build "$pkgname-$pkgver" -Dwerror=false
