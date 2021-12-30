@@ -4,7 +4,7 @@
 # Contributor: Omar Pakker
 
 pkgname=sxmo-wlroots
-pkgver=0.13.0.0
+pkgver=0.14.0.0
 pkgrel=1
 license=('MIT')
 pkgdesc='Modular Wayland compositor library'
@@ -35,7 +35,7 @@ provides=(
     'libwlroots.so'
 )
 source=("wlroots-$pkgver.tar.gz::https://git.sr.ht/~stacyharper/wlroots/archive/$pkgver.tar.gz")
-sha256sums=('5c23249188a3bb8833579300cf4d81edc6df6323bf225a8ce6c899415d04f9e7')
+sha256sums=('82f678a7a9d7212ca78bb20f16c422805c79cecfd9e459e42dd2b5a0a5f6542e')
 
 build() {
     # This uses the gles2 renderer because the vulkan one needs extra dependencies
