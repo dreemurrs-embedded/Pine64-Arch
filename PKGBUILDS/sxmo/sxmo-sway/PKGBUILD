@@ -5,7 +5,7 @@
 
 # This package is adapted from the arch linux sway package
 pkgname=sxmo-sway
-pkgver=1.6.0
+pkgver=1.6.0.1
 epoch=1
 pkgrel=1
 pkgdesc='Tiling Wayland compositor and replacement for the i3 window manager with patches for sxmo'
@@ -42,7 +42,7 @@ optdepends=(
 )
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~stacyharper/sway/archive/$pkgver.tar.gz"
         "50-systemd-user.conf")
-sha512sums=('da2b41a068218c51b69b4fe4bd2abbe1f782d91f8fbf15495e2992b8d0994976d3f1b49b8d98a91f01b13409f15a5b0abde0e5db0b151d1726e0c1eda72734b2'
+sha512sums=('b3b064d97fddb65c3cdee8c75452d501acbbad7c19618d92f5f7140f20f18022dd8fed8523ff5382a6906b877ffb1dfb9766cd0f93c209aa7b802aa41c6f6ab2'
             'c2b7d808f4231f318e03789015624fd4cf32b81434b15406570b4e144c0defc54e216d881447e6fd9fc18d7da608cccb61c32e0e1fab2f1fe2750acf812d3137')
 
 prepare() {
