@@ -16,7 +16,7 @@ This is imported from HdySqueezer from libhandy 1.0.2.
  create mode 100644 gtk/hdy-squeezer.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index ef9c90a..5150fd0 100644
+index 94dc775..0418128 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
@@ -27,7 +27,7 @@ index ef9c90a..5150fd0 100644
  	hdy-view-switcher-private.h
  
  
-@@ -603,7 +604,9 @@ gtk_private_h_sources =		\
+@@ -602,7 +603,9 @@ gtk_private_h_sources =		\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
  	hdy-animation-private.h	\
@@ -37,7 +37,7 @@ index ef9c90a..5150fd0 100644
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
-@@ -984,6 +987,7 @@ gtk_base_c_sources = 		\
+@@ -983,6 +986,7 @@ gtk_base_c_sources = 		\
  	gdkpixbufutils.c	\
  	hdy-animation.c	\
  	hdy-css.c	\
@@ -1733,7 +1733,7 @@ index 0000000..b36db93
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_YALIGN]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 3c97a01..852147a 100644
+index 5c2ba51..13dd69a 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -385,6 +385,7 @@ gtk_sources = files(

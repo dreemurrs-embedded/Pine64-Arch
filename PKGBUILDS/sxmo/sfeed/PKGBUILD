@@ -1,0 +1,25 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Caltlgin Stsodaat <contact@fossdaily.xyz>
+
+pkgname=sfeed
+pkgver=1.0
+pkgrel=1
+pkgdesc='RSS and Atom parser'
+arch=('x86_64' 'armv7h' 'aarch64')
+url='https://codemadness.org/sfeed-simple-feed-parser.html'
+_url_source='https://codemadness.org/releases/sfeed'
+license=('ISC')
+depends=('sh')
+source=("${_url_source}/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('46bf3336046789e5001541588c27af92f517a017d8cd377d0feeb64268e5687a')
+
+build() {
+  make SFEED_CPPFLAGS="-D_DEFAULT_SOURCE" -C "${pkgname}-${pkgver}"
+}
+
+package() {
+  make DESTDIR="${pkgdir}" PREFIX='/usr' MANPREFIX='/usr/share/man' -C "${pkgname}-${pkgver}" install
+  install -Dvm644 "${pkgname}-${pkgver}/LICENSE" -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}
+
+# vim: ts=2 sw=2 et:

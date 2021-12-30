@@ -1,0 +1,57 @@
+From 84775627ec4b7fa26e1bb238c8a2d4e64b5a08a8 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 23 Jul 2019 17:09:04 +0200
+Subject: [PATCH 09/38] keyboard: Use hdy_list_box_separator_header()
+
+This makes the code simpler by using the similar function from libhandy,
+and this ensures the first row never has a header, particularly when
+searching.
+---
+ .../pages/keyboard/cc-input-chooser.c         | 22 ++++---------------
+ 1 file changed, 4 insertions(+), 18 deletions(-)
+
+--- a/gnome-initial-setup/pages/keyboard/cc-input-chooser.c
++++ b/gnome-initial-setup/pages/keyboard/cc-input-chooser.c
+@@ -28,6 +28,9 @@
+ 
+ #include <gtk/gtk.h>
+ 
++#define HANDY_USE_UNSTABLE_API
++#include <handy.h>
++
+ #define GNOME_DESKTOP_USE_UNSTABLE_API
+ #include <libgnome-desktop/gnome-languages.h>
+ #include <libgnome-desktop/gnome-xkb-info.h>
+@@ -576,23 +579,6 @@
+         }
+ }
+ 
+-static void
+-update_header_func (GtkListBoxRow *child,
+-                    GtkListBoxRow *before,
+-                    gpointer       user_data)
+-{
+-        GtkWidget *header;
+-
+-        if (before == NULL) {
+-                gtk_list_box_row_set_header (child, NULL);
+-                return;
+-        }
+-
+-        header = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
+-        gtk_list_box_row_set_header (child, header);
+-        gtk_widget_show (header);
+-}
+-
+ #ifdef HAVE_IBUS
+ static void
+ update_ibus_active_sources (CcInputChooser *chooser)
+@@ -750,7 +736,7 @@
+         gtk_list_box_set_filter_func (GTK_LIST_BOX (priv->input_list),
+                                       input_visible, chooser, NULL);
+         gtk_list_box_set_header_func (GTK_LIST_BOX (priv->input_list),
+-                                      update_header_func, chooser, NULL);
++                                      hdy_list_box_separator_header, NULL, NULL);
+         gtk_list_box_set_selection_mode (GTK_LIST_BOX (priv->input_list),
+                                          GTK_SELECTION_NONE);
+ 

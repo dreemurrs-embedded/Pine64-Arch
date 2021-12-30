@@ -13,11 +13,20 @@ The vertical orientation is set only on phones (ie, when
  panels/display/cc-display-panel.ui | 2 ++
  2 files changed, 9 insertions(+)
 
-diff --git a/panels/display/cc-display-panel.c b/panels/display/cc-display-panel.c
-index dfca98cc6..a5ac89b75 100644
---- a/panels/display/cc-display-panel.c
-+++ b/panels/display/cc-display-panel.c
-@@ -1176,4 +1176,11 @@ cc_display_panel_init (CcDisplayPanel *self)
+Index: gnome-control-center/panels/display/cc-display-panel.c
+===================================================================
+--- gnome-control-center.orig/panels/display/cc-display-panel.c	2021-10-23 07:56:40.512000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.c	2021-10-23 07:56:45.000000000 +0000
+@@ -20,6 +20,8 @@
+ 
+ #include "cc-display-panel.h"
+ 
++#include "pureos.h"
++
+ #include <gtk/gtk.h>
+ #include <glib/gi18n.h>
+ #include <stdlib.h>
+@@ -1239,4 +1241,11 @@
    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
                                               GTK_STYLE_PROVIDER (provider),
                                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -29,10 +38,10 @@ index dfca98cc6..a5ac89b75 100644
 +    gtk_orientable_set_orientation (GTK_ORIENTABLE (self->output_selection_two_buttonbox),
 +                                    GTK_ORIENTATION_HORIZONTAL);
  }
-diff --git a/panels/display/cc-display-panel.ui b/panels/display/cc-display-panel.ui
-index 855b34814..2fb22244e 100644
---- a/panels/display/cc-display-panel.ui
-+++ b/panels/display/cc-display-panel.ui
+Index: gnome-control-center/panels/display/cc-display-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/display/cc-display-panel.ui	2021-10-23 07:56:40.512000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.ui	2021-10-23 07:56:40.509000000 +0000
 @@ -84,6 +84,8 @@
                                  <property name="can_focus">False</property>
                                  <property name="homogeneous">True</property>
@@ -42,6 +51,3 @@ index 855b34814..2fb22244e 100644
                                  <child>
                                    <object class="GtkRadioButton" id="config_type_single">
                                      <property name="label" translatable="yes">Single Display</property>
--- 
-2.31.0
-

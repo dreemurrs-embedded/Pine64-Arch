@@ -1,0 +1,19 @@
+post_upgrade() {
+    if [[ -e /etc/systemd/system/multi-user.target.wants/ofono.service ||
+         -e /usr/lib/systemd/system/multi-user.target.wants/ofono.service ]]
+    then
+        systemctl disable ofono.service
+    fi
+
+    if [[ -e /etc/systemd/system/default.target.wants/ofonoctl.service ||
+         -e /usr/lib/systemd/system/default.target.wants/ofonoctl.service ]]
+    then
+        systemctl disable ofonoctl.service
+    fi
+
+    systemctl enable ModemManager.service
+}
+
+post_install() {
+    post_upgrade
+}

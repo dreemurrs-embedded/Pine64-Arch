@@ -4,7 +4,7 @@
 
 pkgname=gnome-contacts-mobile
 _pkgname=gnome-contacts
-pkgver=40.0
+pkgver=41.0
 pkgrel=1
 pkgdesc="Contacts Manager for GNOME - Forked for Purism patches"
 url="https://wiki.gnome.org/Apps/Contacts"
@@ -14,17 +14,19 @@ depends=(gtk3 folks gnome-desktop dconf gnome-online-accounts libgee libhandy)
 makedepends=(vala gobject-introspection git meson)
 provides=(gnome-contacts)
 conflicts=(gnome-contacts)
-_commit=8c27ab8cb5e7fcdfe40a27e9744bd1299360a7c4  # tags/40.0^0
+_commit=06d6cd077014164d820a35d4f10d890b25572ab1  # tags/41.0^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-contacts.git#commit=$_commit"
   0001-ContactSheet-Add-make-call-and-send-sms-button.patch
   0002-Contact-Sheet-use-normalized-phone-number-for-tel-and-sms-.patch
   0003-Sheet-use-user-available-symbolic-for-send-sms-btn.patch
-  0004-ContactSheet-always-show-im-details.patch)
+  0004-ContactSheet-always-show-im-details.patch
+  Add-DBus-API-for-adding-contact-with-preset-properties.patch)
 sha256sums=('SKIP'
             '7067e74d67222cefb3a91d998f30e88b7c1248fce585cfdd8573e48f6522e5ee'
             '85e9fccfbcdb6001b37612e8da7278f39a0667f64cd806f60b9c883af462163e'
             'a41b6d355199456ee00b6df2b421bc09742237b0e8f25de91d6cbb17ade53e8a'
-            'f2f5cab652db6e76ae839669c1f16db9fb2c286ad609e2fbb9926be6c4034d9b')
+            'f2f5cab652db6e76ae839669c1f16db9fb2c286ad609e2fbb9926be6c4034d9b'
+            'a21edd14dcb42e133ef37239dec995bb22bca0170ef92bdfcf492adcbe32564e')
 
 pkgver() {
   cd $_pkgname

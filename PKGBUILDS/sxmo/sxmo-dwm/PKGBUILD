@@ -1,21 +1,19 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-dwm
-pkgver=6.2.13
+pkgver=6.2.15
 pkgrel=1
 pkgdesc="Dwm fork for Sxmo UI; supports volume-key hotkeys, swallow, keyboard, among other patches"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://git.sr.ht/~mil/sxmo-dwm"
 license=('MIT')
-depends=('xorg-server')
-makedepends=('freetype2' 'libx11' 'libxinerama' 'libxft')
+depends=('xorg-server' 'freetype2' 'libx11' 'libxinerama' 'libxft')
 provides=('dwm')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-dwm/archive/$pkgver.tar.gz")
 
-# prepare() {
-# 	sed -i -e '/CFLAGS/{s/-Os//;s/=/+=/}' \
-# 		-e '/LDFLAGS/{s/=/+=/}' \
-# 		"$builddir"/config.mk
-# }
+prepare() {
+  sed -i -e '/CFLAGS/{s/-Os//;s/=/+=/}' \
+    -e '/LDFLAGS/{s/=/+=/}' "$pkgname-$pkgver/config.mk"
+}
 
 build() {
   cd "$pkgname-$pkgver"
@@ -27,4 +25,4 @@ package() {
   make PREFIX=/usr DESTDIR="$pkgdir" install
 }
 
-sha512sums=('89d935019620dacfa2d3f9b48d6762e08af55ecbbd42f1382697ea3202e21d987284ff7993367b8b11ac14da8405686886d95852d8c7fa12f9f8ea66ea1f9607')
+sha512sums=('a92eded8ca829b866f268d9d62980242a029c17febdf1a89d4944fc53f2da374e02e5a1255164aebaf6abf1d53278495e28fae38b2502328b814e27b849c5057')

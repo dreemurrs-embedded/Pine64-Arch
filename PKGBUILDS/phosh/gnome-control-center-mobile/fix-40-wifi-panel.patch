@@ -1,0 +1,26 @@
+Index: gnome-control-center/panels/network/cc-wifi-connection-row.ui
+===================================================================
+--- gnome-control-center.orig/panels/network/cc-wifi-connection-row.ui	2021-10-23 07:56:40.703000000 +0000
++++ gnome-control-center/panels/network/cc-wifi-connection-row.ui	2021-10-23 07:56:40.700000000 +0000
+@@ -65,7 +65,7 @@
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+             <property name="margin_end">6</property>
+-            <property name="label" translatable="yes">Connected</property>
++            <property name="label" translatable="no">✓</property>
+             <style>
+               <class name="dim-label"/>
+             </style>
+Index: gnome-control-center/panels/network/cc-wifi-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/network/cc-wifi-panel.ui	2021-10-23 07:56:40.703000000 +0000
++++ gnome-control-center/panels/network/cc-wifi-panel.ui	2021-10-23 07:56:40.700000000 +0000
+@@ -44,7 +44,7 @@
+                         <property name="show-switch">True</property>
+                         <property name="bold">True</property>
+                         <property name="title" translatable="yes">Airplane Mode</property>
+-                        <property name="subtitle" translatable="yes">Disables Wi-Fi, Bluetooth and mobile broadband</property>
++                        <property name="subtitle" translatable="yes">Disables all radio</property>
+                         <signal name="notify::active" handler="rfkill_switch_notify_activate_cb" object="CcWifiPanel" swapped="no" />
+                       </object>
+                     </child>

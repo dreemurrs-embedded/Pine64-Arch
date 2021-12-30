@@ -1,0 +1,191 @@
+From 9e63b576cdbfea833c3b5bb01b1a28cebba6817e Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 11 Oct 2021 14:58:56 +0200
+Subject: [PATCH] event-editor-dialog: Use HdyPreferencesGroup and
+ HdyPreferencesPage
+
+This helps simplifying the code a bit and standardizing it with the rest
+of GNOME.
+---
+ .../event-editor/gcal-event-editor-dialog.c   |  5 --
+ .../event-editor/gcal-event-editor-dialog.ui  | 87 +++++++------------
+ 2 files changed, 29 insertions(+), 63 deletions(-)
+
+diff --git a/src/gui/event-editor/gcal-event-editor-dialog.c b/src/gui/event-editor/gcal-event-editor-dialog.c
+index 0d9eb085..e2f04234 100644
+--- a/src/gui/event-editor/gcal-event-editor-dialog.c
++++ b/src/gui/event-editor/gcal-event-editor-dialog.c
+@@ -58,7 +58,6 @@ struct _GcalEventEditorDialog
+   GcalEventEditorSection *notes_section;
+   GcalEventEditorSection *reminders_section;
+   GcalEventEditorSection *schedule_section;
+-  GtkWidget              *scrolled_window;
+   GtkWidget              *sources_button;
+   GtkWidget              *sources_popover;
+   GtkWidget              *source_image;
+@@ -272,9 +271,6 @@ transient_size_allocate_cb (GcalEventEditorDialog *self)
+ 
+   transient = gtk_window_get_transient_for (GTK_WINDOW (self));
+   gtk_widget_get_allocation (GTK_WIDGET (transient), &alloc);
+-
+-  gtk_scrolled_window_set_max_content_height (GTK_SCROLLED_WINDOW (self->scrolled_window),
+-                                              MAX (400, (gint) (0.75 * alloc.height)));
+ }
+ 
+ static void
+@@ -542,7 +538,6 @@ gcal_event_editor_dialog_class_init (GcalEventEditorDialogClass *klass)
+   gtk_widget_class_bind_template_child (widget_class, GcalEventEditorDialog, notes_section);
+   gtk_widget_class_bind_template_child (widget_class, GcalEventEditorDialog, reminders_section);
+   gtk_widget_class_bind_template_child (widget_class, GcalEventEditorDialog, schedule_section);
+-  gtk_widget_class_bind_template_child (widget_class, GcalEventEditorDialog, scrolled_window);
+   gtk_widget_class_bind_template_child (widget_class, GcalEventEditorDialog, sources_button);
+   gtk_widget_class_bind_template_child (widget_class, GcalEventEditorDialog, sources_popover);
+   gtk_widget_class_bind_template_child (widget_class, GcalEventEditorDialog, source_image);
+diff --git a/src/gui/event-editor/gcal-event-editor-dialog.ui b/src/gui/event-editor/gcal-event-editor-dialog.ui
+index d7583121..7c069876 100644
+--- a/src/gui/event-editor/gcal-event-editor-dialog.ui
++++ b/src/gui/event-editor/gcal-event-editor-dialog.ui
+@@ -2,9 +2,10 @@
+ <interface>
+   <template class="GcalEventEditorDialog" parent="GtkDialog">
+     <property name="can_focus">False</property>
+-    <property name="resizable">False</property>
++    <property name="resizable">True</property>
+     <property name="modal">True</property>
+     <property name="default-width">450</property>
++    <property name="default-height">500</property>
+     <property name="window_position">center-on-parent</property>
+     <property name="use_header_bar">1</property>
+     <property name="destroy_with_parent">True</property>
+@@ -126,93 +127,64 @@
+         <property name="spacing">0</property>
+         <property name="border_width">0</property>
+         <child>
+-          <object class="GtkScrolledWindow" id="scrolled_window">
++          <object class="HdyPreferencesPage">
+             <property name="visible">True</property>
+-            <property name="can_focus">False</property>
+-            <property name="hscrollbar_policy">never</property>
+-            <property name="min_content_height">400</property>
+-            <property name="propagate_natural_height">true</property>
++            <property name="vexpand">True</property>
++
+             <child>
+-              <object class="GtkBox">
++              <object class="HdyPreferencesGroup">
+                 <property name="visible">True</property>
+-                <property name="margin">18</property>
+-                <property name="spacing">12</property>
+-                <property name="orientation">vertical</property>
+-
+-                <!-- Summary -->
+                 <child>
+                   <object class="GcalSummarySection" id="summary_section">
+                     <property name="visible">True</property>
+                     <property name="sensitive" bind-source="GcalEventEditorDialog" bind-property="writable" bind-flags="default" />
+                   </object>
+                 </child>
++              </object>
++            </child>
+ 
+-                <child>
+-                  <object class="GtkLabel">
+-                    <property name="visible">True</property>
+-                    <property name="can_focus">False</property>
+-                    <property name="hexpand">True</property>
+-                    <property name="margin-top">12</property>
+-                    <property name="xalign">0.0</property>
+-                    <property name="label" translatable="yes">Schedule</property>
+-                    <attributes>
+-                      <attribute name="weight" value="bold" />
+-                    </attributes>
+-                  </object>
+-                </child>
+-
++            <child>
++              <object class="HdyPreferencesGroup">
++                <property name="visible">True</property>
++                <property name="title" translatable="yes">Schedule</property>
+                 <child>
+                   <object class="GcalScheduleSection" id="schedule_section">
+                     <property name="visible">True</property>
+                     <property name="sensitive" bind-source="GcalEventEditorDialog" bind-property="writable" bind-flags="default" />
+                   </object>
+                 </child>
++              </object>
++            </child>
+ 
+-                <child>
+-                  <object class="GtkLabel">
+-                    <property name="visible">True</property>
+-                    <property name="can_focus">False</property>
+-                    <property name="hexpand">True</property>
+-                    <property name="margin-top">12</property>
+-                    <property name="xalign">0.0</property>
+-                    <property name="label" translatable="yes">Reminders</property>
+-                    <attributes>
+-                      <attribute name="weight" value="bold" />
+-                    </attributes>
+-                  </object>
+-                </child>
+-
+-                <!-- Reminders -->
++            <child>
++              <object class="HdyPreferencesGroup">
++                <property name="visible">True</property>
++                <property name="title" translatable="yes">Reminders</property>
+                 <child>
+                   <object class="GcalRemindersSection" id="reminders_section">
+                     <property name="visible">True</property>
+                     <property name="sensitive" bind-source="GcalEventEditorDialog" bind-property="writable" bind-flags="default" />
+                   </object>
+                 </child>
++              </object>
++            </child>
+ 
+-                <!-- Notes -->
+-                <child>
+-                  <object class="GtkLabel">
+-                    <property name="visible">True</property>
+-                    <property name="can_focus">False</property>
+-                    <property name="hexpand">True</property>
+-                    <property name="margin-top">12</property>
+-                    <property name="xalign">0.0</property>
+-                    <property name="label" translatable="yes">Notes</property>
+-                    <attributes>
+-                      <attribute name="weight" value="bold" />
+-                    </attributes>
+-                  </object>
+-                </child>
+-
++            <child>
++              <object class="HdyPreferencesGroup">
++                <property name="visible">True</property>
++                <property name="title" translatable="yes">Notes</property>
+                 <child>
+                   <object class="GcalNotesSection" id="notes_section">
+                     <property name="visible">True</property>
+                     <property name="sensitive" bind-source="GcalEventEditorDialog" bind-property="writable" bind-flags="default" />
+                   </object>
+                 </child>
++              </object>
++            </child>
+ 
+-                <!-- Delete Button -->
++            <child>
++              <object class="HdyPreferencesGroup">
++                <property name="visible">True</property>
+                 <child>
+                   <object class="GtkButton" id="delete_button">
+                     <property name="visible">True</property>
+@@ -231,7 +203,6 @@
+                     </style>
+                   </object>
+                 </child>
+-
+               </object>
+             </child>
+ 
+-- 
+2.30.2
+

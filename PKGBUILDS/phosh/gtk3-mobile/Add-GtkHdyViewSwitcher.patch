@@ -18,7 +18,7 @@ This is imported from HdyViewSwitcher from libhandy 1.0.1.
  create mode 100644 gtk/hdy-view-switcher.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index a0717b9..1e7f108 100644
+index e2a459d..87de9c3 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
 @@ -363,7 +363,8 @@ gtk_semi_private_h_sources = \
@@ -31,7 +31,7 @@ index a0717b9..1e7f108 100644
  
  
  # GTK+ header files that don't get installed
-@@ -601,7 +602,9 @@ gtk_private_h_sources =		\
+@@ -600,7 +601,9 @@ gtk_private_h_sources =		\
  	gtkwindowprivate.h	\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
@@ -41,7 +41,7 @@ index a0717b9..1e7f108 100644
  	open-type-layout.h	\
  	language-names.h	\
  	script-names.h
-@@ -977,6 +980,8 @@ gtk_base_c_sources = 		\
+@@ -976,6 +979,8 @@ gtk_base_c_sources = 		\
  	gtkwin32draw.c		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
@@ -962,7 +962,7 @@ index 0000000..2664b3e
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STACK]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 71c85dc..0e7e7f2 100644
+index 40be825..b009f2f 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -383,7 +383,9 @@ gtk_sources = files(

@@ -8,10 +8,10 @@ Subject: [PATCH 6/7] sound: fix test dialog on small screen
  panels/sound/cc-speaker-test-button.ui | 2 +-
  2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/panels/sound/cc-output-test-dialog.ui b/panels/sound/cc-output-test-dialog.ui
-index 8d84e275e..b2000ce4c 100644
---- a/panels/sound/cc-output-test-dialog.ui
-+++ b/panels/sound/cc-output-test-dialog.ui
+Index: gnome-control-center/panels/sound/cc-output-test-dialog.ui
+===================================================================
+--- gnome-control-center.orig/panels/sound/cc-output-test-dialog.ui	2021-10-23 07:56:40.458000000 +0000
++++ gnome-control-center/panels/sound/cc-output-test-dialog.ui	2021-10-23 07:56:40.455000000 +0000
 @@ -8,9 +8,9 @@
          <child>
            <object class="GtkGrid">
@@ -25,10 +25,10 @@ index 8d84e275e..b2000ce4c 100644
              <child>
                <object class="CcSpeakerTestButton" id="front_left_speaker_button">
                  <property name="visible">True</property>
-diff --git a/panels/sound/cc-speaker-test-button.ui b/panels/sound/cc-speaker-test-button.ui
-index 7e37034c8..f03460978 100644
---- a/panels/sound/cc-speaker-test-button.ui
-+++ b/panels/sound/cc-speaker-test-button.ui
+Index: gnome-control-center/panels/sound/cc-speaker-test-button.ui
+===================================================================
+--- gnome-control-center.orig/panels/sound/cc-speaker-test-button.ui	2021-10-23 07:56:40.458000000 +0000
++++ gnome-control-center/panels/sound/cc-speaker-test-button.ui	2021-10-23 07:56:40.455000000 +0000
 @@ -8,7 +8,7 @@
          <property name="visible">True</property>
          <property name="orientation">vertical</property>
@@ -38,6 +38,3 @@ index 7e37034c8..f03460978 100644
          <child>
            <object class="GtkImage" id="image">
              <property name="visible">True</property>
--- 
-2.30.2
-

@@ -1,0 +1,28 @@
+From 23c9275930e5f7005049fb8e7d32925bca0acf4b Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 5 Jun 2019 15:29:32 +0200
+Subject: [PATCH 03/38] Init libhandy in main()
+
+---
+ gnome-initial-setup/gnome-initial-setup.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+--- a/gnome-initial-setup/gnome-initial-setup.c
++++ b/gnome-initial-setup/gnome-initial-setup.c
+@@ -27,6 +27,8 @@
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <glib/gi18n.h>
++#define HANDY_USE_UNSTABLE_API
++#include <handy.h>
+ 
+ #ifdef HAVE_CHEESE
+ #include <cheese-gtk.h>
+@@ -258,6 +260,7 @@
+ #endif
+ 
+   gtk_init (&argc, &argv);
++  hdy_init (&argc, &argv);
+ 
+   g_message ("Starting gnome-initial-setup");
+   if (gis_get_mock_mode ())

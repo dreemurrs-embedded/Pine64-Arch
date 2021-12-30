@@ -1,8 +1,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=danctnix-pm-ui-meta
-pkgver=5.22
-pkgrel=2
+pkgver=5.23
+pkgrel=1
 pkgdesc='Meta package to install Plasma Mobile'
 arch=(any)
 url='https://mobile.danctnix.org'

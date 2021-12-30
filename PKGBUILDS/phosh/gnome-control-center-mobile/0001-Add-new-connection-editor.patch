@@ -1,27 +1,27 @@
-From 83852147a48bc3ba277234caab1304a3a43e34b4 Mon Sep 17 00:00:00 2001
+From 7fd4842fc1e931c5dbb980e0b32c84e95aa461b7 Mon Sep 17 00:00:00 2001
 From: Mohammed Sadiq <sadiq@sadiqpk.org>
 Date: Fri, 18 Oct 2019 18:36:59 +0530
-Subject: [PATCH] Add new connection editor
+Subject: [PATCH 4/4] Add new connection editor
 
 ---
- .../connection-editor/cc-connection-editor.c  |  617 ++++++++++
- .../connection-editor/cc-connection-editor.h  |   44 +
- .../connection-editor/cc-connection-editor.ui |  316 +++++
- .../connection-editor/ce-details-page.c       |  837 +++++++++++++
+ .../connection-editor/cc-connection-editor.c  |  618 ++++++++++
+ .../connection-editor/cc-connection-editor.h  |   43 +
+ .../connection-editor/cc-connection-editor.ui |  311 +++++
+ .../connection-editor/ce-details-page.c       |  838 +++++++++++++
  .../connection-editor/ce-details-page.h       |   53 +
- .../connection-editor/ce-details-page.ui      |  162 +++
+ .../connection-editor/ce-details-page.ui      |  179 +++
  panels/network/connection-editor/ce-ip-page.c | 1055 +++++++++++++++++
  panels/network/connection-editor/ce-ip-page.h |   47 +
- .../network/connection-editor/ce-ip-page.ui   |  407 +++++++
+ .../network/connection-editor/ce-ip-page.ui   |  421 +++++++
  .../connection-editor/ce-password-row.c       |  194 +++
  .../connection-editor/ce-password-row.h       |   43 +
  .../connection-editor/ce-password-row.ui      |   65 +
- .../connection-editor/ce-security-page.c      |  759 ++++++++++++
+ .../connection-editor/ce-security-page.c      |  925 +++++++++++++++
  .../connection-editor/ce-security-page.h      |   45 +
- .../connection-editor/ce-security-page.ui     |  102 ++
+ .../connection-editor/ce-security-page.ui     |  273 +++++
  .../connection-editor.gresource.xml           |    5 +
  panels/network/connection-editor/meson.build  |   10 +
- 17 files changed, 4761 insertions(+)
+ 17 files changed, 5125 insertions(+)
  create mode 100644 panels/network/connection-editor/cc-connection-editor.c
  create mode 100644 panels/network/connection-editor/cc-connection-editor.h
  create mode 100644 panels/network/connection-editor/cc-connection-editor.ui
@@ -38,13 +38,15 @@ Subject: [PATCH] Add new connection editor
  create mode 100644 panels/network/connection-editor/ce-security-page.h
  create mode 100644 panels/network/connection-editor/ce-security-page.ui
 
---- /dev/null
-+++ b/panels/network/connection-editor/cc-connection-editor.c
-@@ -0,0 +1,617 @@
+Index: gnome-control-center/panels/network/connection-editor/cc-connection-editor.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.c	2021-10-23 07:56:40.289000000 +0000
+@@ -0,0 +1,618 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-network-editor.c
 + *
-+ * Copyright 2019 Purism SPC
++ * Copyright 2021 Purism SPC
 + *
 + * This program is free software: you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -101,14 +103,14 @@ Subject: [PATCH] Add new connection editor
 +{
 +  GtkDialog      parent_instance;
 +
-+  GtkAdjustment *vadjustment;
-+  gdouble        vadjustment_value;
++  /* GtkAdjustment *vadjustment; */
++  /* gdouble        vadjustment_value; */
 +
 +  GtkButton     *back_button;
 +  GtkButton     *cancel_button;
 +  GtkButton     *apply_button;
 +
-+  GtkScrolledWindow  *main_view;
++  /* GtkScrolledWindow  *main_view; */
 +  GtkStack      *main_stack;
 +  GtkBox        *main_page;
 +
@@ -142,7 +144,7 @@ Subject: [PATCH] Add new connection editor
 +  NetType        network_type;
 +
 +  /* Set after current view changed, reset after scroll set */
-+  gboolean       view_changed;
++  /* gboolean       view_changed; */
 +};
 +
 +G_DEFINE_TYPE (CcConnectionEditor, cc_connection_editor, GTK_TYPE_DIALOG)
@@ -269,8 +271,8 @@ Subject: [PATCH] Add new connection editor
 +  g_assert (GTK_IS_LIST_BOX_ROW (row));
 +
 +  gtk_widget_show (GTK_WIDGET (self->cancel_button));
-+  self->vadjustment_value = gtk_adjustment_get_value (self->vadjustment);
-+  self->view_changed = TRUE;
++  /* self->vadjustment_value = gtk_adjustment_get_value (self->vadjustment); */
++  /* self->view_changed = TRUE; */
 +
 +  if (row == self->details_row)
 +    {
@@ -294,26 +296,26 @@ Subject: [PATCH] Add new connection editor
 +      gtk_stack_set_visible_child (self->main_stack, GTK_WIDGET (self->security_page));
 +    }
 +  else
-+    g_return_if_reached ();     /* XXX: debug, replace with return */
++    g_return_if_reached ();
 +}
 +
-+static void
-+ce_main_view_scroll_changed_cb (CcConnectionEditor *self)
-+{
-+  GtkWidget *current_view;
++/* static void */
++/* ce_main_view_scroll_changed_cb (CcConnectionEditor *self) */
++/* { */
++/*   GtkWidget *current_view; */
 +
-+  g_assert (CC_IS_CONNECTION_EDITOR (self));
++/*   g_assert (CC_IS_CONNECTION_EDITOR (self)); */
 +
-+  current_view = gtk_stack_get_visible_child (self->main_stack);
++/*   current_view = gtk_stack_get_visible_child (self->main_stack); */
 +
-+  if (self->view_changed && current_view == GTK_WIDGET (self->main_page))
-+    {
-+      gtk_adjustment_set_value (self->vadjustment, self->vadjustment_value);
-+      self->view_changed = FALSE;
-+    }
-+  else if (self->view_changed)
-+    gtk_adjustment_set_value (self->vadjustment, 0.0);
-+}
++/*   if (self->view_changed && current_view == GTK_WIDGET (self->main_page)) */
++/*     { */
++/*       gtk_adjustment_set_value (self->vadjustment, self->vadjustment_value); */
++/*       self->view_changed = FALSE; */
++/*     } */
++/*   else if (self->view_changed) */
++/*     gtk_adjustment_set_value (self->vadjustment, 0.0); */
++/* } */
 +
 +static void
 +editor_settings_changed_cb (CcConnectionEditor *self)
@@ -429,8 +431,9 @@ Subject: [PATCH] Add new connection editor
 +/*   const gchar *type; */
 +/*   gboolean others_allowed, auto_connect; */
 +
-+  self->vadjustment_value = 0.0;
-+  gtk_adjustment_set_value (self->vadjustment, 0.0);
++  /* Reset page scroll */
++  /* self->vadjustment_value = 0.0; */
++  /* gtk_adjustment_set_value (self->vadjustment, 0.0); */
 +/*   con_setting = nm_connection_get_setting_connection (self->connection); */
 +
 +/*   auto_connect = nm_setting_connection_get_autoconnect (con_setting); */
@@ -489,7 +492,7 @@ Subject: [PATCH] Add new connection editor
 +  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, cancel_button);
 +  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, apply_button);
 +
-+  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, main_view);
++  /* gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, main_view); */
 +  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, main_stack);
 +  gtk_widget_class_bind_template_child (widget_class, CcConnectionEditor, main_page);
 +
@@ -520,7 +523,7 @@ Subject: [PATCH] Add new connection editor
 +  gtk_widget_class_bind_template_callback (widget_class, editor_apply_clicked_cb);
 +  gtk_widget_class_bind_template_callback (widget_class, editor_row_activated_cb);
 +  gtk_widget_class_bind_template_callback (widget_class, editor_row_changed_cb);
-+  gtk_widget_class_bind_template_callback (widget_class, ce_main_view_scroll_changed_cb);
++  /* gtk_widget_class_bind_template_callback (widget_class, ce_main_view_scroll_changed_cb); */
 +  gtk_widget_class_bind_template_callback (widget_class, editor_settings_changed_cb);
 +  gtk_widget_class_bind_template_callback (widget_class, editor_delete_clicked_cb);
 +
@@ -537,21 +540,21 @@ Subject: [PATCH] Add new connection editor
 +  ce_ip_page_set_version (self->ip4_page, AF_INET);
 +  ce_ip_page_set_version (self->ip6_page, AF_INET6);
 +
-+  gtk_list_box_set_header_func (self->details_box,
-+                                cc_list_box_update_header_func,
-+                                NULL, NULL);
++  /* gtk_list_box_set_header_func (self->details_box, */
++  /*                               cc_list_box_update_header_func, */
++  /*                               NULL, NULL); */
 +
-+  gtk_list_box_set_header_func (self->switch_box,
-+                                cc_list_box_update_header_func,
-+                                NULL, NULL);
++  /* gtk_list_box_set_header_func (self->switch_box, */
++  /*                               cc_list_box_update_header_func, */
++  /*                               NULL, NULL); */
 +
-+ gtk_list_box_set_header_func (self->advanced_box,
-+                                cc_list_box_update_header_func,
-+                               NULL, NULL);
++  /* gtk_list_box_set_header_func (self->advanced_box, */
++  /*                               cc_list_box_update_header_func, */
++  /*                              NULL, NULL); */
 +
-+ self->vadjustment = gtk_scrolled_window_get_vadjustment (self->main_view);
-+ g_signal_connect_swapped (self->vadjustment, "notify::upper",
-+                           G_CALLBACK (ce_main_view_scroll_changed_cb), self);
++ /* self->vadjustment = gtk_scrolled_window_get_vadjustment (self->main_view); */
++ /* g_signal_connect_swapped (self->vadjustment, "notify::upper", */
++ /*                           G_CALLBACK (ce_main_view_scroll_changed_cb), self); */
 +}
 +
 +GtkWidget *
@@ -658,13 +661,15 @@ Subject: [PATCH] Add new connection editor
 +  if (g_set_object (&self->ap, ap))
 +    cc_connection_editor_update_ap (self);
 +}
---- /dev/null
-+++ b/panels/network/connection-editor/cc-connection-editor.h
-@@ -0,0 +1,44 @@
+Index: gnome-control-center/panels/network/connection-editor/cc-connection-editor.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.h	2021-10-23 07:56:40.289000000 +0000
+@@ -0,0 +1,43 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-network-editor.h
 + *
-+ * Copyright 2019 Purism SPC
++ * Copyright 2021 Purism SPC
 + *
 + * This program is free software: you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -687,7 +692,6 @@ Subject: [PATCH] Add new connection editor
 +
 +#pragma once
 +
-+#define HANDY_USE_UNSTABLE_API 1
 +#include <handy.h>
 +#include <shell/cc-panel.h>
 +
@@ -705,17 +709,19 @@ Subject: [PATCH] Add new connection editor
 +                                                  NMAccessPoint      *ap);
 +
 +G_END_DECLS
---- /dev/null
-+++ b/panels/network/connection-editor/cc-connection-editor.ui
-@@ -0,0 +1,316 @@
+Index: gnome-control-center/panels/network/connection-editor/cc-connection-editor.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.ui	2021-10-23 07:56:40.289000000 +0000
+@@ -0,0 +1,311 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
 +  <template class="CcConnectionEditor" parent="GtkDialog">
 +    <signal name="delete-event" handler="gtk_widget_hide_on_delete"/>
-+    <property name="default-width">360</property>
 +    <child type="titlebar">
 +      <object class="GtkHeaderBar">
 +        <property name="visible">1</property>
++        <property name="width-request">360</property>
 +
 +        <!-- Back button -->
 +        <child>
@@ -772,28 +778,26 @@ Subject: [PATCH] Add new connection editor
 +        <property name="border-width">0</property>
 +
 +        <child>
-+          <object class="GtkScrolledWindow" id="main_view">
++          <object class="GtkStack" id="main_stack">
 +            <property name="visible">1</property>
-+            <property name="vexpand">1</property>
-+            <property name="hscrollbar-policy">never</property>
-+            <property name="min-content-height">400</property>
++            <property name="transition-type">slide-left-right</property>
++            <property name="homogeneous">0</property>
++            <signal name="notify::visible-child" handler="editor_visible_child_changed_cb" swapped="yes" />
++
 +            <child>
-+              <object class="HdyClamp">
++              <object class="GtkScrolledWindow" id="main_page">
 +                <property name="visible">1</property>
-+                <property name="maximum-size">600</property>
-+                <property name="tightening-threshold">400</property>
-+                <property name="margin-top">32</property>
-+                <property name="margin-bottom">32</property>
++                <property name="vexpand">1</property>
++                <property name="hscrollbar-policy">never</property>
++                <property name="min-content-height">400</property>
 +
 +                <child>
-+                  <object class="GtkStack" id="main_stack">
++                  <object class="HdyClamp">
 +                    <property name="visible">1</property>
-+                    <property name="transition-type">slide-left-right</property>
-+                    <property name="homogeneous">0</property>
-+                    <signal name="notify::visible-child" handler="editor_visible_child_changed_cb" swapped="yes" />
-+
++                    <property name="margin-top">32</property>
++                    <property name="margin-bottom">32</property>
 +                    <child>
-+                      <object class="GtkBox" id="main_page">
++                      <object class="GtkBox">
 +                        <property name="margin-start">12</property>
 +                        <property name="margin-end">12</property>
 +                        <property name="visible">1</property>
@@ -806,15 +810,16 @@ Subject: [PATCH] Add new connection editor
 +                            <property name="valign">start</property>
 +                            <property name="margin-bottom">32</property>
 +                            <property name="selection-mode">none</property>
-+                            <signal name="row-activated" handler="editor_row_activated_cb" object="CcConnectionEditor" swapped="yes" />
++                            <signal name="row-activated" handler="editor_row_activated_cb" swapped="yes" />
 +                            <style>
-+                              <class name="frame" />
++                              <class name="content" />
 +                            </style>
 +
 +                            <!-- Signal Strength row -->
 +                            <child>
 +                              <object class="CcListRow" id="signal_row">
 +                                <property name="visible">0</property>
++                                <property name="activatable">0</property>
 +                                <property name="title" translatable="yes">Signal Strength</property>
 +                              </object>
 +                            </child>
@@ -823,6 +828,7 @@ Subject: [PATCH] Add new connection editor
 +                            <child>
 +                              <object class="CcListRow" id="frequency_row">
 +                                <property name="visible">0</property>
++                                <property name="activatable">0</property>
 +                                <property name="title" translatable="yes">Frequency</property>
 +                              </object>
 +                            </child>
@@ -831,6 +837,7 @@ Subject: [PATCH] Add new connection editor
 +                            <child>
 +                              <object class="CcListRow" id="route_row">
 +                                <property name="visible">1</property>
++                                <property name="activatable">0</property>
 +                                <property name="title" translatable="yes">Default Route</property>
 +                              </object>
 +                            </child>
@@ -839,6 +846,7 @@ Subject: [PATCH] Add new connection editor
 +                            <child>
 +                              <object class="CcListRow" id="last_used_row">
 +                                <property name="visible">0</property>
++                                <property name="activatable">0</property>
 +                                <property name="title" translatable="yes">Last Used</property>
 +                              </object>
 +                            </child>
@@ -863,7 +871,7 @@ Subject: [PATCH] Add new connection editor
 +                            <property name="margin-bottom">32</property>
 +                            <property name="selection-mode">none</property>
 +                            <style>
-+                              <class name="frame" />
++                              <class name="content" />
 +                            </style>
 +
 +                            <!-- Connect Automatically row -->
@@ -919,9 +927,9 @@ Subject: [PATCH] Add new connection editor
 +                            <property name="valign">start</property>
 +                            <property name="margin-bottom">32</property>
 +                            <property name="selection-mode">none</property>
-+                            <signal name="row-activated" handler="editor_row_activated_cb" object="CcConnectionEditor" swapped="yes" />
++                            <signal name="row-activated" handler="editor_row_activated_cb" swapped="yes" />
 +                            <style>
-+                             <class name="frame" />
++                              <class name="content" />
 +                            </style>
 +
 +                            <!-- IPv4 row -->
@@ -968,55 +976,48 @@ Subject: [PATCH] Add new connection editor
 +                        </child>
 +
 +                      </object>
-+                      <packing>
-+                        <property name="name">main-view</property>
-+                      </packing>
 +                    </child>
-+
-+                    <!-- Details Page -->
-+                    <child>
-+                      <object class="CeDetailsPage" id="details_page">
-+                        <property name="visible">1</property>
-+                        <property name="margin-start">12</property>
-+                        <property name="margin-end">12</property>
-+                      </object>
-+                    </child>
-+
-+                    <!-- IPv4 Page -->
-+                    <child>
-+                      <object class="CeIpPage" id="ip4_page">
-+                        <property name="visible">1</property>
-+                        <property name="margin-start">12</property>
-+                        <property name="margin-end">12</property>
-+                        <signal name="changed" handler="editor_settings_changed_cb" object="CcConnectionEditor" swapped="yes" />
-+                      </object>
-+                    </child>
-+
-+                    <!-- IPv6 Page -->
-+                    <child>
-+                      <object class="CeIpPage" id="ip6_page">
-+                        <property name="visible">1</property>
-+                        <property name="margin-start">12</property>
-+                        <property name="margin-end">12</property>
-+                        <signal name="changed" handler="editor_settings_changed_cb" object="CcConnectionEditor" swapped="yes" />
-+                      </object>
-+                    </child>
-+
-+                    <!-- Security Page -->
-+                    <child>
-+                      <object class="CeSecurityPage" id="security_page">
-+                        <property name="visible">1</property>
-+                        <property name="margin-start">12</property>
-+                        <property name="margin-end">12</property>
-+                        <signal name="changed" handler="editor_settings_changed_cb" object="CcConnectionEditor" swapped="yes" />
-+                      </object>
-+                    </child>
-+
 +                  </object>
 +                </child>
++              </object>
++              <packing>
++                <property name="name">main-view</property>
++              </packing>
++            </child>
 +
++            <!-- Details Page -->
++            <child>
++              <object class="CeDetailsPage" id="details_page">
++                <property name="visible">1</property>
 +              </object>
 +            </child>
++
++            <!-- IPv4 Page -->
++            <child>
++              <object class="CeIpPage" id="ip4_page">
++                <property name="visible">1</property>
++                <signal name="changed" handler="editor_settings_changed_cb" swapped="yes" />
++              </object>
++            </child>
++
++            <!-- IPv6 Page -->
++            <child>
++              <object class="CeIpPage" id="ip6_page">
++                <property name="visible">1</property>
++                <signal name="changed" handler="editor_settings_changed_cb" swapped="yes" />
++              </object>
++            </child>
++
++            <!-- Security Page -->
++            <child>
++              <object class="CeSecurityPage" id="security_page">
++                <property name="visible">1</property>
++                <property name="margin-start">12</property>
++                <property name="margin-end">12</property>
++                <signal name="changed" handler="editor_settings_changed_cb" swapped="yes" />
++              </object>
++            </child>
++
 +          </object>
 +        </child>
 +
@@ -1024,9 +1025,11 @@ Subject: [PATCH] Add new connection editor
 +    </child>
 +  </template>
 +</interface>
---- /dev/null
-+++ b/panels/network/connection-editor/ce-details-page.c
-@@ -0,0 +1,837 @@
+Index: gnome-control-center/panels/network/connection-editor/ce-details-page.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-details-page.c	2021-10-23 07:56:40.289000000 +0000
+@@ -0,0 +1,838 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-wifi-page.c
 + *
@@ -1073,7 +1076,8 @@ Subject: [PATCH] Add new connection editor
 +
 +struct _CeDetailsPage
 +{
-+  GtkBox         parent_instance;
++  GtkScrolledWindow parent_instance;
++  /* GtkBox         parent_instance; */
 +
 +  GtkWidget     *list_box;
 +  GtkWidget     *speed_row;
@@ -1105,7 +1109,7 @@ Subject: [PATCH] Add new connection editor
 +  gboolean       device_is_active;
 +};
 +
-+G_DEFINE_TYPE (CeDetailsPage, ce_details_page, GTK_TYPE_BOX)
++G_DEFINE_TYPE (CeDetailsPage, ce_details_page, GTK_TYPE_SCROLLED_WINDOW)
 +
 +/* Stolen from ce-page.c
 + * Written by Matthias Clasen and Bastien Nocera
@@ -1636,9 +1640,9 @@ Subject: [PATCH] Add new connection editor
 +{
 +  gtk_widget_init_template (GTK_WIDGET (self));
 +
-+  gtk_list_box_set_header_func (GTK_LIST_BOX (self->list_box),
-+                                cc_list_box_update_header_func,
-+                                NULL, NULL);
++  /* gtk_list_box_set_header_func (GTK_LIST_BOX (self->list_box), */
++  /*                               cc_list_box_update_header_func, */
++  /*                               NULL, NULL); */
 +}
 +
 +void
@@ -1864,8 +1868,10 @@ Subject: [PATCH] Add new connection editor
 +
 +  return g_string_free (str, FALSE);
 +}
---- /dev/null
-+++ b/panels/network/connection-editor/ce-details-page.h
+Index: gnome-control-center/panels/network/connection-editor/ce-details-page.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-details-page.h	2021-10-23 07:56:40.290000000 +0000
 @@ -0,0 +1,53 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-wifi-page.h
@@ -1898,7 +1904,7 @@ Subject: [PATCH] Add new connection editor
 +G_BEGIN_DECLS
 +
 +#define CE_TYPE_DETAILS_PAGE (ce_details_page_get_type())
-+G_DECLARE_FINAL_TYPE (CeDetailsPage, ce_details_page, CE, DETAILS_PAGE, GtkBox)
++G_DECLARE_FINAL_TYPE (CeDetailsPage, ce_details_page, CE, DETAILS_PAGE, GtkScrolledWindow)
 +
 +void         ce_details_page_set_parent_window (CeDetailsPage *self,
 +                                                GtkWindow     *parent_window);
@@ -1920,21 +1926,36 @@ Subject: [PATCH] Add new connection editor
 +gchar       *ce_details_page_get_security    (CeDetailsPage *self);
 +
 +G_END_DECLS
---- /dev/null
-+++ b/panels/network/connection-editor/ce-details-page.ui
-@@ -0,0 +1,162 @@
+Index: gnome-control-center/panels/network/connection-editor/ce-details-page.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-details-page.ui	2021-10-23 07:56:40.290000000 +0000
+@@ -0,0 +1,179 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
-+  <template class="CeDetailsPage" parent="GtkBox">
-+    <property name="orientation">vertical</property>
++  <template class="CeDetailsPage" parent="GtkScrolledWindow">
++    <property name="vexpand">1</property>
++    <property name="hscrollbar-policy">never</property>
++    <property name="min-content-height">400</property>
 +
++    <child>
++      <object class="HdyClamp">
++        <property name="visible">1</property>
++        <property name="margin-top">32</property>
++        <property name="margin-bottom">32</property>
++    <child>
++      <object class="GtkBox">
++        <property name="visible">1</property>
++        <property name="orientation">vertical</property>
++        <property name="margin-start">12</property>
++        <property name="margin-end">12</property>
 +    <child>
 +      <object class="GtkListBox" id="list_box">
 +        <property name="visible">1</property>
 +        <property name="selection-mode">none</property>
 +        <signal name="row-activated" handler="details_row_activated_cb" swapped="yes" />
 +        <style>
-+          <class name="frame" />
++          <class name="content" />
 +        </style>
 +
 +        <!-- Link Speed Row -->
@@ -2018,6 +2039,10 @@ Subject: [PATCH] Add new connection editor
 +
 +      </object>
 +    </child>
++      </object>
++    </child>
++      </object>
++    </child>
 +
 +  </template>
 +  <object class="GtkDialog" id="edit_dialog">
@@ -2085,17 +2110,19 @@ Subject: [PATCH] Add new connection editor
 +    </action-widgets>
 +  </object>
 +</interface>
---- /dev/null
-+++ b/panels/network/connection-editor/ce-ip-page.c
+Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-ip-page.c	2021-10-23 07:56:40.290000000 +0000
 @@ -0,0 +1,1055 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-wifi-page.c
 + *
-+ * Copyright 2019 Purism SPC
++ * Copyright 2021 Purism SPC
 + *
 + * This program is free software: you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation, either version 3 of the License, or
++ * the Free Software Foundation, either version 2 of the License, or
 + * (at your option) any later version.
 + *
 + * This program is distributed in the hope that it will be useful,
@@ -2109,7 +2136,7 @@ Subject: [PATCH] Add new connection editor
 + * Author(s):
 + *   Mohammed Sadiq <sadiq@sadiqpk.org>
 + *
-+ * SPDX-License-Identifier: GPL-3.0-or-later
++ * SPDX-License-Identifier: GPL-2.0-or-later
 + */
 +
 +#undef G_LOG_DOMAIN
@@ -2123,7 +2150,6 @@ Subject: [PATCH] Add new connection editor
 +#include <glib/gi18n.h>
 +#include <NetworkManager.h>
 +
-+#define HANDY_USE_UNSTABLE_API
 +#include <handy.h>
 +
 +#include "ui-helpers.h"
@@ -2152,7 +2178,8 @@ Subject: [PATCH] Add new connection editor
 +
 +struct _CeIpPage
 +{
-+  GtkBox         parent_instance;
++  GtkScrolledWindow parent_instance;
++  /* GtkBox         parent_instance; */
 +
 +  GtkWidget     *auto_list_box;
 +  GtkWidget     *ip_method_row;
@@ -2194,7 +2221,7 @@ Subject: [PATCH] Add new connection editor
 +  gboolean       route_has_error;
 +};
 +
-+G_DEFINE_TYPE (CeIpPage, ce_ip_page, GTK_TYPE_BOX)
++G_DEFINE_TYPE (CeIpPage, ce_ip_page, GTK_TYPE_SCROLLED_WINDOW)
 +
 +enum {
 +  CHANGED,
@@ -3143,17 +3170,19 @@ Subject: [PATCH] Add new connection editor
 +  ce_ip_page_save_routes (self);
 +  ce_ip_page_save_manual_ips (self);
 +}
---- /dev/null
-+++ b/panels/network/connection-editor/ce-ip-page.h
+Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-ip-page.h	2021-10-23 07:56:40.290000000 +0000
 @@ -0,0 +1,47 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-ip-page.h
 + *
-+ * Copyright 2019 Purism SPC
++ * Copyright 2021 Purism SPC
 + *
 + * This program is free software: you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation, either version 3 of the License, or
++ * the Free Software Foundation, either version 2 of the License, or
 + * (at your option) any later version.
 + *
 + * This program is distributed in the hope that it will be useful,
@@ -3167,7 +3196,7 @@ Subject: [PATCH] Add new connection editor
 + * Author(s):
 + *   Mohammed Sadiq <sadiq@sadiqpk.org>
 + *
-+ * SPDX-License-Identifier: GPL-3.0-or-later
++ * SPDX-License-Identifier: GPL-2.0-or-later
 + */
 +
 +#pragma once
@@ -3177,7 +3206,7 @@ Subject: [PATCH] Add new connection editor
 +G_BEGIN_DECLS
 +
 +#define CE_TYPE_IP_PAGE (ce_ip_page_get_type())
-+G_DECLARE_FINAL_TYPE (CeIpPage, ce_ip_page, CE, IP_PAGE, GtkBox)
++G_DECLARE_FINAL_TYPE (CeIpPage, ce_ip_page, CE, IP_PAGE, GtkScrolledWindow)
 +
 +void         ce_ip_page_set_parent_window (CeIpPage     *self,
 +                                           GtkWindow    *parent_window);
@@ -3193,14 +3222,26 @@ Subject: [PATCH] Add new connection editor
 +void         ce_ip_page_refresh         (CeIpPage     *self);
 +
 +G_END_DECLS
---- /dev/null
-+++ b/panels/network/connection-editor/ce-ip-page.ui
-@@ -0,0 +1,407 @@
+Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-ip-page.ui	2021-10-23 07:56:40.291000000 +0000
+@@ -0,0 +1,421 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
-+  <template class="CeIpPage" parent="GtkBox">
-+    <property name="orientation">vertical</property>
++  <template class="CeIpPage" parent="GtkScrolledWindow">
 +
++    <child>
++      <object class="HdyClamp">
++        <property name="visible">1</property>
++        <property name="margin-top">32</property>
++        <property name="margin-bottom">32</property>
++        <child>
++          <object class="GtkBox">
++            <property name="visible">1</property>
++            <property name="orientation">vertical</property>
++            <property name="margin-start">12</property>
++            <property name="margin-end">12</property>
 +    <child>
 +      <object class="GtkListBox" id="auto_list_box">
 +        <property name="visible">1</property>
@@ -3543,6 +3584,10 @@ Subject: [PATCH] Add new connection editor
 +      </object>
 +    </child>
 +
++          </object>
++        </child>
++      </object>
++    </child>
 +  </template>
 +
 +  <object class="GtkDialog" id="add_dns_dialog">
@@ -3603,8 +3648,10 @@ Subject: [PATCH] Add new connection editor
 +    </action-widgets>
 +  </object>
 +</interface>
---- /dev/null
-+++ b/panels/network/connection-editor/ce-password-row.c
+Index: gnome-control-center/panels/network/connection-editor/ce-password-row.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-password-row.c	2021-10-23 07:56:40.291000000 +0000
 @@ -0,0 +1,194 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-password-row.c
@@ -3800,8 +3847,10 @@ Subject: [PATCH] Add new connection editor
 +  else
 +    gtk_style_context_remove_class (gtk_widget_get_style_context (self->password_entry), "error");
 +}
---- /dev/null
-+++ b/panels/network/connection-editor/ce-password-row.h
+Index: gnome-control-center/panels/network/connection-editor/ce-password-row.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-password-row.h	2021-10-23 07:56:40.291000000 +0000
 @@ -0,0 +1,43 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-password-row.h
@@ -3846,8 +3895,10 @@ Subject: [PATCH] Add new connection editor
 +                                     gboolean       error);
 +
 +G_END_DECLS
---- /dev/null
-+++ b/panels/network/connection-editor/ce-password-row.ui
+Index: gnome-control-center/panels/network/connection-editor/ce-password-row.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-password-row.ui	2021-10-23 07:56:40.292000000 +0000
 @@ -0,0 +1,65 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -3914,13 +3965,15 @@ Subject: [PATCH] Add new connection editor
 +    </child>
 +  </template>
 +</interface>
---- /dev/null
-+++ b/panels/network/connection-editor/ce-security-page.c
-@@ -0,0 +1,759 @@
+Index: gnome-control-center/panels/network/connection-editor/ce-security-page.c
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-security-page.c	2021-10-23 07:56:40.292000000 +0000
+@@ -0,0 +1,925 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-security-page.c
 + *
-+ * Copyright 2019 Purism SPC
++ * Copyright 2020 Purism SPC
 + *
 + * This program is free software: you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
@@ -3981,10 +4034,14 @@ Subject: [PATCH] Add new connection editor
 +
 +  CePasswordRow *wpa_password_row;
 +  CePasswordRow *wep_password_row;
++  GtkEntry      *leap_username_entry;
++  CePasswordRow *leap_password_row;
 +  GtkWidget     *wep_index_row;
 +  GtkWidget     *wep_authentication_row;
 +  GListStore    *wep_indexes;
 +  GListStore    *wep_authentications;
++
++  GListStore    *wpa2_enterprise_auth_list;
 +
 +  NMClient      *nm_client;
 +  NMDevice      *device;
@@ -4070,6 +4127,32 @@ Subject: [PATCH] Add new connection editor
 +  self->has_error = !valid;
 +}
 +
++static void
++leap_password_changed_cb (CeSecurityPage *self)
++{
++  const gchar *password;
++  gboolean valid = TRUE;
++  gsize len;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++
++  password = ce_password_row_get_password (self->leap_password_row);
++  len = password ? strlen (password) : 0;
++
++  if ((len < 8) || (len > 64))
++    valid = FALSE;
++  else if (len == 64)
++    for (gsize i = 0; i < len; i++)
++      if (!g_ascii_isxdigit (password[i]))
++        {
++          valid = FALSE;
++          break;
++        }
++
++  ce_password_row_set_error (self->wpa_password_row, !valid);
++  self->has_error = !valid;
++}
++
 +/* Modified from ce-page-security.c */
 +static NMUtilsSecurityType
 +security_page_get_type (CeSecurityPage *self)
@@ -4139,12 +4222,12 @@ Subject: [PATCH] Add new connection editor
 +      gtk_entry_set_text (self->name_entry, "");
 +      ce_password_row_set_password (self->wpa_password_row, "");
 +      ce_password_row_set_password (self->wep_password_row, "");
++      ce_password_row_set_password (self->leap_password_row, "");
++      gtk_entry_set_text (self->leap_username_entry, "");
 +      hdy_combo_row_set_selected_index (self->security_method_row, 0);
 +
 +      return;
 +    }
-+
-+  gtk_widget_set_sensitive (GTK_WIDGET (self->name_box), FALSE);
 +
 +  object = g_list_model_get_item (G_LIST_MODEL (self->connection_list), index);
 +  connection = g_object_get_data (G_OBJECT (object), "value");
@@ -4154,6 +4237,9 @@ Subject: [PATCH] Add new connection editor
 +
 +  gtk_entry_set_text (self->name_entry, nm_connection_get_id (connection));
 +  ce_security_page_refresh (self);
++
++  gtk_widget_set_sensitive (GTK_WIDGET (self->name_box), FALSE);
++  gtk_widget_set_sensitive (GTK_WIDGET (self->security_method_row), FALSE);
 +}
 +
 +static void
@@ -4175,17 +4261,47 @@ Subject: [PATCH] Add new connection editor
 +
 +  self->has_error = FALSE;
 +
-+  if (g_str_equal (method, "wpa"))
++  /* Widgets are hidden separately (instead of hiding them all and showing)
++   * so that currently focused widget state won’t change
++   */
++  if (g_str_equal (method, "wpa") ||
++      g_str_equal (method, "wpa3-personal"))
 +    {
 +      gtk_widget_hide (GTK_WIDGET (self->wep_password_row));
++      gtk_widget_hide (GTK_WIDGET (self->leap_password_row));
++
 +      gtk_widget_show (GTK_WIDGET (self->wpa_password_row));
 +      wpa_password_changed_cb (self);
++    }
++  else if (g_str_equal (method, "leap"))
++    {
++      gtk_widget_hide (GTK_WIDGET (self->wpa_password_row));
++      gtk_widget_hide (GTK_WIDGET (self->wep_password_row));
++
++      gtk_widget_show (GTK_WIDGET (self->leap_password_row));
++      leap_password_changed_cb (self);
 +    }
 +  else if (g_str_has_prefix (method, "wep"))
 +    {
 +      gtk_widget_hide (GTK_WIDGET (self->wpa_password_row));
++      gtk_widget_hide (GTK_WIDGET (self->leap_password_row));
++
 +      gtk_widget_show (GTK_WIDGET (self->wep_password_row));
 +      wep_password_changed_cb (self);
++    }
++  else if (g_str_has_prefix (method, "wpa-enterprise"))
++    {
++      gtk_widget_hide (GTK_WIDGET (self->wpa_password_row));
++      gtk_widget_hide (GTK_WIDGET (self->leap_password_row));
++
++      gtk_widget_show (GTK_WIDGET (self->wep_password_row));
++      wep_password_changed_cb (self);
++    }
++  else
++    {
++      gtk_widget_hide (GTK_WIDGET (self->wpa_password_row));
++      gtk_widget_hide (GTK_WIDGET (self->wep_password_row));
++      gtk_widget_hide (GTK_WIDGET (self->leap_password_row));
 +    }
 +
 +  if (self->allow_create && !self->has_error)
@@ -4214,7 +4330,7 @@ Subject: [PATCH] Add new connection editor
 +  password = nm_setting_wireless_security_get_psk (setting);
 +
 +  ce_password_row_set_password (self->wpa_password_row, password);
-+  hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->security_method_row), 1);
++  hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->security_method_row), 4);
 +}
 +
 +static void
@@ -4236,7 +4352,6 @@ Subject: [PATCH] Add new connection editor
 +  else
 +    hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->security_method_row), 2);
 +
-+  g_warning ("auth: %s", auth);
 +  if (auth && g_str_equal (auth, "shared"))
 +    hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->wep_authentication_row), 1);
 +  else
@@ -4247,6 +4362,23 @@ Subject: [PATCH] Add new connection editor
 +
 +  password = nm_setting_wireless_security_get_wep_key (setting, index);
 +  ce_password_row_set_password (self->wep_password_row, password);
++}
++
++static void
++ce_security_page_load_leap (CeSecurityPage            *self,
++                            NMSettingWirelessSecurity *setting)
++{
++  const char *password, *username;
++
++  g_assert (CE_IS_SECURITY_PAGE (self));
++  g_assert (self->security_type == NMU_SEC_LEAP);
++
++  username = nm_setting_wireless_security_get_leap_username (setting);
++  password = nm_setting_wireless_security_get_leap_password (setting);
++
++  ce_password_row_set_password (self->leap_password_row, password);
++  gtk_entry_set_text (self->leap_username_entry, username);
++  hdy_combo_row_set_selected_index (HDY_COMBO_ROW (self->security_method_row), 3);
 +}
 +
 +static void
@@ -4285,6 +4417,8 @@ Subject: [PATCH] Add new connection editor
 +    ce_security_page_load_wpa (self, setting);
 +  else if (security_type == NMU_SEC_STATIC_WEP)
 +    ce_security_page_load_wep (self, setting);
++  else if (security_type == NMU_SEC_LEAP)
++    ce_security_page_load_leap (self, setting);
 +  else
 +    g_return_if_reached ();
 +
@@ -4338,19 +4472,13 @@ Subject: [PATCH] Add new connection editor
 +
 +  g_assert (CE_IS_SECURITY_PAGE (self));
 +
-+  /* Don’t change the order items are added.  It’ll break the code */
++  /* NOTE: Don’t change the order items are added.  It’ll break the code */
 +
 +  /* Security methods */
 +  object = hdy_value_object_new_string (_("None"));
 +  g_object_set_data (G_OBJECT (object), "value", "off");
 +  g_list_store_append (self->security_methods, object);
 +  g_object_unref (object);
-+
-+  object = hdy_value_object_new_string (_("WPA & WPA2 Personal"));
-+  g_object_set_data (G_OBJECT (object), "value", "wpa");
-+  g_list_store_append (self->security_methods, object);
-+  g_object_unref (object);
-+
 +
 +  object = hdy_value_object_new_string (_("WEP 40/128-bit Key (Hex or ASCII)"));
 +  g_object_set_data (G_OBJECT (object), "value", "wep");
@@ -4361,6 +4489,26 @@ Subject: [PATCH] Add new connection editor
 +  g_object_set_data (G_OBJECT (object), "value", "wep128");
 +  g_list_store_append (self->security_methods, object);
 +  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("LEAP"));
++  g_object_set_data (G_OBJECT (object), "value", "leap");
++  g_list_store_append (self->security_methods, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("WPA & WPA2 Personal"));
++  g_object_set_data (G_OBJECT (object), "value", "wpa");
++  g_list_store_append (self->security_methods, object);
++  g_object_unref (object);
++
++  /* object = hdy_value_object_new_string (_("WPA3 Personal")); */
++  /* g_object_set_data (G_OBJECT (object), "value", "wpa3-personal"); */
++  /* g_list_store_append (self->security_methods, object); */
++  /* g_object_unref (object); */
++
++  /* object = hdy_value_object_new_string (_("WPA & WPA2 Enterprise")); */
++  /* g_object_set_data (G_OBJECT (object), "value", "wpa-enterprise"); */
++  /* g_list_store_append (self->security_methods, object); */
++  /* g_object_unref (object); */
 +
 +
 +  /* WEP Indexes */
@@ -4388,6 +4536,38 @@ Subject: [PATCH] Add new connection editor
 +
 +  object = hdy_value_object_new_string (_("Shared Key"));
 +  g_list_store_append (self->wep_authentications, object);
++  g_object_unref (object);
++
++
++  /* WPA & WPA2 Enterprise  */
++  object = hdy_value_object_new_string (_("TLS"));
++  g_object_set_data (G_OBJECT (object), "value", "tls");
++  g_list_store_append (self->wpa2_enterprise_auth_list, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("LEAP"));
++  g_object_set_data (G_OBJECT (object), "value", "leap");
++  g_list_store_append (self->wpa2_enterprise_auth_list, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("PWD"));
++  g_object_set_data (G_OBJECT (object), "value", "pwd");
++  g_list_store_append (self->wpa2_enterprise_auth_list, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("FAST"));
++  g_object_set_data (G_OBJECT (object), "value", "fast");
++  g_list_store_append (self->wpa2_enterprise_auth_list, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("Tunneled TLS"));
++  g_object_set_data (G_OBJECT (object), "value", "tunneled-tls");
++  g_list_store_append (self->wpa2_enterprise_auth_list, object);
++  g_object_unref (object);
++
++  object = hdy_value_object_new_string (_("Protected EAP (PEAP)"));
++  g_object_set_data (G_OBJECT (object), "value", "peap");
++  g_list_store_append (self->wpa2_enterprise_auth_list, object);
 +  g_object_unref (object);
 +}
 +
@@ -4498,6 +4678,8 @@ Subject: [PATCH] Add new connection editor
 +
 +  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, security_method_row);
 +  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, wpa_password_row);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, leap_username_entry);
++  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, leap_password_row);
 +  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, wep_password_row);
 +  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, wep_index_row);
 +  gtk_widget_class_bind_template_child (widget_class, CeSecurityPage, wep_authentication_row);
@@ -4522,6 +4704,7 @@ Subject: [PATCH] Add new connection editor
 +                                 (HdyComboRowGetNameFunc) hdy_value_object_dup_string,
 +                                 NULL, NULL);
 +
++  self->wpa2_enterprise_auth_list = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
 +  self->security_methods = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
 +  self->wep_indexes = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
 +  self->wep_authentications = g_list_store_new (HDY_TYPE_VALUE_OBJECT);
@@ -4542,10 +4725,9 @@ Subject: [PATCH] Add new connection editor
 +                                 (HdyComboRowGetNameFunc) hdy_value_object_dup_string,
 +                                 NULL, NULL);
 +
-+  gtk_list_box_set_header_func (GTK_LIST_BOX (self->main_list_box),
-+                                cc_list_box_update_header_func,
-+                                NULL, NULL);
-+
++  /* gtk_list_box_set_header_func (GTK_LIST_BOX (self->main_list_box), */
++  /*                               cc_list_box_update_header_func, */
++  /*                               NULL, NULL); */
 +}
 +
 +void
@@ -4597,8 +4779,11 @@ Subject: [PATCH] Add new connection editor
 +
 +  if (!self->connection)
 +    {
-+      const gchar *str;
++      NMRemoteConnection *connection;
 +      g_autoptr(GBytes) ssid = NULL;
++      g_autofree char *id = NULL;
++      const gchar *str;
++      int i = 0;
 +
 +      g_return_if_fail (self->allow_create);
 +
@@ -4610,7 +4795,21 @@ Subject: [PATCH] Add new connection editor
 +      nm_connection_add_setting (self->connection, setting);
 +
 +      setting = nm_setting_connection_new ();
-+      g_object_set (setting, "id", gtk_entry_get_text (self->name_entry), NULL);
++
++      id = g_strdup (gtk_entry_get_text (self->name_entry));
++      connection = nm_client_get_connection_by_id (self->nm_client, id);
++
++      /* Add a number suffix until we get a unique id */
++      while (connection)
++        {
++          i++;
++
++          g_free (id);
++          id = g_strdup_printf ("%s %d", gtk_entry_get_text (self->name_entry), i);
++          connection = nm_client_get_connection_by_id (self->nm_client, id);
++        }
++
++      g_object_set (setting, "id", id, NULL);
 +      nm_connection_add_setting (self->connection, setting);
 +    }
 +
@@ -4632,15 +4831,35 @@ Subject: [PATCH] Add new connection editor
 +  nm_connection_add_setting (self->connection, setting);
 +  nm_setting_set_secret_flags (setting, NM_SETTING_WIRELESS_SECURITY_PSK,
 +                               NM_SETTING_SECRET_FLAG_NONE, NULL);
-+  if (g_str_equal (method, "wpa"))
++  if (g_str_equal (method, "leap"))
++    {
++      const char *username;
++
++      username = gtk_entry_get_text (self->leap_username_entry);
++      password = ce_password_row_get_password (self->leap_password_row);
++
++      g_object_set (setting,
++                    NM_SETTING_WIRELESS_SECURITY_KEY_MGMT, "ieee8021x",
++                    NM_SETTING_WIRELESS_SECURITY_AUTH_ALG, "leap",
++                    NM_SETTING_WIRELESS_SECURITY_LEAP_PASSWORD, password,
++                    NM_SETTING_WIRELESS_SECURITY_LEAP_USERNAME, username,
++                    NULL);
++    }
++  else if (g_str_equal (method, "wpa"))
 +    {
 +      password = ce_password_row_get_password (self->wpa_password_row);
 +
 +      g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_PSK, password, NULL);
 +      g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_KEY_MGMT, "wpa-psk", NULL);
 +    }
++  else if (g_str_equal (method, "wpa3-personal"))
++    {
++      password = ce_password_row_get_password (self->wpa_password_row);
 +
-+  if (g_str_has_prefix (method, "wep"))
++      g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_PSK, password, NULL);
++      g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_KEY_MGMT, "sae", NULL);
++    }
++  else if (g_str_has_prefix (method, "wep"))
 +    {
 +      if (g_str_equal (method, "wep"))
 +        g_object_set (setting, NM_SETTING_WIRELESS_SECURITY_WEP_KEY_TYPE, NM_WEP_KEY_TYPE_KEY, NULL);
@@ -4676,8 +4895,10 @@ Subject: [PATCH] Add new connection editor
 +
 +  return self->has_error;
 +}
---- /dev/null
-+++ b/panels/network/connection-editor/ce-security-page.h
+Index: gnome-control-center/panels/network/connection-editor/ce-security-page.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-security-page.h	2021-10-23 07:56:40.292000000 +0000
 @@ -0,0 +1,45 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-security-page.h
@@ -4724,9 +4945,11 @@ Subject: [PATCH] Add new connection editor
 +gboolean     ce_security_page_has_error        (CeSecurityPage *self);
 +
 +G_END_DECLS
---- /dev/null
-+++ b/panels/network/connection-editor/ce-security-page.ui
-@@ -0,0 +1,102 @@
+Index: gnome-control-center/panels/network/connection-editor/ce-security-page.ui
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-security-page.ui	2021-10-23 07:56:40.292000000 +0000
+@@ -0,0 +1,273 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
 +  <template class="CeSecurityPage" parent="GtkBox">
@@ -4734,10 +4957,11 @@ Subject: [PATCH] Add new connection editor
 +    <child>
 +      <object class="GtkListBox" id="main_list_box">
 +        <property name="visible">1</property>
++        <property name="margin-top">32</property>
 +        <property name="margin-bottom">32</property>
 +        <property name="selection-mode">none</property>
 +        <style>
-+          <class name="frame" />
++          <class name="content" />
 +        </style>
 +
 +        <!-- Connection List -->
@@ -4796,6 +5020,44 @@ Subject: [PATCH] Add new connection editor
 +          </object>
 +        </child>
 +
++        <!-- Leap Username -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible" bind-source="leap_password_row" bind-property="visible" bind-flags="sync-create" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">12</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Username</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="leap_username_entry">
++                    <property name="visible">1</property>
++                    <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- Leap password -->
++        <child>
++          <object class="CePasswordRow" id="leap_password_row">
++            <property name="visible">0</property>
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++          </object>
++        </child>
++
 +        <!-- WEP -->
 +        <child>
 +          <object class="CePasswordRow" id="wep_password_row">
@@ -4825,12 +5087,146 @@ Subject: [PATCH] Add new connection editor
 +          </object>
 +        </child>
 +
++        <!-- WPA/WPA2 Enterprise -->
++        <child>
++          <object class="HdyComboRow" id="wpa_enterprise_auth_row">
++            <property name="visible">False</property>
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <property name="title" translatable="yes">Authentication</property>
++            <signal name="notify::selected-index" handler="wpa_enterprise_auth_changed_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise Identity -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">12</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Identity</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="wpa_enterprise_identity_entry">
++                    <property name="visible">1</property>
++                    <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise Domain -->
++        <child>
++          <object class="GtkListBoxRow">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <child>
++              <object class="GtkBox">
++                <property name="visible">1</property>
++                <property name="margin">12</property>
++                <property name="spacing">12</property>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">1</property>
++                    <property name="hexpand">1</property>
++                    <property name="halign">start</property>
++                    <property name="label" translatable="yes">Domain</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="wpa_enterprise_domain_entry">
++                    <property name="visible">1</property>
++                    <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++                  </object>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise CA certificate -->
++        <child>
++          <object class="CcListRow" id="wpa_enterprise_cert_row">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" bind-flags="sync-create" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <property name="title" translatable="yes">CA certificate</property>
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise CA password -->
++        <child>
++          <object class="CePasswordRow" id="ca_enterprise_cert_password_row">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" bind-flags="sync-create" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise No CA certificate required -->
++        <child>
++          <object class="CcListRow" id="wpa_enterprise_show_pass_row">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" bind-flags="sync-create" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <property name="show-switch">True</property>
++            <property name="title" translatable="yes">No CA Certificate required</property>
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise User certificate -->
++        <child>
++          <object class="CcListRow" id="wpa_enterprise_user_cert_row">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" bind-flags="sync-create" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <property name="title" translatable="yes">User Certificate</property>
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise User Cert pass -->
++        <child>
++          <object class="CePasswordRow" id="ca_enterprise_user_cert_pass_row">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" bind-flags="sync-create" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise User private key-->
++        <child>
++          <object class="CcListRow" id="wpa_enterprise_user_priv_key_row">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" bind-flags="sync-create" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <property name="title" translatable="yes">User Private key</property>
++          </object>
++        </child>
++
++        <!-- WPA/WPA2 Enterprise User key pass -->
++        <child>
++          <object class="CePasswordRow" id="ca_enterprise_user_key_pass_row">
++            <property name="visible" bind-source="wpa_enterprise_auth_row" bind-property="visible" bind-flags="sync-create" />
++            <property name="sensitive" bind-source="name_box" bind-property="sensitive" />
++            <signal name="changed" handler="security_page_modified_cb" swapped="yes" />
++          </object>
++        </child>
++
 +      </object>
 +    </child>
 +  </template>
 +</interface>
---- a/panels/network/connection-editor/connection-editor.gresource.xml
-+++ b/panels/network/connection-editor/connection-editor.gresource.xml
+Index: gnome-control-center/panels/network/connection-editor/connection-editor.gresource.xml
+===================================================================
+--- gnome-control-center.orig/panels/network/connection-editor/connection-editor.gresource.xml	2021-10-23 07:56:40.296000000 +0000
++++ gnome-control-center/panels/network/connection-editor/connection-editor.gresource.xml	2021-10-23 07:56:40.293000000 +0000
 @@ -1,6 +1,11 @@
  <?xml version="1.0" encoding="UTF-8"?>
  <gresources>
@@ -4843,8 +5239,10 @@ Subject: [PATCH] Add new connection editor
      <file preprocess="xml-stripblanks">8021x-security-page.ui</file>
      <file preprocess="xml-stripblanks">connection-editor.ui</file>
      <file preprocess="xml-stripblanks">details-page.ui</file>
---- a/panels/network/connection-editor/meson.build
-+++ b/panels/network/connection-editor/meson.build
+Index: gnome-control-center/panels/network/connection-editor/meson.build
+===================================================================
+--- gnome-control-center.orig/panels/network/connection-editor/meson.build	2021-10-23 07:56:40.296000000 +0000
++++ gnome-control-center/panels/network/connection-editor/meson.build	2021-10-23 07:56:40.293000000 +0000
 @@ -1,6 +1,11 @@
  name = 'connection-editor'
  
@@ -4854,10 +5252,10 @@ Subject: [PATCH] Add new connection editor
 +  'ce-details-page.c',
 +  'ce-ip-page.c',
 +  'ce-password-row.c',
+   'ce-ip-address-entry.c',
+   'ce-netmask-entry.c',
    'ce-page-8021x-security.c',
-   'ce-page-details.c',
-   'ce-page-ethernet.c',
-@@ -15,6 +20,11 @@
+@@ -17,6 +22,11 @@
  )
  
  resource_data = files(

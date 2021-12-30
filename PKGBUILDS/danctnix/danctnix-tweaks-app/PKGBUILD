@@ -1,17 +1,24 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgbase=danctnix-tweaks-app
 pkgname=("$pkgbase" "$pkgbase-phosh" "$pkgbase-pinephone")
-pkgver=0.7.3
-pkgrel=1
+pkgver=0.8.1
+pkgrel=2
 pkgdesc="Tweaks tool for phone UIs"
 url="https://github.com/dreemurrs-embedded/danctnix-tweaks"
 license=('LGPL')
 arch=('any')
-makedepends=('libhandy' 'python' 'python-gobject' 'python-yaml' 'gtk3' 'python-setuptools' 'meson')
-source=("https://github.com/dreemurrs-embedded/danctnix-tweaks/archive/refs/tags/$pkgver.tar.gz")
+makedepends=('libhandy' 'python' 'python-gobject' 'python-yaml' 'gtk3'
+             'python-setuptools' 'meson' 'git')
+_commit="e674c236781da03220878d8dc3b7da1f46ebb6f6" # tags/0.8.1
+source=("git+https://github.com/dreemurrs-embedded/danctnix-tweaks.git#commit=$_commit")
+
+pkgver() {
+    cd danctnix-tweaks
+    git describe --tags | sed 's/^v//;s/-/+/g'
+}
 
 build() {
-    arch-meson danctnix-tweaks-$pkgver output
+    arch-meson danctnix-tweaks output
     meson compile -C output
 }
 
@@ -35,10 +42,10 @@ package_danctnix-tweaks-app-phosh() {
 }
 
 package_danctnix-tweaks-app-pinephone() {
-     depends=('danctnix-tweaks-app' 'device-pine64-pinephone')
+     depends=('danctnix-tweaks-app')
 
      mkdir -p "$pkgdir"/usr/share/danctnix-tweaks
      mv "$srcdir"/pinephone.yml "$pkgdir"/usr/share/danctnix-tweaks/pinephone.yml
 }
 
-md5sums=('c56ba8ccb9662c22f53714b3d35ac679')
+md5sums=('SKIP')

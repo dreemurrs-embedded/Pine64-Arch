@@ -1,0 +1,69 @@
+From 7a4b294ba39a7ab02c50122c79779da9e6e86eb4 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 30 Jul 2019 15:03:33 +0200
+Subject: [PATCH 23/38] timezone: Make the page adaptive
+
+---
+ .../pages/timezone/gis-timezone-page.ui       | 31 +++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+
+--- a/gnome-initial-setup/pages/timezone/gis-timezone-page.ui
++++ b/gnome-initial-setup/pages/timezone/gis-timezone-page.ui
+@@ -3,6 +3,23 @@
+ <interface>
+   <!-- interface-requires gtk+ 3.0 -->
+   <template class="GisTimezonePage" parent="GisPage">
++    <!-- Drop the page borders to add them back to inner widgets to allow the map to reach the borders. -->
++    <property name="margin_start">0</property>
++    <property name="margin_end">0</property>
++    <property name="margin_bottom">0</property>
++    <child>
++      <object class="GtkBox">
++        <property name="visible">True</property>
++        <property name="orientation">vertical</property>
++        <property name="spacing">18</property>
++    <child>
++      <object class="HdyColumn">
++        <property name="linear_growth_width">400</property>
++        <property name="maximum_width">600</property>
++        <property name="visible">True</property>
++        <!-- Add the borders back to the column. -->
++        <property name="margin_start">12</property>
++        <property name="margin_end">12</property>
+     <child>
+       <object class="GtkBox" id="box">
+         <property name="visible">True</property>
+@@ -25,12 +42,24 @@
+                 <property name="max-width-chars">55</property>
+               </object>
+             </child>
++      </object>
++    </child>
++      </object>
++    </child>
++            <child>
++              <object class="GtkScrolledWindow">
++                <property name="visible">True</property>
++                <property name="vscrollbar_policy">never</property>
+             <child>
+               <object class="GtkFrame" id="map_frame">
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
+                 <property name="hexpand">True</property>
+                 <property name="label_xalign">0</property>
++                <!-- Add the borders back to the map inside its scrolled window, so it can visually reach the window's border in case the window is too narrow. -->
++                <property name="margin_start">12</property>
++                <property name="margin_end">12</property>
++                <property name="margin_bottom">12</property>
+                 <child>
+                   <object class="GtkOverlay" id="map_overlay">
+                     <property name="visible">True</property>
+@@ -56,6 +85,8 @@
+                 </child>
+               </object>
+             </child>
++              </object>
++            </child>
+           </object>
+         </child>
+   </template>

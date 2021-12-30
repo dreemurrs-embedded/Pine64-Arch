@@ -4,7 +4,7 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=3.38.6
+pkgver=41.2
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-control-center"
@@ -13,8 +13,8 @@ arch=(x86_64 armv7h aarch64)
 depends=(accountsservice cups-pk-helper gnome-bluetooth gnome-desktop
          gnome-online-accounts gnome-settings-daemon gsettings-desktop-schemas gtk3
          libgtop nm-connection-editor sound-theme-freedesktop upower libpwquality
-         gnome-color-manager smbclient libmm-glib libgnomekbd grilo libibus
-         libgudev bolt udisks2 libhandy gsound colord-gtk modemmanager)
+         gnome-color-manager smbclient libmm-glib libgnomekbd libibus
+         libgudev bolt udisks2 libhandy gsound colord-gtk modemmanager power-profiles-daemon)
 makedepends=(docbook-xsl git python meson)
 checkdepends=(python-dbusmock python-gobject xorg-server-xvfb)
 optdepends=('system-config-printer: Printer settings'
@@ -24,7 +24,7 @@ optdepends=('system-config-printer: Printer settings'
             'openssh: remote login')
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=54eb734eaaa95807dd805fbe4e4ad0dceb787736
+_commit=babeb0ce357d55406b0ba0a4597e0513a0419de8  # tags/41.2^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
         # purism
@@ -33,11 +33,6 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_co
         0002-wifi-Use-new-connection-editor.patch
         0020-user-panel-Hide-automatic-login-switch.patch
         0002-UserAccount-fix-window-resizing-issue.patch
-        wwan-Add-new-panel-for-modem-management.patch
-        Expose-touchpad-settings-if-synaptics-is-in-use.patch
-        Revert-build-Bump-build-dependency-on-polkit.patch
-        display-panel-Adjust-to-Librem-5-display-size.patch
-        location-panel-Allow-label-to-wrap.patch
         0001-avatar-chooser-Adapt-to-work-on-librem5.patch
         0002-datetime-Fix-timezone-selection-map.patch
         0003-display-Request-a-smaller-size-for-arrangment-widget.patch
@@ -47,46 +42,52 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_co
         0007-UserAccount-Allow-stack-to-have-different-size.patch
         Add-patches-to-check-if-phone.patch
         display-Let-button-box-have-vertical-orientation-on-.patch
-        notification-Hide-lockscreen-notification-option-on-.patch
-        region-Remove-preview-button-from-input-row-on-phone.patch
-        shell-Hide-some-panels-on-phones.patch
         user-accounts-Constrain-passwords-to-digits-on-phone.patch
-        user-panel-hide-add-user-unlock-buttons.patch
+        Add-form-factors-to-desktop-and-appdata-files.patch
         # mobian
         0002-search-ellipsize-button-label-to-fit-small-screens.patch
         0003-usage-ellipsize-labels-to-fit-small-screens.patch
         0004-power-add-more-suspend-timing-options.patch
-        0005-applications-ellipsize-title-label-to-always-fit-sma.patch)
+        0005-applications-ellipsize-title-label-to-always-fit-sma.patch
+        fix-40-wifi-panel.patch
+        fix-region-panel-width.patch
+        common-Wrap-all-subtitles.patch
+        fix-keyboard-panel-width.patch
+        fix-region-login-width.patch
+        build-fix-build-with-meson-0.60.0.patch
+        # backport
+        shell-Mirror-the-main-leaflet-s-folded-property.patch
+        display-Use-ComboBox-when-folded.patch)
 sha256sums=('SKIP'
             'SKIP'
-            'b07cb99b3629a3722184f698c7cb1e53596f700db1c630b2f6658c9cf7e3bd12'
-            '505f5c3fdaa6165d848cccb74f7ce061f11ba41248ef29ce6be0aa5d0f81055d'
-            'ebc8c1081cd1130d5b6e68105f6a0a35733145394c0bf6f57664d385d858c288'
-            '303c6cb3cd03c49b30b63e17f1156d4a0ee04ed0a3b45b989b2a9cae30eb0a4d'
-            'e6d1c422c713bedfa21a9e6b502b3c996fc8f2b8b48c394f1e2bc3789a15bd0f'
-            'bdc213da23f27d11da8a2510da913c887bd19a269fa085e3a4bc481ed8765689'
-            'd90f11cb8b0758ec3742619fe0388953a87c7f8b7e8658c29125ad2915d149be'
-            '5407ade296a710e04812e75529ad662cfa6ab05862e509ec255d0957d75ac569'
-            'ee3627291349bfa01a062608a157fc0db41923bdab30ec63525bc5722c6c1f34'
-            '2b7f13002bc2ab6c0d8437f56fa45c35311163b648690182b27a9a5bb6ad6d9d'
-            '6d5119a6c27d3abaa9a87f54826917ed56fd3d498efd94a0793e5a797ba3d743'
-            '3a696422320435cbaddd3dae238714e035645e41e838cd73d28a690e695d2980'
-            '6cefc65f7d1f3f50bf26db0f6e88f40c0b4506cfc1a1b0e0878e3ccd1084d527'
-            'a059d013968461fe9dfdb1cc4dd5f9bd3833beb0532b49a74c2ea05818f45c84'
-            '9e8137cb904ea04adb534575d535b375175c6ed50b6602ab46baacb401d8c105'
-            '2942d4867480430ef06ec7353823977bc3d4fa247639fd1228da2a0037d3c011'
-            '98e840678f3308757bde02c0f65bd3806fd2ff21de14e3bf5cc347b139e7ce06'
-            '438b595e4ae963263f4349be4a9080a5d02edf7b345e821133f3f6de0a8c3b84'
-            'c7c5e40ce8b1a05693ba0322cef07c05efc3bbd8edafd771e7cd70b26a21656e'
-            '46d8585bb00906cd7ac8e02d47fee505d699cdab0e2bb076b2c3202f31eab12b'
-            'b49ba7c81ed8e27be7789f7ecab786797c14bb8a1b35853ee23c7d77caf23b6d'
-            'ac1c218bc582f1533e66e799a4a8a77e818fa7b4430718c07d54151c311fff08'
-            '0866afc5acd31e20a47a604b8d6f458fd94afc62ba1b20f71857719e6822fc59'
-            'cbd0b44fc8881e07c3be169100f728a758a41f85aa5b10c94bc711dc74fc61ff'
-            '6ecf0e6c3dcba4e3f96e3a1231b79076d481836684ecc22c1dd707838ccde322'
-            '58c7c22b6ef68c96006cd5e0ca50b89f16274fc2110888fcc7f3fefc580f73f6'
-            '7a9afc5a28919894194f33eb8067ed6dae85247aa2a8ad9457a7341c9dde5033'
-            'd8376df953b02250720899ec5dcb151449ef4cfb745019432b8cf4cd7d65305f')
+            '7b95b411a57a8c1370501dd3125a84edc72867bbb4eb7c81032324275aee21c6'
+            '2981fafba96437664fe13475f4ddfcf3fa09df3f96e9ebb5ddb823fad1488f6b'
+            '3b59597701f882c578a54f13ba80b3c5d67bc867c352ef433b397842c3e6bfdd'
+            'b79ecab796c5e5225b6e3acc24950b784fd95d7c6687f8dda355a61907f041a2'
+            '21d64ba6f82e87ccb2f7bdee3daa31afa7066a7ad4675d758acdfbaad5d9ba4b'
+            '9105709f02bca61bc553362411c4f8dd5d859595b8f2beb3649f9006be8a1f43'
+            '6c5642e3d7dc70fb893d90280e8ce690ff875c823793b0ab5253089c1454d800'
+            'd23001682f7e6d7f1d8be685a5f4dac0468ef4d4b0229ee2f8e648a1df17bf86'
+            'fab78767187fd7ff93b2bb58e87f8017adad1be13700ca6027cc5acca691843d'
+            '67a80e9b5675d6014d7869ffc184e0e9aa1412d54e28bc03e019ea5aa2c3f961'
+            '28a4af4c3a28d5ce6b5eece7f1d17c9526f6581cdc7711988758dfc740c8745b'
+            '8594961c60ec102293f2255c9c234cd6be167c5f3a90f4c9efec55eedb5a8b72'
+            '0d0ff223883a389659d2caeacfa5e99216c31ca3b1ce6cde1af41b4c24e5a90b'
+            'e85b8db2dc391a14399de27ab29ff8b422b59c99f4f708291299a7b3ae0e2928'
+            'e94b629f89d7a39081f28a0115f239dce2c27b91e097c7b4725a870de8f825e6'
+            'dcec5bdeb4d4acb63bef88ffb091cdf33abf1291515a86e52e947f8e5f8b5e15'
+            'fa94c0acdc424333fe0c7a4af8a5fc410aa9e7ded5c41357e591f7184f50be5b'
+            '079d5cce161a9acbecd302c88676520d60eb9c53a9d832efad21430769c5567e'
+            '888ffb3307a7ec23faeb8bcda0f4ca16e6f28c705a6675bb46f007e525da651b'
+            'ed28a82d49be98082f7031a6031a1a748d8492dd85ecaeae47c0caef24033c6d'
+            'c3b2bce67a5193e91f6d5e4eb85619c0986bf7684c6f7df898abc95c72372a16'
+            'eacfba80f6cc6c82f6d27b3c2cf3b5f62509e3241ca8971ddd34849b95ab95f2'
+            'a44f1417e6cebeb5f68cf747b3a752392eb00b55fc472bcd9b2d5f6814a2e4b7'
+            '4cacc517e85c00e9751343e0301aa3b23beaf112c7681269c807a79355e9a59b'
+            '415b29ddf4601b7cb4ddb1ecdb0e7a6b8347210a8fa75654b06ba63aff2c7e7b'
+            '75ef4cf9c04995587396caddb149401fe8581792ed479fb5ed5fd4314a55d738'
+            '7f1ac5a0cdb74c4400c743f836f7c052fceee0da9cc267c9752ddc1bd2d945da'
+            '8b89bd38a48d58fdf102ea10f6f7e8351985cffede13e58560cfb127175a62fc')
 
 pkgver() {
   cd ${_pkgname}
@@ -95,6 +96,10 @@ pkgver() {
 
 prepare() {
   cd ${_pkgname}
+
+  # Install bare logos into pixmaps, not icons
+  sed -i "/install_dir/s/'icons'/'pixmaps'/" panels/info-overview/meson.build
+
   git submodule init
   git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
   git submodule update
@@ -119,7 +124,7 @@ check() {
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
   install -d -o root -g 102 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
 
   echo "X-Purism-FormFactor=Workstation;Mobile;" >> "$pkgdir/usr/share/applications/gnome-control-center.desktop"

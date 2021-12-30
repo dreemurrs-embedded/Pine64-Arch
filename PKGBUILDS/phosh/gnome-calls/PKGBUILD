@@ -1,0 +1,39 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=gnome-calls
+pkgver=41.1
+pkgrel=2
+pkgdesc="Make and receive PSTN phone calls"
+url="https://gitlab.gnome.org/GNOME/calls"
+license=('GPL')
+arch=('x86_64' 'armv7h' 'aarch64')
+depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
+         'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager' 'callaudiod' 'sofia-sip'
+         'wayland-protocols')
+makedepends=('meson' 'ninja' 'vala' 'git')
+replaces=('calls')
+_commit="7b45de69df5a5312f702d79a23ae5e87979857ef" # tags/41.1
+source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
+
+prepare() {
+  cd calls
+
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+}
+
+build() {
+  arch-meson calls output
+  ninja -C output
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C output install
+}
+
+md5sums=('SKIP')

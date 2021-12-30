@@ -1,0 +1,79 @@
+From dc18fcd8e237e1a867f3ff9570af2b9c5a09ef9e Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 1 Sep 2021 09:49:24 +0200
+Subject: [PATCH] assets: Make the up-to-date picture fit phones
+
+This moves the leftmost cloud closer inside and crops the image to
+320x320.
+---
+ data/assets/up-to-date.svg | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/data/assets/up-to-date.svg b/data/assets/up-to-date.svg
+index fd2e818b2..99122cd75 100644
+--- a/data/assets/up-to-date.svg
++++ b/data/assets/up-to-date.svg
+@@ -1,11 +1,11 @@
+ <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+ <svg
+-   inkscape:version="1.1-rc (52f87abb86, 2021-05-02)"
++   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+    id="svg8"
+    version="1.1"
+-   viewBox="0 0 400 400"
+-   height="400"
+-   width="400"
++   viewBox="0 0 320 320"
++   height="320"
++   width="320"
+    sodipodi:docname="up-to-date.svg"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+@@ -132,9 +132,9 @@
+      inkscape:document-rotation="0"
+      inkscape:current-layer="g960"
+      inkscape:document-units="px"
+-     inkscape:cy="199.00005"
+-     inkscape:cx="169.20055"
+-     inkscape:zoom="0.98994949"
++     inkscape:cy="166.27648"
++     inkscape:cx="60.187402"
++     inkscape:zoom="2.1349983"
+      inkscape:pageshadow="2"
+      inkscape:pageopacity="0"
+      borderopacity="1"
+@@ -150,7 +150,11 @@
+      inkscape:window-height="1011"
+      inkscape:window-x="0"
+      inkscape:window-y="0"
+-     inkscape:window-maximized="1" />
++     inkscape:window-maximized="1"
++     fit-margin-top="0"
++     fit-margin-left="0"
++     fit-margin-right="0"
++     fit-margin-bottom="0" />
+   <metadata
+      id="metadata5">
+     <rdf:RDF>
+@@ -182,7 +186,8 @@
+   <g
+      id="layer1"
+      inkscape:groupmode="layer"
+-     inkscape:label="Layer 1">
++     inkscape:label="Layer 1"
++     transform="translate(-40,-40)">
+     <g
+        id="g960"
+        transform="translate(-9)">
+@@ -226,7 +231,7 @@
+          r="101.09472" />
+       <g
+          id="g8228"
+-         transform="matrix(0.93457387,0,0,0.93457387,-395.96762,-136.74431)">
++         transform="matrix(0.93457387,0,0,0.93457387,-379.96735,-136.74431)">
+         <path
+            id="path2322"
+            style="display:inline;fill:#99c1f1;fill-opacity:1;stroke:none;stroke-width:32.3735;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.482318;stop-color:#000000"
+-- 
+2.30.2
+

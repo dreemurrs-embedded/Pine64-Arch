@@ -1,0 +1,351 @@
+From 71d19f77ac1b7d2e0282dd8735bc749edd7882d7 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 24 Jun 2019 10:36:20 +0200
+Subject: [PATCH 27/38] account: Make the page adaptive
+
+---
+ .../account/gis-account-page-enterprise.ui    | 142 ++++++------------
+ .../pages/account/gis-account-page-local.ui   |  49 +-----
+ .../pages/account/gis-account-page.ui         |   9 +-
+ 3 files changed, 58 insertions(+), 142 deletions(-)
+
+--- a/gnome-initial-setup/pages/account/gis-account-page-enterprise.ui
++++ b/gnome-initial-setup/pages/account/gis-account-page-enterprise.ui
+@@ -5,10 +5,7 @@
+     <child>
+       <object class="GtkBox" id="area">
+         <property name="visible">True</property>
+-        <property name="can_focus">False</property>
+         <property name="orientation">vertical</property>
+-        <property name="halign">center</property>
+-        <property name="valign">fill</property>
+         <property name="spacing">18</property>
+         <child>
+           <object class="GisPageHeader" id="header">
+@@ -20,61 +17,60 @@
+           </object>
+         </child>
+         <child>
+-          <object class="GtkGrid" id="form">
++          <object class="GtkBox" id="form">
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+-            <property name="row_spacing">6</property>
+-            <property name="column_spacing">12</property>
++            <property name="spacing">6</property>
++            <property name="orientation">vertical</property>
+             <child>
+               <object class="GtkLabel" id="label4">
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
+-                <property name="halign">end</property>
+-                <property name="xalign">1</property>
++                <property name="halign">start</property>
++                <property name="xalign">0</property>
+                 <property name="label" translatable="yes">_Domain</property>
+                 <property name="use_underline">True</property>
+                 <property name="mnemonic_widget">domain</property>
+               </object>
+-              <packing>
+-                <property name="left_attach">0</property>
+-                <property name="top_attach">1</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+-              <object class="GtkLabel" id="label8">
++              <object class="GtkComboBox" id="domain">
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
+-                <property name="halign">end</property>
+-                <property name="xalign">1</property>
+-                <property name="label" translatable="yes">_Username</property>
+-                <property name="use_underline">True</property>
+-                <property name="mnemonic_widget">login</property>
++                <property name="hexpand">True</property>
++                <property name="model">realms_model</property>
++                <property name="has_entry">True</property>
++                <property name="entry_text_column">0</property>
++                <child internal-child="entry">
++                  <object class="GtkEntry" id="domain_entry">
++                    <property name="can_focus">True</property>
++                    <property name="max-length">255</property>
++                  </object>
++                </child>
+               </object>
+-              <packing>
+-                <property name="left_attach">0</property>
+-                <property name="top_attach">3</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+-              <object class="GtkLabel" id="label9">
++              <object class="GtkLabel" id="label10">
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
+-                <property name="halign">end</property>
+-                <property name="xalign">1</property>
+-                <property name="label" translatable="yes">_Password</property>
++                <property name="margin_bottom">12</property>
++                <property name="xalign">0</property>
++                <property name="label" translatable="yes">Enterprise domain or realm name</property>
++                <attributes>
++                  <attribute name="scale" value="0.8"/>
++                </attributes>
++              </object>
++            </child>
++            <child>
++              <object class="GtkLabel" id="label8">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="halign">start</property>
++                <property name="xalign">0</property>
++                <property name="label" translatable="yes">_Username</property>
+                 <property name="use_underline">True</property>
+-                <property name="mnemonic_widget">password</property>
++                <property name="mnemonic_widget">login</property>
+               </object>
+-              <packing>
+-                <property name="left_attach">0</property>
+-                <property name="top_attach">4</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+               <object class="GtkEntry" id="login">
+@@ -84,14 +80,18 @@
+                 <property name="invisible_char">●</property>
+                 <property name="invisible_char_set">True</property>
+                 <property name="max-length">255</property>
+-                <property name="width-chars">25</property>
+               </object>
+-              <packing>
+-                <property name="left_attach">1</property>
+-                <property name="top_attach">3</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
++            </child>
++            <child>
++              <object class="GtkLabel" id="label9">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="halign">start</property>
++                <property name="xalign">0</property>
++                <property name="label" translatable="yes">_Password</property>
++                <property name="use_underline">True</property>
++                <property name="mnemonic_widget">password</property>
++              </object>
+             </child>
+             <child>
+               <object class="GtkEntry" id="password">
+@@ -103,67 +103,13 @@
+                 <property name="activates_default">True</property>
+                 <property name="invisible_char_set">True</property>
+                 <property name="max-length">255</property>
+-                <property name="width-chars">25</property>
+-              </object>
+-              <packing>
+-                <property name="left_attach">1</property>
+-                <property name="top_attach">4</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+-            </child>
+-            <child>
+-              <object class="GtkComboBox" id="domain">
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="hexpand">True</property>
+-                <property name="model">realms_model</property>
+-                <property name="has_entry">True</property>
+-                <property name="entry_text_column">0</property>
+-                <child internal-child="entry">
+-                  <object class="GtkEntry" id="domain_entry">
+-                    <property name="can_focus">True</property>
+-                    <property name="max-length">255</property>
+-                    <property name="width-chars">25</property>
+-                  </object>
+-                </child>
+-              </object>
+-              <packing>
+-                <property name="left_attach">1</property>
+-                <property name="top_attach">1</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+-            </child>
+-            <child>
+-              <object class="GtkLabel" id="label10">
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="margin_bottom">12</property>
+-                <property name="xalign">0</property>
+-                <property name="label" translatable="yes">Enterprise domain or realm name</property>
+-                <attributes>
+-                  <attribute name="scale" value="0.8"/>
+-                </attributes>
+               </object>
+-              <packing>
+-                <property name="left_attach">1</property>
+-                <property name="top_attach">2</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+               <object class="GtkLabel" id="filler">
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
+               </object>
+-              <packing>
+-                <property name="left_attach">2</property>
+-                <property name="top_attach">4</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+           </object>
+         </child>
+--- a/gnome-initial-setup/pages/account/gis-account-page-local.ui
++++ b/gnome-initial-setup/pages/account/gis-account-page-local.ui
+@@ -5,8 +5,6 @@
+     <child>
+       <object class="GtkBox" id="area">
+         <property name="visible">True</property>
+-        <property name="halign">center</property>
+-        <property name="valign">fill</property>
+         <property name="orientation">vertical</property>
+         <property name="spacing">18</property>
+         <child>
+@@ -39,56 +37,37 @@
+           </object>
+         </child>
+         <child>
+-          <object class="GtkGrid" id="form">
++          <object class="GtkBox" id="form">
+             <property name="visible">True</property>
+-            <property name="column_spacing">12</property>
+-            <property name="row_spacing">6</property>
++            <property name="spacing">6</property>
++            <property name="orientation">vertical</property>
+             <child>
+               <object class="GtkLabel" id="fullname_label">
+                 <property name="visible">True</property>
+-                <property name="halign">end</property>
+-                <property name="xalign">1</property>
++                <property name="halign">start</property>
++                <property name="xalign">0</property>
+                 <property name="label" translatable="yes">_Full Name</property>
+                 <property name="use_underline">True</property>
+                 <property name="mnemonic_widget">fullname_entry</property>
+               </object>
+-              <packing>
+-                <property name="left_attach">0</property>
+-                <property name="top_attach">3</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+               <object class="GtkEntry" id="fullname_entry">
+                 <property name="max_length">255</property>
+-                <property name="width-chars">25</property>
+                 <property name="visible">True</property>
+                 <property name="invisible_char">●</property>
+                 <property name="invisible_char_set">True</property>
+               </object>
+-              <packing>
+-                <property name="left_attach">1</property>
+-                <property name="top_attach">3</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+               <object class="GtkLabel" id="username_label">
+                 <property name="visible">True</property>
+-                <property name="halign">end</property>
+-                <property name="xalign">1</property>
++                <property name="halign">start</property>
++                <property name="xalign">0</property>
+                 <property name="label" translatable="yes">_Username</property>
+                 <property name="use_underline">True</property>
+                 <property name="mnemonic_widget">comboboxtext-entry</property>
+               </object>
+-              <packing>
+-                <property name="left_attach">0</property>
+-                <property name="top_attach">4</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+               <object class="GtkComboBoxText" id="username_combo">
+@@ -100,23 +79,15 @@
+                 <child internal-child="entry">
+                   <object class="GtkEntry" id="comboboxtext-entry">
+                     <property name="can_focus">True</property>
+-                    <property name="width-chars">25</property>
+                   </object>
+                 </child>
+               </object>
+-              <packing>
+-                <property name="left_attach">1</property>
+-                <property name="top_attach">4</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+               <object class="GtkLabel" id="username_explanation">
+                 <property name="visible">True</property>
+                 <property name="yalign">0</property>
+                 <property name="xalign">0</property>
+-                <property name="width-chars">35</property>
+                 <property name="wrap">True</property>
+                 <property name="wrap_mode">word-char</property>
+                 <style>
+@@ -126,12 +97,6 @@
+                   <attribute name="scale" value="0.8"/>
+                 </attributes>
+               </object>
+-              <packing>
+-                <property name="left_attach">1</property>
+-                <property name="top_attach">5</property>
+-                <property name="width">1</property>
+-                <property name="height">1</property>
+-              </packing>
+             </child>
+             <child>
+               <object class="GtkBox" id="enable_parental_controls_box">
+--- a/gnome-initial-setup/pages/account/gis-account-page.ui
++++ b/gnome-initial-setup/pages/account/gis-account-page.ui
+@@ -3,10 +3,13 @@
+   <!-- interface-requires gtk+ 3.0 -->
+   <template class="GisAccountPage" parent="GisPage">
+     <child>
++      <object class="HdyColumn">
++        <property name="linear_growth_width">400</property>
++        <property name="maximum_width">600</property>
++        <property name="visible">True</property>
++    <child>
+       <object class="GtkBox" id="page">
+         <property name="visible">True</property>
+-        <property name="halign">center</property>
+-        <property name="valign">fill</property>
+         <property name="orientation">vertical</property>
+         <child>
+           <object class="GtkStack" id="stack">
+@@ -59,5 +62,7 @@
+         </child>
+       </object>
+     </child>
++      </object>
++    </child>
+   </template>
+ </interface>

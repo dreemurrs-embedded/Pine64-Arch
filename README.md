@@ -40,5 +40,9 @@ If you do not have a SSH client:
 Now SSH to alarm@10.15.19.82, the password is 123456.
 
 ## Come and talk with us!
- * Matrix: #archmobile:kde.org
+
+## Join the community
+
+* Matrix: #archmobile:kde.org
  * Telegram: @archlinux_pinephone
+ * Forum: https://forum.pine64.org/forumdisplay.php?fid=159

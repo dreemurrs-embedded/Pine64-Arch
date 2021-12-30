@@ -2,9 +2,9 @@
 # Contributor : Philip Müller <philm@manjaro.org>
 
 pkgname=eg25-manager
-pkgver=0.4.0
+pkgver=0.4.2
 pkgrel=1
-_commit=c11f68f40212981e82cdbc09cff005bc02670705
+_commit=a91bc71e23e5a8d5e17b32bb5fa8f3691251dfeb
 pkgdesc="Daemon for managing the Quectel EG25 modem"
 arch=('aarch64')
 url="https://gitlab.com/mobian1/devices/eg25-manager"
@@ -14,10 +14,8 @@ makedepends=('meson' 'ninja' 'git')
 optdepends=('modemmanager: for Phosh'
             'ofono: for Lomiri or Plasma Mobile')
 replaces=('danctnix-eg25-misc')
-source=(git+$url.git#commit=${_commit}
-        eg25-manager.service)
-sha256sums=('SKIP'
-            '93cf52f71752865978b7cdd8e8f425fc4e10d1267aede03f90325994db200010')
+source=(git+$url.git#commit=${_commit})
+sha256sums=('SKIP')
 
 pkgver() {
   cd ${pkgname}
@@ -31,5 +29,4 @@ build() {
 
 package() {
   DESTDIR="$pkgdir" meson install -C build
-  install -Dm644 $srcdir/eg25-manager.service $pkgdir/usr/lib/systemd/system/eg25-manager.service
 }

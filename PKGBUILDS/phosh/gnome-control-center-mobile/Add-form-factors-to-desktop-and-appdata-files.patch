@@ -1,0 +1,36 @@
+From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Date: Sat, 10 Jul 2021 03:55:31 +0200
+Subject: Add form factors to desktop and appdata files
+
+---
+ shell/appdata/gnome-control-center.appdata.xml.in | 4 ++++
+ shell/gnome-control-center.desktop.in.in          | 1 +
+ 2 files changed, 5 insertions(+)
+
+Index: gnome-control-center/shell/appdata/gnome-control-center.appdata.xml.in
+===================================================================
+--- gnome-control-center.orig/shell/appdata/gnome-control-center.appdata.xml.in	2021-10-23 07:56:40.606000000 +0000
++++ gnome-control-center/shell/appdata/gnome-control-center.appdata.xml.in	2021-10-23 07:56:40.602000000 +0000
+@@ -26,6 +26,10 @@
+     <kudo>SearchProvider</kudo>
+     <kudo>UserDocs</kudo>
+   </kudos>
++  <custom>
++    <value key="Purism::form_factor">workstation</value>
++    <value key="Purism::form_factor">mobile</value>
++  </custom>
+   <translation type="gettext">gnome-control-center-2.0</translation>
+   <custom>
+     <value key="Purism::form_factor">workstation</value>
+Index: gnome-control-center/shell/gnome-control-center.desktop.in.in
+===================================================================
+--- gnome-control-center.orig/shell/gnome-control-center.desktop.in.in	2021-10-23 07:56:40.606000000 +0000
++++ gnome-control-center/shell/gnome-control-center.desktop.in.in	2021-10-23 07:56:40.602000000 +0000
+@@ -12,6 +12,7 @@
+ X-GNOME-Bugzilla-Product=gnome-control-center
+ X-GNOME-Bugzilla-Component=shell
+ X-GNOME-Bugzilla-Version=@VERSION@
++X-Purism-FormFactor=Workstation;Mobile;
+ # Translators: Search terms to find this application. Do NOT translate or localize the semicolons! The list MUST also end with a semicolon!
+ Keywords=Preferences;Settings;
+ # Translators: Do NOT translate or transliterate this text (these are enum types)!

@@ -1,0 +1,32 @@
+From c8e1891b70f0963376c9adfdbcd51658f7d4509b Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Tue, 17 Dec 2019 14:46:15 +0530
+Subject: [PATCH 3/3] language-page: Always change system language
+
+regardless of whether the user is new or existing.
+
+https://source.puri.sm/Librem5/gnome-initial-setup/issues/15
+---
+ gnome-initial-setup/pages/language/gis-language-page.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/gnome-initial-setup/pages/language/gis-language-page.c
++++ b/gnome-initial-setup/pages/language/gis-language-page.c
+@@ -126,7 +126,7 @@
+   gis_driver_set_user_language (driver, priv->new_locale_id, TRUE);
+   gtk_widget_set_default_direction (gtk_get_locale_direction ());
+ 
+-  if (gis_driver_get_mode (driver) == GIS_DRIVER_MODE_NEW_USER) {
++  /* if (gis_driver_get_mode (driver) == GIS_DRIVER_MODE_NEW_USER) */ {
+       if (g_permission_get_allowed (priv->permission)) {
+           set_localed_locale (page);
+       }
+@@ -235,7 +235,7 @@
+                     G_CALLBACK (language_confirmed), page);
+ 
+   /* If we're in new user mode then we're manipulating system settings */
+-  if (gis_driver_get_mode (GIS_PAGE (page)->driver) == GIS_DRIVER_MODE_NEW_USER)
++  /* if (gis_driver_get_mode (GIS_PAGE (page)->driver) == GIS_DRIVER_MODE_NEW_USER) */
+     {
+       priv->permission = polkit_permission_new_sync ("org.freedesktop.locale1.set-locale", NULL, NULL, NULL);
+ 

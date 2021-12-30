@@ -1,0 +1,12 @@
+Index: gnome-control-center/panels/region/cc-region-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/region/cc-region-panel.ui	2021-10-23 07:56:40.813000000 +0000
++++ gnome-control-center/panels/region/cc-region-panel.ui	2021-10-23 07:56:40.810000000 +0000
+@@ -274,6 +274,7 @@
+                    <property name="valign">end</property>
+                    <property name="vexpand">True</property>
+                    <property name="hexpand">True</property>
++                   <property name="wrap">True</property>
+                    <property name="label" translatable="yes">Login settings are used by all users when logging into the system</property>
+                    <property name="margin_bottom">12</property>
+                    <style>

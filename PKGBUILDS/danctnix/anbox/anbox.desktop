@@ -4,5 +4,5 @@ GenericName=Android in a box
 Version=1.0
 Type=Application
 Icon=anbox
-Exec=anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity
+Exec=env EGL_PLATFORM=x11 anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity
 Terminal=false

@@ -1,0 +1,33 @@
+From 2f6e3a49cced16ad6405b14d3ef591bf50d1081e Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 13 Oct 2021 12:52:24 +0200
+Subject: [PATCH] appdata: Declare the supported controls and displays
+
+---
+ data/appdata/org.gnome.Calendar.appdata.xml.in.in | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/data/appdata/org.gnome.Calendar.appdata.xml.in.in b/data/appdata/org.gnome.Calendar.appdata.xml.in.in
+index 6cdeef49..112a2a03 100644
+--- a/data/appdata/org.gnome.Calendar.appdata.xml.in.in
++++ b/data/appdata/org.gnome.Calendar.appdata.xml.in.in
+@@ -40,6 +40,16 @@
+     <kudo>SearchProvider</kudo>
+   </kudos>
+ 
++  <recommends>
++    <control>keyboard</control>
++    <control>pointing</control>
++    <control>touch</control>
++  </recommends>
++
++  <requires>
++    <display_length compare="ge">360</display_length>
++  </requires>
++
+   <url type="homepage">https://wiki.gnome.org/Apps/Calendar</url>
+   <url type="bugtracker">https://gitlab.gnome.org/GNOME/gnome-calendar/issues</url>
+   <project_group>GNOME</project_group>
+-- 
+2.30.2
+

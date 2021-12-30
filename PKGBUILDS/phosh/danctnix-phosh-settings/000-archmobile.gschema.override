@@ -38,5 +38,8 @@ download-updates=false
 [org.gtk.Settings.Purism]
 is-phone=true
 
+[org.gnome.eog.ui]
+sidebar=false
+
 [sm.puri.phosh]
-force-adaptive=['chromium.desktop', 'firefox.desktop', 'firefox-esr.desktop', 'org.gnome.Dictionary.desktop', 'org.gnome.Geary.desktop', 'org.gnome.PasswordSafe.desktop', 'org.gnome.Software.desktop', 'org.gnome.Usage.desktop', 'org.gnome.zbrown.KingsCross.desktop', 'yelp.desktop']
+force-adaptive=['chromium.desktop', 'firefox.desktop', 'firefox-esr.desktop', 'org.gnome.Dictionary.desktop', 'org.gnome.Geary.desktop', 'org.gnome.Software.desktop', 'org.gnome.zbrown.KingsCross.desktop', 'yelp.desktop']

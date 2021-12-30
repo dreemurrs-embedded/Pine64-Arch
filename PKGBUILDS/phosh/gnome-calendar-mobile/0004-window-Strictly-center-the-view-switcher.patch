@@ -1,0 +1,25 @@
+From d8979d2c70ed3def6ea4d6dcad5762644a6326b2 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 11 Oct 2021 12:59:31 +0200
+Subject: [PATCH] window: Strictly center the view switcher
+
+This simply looks better.
+---
+ src/gui/gcal-window.ui | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/gui/gcal-window.ui b/src/gui/gcal-window.ui
+index 13e94976..af40fe87 100644
+--- a/src/gui/gcal-window.ui
++++ b/src/gui/gcal-window.ui
+@@ -170,6 +170,7 @@
+           <object class="HdyHeaderBar" id="header_bar">
+             <property name="visible">True</property>
+             <property name="show_close_button">True</property>
++            <property name="centering-policy">strict</property>
+             <property name="title" translatable="yes">Calendar</property>
+             <child>
+               <object class="GtkButton" id="new_event_button">
+-- 
+2.30.2
+

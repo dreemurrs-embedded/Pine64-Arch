@@ -15,10 +15,10 @@ This is imported from HdyViewSwitcherTitle from libhandy 1.0.0.
  create mode 100644 gtk/ui/hdy-view-switcher-title.ui
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 5150fd0..96d8c10 100644
+index 0418128..99f6a5c 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -610,6 +610,7 @@ gtk_private_h_sources =		\
+@@ -609,6 +609,7 @@ gtk_private_h_sources =		\
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
@@ -26,7 +26,7 @@ index 5150fd0..96d8c10 100644
  	open-type-layout.h	\
  	language-names.h	\
  	script-names.h
-@@ -991,6 +992,7 @@ gtk_base_c_sources = 		\
+@@ -990,6 +991,7 @@ gtk_base_c_sources = 		\
  	hdy-view-switcher.c	\
  	hdy-view-switcher-bar.c	\
  	hdy-view-switcher-button.c	\
@@ -34,7 +34,7 @@ index 5150fd0..96d8c10 100644
  	language-names.c	\
  	script-names.c
  
-@@ -1252,7 +1254,8 @@ templates =				\
+@@ -1251,7 +1253,8 @@ templates =				\
  	ui/gtkvolumebutton.ui		\
  	ui/gtksidebarrow.ui		\
  	ui/hdy-view-switcher-bar.ui	\
@@ -709,7 +709,7 @@ index 0000000..4cb815b
 +  return gtk_hdy_squeezer_get_visible_child (self->squeezer) == (GtkWidget *) self->title_box;
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 852147a..065140e 100644
+index 13dd69a..22dfdd0 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -389,6 +389,7 @@ gtk_sources = files(

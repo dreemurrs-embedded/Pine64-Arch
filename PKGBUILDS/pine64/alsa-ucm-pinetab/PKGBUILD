@@ -1,20 +1,25 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinetab
-pkgver=0.4.0
-pkgrel=1
+pkgver=0.5.0
+pkgrel=2
 pkgdesc="UCM files for PineTab"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=(alsa-ucm-conf)
+depends=('alsa-ucm-conf')
 source=(HiFi.conf PineTab.conf)
 
 package() {
-	install -D -m644 "$srcdir"/PineTab.conf \
-		"$pkgdir"/usr/share/alsa/ucm2/simple-card/PineTab.conf
-	install -D -m644 "$srcdir"/HiFi.conf \
-		"$pkgdir"/usr/share/alsa/ucm2/PineTab/HiFi.conf
+    install -D -m644 "$srcdir"/PineTab.conf \
+        "$pkgdir"/usr/share/alsa/ucm2/Pine64/PineTab/PineTab.conf
+    install -D -m644 "$srcdir"/HiFi.conf \
+        "$pkgdir"/usr/share/alsa/ucm2/Pine64/PineTab/HiFi.conf
+    ln -s Pine64/PineTab "$pkgdir"/usr/share/alsa/ucm2/PineTab
+
+    mkdir -p "$pkgdir"/usr/share/alsa/ucm2/conf.d/simple-card
+    ln -sf ../../Pine64/PineTab/PineTab.conf \
+        "$pkgdir"/usr/share/alsa/ucm2/conf.d/simple-card/PineTab.conf
 }
 
 md5sums=('929a19fb01e6d6960a98b0bbdd3491ac'
-         '002f06ca99501a682d7407a5e9e850eb')
+         'b536395b1fd6f6442c51b00242307c9d')

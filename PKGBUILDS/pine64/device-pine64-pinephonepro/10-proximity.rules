@@ -1,0 +1,5 @@
+# iio-sensor-proxy
+# Set PROXIMITY_NEAR_LEVEL for iio-sensor-proxy to pick up the proximity sensor
+
+# Set the sensor type for all the types we recognise
+ACTION=="add", SUBSYSTEM=="iio", TEST=="in_proximity_raw", ENV{PROXIMITY_NEAR_LEVEL}="250"

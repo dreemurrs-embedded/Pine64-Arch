@@ -7,8 +7,10 @@ Subject: [PATCH 3/3] usage: ellipsize labels to fit small screens
  panels/usage/cc-usage-panel.ui | 37 ++++++++++++++++++++++++++++------
  1 file changed, 31 insertions(+), 6 deletions(-)
 
---- a/panels/usage/cc-usage-panel.ui
-+++ b/panels/usage/cc-usage-panel.ui
+Index: gnome-control-center/panels/usage/cc-usage-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/usage/cc-usage-panel.ui	2021-10-23 07:56:40.647000000 +0000
++++ gnome-control-center/panels/usage/cc-usage-panel.ui	2021-10-23 07:56:40.643000000 +0000
 @@ -27,6 +27,7 @@
                    <object class="GtkLabel">
                      <property name="visible">true</property>

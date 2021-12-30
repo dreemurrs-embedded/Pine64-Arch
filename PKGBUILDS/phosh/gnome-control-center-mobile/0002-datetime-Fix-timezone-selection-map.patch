@@ -8,11 +8,11 @@ So as to fit on small screen
  panels/datetime/cc-datetime-panel.ui | 9 +++++----
  1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/panels/datetime/cc-datetime-panel.ui b/panels/datetime/cc-datetime-panel.ui
-index dc7519c18..3284839c1 100644
---- a/panels/datetime/cc-datetime-panel.ui
-+++ b/panels/datetime/cc-datetime-panel.ui
-@@ -100,7 +100,7 @@
+Index: gnome-control-center/panels/datetime/cc-datetime-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/datetime/cc-datetime-panel.ui	2021-10-23 07:56:40.386000000 +0000
++++ gnome-control-center/panels/datetime/cc-datetime-panel.ui	2021-10-23 07:56:40.383000000 +0000
+@@ -284,7 +284,7 @@
    <object class="GtkDialog" id="timezone_dialog">
      <property name="can_focus">False</property>
      <property name="title" translatable="yes">Time Zone</property>
@@ -21,7 +21,7 @@ index dc7519c18..3284839c1 100644
      <property name="type_hint">dialog</property>
      <property name="use_header_bar">1</property>
      <signal name="delete-event" handler="gtk_widget_hide_on_delete"/>
-@@ -116,7 +116,7 @@
+@@ -300,7 +300,7 @@
                  <property name="halign">center</property>
                  <property name="margin_start">5</property>
                  <property name="margin_end">5</property>
@@ -30,7 +30,7 @@ index dc7519c18..3284839c1 100644
                  <property name="primary_icon_name">edit-find-symbolic</property>
                  <property name="primary_icon_activatable">False</property>
                  <property name="primary_icon_sensitive">False</property>
-@@ -131,14 +131,15 @@
+@@ -315,14 +315,15 @@
          <property name="orientation">vertical</property>
          <property name="spacing">2</property>
          <child>
@@ -48,6 +48,3 @@ index dc7519c18..3284839c1 100644
              <child>
                <placeholder/>
              </child>
--- 
-2.30.2
-

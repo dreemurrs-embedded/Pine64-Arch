@@ -1,0 +1,134 @@
+From f9a126281cfef8fe3455abc6f2dccc5619052a4b Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 9 Nov 2021 14:13:25 +0100
+Subject: [PATCH] calendars-page: Make the rows ellipsize
+
+This helps it fit phones.
+
+Fixes https://source.puri.sm/Librem5/debs/gnome-calendar/-/issues/3
+---
+ src/gui/calendar-management/calendar-row.ui   | 49 +------------------
+ .../calendar-management/gcal-calendars-page.c | 10 ++--
+ 2 files changed, 5 insertions(+), 54 deletions(-)
+
+diff --git a/src/gui/calendar-management/calendar-row.ui b/src/gui/calendar-management/calendar-row.ui
+index b1893648..0eba126c 100644
+--- a/src/gui/calendar-management/calendar-row.ui
++++ b/src/gui/calendar-management/calendar-row.ui
+@@ -2,17 +2,10 @@
+ <!-- Generated with glade 3.18.1 -->
+ <interface>
+   <requires lib="gtk+" version="3.16"/>
+-  <object class="GtkListBoxRow" id="row">
+-    <property name="width_request">100</property>
++  <object class="HdyActionRow" id="row">
+     <property name="visible">True</property>
+     <property name="can_focus">True</property>
+-    <child>
+-      <object class="GtkGrid" id="grid">
+-        <property name="visible">True</property>
+-        <property name="can_focus">False</property>
+-        <property name="border_width">12</property>
+-        <property name="column_spacing">6</property>
+-        <child>
++        <child type="prefix">
+           <object class="GtkImage" id="icon">
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+@@ -21,37 +14,6 @@
+               <class name="calendar-color-image"/>
+             </style>
+           </object>
+-          <packing>
+-            <property name="left_attach">0</property>
+-            <property name="top_attach">0</property>
+-            <property name="height">2</property>
+-          </packing>
+-        </child>
+-        <child>
+-          <object class="GtkLabel" id="subtitle">
+-            <property name="visible">True</property>
+-            <property name="can_focus">False</property>
+-            <property name="hexpand">True</property>
+-            <property name="xalign">0</property>
+-            <style>
+-              <class name="dim-label"/>
+-            </style>
+-          </object>
+-          <packing>
+-            <property name="left_attach">1</property>
+-            <property name="top_attach">1</property>
+-          </packing>
+-        </child>
+-        <child>
+-          <object class="GtkLabel" id="title">
+-            <property name="visible">True</property>
+-            <property name="can_focus">False</property>
+-            <property name="xalign">0</property>
+-          </object>
+-          <packing>
+-            <property name="left_attach">1</property>
+-            <property name="top_attach">0</property>
+-          </packing>
+         </child>
+ 
+         <!-- Visibility switch -->
+@@ -63,13 +25,6 @@
+             <property name="halign">end</property>
+             <property name="valign">center</property>
+           </object>
+-          <packing>
+-            <property name="left_attach">2</property>
+-            <property name="top_attach">0</property>
+-            <property name="height">2</property>
+-          </packing>
+         </child>
+-      </object>
+-    </child>
+   </object>
+ </interface>
+diff --git a/src/gui/calendar-management/gcal-calendars-page.c b/src/gui/calendar-management/gcal-calendars-page.c
+index ef712a38..e877dd91 100644
+--- a/src/gui/calendar-management/gcal-calendars-page.c
++++ b/src/gui/calendar-management/gcal-calendars-page.c
+@@ -21,6 +21,7 @@
+ #define G_LOG_DOMAIN "GcalCalendarsPage"
+ 
+ #include <glib/gi18n.h>
++#include <handy.h>
+ 
+ #include "gcal-context.h"
+ #include "gcal-calendar-management-page.h"
+@@ -75,8 +76,6 @@ make_calendar_row (GcalCalendarsPage *self,
+   cairo_surface_t *surface;
+   const GdkRGBA *color;
+   GcalManager *manager;
+-  GtkWidget *bottom_label;
+-  GtkWidget *top_label;
+   GtkWidget *icon;
+   GtkWidget *row;
+   GtkWidget *sw;
+@@ -100,9 +99,7 @@ make_calendar_row (GcalCalendarsPage *self,
+   gtk_image_set_from_surface (GTK_IMAGE (icon), surface);
+ 
+   /* source name label */
+-  top_label = GTK_WIDGET (gtk_builder_get_object (builder, "title"));
+-  gtk_label_set_label (GTK_LABEL (top_label), gcal_calendar_get_name (calendar));
+-  g_object_bind_property (calendar, "name", top_label, "label", G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
++  g_object_bind_property (calendar, "name", row, "title", G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
+   g_signal_connect_object (calendar,
+                            "notify::name",
+                            G_CALLBACK (gtk_list_box_invalidate_sort),
+@@ -120,8 +117,7 @@ make_calendar_row (GcalCalendarsPage *self,
+   g_object_bind_property (calendar, "visible", sw, "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+ 
+   /* parent source name label */
+-  bottom_label = GTK_WIDGET (gtk_builder_get_object (builder, "subtitle"));
+-  gtk_label_set_label (GTK_LABEL (bottom_label), parent_name);
++  hdy_action_row_set_subtitle (HDY_ACTION_ROW (row), parent_name);
+ 
+   g_clear_pointer (&surface, cairo_surface_destroy);
+ 
+-- 
+2.30.2
+

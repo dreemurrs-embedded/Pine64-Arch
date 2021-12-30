@@ -7,15 +7,14 @@ Subject: [PATCH 4/4] power: add more suspend timing options
  panels/power/cc-power-panel.ui | 8 ++++++++
  1 file changed, 8 insertions(+)
 
-diff --git a/panels/power/cc-power-panel.ui b/panels/power/cc-power-panel.ui
-index 739d081781..97ca0866f9 100644
---- a/panels/power/cc-power-panel.ui
-+++ b/panels/power/cc-power-panel.ui
-@@ -9,6 +9,14 @@
-       <column type="gint"/>
+Index: gnome-control-center/panels/power/cc-power-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/power/cc-power-panel.ui	2021-10-23 07:56:40.667000000 +0000
++++ gnome-control-center/panels/power/cc-power-panel.ui	2021-10-23 07:56:40.664000000 +0000
+@@ -10,6 +10,14 @@
      </columns>
      <data>
-+      <row>
+       <row>
 +        <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">5 minutes</col>
 +        <col id="1">300</col>
 +      </row>
@@ -23,9 +22,7 @@ index 739d081781..97ca0866f9 100644
 +        <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">10 minutes</col>
 +        <col id="1">600</col>
 +      </row>
-       <row>
++      <row>
          <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">15 minutes</col>
          <col id="1">900</col>
--- 
-2.26.2
-
+       </row>

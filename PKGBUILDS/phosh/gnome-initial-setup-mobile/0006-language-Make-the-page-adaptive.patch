@@ -1,0 +1,49 @@
+From 51b88089b1a2a42d6ab14411b1fecb2a4a37e1bb Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 5 Jun 2019 15:31:21 +0200
+Subject: [PATCH 07/38] language: Make the page adaptive
+
+Put the language chooser in a HdyColumn and don't center the box to make
+the page adaptive, allowing it to reach narrower widths.
+---
+ gnome-initial-setup/pages/language/gis-language-page.ui | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+--- a/gnome-initial-setup/pages/language/gis-language-page.ui
++++ b/gnome-initial-setup/pages/language/gis-language-page.ui
+@@ -3,15 +3,18 @@
+   <requires lib="gtk+" version="3.0"/>
+   <template class="GisLanguagePage" parent="GisPage">
+     <child>
++      <object class="HdyColumn">
++        <property name="linear_growth_width">400</property>
++        <property name="maximum_width">600</property>
++        <property name="visible">True</property>
++    <child>
+       <object class="GtkBox" id="box">
+         <property name="visible">True</property>
+         <property name="orientation">vertical</property>
+-        <property name="halign">center</property>
+         <child>
+           <object class="GtkBox">
+             <property name="visible">True</property>
+             <property name="orientation">vertical</property>
+-            <property name="halign">center</property>
+             <property name="spacing">18</property>
+             <property name="expand" bind-source="language_chooser" bind-property="visible" bind-flags="invert-boolean|sync-create"/>
+             <child>
+@@ -33,12 +36,12 @@
+         </child>
+         <child>
+           <object class="CcLanguageChooser" id="language_chooser">
+-            <property name="margin_bottom">18</property>
+-            <property name="width_request">400</property>
+             <property name="visible">True</property>
+           </object>
+         </child>
+       </object>
+     </child>
++      </object>
++    </child>
+   </template>
+ </interface>

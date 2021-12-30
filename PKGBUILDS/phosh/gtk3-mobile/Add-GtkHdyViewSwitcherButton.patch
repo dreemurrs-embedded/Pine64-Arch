@@ -15,10 +15,10 @@ This is imported from HdyViewSwitcherButton from libhandy 1.0.0.
  create mode 100644 gtk/ui/hdy-view-switcher-button.ui
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 2b8830a..a0717b9 100644
+index 289e72c..e2a459d 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -601,6 +601,7 @@ gtk_private_h_sources =		\
+@@ -600,6 +600,7 @@ gtk_private_h_sources =		\
  	gtkwindowprivate.h	\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
@@ -26,7 +26,7 @@ index 2b8830a..a0717b9 100644
  	open-type-layout.h	\
  	language-names.h	\
  	script-names.h
-@@ -976,6 +977,7 @@ gtk_base_c_sources = 		\
+@@ -975,6 +976,7 @@ gtk_base_c_sources = 		\
  	gtkwin32draw.c		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
@@ -34,7 +34,7 @@ index 2b8830a..a0717b9 100644
  	language-names.c	\
  	script-names.c
  
-@@ -1235,7 +1237,8 @@ templates =				\
+@@ -1234,7 +1236,8 @@ templates =				\
  	ui/gtkstatusbar.ui		\
  	ui/gtktooltipwindow.ui		\
  	ui/gtkvolumebutton.ui		\
@@ -652,7 +652,7 @@ index 0000000..875ca7d
 +    *v_nat_width += border.left + border.right;
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 2a72b91..71c85dc 100644
+index 43a6e2b..40be825 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -383,6 +383,7 @@ gtk_sources = files(
