@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=powersupply
 pkgver=0.5.0
-pkgrel=1
+pkgrel=2
 pkgdesc="GTK3 tool for displaying battery and power info"
 url="https://gitlab.com/MartijnBraam/powersupply"
 arch=(any)
