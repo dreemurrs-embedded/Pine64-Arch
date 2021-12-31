@@ -3,7 +3,7 @@
 pkgname=ofonoctl
 _pyname=ofonoctl
 pkgver=0.4.0
-pkgrel=6
+pkgrel=7
 pkgdesc='test/control application for the ofono daemon'
 arch=('any')
 url="https://git.sr.ht/~martijnbraam/ofonoctl"
