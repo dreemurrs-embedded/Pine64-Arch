@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-settings
 pkgver=0.3
-pkgrel=4
+pkgrel=5
 pkgdesc="Settings for Phosh UI"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -19,9 +19,7 @@ source=(adwaita-phone.jpg
         org.gnome.Terminal.desktop
         org.gnome.Extensions.desktop
         qv4l2.desktop
-        qvidcap.desktop
-        01-phoc-scaling
-        dconf-profile-danctnix)
+        qvidcap.desktop)
 
 package() {
   # Hide apps we don't care
@@ -36,10 +34,6 @@ package() {
 
   install -Dm755 -t "$pkgdir/usr/bin" "$srcdir/osk-wayland"
   install -Dm644 -t "$pkgdir/usr/share/danctnix" "$srcdir/adwaita-phone.jpg"
-
-  # Dconf
-  install -Dm755 "$srcdir/dconf-profile-danctnix" "$pkgdir/etc/dconf/profile/user"
-  install -Dm755 -t "$pkgdir/etc/dconf/db/danctnix.d" "$srcdir/01-phoc-scaling"
 }
 
 
@@ -55,6 +49,4 @@ md5sums=('7567fd058afb2a7e5c8690fff0291c80'
          '386f9f031bb536653f6e0358e08171af'
          '4e6df0827c38569b5cade08496187370'
          '8275502efc147f126643c194f386640e'
-         '40a3cfff4bb4f499f2d31d9b80ac36df'
-         '0c47b81cedc47dc8cc8c23eee8355b45'
-         'c74df615bedb6c45fd997e54dcafd564')
+         '40a3cfff4bb4f499f2d31d9b80ac36df')
