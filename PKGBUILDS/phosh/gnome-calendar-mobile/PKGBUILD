@@ -4,7 +4,7 @@
 
 pkgname=gnome-calendar-mobile
 _pkgname=gnome-calendar
-pkgver=41.1
+pkgver=41.2
 pkgrel=1
 pkgdesc="Simple and beautiful calendar application designed to perfectly fit the GNOME desktop"
 url="https://wiki.gnome.org/Apps/Calendar"
@@ -16,7 +16,7 @@ makedepends=(git meson)
 optdepends=('evolution: ICS file import')
 provides=('gnome-calendar')
 conflicts=('gnome-calendar')
-_commit=59ad10ba3aaed69c96c5e7f710b3f2c6b35131ae  # tags/41.1^0
+_commit=deb9ff18302457b91fb8013f98880c8e3a548c19  # tags/41.2^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-calendar.git#commit=$_commit"
         # Purism patches for adaptive UI
         0001-Add-calendar-today-symbolic.patch
