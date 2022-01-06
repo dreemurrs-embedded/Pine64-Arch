@@ -3,8 +3,8 @@
 # Contributor: Philip Müller <philm@manjaro.org>
 
 pkgname=gtherm
-pkgver=0.0.2
-pkgrel=0
+pkgver=0.0.3
+pkgrel=1
 pkgdesc="A simple daemon to monitor thermal zones and cooling devices"
 url="https://source.puri.sm/Librem5/gtherm"
 license=('GPL')
@@ -12,7 +12,7 @@ arch=('x86_64' 'armv7h' 'aarch64')
 depends=('glib2' 'gobject-introspection')
 makedepends=('meson' 'vala')
 source=("https://source.puri.sm/Librem5/gtherm/-/archive/v$pkgver/gtherm-v$pkgver.tar.gz")
-sha256sums=('c468e78591f68f37f0e902064e8782a9e92690e45e12e42f3303f088df061ea2')
+sha256sums=('a0bb7e3c8b5446e98acdd2a6c07567c88032a0c5b3e459317de6761a5bacf35f')
 
 build() {
     arch-meson $pkgname-v$pkgver build
