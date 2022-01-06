@@ -1,0 +1,163 @@
+From d4cbb3f035c5ffe3373c7dbede24ed74357740b1 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Mon, 14 Dec 2020 18:34:46 +0100
+Subject: [PATCH 12/14] timer: Allow much smaller heights useing a
+ ScrolledWindow
+
+---
+ data/ui/timer-face.ui       | 81 +++++++++++++++++++++----------------
+ data/ui/timer-setup.ui      |  1 -
+ src/timer-setup-dialog.vala | 13 +++++-
+ 3 files changed, 57 insertions(+), 38 deletions(-)
+
+diff --git a/data/ui/timer-face.ui b/data/ui/timer-face.ui
+index 123a8c5..87331ec 100644
+--- a/data/ui/timer-face.ui
++++ b/data/ui/timer-face.ui
+@@ -7,55 +7,66 @@
+     <property name="visible">True</property>
+     <property name="can_focus">False</property>
+     <child>
+-      <object class="GtkBox" id="no_timer_container">
++      <object class="GtkScrolledWindow">
+         <property name="visible">True</property>
+-        <property name="can_focus">False</property>
+-        <property name="halign">center</property>
+-        <property name="valign">center</property>
+-        <property name="orientation">vertical</property>
+-        <property name="spacing">18</property>
++        <property name="hexpand">True</property>
++        <property name="vexpand">True</property>
++        <property name="hscrollbar-policy">never</property>
++        <property name="propagate-natural-height">True</property>
++        <property name="propagate-natural-width">True</property>
+         <child>
+-          <object class="GtkLabel">
++          <object class="GtkBox" id="no_timer_container">
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+-            <property name="label" translatable="yes">Select Duration</property>
+-            <style>
+-              <class name="timer-header"/>
+-            </style>
+-          </object>
+-          <packing>
+-            <property name="expand">False</property>
+-            <property name="fill">True</property>
+-            <property name="position">0</property>
+-          </packing>
+-        </child>
+-        <child>
+-          <object class="GtkButton" id="start_button">
+-            <property name="visible">True</property>
+-            <property name="can_focus">True</property>
+-            <property name="receives_default">True</property>
+             <property name="halign">center</property>
+             <property name="valign">center</property>
++            <property name="orientation">vertical</property>
++            <property name="spacing">18</property>
++            <property name="margin">12</property>
+             <child>
+-              <object class="GtkImage">
++              <object class="GtkLabel">
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
++                <property name="label" translatable="yes">Select Duration</property>
++                <style>
++                  <class name="timer-header"/>
++                </style>
++              </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="position">0</property>
++              </packing>
++            </child>
++            <child>
++              <object class="GtkButton" id="start_button">
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="receives_default">True</property>
+                 <property name="halign">center</property>
+                 <property name="valign">center</property>
+-                <property name="icon_name">media-playback-start-symbolic</property>
++                <child>
++                  <object class="GtkImage">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="halign">center</property>
++                    <property name="valign">center</property>
++                    <property name="icon_name">media-playback-start-symbolic</property>
++                  </object>
++                </child>
++                <style>
++                  <class name="pill-button"/>
++                  <class name="large-button"/>
++                  <class name="suggested-action"/>
++                </style>
+               </object>
++              <packing>
++                <property name="expand">False</property>
++                <property name="fill">True</property>
++                <property name="position">1</property>
++              </packing>
+             </child>
+-            <style>
+-              <class name="pill-button"/>
+-              <class name="large-button"/>
+-              <class name="suggested-action"/>
+-            </style>
+           </object>
+-          <packing>
+-            <property name="expand">False</property>
+-            <property name="fill">True</property>
+-            <property name="position">1</property>
+-          </packing>
+         </child>
+       </object>
+       <packing>
+diff --git a/data/ui/timer-setup.ui b/data/ui/timer-setup.ui
+index 588aedb..37a181d 100644
+--- a/data/ui/timer-setup.ui
++++ b/data/ui/timer-setup.ui
+@@ -198,7 +198,6 @@
+                 <property name="visible">True</property>
+                 <property name="can_focus">False</property>
+                 <property name="margin_top">12</property>
+-                <property name="margin_bottom">12</property>
+                 <child>
+                   <object class="GtkGrid" id="time_grid">
+                     <property name="visible">True</property>
+diff --git a/src/timer-setup-dialog.vala b/src/timer-setup-dialog.vala
+index e360ad8..6e94b90 100644
+--- a/src/timer-setup-dialog.vala
++++ b/src/timer-setup-dialog.vala
+@@ -25,14 +25,23 @@ public class SetupDialog: Gtk.Dialog {
+ 
+     public SetupDialog (Gtk.Window parent) {
+         Object (modal: true, transient_for: parent, title: _("New Timer"), use_header_bar: 1);
+-        this.set_default_size (640, 360);
+ 
+         add_button (_("Cancel"), Gtk.ResponseType.CANCEL);
+         var create_button = add_button (_("Add"), Gtk.ResponseType.ACCEPT);
+         create_button.get_style_context ().add_class ("suggested-action");
+ 
+         timer_setup = new Setup ();
+-        this.get_content_area ().add (timer_setup);
++        timer_setup.margin = 12;
++        var container = new Gtk.ScrolledWindow (null, null);
++        container.hexpand = true;
++        container.vexpand = true;
++        container.propagate_natural_height = true;
++        container.propagate_natural_width = true;
++        container.hscrollbar_policy = Gtk.PolicyType.NEVER;
++        container.border_width = 0;
++        container.visible = true;
++        container.add (timer_setup);
++        this.get_content_area ().add (container);
+         timer_setup.duration_changed.connect ((duration) => {
+             this.set_response_sensitive (Gtk.ResponseType.ACCEPT, duration != 0);
+         });
+-- 
+2.34.1
+
