@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=5.16_rc6
+pkgver=5.16_rc8
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -21,7 +21,7 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
-        '5.16-rc3-rc6.diff'
+        '5.16-rc3-rc8.diff'
         # Patches
         # PinePhone Patches
         'dts-pinephone-drop-modem-power-node.patch'
@@ -30,6 +30,7 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         'dts-pinephone-pro-add-flash-fix-led.patch'
         'dts-pinephone-pro-remove-modem-node.patch'
         'dts-pinephone-pro-add-modem-ri.patch'
+        'rk818_charger_use_POWER_SUPPLY_TYPE_MAINS.patch'
         # Camera
         'media-ov5640-Implement-autofocus.patch'
         # PineTab Patches
@@ -59,7 +60,7 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
 prepare() {
   cd linux-$_commit
 
-  patch -p1 -N -i "$srcdir"/5.16-rc3-rc6.diff || true
+  patch -p1 -N -i "$srcdir"/5.16-rc3-rc8.diff || true
 
   local src
   for src in "${source[@]}"; do
@@ -256,17 +257,18 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('d171345f30dc67d426a783dc73007471'
-         '053a4e4df34e412688eb8a9433d4f84e'
+         '68ba1f18042d779133d6f9735c86ef34'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
-         'ce36d06cb82ab39af2d76ba2c7114c37'
+         '486420cb376a3caf56289c0649c1a890'
          '10d200e0a964f24cdb744678a758e22b'
          '5b44a02d5374c02a151c21798d11cf78'
          '44ca125216d9f0c3a732a96a60109696'
          '6bba011ce27c8310e2c160a27554be0b'
          'b56fb0cbaf36ad7b5d08b8064b1c2882'
          '7d80f76f1647afa00de320f5866484a1'
+         '8f067516be588f806a58c0d10649fe22'
          'a25d069b2b008ae22aa7fe55716239da'
          '85d8339bc3d5daf45aa579d578ef0255'
          'd0fd6bd627223d4c9fc001ffff9df401'

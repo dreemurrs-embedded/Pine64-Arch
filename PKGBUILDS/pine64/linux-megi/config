@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.16.0-rc6-1 Kernel Configuration
+# Linux/arm64 5.16.0-rc8-1 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 10.2.0"
 CONFIG_CC_IS_GCC=y
@@ -97,8 +97,7 @@ CONFIG_BPF_JIT_ALWAYS_ON=y
 CONFIG_BPF_JIT_DEFAULT_ON=y
 # CONFIG_BPF_UNPRIV_DEFAULT_OFF is not set
 CONFIG_USERMODE_DRIVER=y
-CONFIG_BPF_PRELOAD=y
-CONFIG_BPF_PRELOAD_UMD=m
+# CONFIG_BPF_PRELOAD is not set
 # end of BPF subsystem
 
 CONFIG_PREEMPT_BUILD=y
@@ -1251,7 +1250,8 @@ CONFIG_NF_DEFRAG_IPV6=m
 # CONFIG_NF_TABLES_BRIDGE is not set
 CONFIG_NF_CONNTRACK_BRIDGE=m
 # CONFIG_BRIDGE_NF_EBTABLES is not set
-# CONFIG_BPFILTER is not set
+CONFIG_BPFILTER=y
+CONFIG_BPFILTER_UMH=m
 # CONFIG_IP_DCCP is not set
 # CONFIG_IP_SCTP is not set
 # CONFIG_RDS is not set
