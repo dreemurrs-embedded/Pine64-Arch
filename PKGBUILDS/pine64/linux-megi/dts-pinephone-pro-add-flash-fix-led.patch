@@ -1,7 +1,7 @@
-From f0a8cb920f7faa7acc9efe7e886867c0f9163d89 Mon Sep 17 00:00:00 2001
+From 9fbffedb9937b20e56ec24fcf7f4ce8aa850b0a3 Mon Sep 17 00:00:00 2001
 From: Arnaud Ferraris <arnaud.ferraris@gmail.com>
 Date: Wed, 1 Dec 2021 20:48:51 +0100
-Subject: [PATCH 2/4] arm64: dts: rk3399-pinephone-pro: Add flash and fix leds
+Subject: [PATCH] arm64: dts: rk3399-pinephone-pro: Add flash and fix leds
 
 The PinePhone Pro has a similar device to the SGM3140 used in the OG
 PinePhone. This commit adds the corresponding device-tree node so the
@@ -13,11 +13,11 @@ PinePhone.
 
 Signed-off-by: Arnaud Ferraris <arnaud.ferraris@gmail.com>
 ---
- .../dts/rockchip/rk3399-pinephone-pro.dts     | 47 +++++++++++--------
- 1 file changed, 28 insertions(+), 19 deletions(-)
+ .../dts/rockchip/rk3399-pinephone-pro.dts     | 45 +++++++++++--------
+ 1 file changed, 27 insertions(+), 18 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts b/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
-index 13ca1e8d5..c9365e604 100644
+index a253c856e..46e8df759 100644
 --- a/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
 +++ b/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
 @@ -127,30 +127,22 @@ leds {
@@ -51,10 +51,9 @@ index 13ca1e8d5..c9365e604 100644
  			color = <LED_COLOR_ID_BLUE>;
 -			default-state = "off";
 -			function = LED_FUNCTION_CHARGING;
--			gpios = <&gpio0 RK_PD6 GPIO_ACTIVE_HIGH>;
--			label = "blue:charging";
 +			function = LED_FUNCTION_INDICATOR;
-+			gpios = <&gpio4 RK_PD6 GPIO_ACTIVE_HIGH>;
+ 			gpios = <&gpio4 RK_PD6 GPIO_ACTIVE_HIGH>;
+-			label = "blue:charging";
  		};
  	};
  
@@ -80,7 +79,7 @@ index 13ca1e8d5..c9365e604 100644
  };
  
  &cpu_l0 {
-@@ -1134,6 +1141,12 @@ green_led_pin: green-led-pin {
+@@ -1136,6 +1143,12 @@ green_led_pin: green-led-pin {
  		blue_led_pin: blue-led-pin {
  			rockchip,pins = <4 RK_PD6 RK_FUNC_GPIO &pcfg_pull_none>;
  		};
@@ -93,7 +92,7 @@ index 13ca1e8d5..c9365e604 100644
  	};
  
  	modem {
-@@ -1225,10 +1238,6 @@ &pwm0 {
+@@ -1227,10 +1240,6 @@ &pwm0 {
  	status = "okay";
  };
  
