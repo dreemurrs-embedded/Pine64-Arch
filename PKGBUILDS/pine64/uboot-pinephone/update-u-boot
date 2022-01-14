@@ -1,4 +1,6 @@
 #!/bin/sh
+# Script is based on:
+# https://gitlab.com/postmarketOS/pmaports/-/blob/master/temp/u-boot-pinephone/update-u-boot
 
 board=
 device=
@@ -73,7 +75,7 @@ options:
 EOF
 }
 
-[ "$(stat -c %i /)" != 2 ] && die "Chroot detected, exiting."
+[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ] && die "Chroot detected, exiting."
 
 while [ $# -gt 0 ]; do
 	opt="$1"
