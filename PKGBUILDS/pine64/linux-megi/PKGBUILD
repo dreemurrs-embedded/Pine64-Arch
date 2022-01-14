@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-megi
 _desc="Megous Kernel"
 pkgver=5.16.0
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -15,7 +15,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="e3874aaacc419b3b46ee584199f35dd4013c63d5"
+_commit="382509700d5a3ea447b44f002e9d928fd0a14ad5"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -29,7 +29,6 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         'dts-pinephone-pro-add-flash-fix-led.patch'
         'dts-pinephone-pro-remove-modem-node.patch'
         'dts-pinephone-pro-add-modem-ri.patch'
-        'rk818_charger_use_POWER_SUPPLY_TYPE_MAINS.patch'
         # Camera
         'media-ov5640-Implement-autofocus.patch'
         # PineTab Patches
@@ -253,18 +252,17 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('cf0aa3a635b136c0075e879a2b5037bd'
-         'dbfa21c91431795e532533f047e7cc72'
+md5sums=('870eea690d1a0aa904be5cfe88fc3f3c'
+         '7b76e7e00d539a0b1cfc4052b860afab'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
          '10d200e0a964f24cdb744678a758e22b'
          '5b44a02d5374c02a151c21798d11cf78'
-         '44ca125216d9f0c3a732a96a60109696'
+         'b53a0c9d3c25fe3f1346a963f3539a6f'
          'f81da11c84ba3ba0195ced119b893482'
-         'b56fb0cbaf36ad7b5d08b8064b1c2882'
+         '75dac30d08e3a91871c072c016d1ab90'
          '7d80f76f1647afa00de320f5866484a1'
-         '8f067516be588f806a58c0d10649fe22'
          'a25d069b2b008ae22aa7fe55716239da'
          '85d8339bc3d5daf45aa579d578ef0255'
          'd0fd6bd627223d4c9fc001ffff9df401'

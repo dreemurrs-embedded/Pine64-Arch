@@ -1,7 +1,7 @@
-From 90c413c60c9451f76853132808fdf65698d4d00f Mon Sep 17 00:00:00 2001
+From 60d8aedea7c8c390ee744730ab3e565ea84496fb Mon Sep 17 00:00:00 2001
 From: Danct12 <danct12@disroot.org>
 Date: Fri, 10 Dec 2021 23:01:34 +0700
-Subject: [PATCH 4/4] arm64: dts: rk3399-pinephone-pro: Remove modem node
+Subject: [PATCH] arm64: dts: rk3399-pinephone-pro: Remove modem node
 
 Since we don't use modem-power driver, this can be removed
 for eg25-manager.
@@ -10,10 +10,10 @@ for eg25-manager.
  1 file changed, 2 insertions(+), 38 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts b/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
-index b3b091ea7..7ff2f668c 100644
+index 61c990764..13141c643 100644
 --- a/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
 +++ b/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
-@@ -333,6 +333,7 @@ vcc_4g_5v: vcc-4g-5v {
+@@ -326,6 +326,7 @@ vcc_4g_5v: vcc-4g-5v {
  		regulator-min-microvolt = <5000000>;
  		regulator-max-microvolt = <5000000>;
  		vin-supply = <&vcc5v0_sys>;
@@ -21,7 +21,7 @@ index b3b091ea7..7ff2f668c 100644
  	};
  
  	vcc_4g: vcc-4g {
-@@ -345,6 +346,7 @@ vcc_4g: vcc-4g {
+@@ -338,6 +339,7 @@ vcc_4g: vcc-4g {
  		regulator-min-microvolt = <3800000>;
  		regulator-max-microvolt = <3800000>;
  		vin-supply = <&vcc_sysin>;
@@ -29,7 +29,7 @@ index b3b091ea7..7ff2f668c 100644
  	};
  
  	vcc1v8_codec: vcc1v8-codec-regulator {
-@@ -1071,31 +1073,6 @@ mipi_in_panel: endpoint {
+@@ -1058,31 +1060,6 @@ mipi_in_panel: endpoint {
  
  &uart3 {
  	status = "okay";
@@ -44,7 +44,7 @@ index b3b091ea7..7ff2f668c 100644
 -		power-supply = <&vcc_4g>;
 -		vbus-supply = <&vcc_4g_5v>;
 -
--		enable-gpios = <&gpio0 RK_PB0 GPIO_ACTIVE_LOW>; // W_DISABLE#
+-		enable-gpios = <&gpio0 RK_PB0 GPIO_ACTIVE_HIGH>; // W_DISABLE#
 -		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_HIGH>;
 -		status-gpios = <&gpio3 RK_PA6 GPIO_ACTIVE_HIGH>;
 -		pwrkey-gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
@@ -56,12 +56,12 @@ index b3b091ea7..7ff2f668c 100644
 -		cts-gpios = <&gpio3 RK_PC0 GPIO_ACTIVE_HIGH>;
 -		rts-gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_HIGH>;
 -
--		quectel,qdai = "1,1,0,1,0,0,1,1";
+-		quectel,qdai = "3,0,0,4,0,0,1,1";
 -	};
  };
  
  &pmu_io_domains {
-@@ -1176,19 +1153,6 @@ vcc_4g_5v_en: vcc-4g-5v-en-pin {
+@@ -1153,19 +1130,6 @@ vcc_4g_5v_en: vcc-4g-5v-en-pin {
  		vcc_4g_en: vcc-4g-en-pin {
  			rockchip,pins = <4 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
  		};
