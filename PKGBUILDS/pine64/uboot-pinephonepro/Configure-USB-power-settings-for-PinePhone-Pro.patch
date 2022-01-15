@@ -1,0 +1,228 @@
+From 8ee2257dda6bed2f1ae117e614637036003785d4 Mon Sep 17 00:00:00 2001
+From: Dragan Simic <dragan.simic@gmail.com>
+Date: Thu, 30 Dec 2021 00:08:51 +0100
+Subject: [PATCH] Configure USB power settings for PinePhone Pro
+
+---
+ arch/arm/mach-rockchip/rk3399/rk3399.c        |  5 ++
+ .../pinephone-pro-rk3399.c                    | 58 ++++++++++++++++---
+ configs/pinephone-pro-rk3399_defconfig        |  6 ++
+ drivers/power/regulator/rk8xx.c               | 21 ++++---
+ 4 files changed, 72 insertions(+), 18 deletions(-)
+
+diff --git a/arch/arm/mach-rockchip/rk3399/rk3399.c b/arch/arm/mach-rockchip/rk3399/rk3399.c
+index d40969c8..644e4ab2 100644
+--- a/arch/arm/mach-rockchip/rk3399/rk3399.c
++++ b/arch/arm/mach-rockchip/rk3399/rk3399.c
+@@ -248,9 +248,14 @@ void __weak led_setup(void)
+ {
+ }
+ 
++void __weak power_setup(void)
++{
++}
++
+ void spl_board_init(void)
+ {
+ 	led_setup();
++	power_setup();
+ 
+ #if defined(SPL_GPIO)
+ 	struct rockchip_cru *cru = rockchip_get_cru();
+diff --git a/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c b/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
+index 8efeb6ea..88583e31 100644
+--- a/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
++++ b/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
+@@ -2,8 +2,14 @@
+ /*
+  * (C) Copyright 2019 Vasily Khoruzhick <anarsoul@gmail.com>
+  * (C) Copyright 2021 Martijn Braam <martijn@brixit.nl>
++ * (C) Copyright 2021 Dragan Simic <dsimic@buserror.io>
+  */
+ 
++/*
++ * TODO: Disable debugging
++ */
++#define DEBUG
++
+ #include <common.h>
+ #include <dm.h>
+ #include <init.h>
+@@ -13,6 +19,8 @@
+ #include <asm/arch-rockchip/grf_rk3399.h>
+ #include <asm/arch-rockchip/hardware.h>
+ #include <asm/arch-rockchip/misc.h>
++#include <power/regulator.h>
++#include <power/rk8xx_pmic.h>
+ 
+ #define GRF_IO_VSEL_BT565_SHIFT 0
+ #define PMUGRF_CON0_VSEL_SHIFT 8
+@@ -20,15 +28,13 @@
+ #ifdef CONFIG_MISC_INIT_R
+ static void setup_iodomain(void)
+ {
+-	struct rk3399_grf_regs *grf =
+-	    syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
+-	struct rk3399_pmugrf_regs *pmugrf =
+-	    syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
++	struct rk3399_grf_regs *grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
++	struct rk3399_pmugrf_regs *pmugrf = syscon_get_first_range(ROCKCHIP_SYSCON_PMUGRF);
+ 
+-	/* BT565 is in 1.8v domain */
++	/* BT565 is in 1.8 V domain */
+ 	rk_setreg(&grf->io_vsel, 1 << GRF_IO_VSEL_BT565_SHIFT);
+ 
+-	/* Set GPIO1 1.8v/3.0v source select to PMU1830_VOL */
++	/* Set GPIO1 1.8/3.0 V source select to PMU1830_VOL */
+ 	rk_setreg(&pmugrf->soc_con0, 1 << PMUGRF_CON0_VSEL_SHIFT);
+ }
+ 
+@@ -53,5 +59,43 @@ int misc_init_r(void)
+ 
+ 	return ret;
+ }
++#endif /* CONFIG_MISC_INIT_R */
+ 
+-#endif
++/*
++ * TODO: Change CONFIG_SPL_POWER_SUPPORT to CONFIG_SPL_POWER, to match newer U-Boot versions.
++ *       The same applies to CONFIG_SPL_I2C_SUPPORT.
++ */
++
++#if defined(CONFIG_SPL_BUILD) && \
++    CONFIG_IS_ENABLED(POWER_SUPPORT) && !CONFIG_IS_ENABLED(OF_PLATDATA)
++static int setup_usb_power(void)
++{
++	struct udevice *pmic;
++	int ret;
++
++	ret = uclass_first_device_err(UCLASS_PMIC, &pmic);
++	if (ret)
++		return ret;
++
++	/* set USB current limit to 2.5 A */
++	ret = rk818_spl_configure_usb_input_current(pmic, 2500);
++	if (ret)
++		return ret;
++
++	/* set USB low voltage threshold to 3.26 V */
++	ret = rk818_spl_configure_usb_chrg_shutdown(pmic, 3260000);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++void power_setup(void)
++{
++	int ret;
++
++	ret = setup_usb_power();
++	if (ret)
++		debug("Failed to configure USB power settings: %d\n", ret);
++}
++#endif /* CONFIG_SPL_BUILD && POWER_SUPPORT && !OF_PLATDATA */
+diff --git a/configs/pinephone-pro-rk3399_defconfig b/configs/pinephone-pro-rk3399_defconfig
+index 2cf80f7d..b7ca9317 100644
+--- a/configs/pinephone-pro-rk3399_defconfig
++++ b/configs/pinephone-pro-rk3399_defconfig
+@@ -23,6 +23,11 @@ CONFIG_SPL_STACK_R=y
+ CONFIG_SPL_STACK_R_MALLOC_SIMPLE_LEN=0x10000
+ CONFIG_SPL_MTD_SUPPORT=y
+ CONFIG_SPL_SPI_LOAD=y
++CONFIG_SPL_I2C_SUPPORT=y
++CONFIG_SPL_POWER_SUPPORT=y
++CONFIG_SPL_GPIO_SUPPORT=y
++CONFIG_SPL_DM=y
++CONFIG_SPL_DM_REGULATOR=y
+ CONFIG_TPL=y
+ CONFIG_CMD_BOOTZ=y
+ CONFIG_CMD_GPIO=y
+@@ -34,6 +39,7 @@ CONFIG_CMD_USB=y
+ # CONFIG_CMD_SETEXPR is not set
+ CONFIG_CMD_TIME=y
+ CONFIG_CMD_PMIC=y
++# CONFIG_SPL_PMIC_CHILDREN is not set
+ CONFIG_CMD_REGULATOR=y
+ CONFIG_SPL_OF_CONTROL=y
+ CONFIG_OF_SPL_REMOVE_PROPS="pinctrl-0 pinctrl-names clock-names interrupt-parent assigned-clocks assigned-clock-rates assigned-clock-parents"
+diff --git a/drivers/power/regulator/rk8xx.c b/drivers/power/regulator/rk8xx.c
+index 0ee07ad2..9d42a6ca 100644
+--- a/drivers/power/regulator/rk8xx.c
++++ b/drivers/power/regulator/rk8xx.c
+@@ -16,14 +16,10 @@
+ #include <power/pmic.h>
+ #include <power/regulator.h>
+ 
+-#ifndef CONFIG_SPL_BUILD
+-#define ENABLE_DRIVER
+-#endif
+-
+ /* Not used or exisit register and configure */
+ #define NA			0xff
+ 
+-/* Field Definitions */
++/* Field definitions */
+ #define RK808_BUCK_VSEL_MASK	0x3f
+ #define RK808_BUCK4_VSEL_MASK	0xf
+ #define RK808_LDO_VSEL_MASK	0x1f
+@@ -145,7 +141,7 @@ static const struct rk8xx_reg_info rk818_buck[] = {
+ 	{ 1800000, 100000, REG_BUCK4_ON_VSEL, REG_BUCK4_SLP_VSEL, REG_BUCK4_CONFIG, RK818_BUCK4_VSEL_MASK, },
+ };
+ 
+-#ifdef ENABLE_DRIVER
++#if CONFIG_IS_ENABLED(PMIC_CHILDREN)
+ static const struct rk8xx_reg_info rk808_ldo[] = {
+ 	{ 1800000, 100000, REG_LDO1_ON_VSEL, REG_LDO1_SLP_VSEL, NA, RK808_LDO_VSEL_MASK, },
+ 	{ 1800000, 100000, REG_LDO2_ON_VSEL, REG_LDO2_SLP_VSEL, NA, RK808_LDO_VSEL_MASK, },
+@@ -206,8 +202,9 @@ static const struct rk8xx_reg_info rk818_ldo[] = {
+ 	{  800000, 100000, REG_LDO7_ON_VSEL, REG_LDO7_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
+ 	{ 1800000, 100000, REG_LDO8_ON_VSEL, REG_LDO8_SLP_VSEL, NA, RK818_LDO_VSEL_MASK, },
+ };
+-#endif
++#endif /* PMIC_CHILDREN */
+ 
++#ifdef CONFIG_SPL_BUILD
+ static const u16 rk818_chrg_cur_input_array[] = {
+ 	450, 800, 850, 1000, 1250, 1500, 1750, 2000, 2250, 2500, 2750, 3000
+ };
+@@ -215,6 +212,7 @@ static const u16 rk818_chrg_cur_input_array[] = {
+ static const uint rk818_chrg_shutdown_vsel_array[] = {
+ 	2780000, 2850000, 2920000, 2990000, 3060000, 3130000, 3190000, 3260000
+ };
++#endif /* CONFIG_SPL_BUILD */
+ 
+ static const struct rk8xx_reg_info *get_buck_reg(struct udevice *pmic,
+ 						 int num, int uvolt)
+@@ -357,7 +355,7 @@ static int _buck_set_enable(struct udevice *pmic, int buck, bool enable)
+ 	return ret;
+ }
+ 
+-#ifdef ENABLE_DRIVER
++#if CONFIG_IS_ENABLED(PMIC_CHILDREN)
+ static int _buck_set_suspend_value(struct udevice *pmic, int buck, int uvolt)
+ {
+ 	const struct rk8xx_reg_info *info = get_buck_reg(pmic, buck, uvolt);
+@@ -1121,8 +1119,9 @@ U_BOOT_DRIVER(rk8xx_switch) = {
+ 	.ops = &rk8xx_switch_ops,
+ 	.probe = rk8xx_switch_probe,
+ };
+-#endif
++#endif /* PMIC_CHILDREN */
+ 
++#ifdef CONFIG_SPL_BUILD
+ int rk8xx_spl_configure_buck(struct udevice *pmic, int buck, int uvolt)
+ {
+ 	int ret;
+@@ -1153,6 +1152,6 @@ int rk818_spl_configure_usb_chrg_shutdown(struct udevice *pmic, int uvolt)
+ 		if (uvolt <= rk818_chrg_shutdown_vsel_array[i])
+ 			break;
+ 
+-	return pmic_clrsetbits(pmic, REG_USB_CTRL, RK818_USB_CHG_SD_VSEL_MASK,
+-			       i);
++	return pmic_clrsetbits(pmic, REG_USB_CTRL, RK818_USB_CHG_SD_VSEL_MASK, i);
+ }
++#endif /* CONFIG_SPL_BUILD */
+-- 
+2.34.1
+
