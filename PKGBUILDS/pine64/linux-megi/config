@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.16.0-2 Kernel Configuration
+# Linux/arm64 5.16.0-3 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 10.2.0"
 CONFIG_CC_IS_GCC=y
@@ -1755,7 +1755,7 @@ CONFIG_TARGET_CORE=m
 CONFIG_NETDEVICES=y
 CONFIG_MII=m
 CONFIG_NET_CORE=y
-# CONFIG_BONDING is not set
+CONFIG_BONDING=m
 CONFIG_DUMMY=m
 CONFIG_WIREGUARD=m
 # CONFIG_WIREGUARD_DEBUG is not set
