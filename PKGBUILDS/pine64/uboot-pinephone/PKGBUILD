@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=uboot-pinephone
 pkgver=2022.01
-pkgrel=2
+pkgrel=3
 pkgdesc="U-Boot for PinePhone"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -33,7 +33,7 @@ md5sums=('49ba74a214d14c6340c8067bc1ed5fa0'
          '061a510280d16bddf16679cf0d23bf6e'
          '98ad5f31b1d7ff2e6e03555f29ebc6e6'
          'fb9def68f0b44c69f88f7923e21379cc'
-         'b4654330a9319e44f19f8fcb98814a54'
+         '06c27a80909035513aac45036e8d954b'
          '021623a04afd29ac3f368977140cfbfd'
          'c251a9b0601caa3dd6b805aa0889660f'
          '90616d501a12d6f7a12c4349f789c343')
