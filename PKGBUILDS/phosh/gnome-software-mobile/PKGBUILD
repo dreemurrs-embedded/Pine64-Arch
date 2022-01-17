@@ -6,7 +6,7 @@
 pkgname=gnome-software-mobile
 _pkgname=gnome-software
 pkgver=41.2
-pkgrel=1
+pkgrel=2
 pkgdesc="GNOME Software Tools (w/ Purism patches)"
 url="https://gitlab.gnome.org/GNOME/gnome-software"
 arch=(x86_64 armv7h aarch64)
@@ -26,6 +26,11 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-software.git#commit=$_commit"
         0008-icon-Ensure-icon-files-exist.patch
         0009-app-Ensure-themed-icons-exist.patch
         0010-app-Be-more-strict-with-icon-scales.patch
+        0011-style-Turn-category-tile-padding-into-child-margin.patch
+        0012-style-Fix-the-iconless-category-tile-min-width.patch
+        0013-moderate-page-Use-a-HdyStatusPage.patch
+        0014-progress-button-Ellipsize-the-label.patch
+        0015-updates-section-Ellipsize-the-button-label.patch
         GsUpdatesSection-Always-present-Download-button-before-Re.patch)
 sha256sums=('SKIP'
             'e7c70b6a879e1dd273b34524312d58bdc7569399c1c06d3e487c3d6ba83631d4'
@@ -38,7 +43,12 @@ sha256sums=('SKIP'
             'a5c36efec40ad6ef955ef3a7e7e5d2dd610ec4b3f7a57dbcc016c22003bc5942'
             '6e01d9278bc58c1b494a2964012972308377e8f1a175453ae398bfe0aca40116'
             'e629242b2472f7962fe8d18390babc33bf6ca40ba3ea17389181b97ce9dc84f6'
-            '16e3ce9de7ce22935352c59d517322c295a5a3e30a710c34e0e1bbab48d3ad9a')
+            '7b1fe890f07f07770b0449af8919da596d1794cd83f19ee15c28db9360ca4882'
+            'f049c68ea750816edecf73d84b5b9aed3f999cd821217b27994db1e17266e8eb'
+            '286d6e366f832048aee782f6dc1fe59ff2270eb15a2b40f28ffe4c22d8186697'
+            'c5ab412e5f6f5f640531381861d4eb1c6a212491eb7a4270a41df6c8e9d1ae6c'
+            '17ba8a3eea29b53d0279c6d74ff43d10060749769edb9df8f24500c57e6d44b9'
+            'b0f939c4bc127d5151fc3b23c252367edb50e94fcead7d22dee3c76d5c6d2a24')
 
 pkgver() {
   cd $_pkgname

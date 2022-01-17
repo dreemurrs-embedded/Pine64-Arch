@@ -1,3 +1,4 @@
+From 0ed84063f4fe7292acb213d126827e68fe5068e8 Mon Sep 17 00:00:00 2001
 From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
 Date: Thu, 23 Sep 2021 14:03:14 +0200
 Subject: GsUpdatesSection: Always present "Download" button before "Restart &
@@ -16,7 +17,7 @@ Closes #40
  1 file changed, 10 insertions(+), 3 deletions(-)
 
 diff --git a/src/gs-updates-section.c b/src/gs-updates-section.c
-index 0f41ba6..4078032 100644
+index 0ed284f54..395628cbf 100644
 --- a/src/gs-updates-section.c
 +++ b/src/gs-updates-section.c
 @@ -47,6 +47,7 @@ struct _GsUpdatesSection
@@ -27,16 +28,16 @@ index 0f41ba6..4078032 100644
  };
  
  G_DEFINE_TYPE (GsUpdatesSection, gs_updates_section, GTK_TYPE_BOX)
-@@ -312,7 +313,7 @@ _update_buttons (GsUpdatesSection *self)
- 
- 	if (self->kind == GS_UPDATES_SECTION_KIND_OFFLINE_FIRMWARE ||
+@@ -325,7 +326,7 @@ _update_buttons (GsUpdatesSection *self)
  	    self->kind == GS_UPDATES_SECTION_KIND_OFFLINE) {
+ 		GtkWidget *child;
+ 
 -		if (_all_offline_updates_downloaded (self))
 +		if (_all_offline_updates_downloaded (self) && self->downloaded)
  			gtk_stack_set_visible_child_name (GTK_STACK (self->button_stack), "update");
  		else
  			gtk_stack_set_visible_child_name (GTK_STACK (self->button_stack), "download");
-@@ -386,11 +387,15 @@ _download_finished_cb (GObject *object, GAsyncResult *res, gpointer user_data)
+@@ -417,11 +418,15 @@ _download_finished_cb (GObject *object, GAsyncResult *res, gpointer user_data)
  	g_autoptr(GError) error = NULL;
  	g_autoptr(GsAppList) list = NULL;
  
@@ -53,7 +54,7 @@ index 0f41ba6..4078032 100644
  	}
  
  	g_clear_object (&self->cancellable);
-@@ -494,7 +499,9 @@ _app_row_activated_cb (GsUpdatesSection *self, GtkListBoxRow *row)
+@@ -526,7 +531,9 @@ _app_row_activated_cb (GsUpdatesSection *self, GtkListBoxRow *row)
  static void
  gs_updates_section_show (GtkWidget *widget)
  {
@@ -64,3 +65,6 @@ index 0f41ba6..4078032 100644
  
  	GTK_WIDGET_CLASS (gs_updates_section_parent_class)->show (widget);
  }
+-- 
+2.30.2
+
