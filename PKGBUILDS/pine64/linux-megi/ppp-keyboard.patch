@@ -1,0 +1,122 @@
+commit 4f4db49e9fc5a3c7b7db1b87f9c815e376a05314
+Author: Zhaofeng Li <hello@zhaofeng.li>
+Date:   Wed Jan 12 21:52:18 2022 -0800
+
+    arm64: dts: rk3399-pinephone-pro: Add keyboard accessory
+
+    The pogo pins are connected to i2c5.
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts b/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
+index e6c738e02..873d70bc6 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
+@@ -6,6 +6,7 @@
+ 
+ /dts-v1/;
+ #include <dt-bindings/input/gpio-keys.h>
++#include <dt-bindings/input/input.h>
+ #include <dt-bindings/input/linux-event-codes.h>
+ #include <dt-bindings/usb/pd.h>
+ #include <dt-bindings/leds/common.h>
+@@ -986,6 +987,101 @@
+ 	i2c-scl-falling-time-ns = <15>;
+ 	pinctrl-0 = <&i2c5_xfer &pogo_int_pin>;
+ 	status = "okay";
++
++	keyboard@15 {
++		compatible = "pine64,kb151";
++		reg = <0x15>;
++		interrupt-parent = <&gpio3>;
++		interrupts = <RK_PA0 IRQ_TYPE_EDGE_FALLING>; /* PA0 */
++		keypad,num-rows = <12>;
++		keypad,num-columns = <12>;
++		linux,keymap = <MATRIX_KEY(0,  0, KEY_ESC)
++				MATRIX_KEY(0,  1, KEY_1)
++				MATRIX_KEY(0,  2, KEY_2)
++				MATRIX_KEY(0,  3, KEY_3)
++				MATRIX_KEY(0,  4, KEY_4)
++				MATRIX_KEY(0,  5, KEY_5)
++				MATRIX_KEY(0,  6, KEY_6)
++				MATRIX_KEY(0,  7, KEY_7)
++				MATRIX_KEY(0,  8, KEY_8)
++				MATRIX_KEY(0,  9, KEY_9)
++				MATRIX_KEY(0, 10, KEY_0)
++				MATRIX_KEY(0, 11, KEY_BACKSPACE)
++				MATRIX_KEY(1,  0, KEY_TAB)
++				MATRIX_KEY(1,  1, KEY_Q)
++				MATRIX_KEY(1,  2, KEY_W)
++				MATRIX_KEY(1,  3, KEY_E)
++				MATRIX_KEY(1,  4, KEY_R)
++				MATRIX_KEY(1,  5, KEY_T)
++				MATRIX_KEY(1,  6, KEY_Y)
++				MATRIX_KEY(1,  7, KEY_U)
++				MATRIX_KEY(1,  8, KEY_I)
++				MATRIX_KEY(1,  9, KEY_O)
++				MATRIX_KEY(1, 10, KEY_P)
++				MATRIX_KEY(1, 11, KEY_ENTER)
++				MATRIX_KEY(2,  0, KEY_LEFTMETA)
++				MATRIX_KEY(2,  1, KEY_A)
++				MATRIX_KEY(2,  2, KEY_S)
++				MATRIX_KEY(2,  3, KEY_D)
++				MATRIX_KEY(2,  4, KEY_F)
++				MATRIX_KEY(2,  5, KEY_G)
++				MATRIX_KEY(2,  6, KEY_H)
++				MATRIX_KEY(2,  7, KEY_J)
++				MATRIX_KEY(2,  8, KEY_K)
++				MATRIX_KEY(2,  9, KEY_L)
++				MATRIX_KEY(2, 10, KEY_SEMICOLON)
++				MATRIX_KEY(3,  0, KEY_LEFTSHIFT)
++				MATRIX_KEY(3,  1, KEY_Z)
++				MATRIX_KEY(3,  2, KEY_X)
++				MATRIX_KEY(3,  3, KEY_C)
++				MATRIX_KEY(3,  4, KEY_V)
++				MATRIX_KEY(3,  5, KEY_B)
++				MATRIX_KEY(3,  6, KEY_N)
++				MATRIX_KEY(3,  7, KEY_M)
++				MATRIX_KEY(3,  8, KEY_COMMA)
++				MATRIX_KEY(3,  9, KEY_DOT)
++				MATRIX_KEY(3, 10, KEY_SLASH)
++				MATRIX_KEY(4,  1, KEY_LEFTCTRL)
++				MATRIX_KEY(4,  4, KEY_SPACE)
++				MATRIX_KEY(4,  6, KEY_APOSTROPHE)
++				MATRIX_KEY(4,  8, KEY_RIGHTBRACE)
++				MATRIX_KEY(4,  9, KEY_LEFTBRACE)
++				MATRIX_KEY(5,  2, KEY_FN)
++				MATRIX_KEY(5,  3, KEY_LEFTALT)
++				MATRIX_KEY(5,  5, KEY_RIGHTALT)
++
++				/* FN layer */
++				MATRIX_KEY(6,  1, KEY_BACKSLASH)
++				MATRIX_KEY(6,  2, KEY_BACKSLASH)
++				MATRIX_KEY(6,  3, KEY_DOLLAR)
++				MATRIX_KEY(6,  4, KEY_EURO)
++				MATRIX_KEY(6,  5, KEY_GRAVE)
++				MATRIX_KEY(6,  6, KEY_GRAVE)
++				MATRIX_KEY(6,  7, KEY_MINUS)
++				MATRIX_KEY(6,  8, KEY_EQUAL)
++				MATRIX_KEY(6,  9, KEY_MINUS)
++				MATRIX_KEY(6, 10, KEY_EQUAL)
++				MATRIX_KEY(6, 11, KEY_DELETE)
++
++				MATRIX_KEY(8,  0, KEY_SYSRQ)
++				MATRIX_KEY(8, 10, KEY_INSERT)
++
++				MATRIX_KEY(9,  0, KEY_LEFTSHIFT)
++				MATRIX_KEY(9,  8, KEY_HOME)
++				MATRIX_KEY(9,  9, KEY_UP)
++				MATRIX_KEY(9, 10, KEY_END)
++
++				MATRIX_KEY(10, 1, KEY_LEFTCTRL)
++				MATRIX_KEY(10, 6, KEY_LEFT)
++				MATRIX_KEY(10, 8, KEY_RIGHT)
++				MATRIX_KEY(10, 9, KEY_DOWN)
++
++				MATRIX_KEY(11, 2, KEY_FN)
++				MATRIX_KEY(11, 3, KEY_LEFTALT)
++				MATRIX_KEY(11, 5, KEY_RIGHTALT)>;
++		wakeup-source;
++	};
++
+ };
+ 
+ &i2s0 {

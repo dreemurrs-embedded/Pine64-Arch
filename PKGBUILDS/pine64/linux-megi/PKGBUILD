@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-megi
 _desc="Megous Kernel"
 pkgver=5.16.1
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -25,6 +25,7 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         # PinePhone Patches
         'dts-pinephone-drop-modem-power-node.patch'
         'pp-keyboard.patch'
+        'ppp-keyboard.patch'
         'dts-pinephone-pro-improve-sound-device.patch'
         'dts-pinephone-pro-add-flash-fix-led.patch'
         'dts-pinephone-pro-remove-modem-node.patch'
@@ -253,12 +254,13 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('e6edc887414732012d1d0706a78265c1'
-         '127617f5b56e6088a23d3f40929a43da'
+         '1bea0d0f4ac7e4d41e6f25d5a10b0224'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
          '10d200e0a964f24cdb744678a758e22b'
          '5b44a02d5374c02a151c21798d11cf78'
+         '7eb4fbe45757752573e4aabcfaef4d55'
          'b53a0c9d3c25fe3f1346a963f3539a6f'
          'f81da11c84ba3ba0195ced119b893482'
          '75dac30d08e3a91871c072c016d1ab90'
