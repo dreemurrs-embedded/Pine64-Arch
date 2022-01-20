@@ -1,13 +1,14 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-settings
-pkgver=0.3
-pkgrel=5
+pkgver=0.4
+pkgrel=1
 pkgdesc="Settings for Phosh UI"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
 install="$pkgname.install"
 source=(adwaita-phone.jpg
+        pa-phosh.pa
         phosh-danctnix.sh
         phosh-wayland.sh
         osk-wayland
@@ -26,6 +27,9 @@ package() {
   mkdir -p "$pkgdir/usr/share/danctnix/applications"
   cp "$srcdir"/*.desktop "$pkgdir/usr/share/danctnix/applications"
 
+  # Add custom PA config
+  install -Dm755 -t "$pkgdir/etc/pulse/default.pa.d" "$srcdir/pa-phosh.pa"
+
   # Envscripts
   install -Dm755 -t "$pkgdir/etc/profile.d" "$srcdir/phosh-danctnix.sh"
   install -Dm755 -t "$pkgdir/etc/profile.d" "$srcdir/phosh-wayland.sh"
@@ -37,7 +41,8 @@ package() {
 }
 
 
-md5sums=('7567fd058afb2a7e5c8690fff0291c80'
+md5sums=('cdc223b00b4e98f77286df98b1cddb4b'
+         'fe7dc2d103ce11388af9ed555578fbf7'
          '4e060d406b742a03336224389c2e648a'
          '0d9c745e963f839fea757ba3e3d3d4ec'
          'b55db963b6aa8e510787eae5cda2e3c2'
