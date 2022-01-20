@@ -5,7 +5,7 @@
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
 pkgver=41.2
-pkgrel=1
+pkgrel=2
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-control-center"
 license=(GPL2)
