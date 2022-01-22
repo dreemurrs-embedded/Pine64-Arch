@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=chatty
-pkgver=0.4.0
+pkgver=0.6.0_beta
 pkgrel=1
 pkgdesc="Messaging client"
 url="https://source.puri.sm/Librem5/chatty"
@@ -19,4 +19,4 @@ build() {
 package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
-md5sums=('d0776d3d9a32eb23458bb4c4fa5f9a1f')
+md5sums=('9d179926264bf8b9a2be001be6548432')
