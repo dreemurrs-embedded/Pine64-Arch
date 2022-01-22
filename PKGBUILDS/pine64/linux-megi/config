@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.16.1-2 Kernel Configuration
+# Linux/arm64 5.16.2-1 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 10.2.0"
 CONFIG_CC_IS_GCC=y
@@ -2600,6 +2600,7 @@ CONFIG_POWER_SUPPLY=y
 CONFIG_POWER_SUPPLY_HWMON=y
 # CONFIG_PDA_POWER is not set
 # CONFIG_GENERIC_ADC_BATTERY is not set
+CONFIG_IP5XXX_POWER=y
 # CONFIG_TEST_POWER is not set
 # CONFIG_CHARGER_ADP5061 is not set
 # CONFIG_BATTERY_CW2015 is not set
