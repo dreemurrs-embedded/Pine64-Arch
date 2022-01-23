@@ -1,7 +1,7 @@
-From 397bfbdd75d70c356f2c9d5491905021dfa9b3dc Mon Sep 17 00:00:00 2001
+From e06420480258cda94e20b482529c788efab83a2f Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Thu, 12 Nov 2020 13:38:07 +0100
-Subject: [PATCH 04/14] alarm-item: Make sure that the time property is always
+Subject: [PATCH 04/16] alarm-item: Make sure that the time property is always
  set
 
 The time property for an AlarmItem isn't nullable therefore it needs to

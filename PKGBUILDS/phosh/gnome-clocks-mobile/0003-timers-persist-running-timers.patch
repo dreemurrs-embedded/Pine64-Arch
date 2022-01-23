@@ -1,7 +1,7 @@
-From d400becbdca49861c05fa0c27df3dd7091c95e59 Mon Sep 17 00:00:00 2001
+From 9a0a5995f58b07bd2a9aedbe34c712b07f801415 Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Thu, 26 Nov 2020 16:45:49 +0100
-Subject: [PATCH 03/14] timers: persist running timers
+Subject: [PATCH 03/16] timers: persist running timers
 
 Persist timer state between app starts by storing the remaining
 time and the timestamp of when it was started.

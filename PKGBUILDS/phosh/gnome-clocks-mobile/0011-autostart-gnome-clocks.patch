@@ -1,7 +1,7 @@
-From dac79d58fc0f96c5e8c0ae1a6f478ab493c942fd Mon Sep 17 00:00:00 2001
+From eef891c43eac9bade177f575ca78d867df31dc5c Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Fri, 27 Nov 2020 18:47:34 +0100
-Subject: [PATCH 09/14] autostart gnome-clocks
+Subject: [PATCH 11/16] autostart gnome-clocks
 
 ---
  data/meson.build                        | 10 +++++++++-

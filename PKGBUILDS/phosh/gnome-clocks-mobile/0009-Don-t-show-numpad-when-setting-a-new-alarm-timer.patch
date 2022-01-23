@@ -1,7 +1,7 @@
-From d27450034e22cb2e2e8ea22ce941d23ea9f50105 Mon Sep 17 00:00:00 2001
+From 7f0a060e316ceb9e123ec71d74c7a7502d5dfc1b Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Wed, 2 Dec 2020 16:57:31 +0100
-Subject: [PATCH 07/14] Don't show numpad when setting a new alarm/timer
+Subject: [PATCH 09/16] Don't show numpad when setting a new alarm/timer
 
 Fixes https://source.puri.sm/Librem5/gnome-clocks/-/issues/26
 ---
@@ -10,10 +10,10 @@ Fixes https://source.puri.sm/Librem5/gnome-clocks/-/issues/26
  2 files changed, 8 insertions(+)
 
 diff --git a/src/alarm-setup-dialog.vala b/src/alarm-setup-dialog.vala
-index 2d826d0..0d83499 100644
+index 85c9d06..5831cf3 100644
 --- a/src/alarm-setup-dialog.vala
 +++ b/src/alarm-setup-dialog.vala
-@@ -159,6 +159,10 @@ private class SetupDialog : Gtk.Dialog {
+@@ -160,6 +160,10 @@ private class SetupDialog : Gtk.Dialog {
              am_pm_stack.add (am_pm_button);
              am_pm_stack.visible_child = am_pm_button;
          }

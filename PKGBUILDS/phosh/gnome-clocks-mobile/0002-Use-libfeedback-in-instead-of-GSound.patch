@@ -1,7 +1,7 @@
-From 12d0d1bf18e97147be7f51f3e64d1c2697d8d54f Mon Sep 17 00:00:00 2001
+From 91f0925ed8ffea4898840cd0c7e9c43c5487d2ca Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Sat, 22 Feb 2020 18:51:42 +0100
-Subject: [PATCH 02/14] Use libfeedback in instead of GSound
+Subject: [PATCH 02/16] Use libfeedback in instead of GSound
 
 This allows to use haptic (and later led) based
 feedback on top of audio.

@@ -1,7 +1,7 @@
-From 30ca128f4ddf1107c80304784b2b35cc820bf7c2 Mon Sep 17 00:00:00 2001
+From b7f9d6e3df2d8291194b5b5eacff1386b1b50dea Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Mon, 14 Dec 2020 17:56:13 +0100
-Subject: [PATCH 10/14] alarm-setup-dialog: Allow much smaller heights useing a
+Subject: [PATCH 12/16] alarm-setup-dialog: Allow much smaller heights useing a
  ScrolledWindow
 
 ---

@@ -1,7 +1,7 @@
-From 0d84e048d8e61295853bbaf9b30add8e8dc96ec9 Mon Sep 17 00:00:00 2001
+From e8584352c152fc891fa82a0d3fceb1810cc6f4e0 Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Fri, 13 Nov 2020 17:59:06 +0100
-Subject: [PATCH 06/14] alarms: Make alarms persisted and add missed alarms
+Subject: [PATCH 06/16] alarms: Make alarms persisted and add missed alarms
  notation
 
 This stores the alarm state as well as the alarm and snooze time

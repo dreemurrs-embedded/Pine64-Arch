@@ -1,7 +1,7 @@
-From d124d37c6cfe72e2fcb690ff8f5dfa106569a971 Mon Sep 17 00:00:00 2001
+From d09089c22fa81abac887006e1942674bcad736a9 Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Thu, 3 Dec 2020 22:54:42 +0100
-Subject: [PATCH 08/14] add option to start hidden
+Subject: [PATCH 10/16] add option to start hidden
 
 ---
  src/application.vala | 12 +++++++++++-

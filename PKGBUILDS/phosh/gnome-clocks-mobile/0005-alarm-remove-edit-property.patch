@@ -1,7 +1,7 @@
-From 7df502bf46311b730dd2582106f3c9bf6ae34070 Mon Sep 17 00:00:00 2001
+From 329dcc1fdc1b620228457fe1544b62661698a044 Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Mon, 16 Nov 2020 11:36:29 +0100
-Subject: [PATCH 05/14] alarm: remove edit property
+Subject: [PATCH 05/16] alarm: remove edit property
 
 ---
  src/alarm-face.vala | 8 --------

@@ -1,7 +1,7 @@
-From d4cbb3f035c5ffe3373c7dbede24ed74357740b1 Mon Sep 17 00:00:00 2001
+From 239add0b868bb338a0eb9998fa2e5d9b23550a99 Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Mon, 14 Dec 2020 18:34:46 +0100
-Subject: [PATCH 12/14] timer: Allow much smaller heights useing a
+Subject: [PATCH 14/16] timer: Allow much smaller heights useing a
  ScrolledWindow
 
 ---

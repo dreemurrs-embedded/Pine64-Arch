@@ -1,7 +1,7 @@
-From 960d7333fbafe3171ac589f8cf7394a17ed65008 Mon Sep 17 00:00:00 2001
+From 7403c9567f2f89fd588ad1796b1a816d5d12bccf Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Tue, 15 Dec 2020 14:31:12 +0100
-Subject: [PATCH 14/14] world-standalone: allow smaller window heights
+Subject: [PATCH 16/16] world-standalone: allow smaller window heights
 
 ---
  data/ui/world-standalone.ui | 14 --------------

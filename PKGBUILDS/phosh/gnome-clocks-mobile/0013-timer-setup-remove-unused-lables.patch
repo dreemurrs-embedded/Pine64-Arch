@@ -1,7 +1,7 @@
-From e88e14f4508b0365216fc081380352bb3006c976 Mon Sep 17 00:00:00 2001
+From 8828ebc1ddb39ae0730367b38344adc601692946 Mon Sep 17 00:00:00 2001
 From: Julian Sparber <julian@sparber.net>
 Date: Mon, 14 Dec 2020 18:14:59 +0100
-Subject: [PATCH 11/14] timer-setup: remove unused lables
+Subject: [PATCH 13/16] timer-setup: remove unused lables
 
 ---
  data/ui/timer-setup.ui | 22 ----------------------

@@ -1,7 +1,7 @@
-From 1e01d318fb0ff948e51ae79a0dd5a2921b0a104f Mon Sep 17 00:00:00 2001
+From 43940ccd1f5976b54fc39b0882512815cdf6a0c3 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Mon, 24 Feb 2020 13:00:59 +0100
-Subject: [PATCH 01/14] timer: Use name that can be added to the event naming
+Subject: [PATCH 01/16] timer: Use name that can be added to the event naming
  spec
 
 ---
