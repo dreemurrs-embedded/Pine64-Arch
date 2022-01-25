@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=squeekboard
-pkgver=1.15.0
+pkgver=1.16.0
 pkgrel=1
 pkgdesc="The final Phosh keyboard"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -10,17 +10,17 @@ depends=('gtk3' 'gnome-desktop' 'feedbackd' 'wayland-protocols')
 makedepends=('rust' 'cargo' 'meson' 'ninja')
 source=(https://gitlab.gnome.org/World/Phosh/squeekboard/-/archive/v$pkgver/squeekboard-v$pkgver.tar.gz)
 
-prepare() {
-	cd ${pkgname}-v${pkgver}
+build() {
+    arch-meson ${pkgname}-v${pkgver} output -Dtests=false
+    ninja -C output
 }
 
-build() {
-	arch-meson ${pkgname}-v${pkgver} output -Dtests=false
-	ninja -C output
+check() {
+    meson test -C output --print-errorlogs
 }
 
 package() {
-	DESTDIR="$pkgdir" ninja -C output install
+    DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('c3ce2b784079e14c4bef43755234034b')
+md5sums=('fe13e5b96db0abeb8150fd6720febcde')
