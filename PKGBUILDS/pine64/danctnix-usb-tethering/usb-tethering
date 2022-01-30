@@ -95,3 +95,7 @@ ip6tables -A FORWARD -i usb0 -o wwan0 -j ACCEPT
 
 echo "Setting up rule to prevent packet fragmentation..."
 iptables -t mangle -A FORWARD -o wwan0 -p tcp -m tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
+echo "Setting up mangle rule to force a TTL/Hop Limit size, prevents throttling on Verizon"
+iptables -t mangle -A PREROUTING -i wwan0 -j TTL --ttl-set 49
+ip6tables -t mangle -A PREROUTING -i wwan0 -j HL --hl-set 114
