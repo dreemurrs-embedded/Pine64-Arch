@@ -1,0 +1,36 @@
+# Contributor: Antonio Rojas <arojas@archlinux.org>
+# Contributor: Felix Yan <felixonmars@archlinux.org>
+
+# Forked to fix upstream bug:
+# https://invent.kde.org/teams/plasma-mobile/issues/-/issues/108#note_386817
+
+pkgname=kactivitymanagerd
+pkgver=5.23.5
+pkgrel=2
+pkgdesc='System service to manage user activities and track the usage patterns'
+arch=(x86_64 armv7h aarch64)
+url='https://kde.org/plasma-desktop/'
+license=(LGPL)
+depends=(kio)
+makedepends=(extra-cmake-modules boost)
+groups=(plasma)
+source=(https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz
+        https://invent.kde.org/plasma/kactivitymanagerd/-/commit/66ea663e5d8f07a297490dc53d6198b180475612.patch)
+sha256sums=('b6c5c670708ff4e87ecade6ce6e0c65e1009228e15c8aac023c9283254bc6627'
+            '013cdbbc1202c1680444ed11b728dc9d1fdab8c031ce03eb52ebdba5474cbb17')
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 < ../66ea663e5d8f07a297490dc53d6198b180475612.patch
+}
+
+build() {
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}
