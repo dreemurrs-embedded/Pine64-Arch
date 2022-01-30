@@ -2,7 +2,7 @@
 # Maintainer: Aren <aren@peacevolution.org>
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
-pkgver=1.7.1
+pkgver=1.8.0
 pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
@@ -11,6 +11,7 @@ license=('MIT')
 makedepends=('libx11' 'xorgproto' 'linux-headers')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
+        '0001-Let-systemd-handle-service-supervision.patch'
         'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
         'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
         'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
@@ -21,21 +22,18 @@ prepare() {
   cd "$pkgname-$pkgver"
 
   # Use systemd to start & stop user services
-  # TODO: this should be upstreamed, the new sxmo_daemons (likely in 1.8) script
-  # should make that easier
-  sed -e 's@setsid -f mmsdtng@systemctl --user start mmsd-tng.service@g' \
-      -e 's@pkill mmsdtng@systemctl --user stop mmsd-tng.service@g' \
+  # TODO: this should be upstreamed
+  sed -e 's/sxmo_daemons.sh start mmsd.*$/systemctl --user start mmsd-tng.service/g' \
+      -e 's/sxmo_daemons.sh stop mmsd/systemctl --user stop mmsd-tng.service/g' \
       -i scripts/core/sxmo_mmsdconfig.sh
-  sed -i 's/mmsdtng.*/:/' configs/default_hooks/start
-  sed -i '/mmsdtng/d' configs/default_hooks/stop
-  sed -i '/checkmmsd/a return' scripts/modem/sxmo_mms.sh
+  sed -i 's/.*mmsdtng.*/:/' configs/default_hooks/start
 
-  sed -e 's/setsid -f vvmd/systemctl --user start vvmd.service/g' \
-      -e 's/pkill \^vvmd/systemctl --user stop vvmd.service/g' \
+  sed -e 's/sxmo_daemons.sh start vvmd.*$/systemctl --user start vvmd.service/g' \
+      -e 's/sxmo_daemons.sh stop vvmd/systemctl --user stop vvmd.service/g' \
       -i scripts/core/sxmo_vvmdconfig.sh
-  sed -i 's/vvmd.*/:/' configs/default_hooks/start
-  sed -i '/vvmd/d' configs/default_hooks/stop
-  sed -i '/checkvvmd/a return' scripts/modem/sxmo_vvm.sh
+  sed -i 's/.*vvmd.*/:/' configs/default_hooks/start
+
+  patch -p1 < '../0001-Let-systemd-handle-service-supervision.patch'
 
   # Don't start a dbus session when starting sxmo
   sed -i 's@dbus-run-session@@g' scripts/core/sxmo_winit.sh
@@ -50,7 +48,6 @@ package_sxmo-utils() {
     'bluez'
     'bluez-utils'
     'busybox'
-    'curl'
     'curl'
     'doas'
     'ffmpeg'
@@ -69,7 +66,6 @@ package_sxmo-utils() {
 
     # Core GUI dependencies
     'sxmo-ui'
-    'clickclack'
     'dunst'
     'libnotify'
     'light'
@@ -79,10 +75,11 @@ package_sxmo-utils() {
     'nerd-fonts-fira-mono' # system font
     'nerd-fonts-terminus'
     'sxmo-bemenu')
-  optdepends=('codemadness-frontends: Youtube & Reddit scripts'
+  optdepends=('clickclack: haptic feedback'
+              'codemadness-frontends: Youtube & Reddit scripts'
               'sfeed: Rss and atom feeds'
-              'youtube-dl: Play videos from the web'
-              'vis: The default editor')
+              'vis: The default editor'
+              'youtube-dl: Play videos from the web')
 
   cd "$pkgname-$pkgver"
 
@@ -182,7 +179,8 @@ package_sxmo-ui-dwm-meta() {
     "$pkgdir/usr/share/xsessions/sxmo.desktop"
 }
 
-sha512sums=('47d66fd9cd5facbae351596992fe5cb489ccc2f757b3e32f58d6fecbe1ce7331e9c255404c757e59399a3d59580a98fc313e186e58729133b8c6eb6f6634c85d'
+sha512sums=('e5cdcf2143e6f3e61ee6392e4cd152cab94929728d0402ff683c13007dffe96747c9c4807e808d559957d71117f9fa4f9958805d0c7990c00e0a34c559a1c6b4'
+            'abc5ccd74157f1188f2d43370d228a498017cb2a2e17aec131ab34329d95ed76d7323bf1d802754574c26a2463ffe4f426e0ac567e115f581bee8b0bcf9b64cd'
             '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
             '6e42f9acc015a21596cdf2d35eb5a80e8fbe97959aabf129861c8e1016bbebad5c706126730515494a0fcb33ad38fd6cd971048d2b5340557a803febf41967a4'
             '4c8f047c4608d89409a44db6370ca225d42e186323f42d0c564edb34f18c84a69a500a89cc2c31d5f0e5c292aa94ea20eaf8213e3e266b8f9e959c3d4ce9fb58'
