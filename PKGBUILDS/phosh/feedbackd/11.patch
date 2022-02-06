@@ -1,0 +1,49 @@
+From 616f8963d36515c73eace04f58c120b9d0806263 Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Tue, 1 Feb 2022 20:11:46 +0100
+Subject: [PATCH] data: reduce PinePhone Pro vibrations
+
+The Pine64 PinePhone Pro has a much stronger vibrator
+than the Pine64 PinePhone on which this config is based on.
+Reduce the rumble to annoy the user when typing.
+---
+ data/pine64,pinephone-pro.json | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/data/pine64,pinephone-pro.json b/data/pine64,pinephone-pro.json
+index 2b62845..f145996 100644
+--- a/data/pine64,pinephone-pro.json
++++ b/data/pine64,pinephone-pro.json
+@@ -70,17 +70,17 @@
+         {
+           "event-name" : "bell-terminal",
+           "type"       : "VibraRumble",
+-          "duration"   : 100
++          "duration"   : 75
+         },
+         {
+           "event-name" : "button-pressed",
+           "type"       : "VibraRumble",
+-          "duration"   : 80
++          "duration"   : 45
+         },
+         {
+           "event-name" : "button-released",
+           "type"       : "VibraRumble",
+-          "duration"   : 40
++          "duration"   : 25
+         },
+         {
+           "event-name" : "message-new-email",
+@@ -125,7 +125,7 @@
+         {
+           "event-name" : "window-close",
+           "type"       : "VibraRumble",
+-          "duration"   : 75
++          "duration"   : 40
+         }
+       ]
+     },
+-- 
+GitLab
+

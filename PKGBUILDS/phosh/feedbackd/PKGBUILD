@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=feedbackd
 pkgver=0.0.0+git20211018
-pkgrel=2
+pkgrel=3
 pkgdesc="A daemon to provide haptic (and later more) feedback on events"
 url="https://source.puri.sm/Librem5/feedbackd"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -11,11 +11,13 @@ makedepends=('meson' 'vala')
 _fbdthemes_commit="d0ac6ae01b184d65f32a640e02539e807bf2a3bf" # branch/master
 source=(https://source.puri.sm/Librem5/${pkgname}/-/archive/v${pkgver}/${pkgname}-v${pkgver}.tar.gz
         https://source.puri.sm/Librem5/feedbackd-device-themes/-/archive/${_fbdthemes_commit}/feedbackd-device-themes-${_fbdthemes_commit}.tar.gz
-        10.patch)
+        10.patch
+        11.patch)
 
 prepare() {
   cd feedbackd-device-themes-${_fbdthemes_commit}
   patch -p1 < ../10.patch
+  patch -p1 < ../11.patch
 }
 
 build() {
@@ -40,4 +42,5 @@ package() {
 
 md5sums=('3a9cc76d2bed9d49cfac1a69f5d03047'
          '1b524f7dfff813457c613b51fbf0d955'
-         'd9f6260f3bccdc1107e01ac0863d668c')
+         'd9f6260f3bccdc1107e01ac0863d668c'
+         'ce283209a2591edc95b5807628f849fc')
