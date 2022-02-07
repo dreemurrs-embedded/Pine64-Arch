@@ -4,7 +4,7 @@
 
 pkgname=uboot-pinephonepro
 pkgver=2022.01
-pkgrel=1
+pkgrel=2
 _tfaver=2.6
 pkgdesc="U-Boot for Pinephone Pro"
 arch=('aarch64')
@@ -27,12 +27,28 @@ sha256sums=('81b4543227db228c03f8a1bf5ddbc813b0bb8f6555ce46064ef721a6fc680413'
             '7c3d76f4bee0e54900142043241248072e334387065212141e1f600afe0aafba'
             'b750ba47843defafd8be1cc2615983c93e9cde5a4f5a7b55308a6f00f3fe6611'
             'a4fc8b6b92bc364d6542670d294aa618a8501fb8729f415cc0a3eed776ef0c8e'
-            '45c610f666f35287f9407496d72fbfcf7a3de390206000eb58868a5258c2c282')
+            'db4d14a389522b1d9d85fb1d350985898792f6343e2bf4231f1fc4838e51c275')
 
 prepare() {
   cd u-boot-${pkgver/rc/-rc}
   patch -p1 -N < ../rockchip-Add-initial-support-for-the-PinePhone-Pro.patch
   patch -p1 -N < ../Configure-USB-power-settings-for-PinePhone-Pro.patch
+
+  # Change baudrate from 1.5mbps to 115200, it makes it Tow-Boot compliance. (hi samueldr)
+  # https://github.com/Tow-Boot/Tow-Boot/blob/released/support/builders/tow-boot/default.nix
+  echo ':: Patching baud rate'
+  (PS4=" $ "
+    for f in configs/*rk3399* configs/*rk3328*; do
+      (set -x
+      sed -i"" -e 's/CONFIG_BAUDRATE=1500000/CONFIG_BAUDRATE=115200/' "$f"
+      )
+    done
+    for f in arch/arm/dts/*rk3399*.dts* arch/arm/dts/*rk3328*.dts*; do
+      (set -x
+      sed -i"" -e 's/serial2:1500000n8/serial2:115200n8/' "$f"
+      )
+    done
+  )
 }
 
 build() {
