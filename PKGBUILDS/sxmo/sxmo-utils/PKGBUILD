@@ -2,7 +2,7 @@
 # Maintainer: Aren <aren@peacevolution.org>
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
-pkgver=1.8.0
+pkgver=1.8.2
 pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
@@ -35,6 +35,10 @@ prepare() {
 
   patch -p1 < '../0001-Let-systemd-handle-service-supervision.patch'
 
+  # A quick hack becaue $XDG_RUNTIME_DIR contains some files that aren't
+  # accessable to the default user, which causes the dialer to fail
+  sed -i '/^set -e$/d' scripts/modem/sxmo_modemdial.sh
+
   # Don't start a dbus session when starting sxmo
   sed -i 's@dbus-run-session@@g' scripts/core/sxmo_winit.sh
   sed -i 's@dbus-run-session@@g' scripts/core/sxmo_xinit.sh
@@ -44,7 +48,6 @@ package_sxmo-utils() {
   depends=(
     # Core cli dependencies
     'alsa-utils'
-    'bc'
     'bluez'
     'bluez-utils'
     'busybox'
@@ -78,8 +81,8 @@ package_sxmo-utils() {
   optdepends=('clickclack: haptic feedback'
               'codemadness-frontends: Youtube & Reddit scripts'
               'sfeed: Rss and atom feeds'
-              'vis: The default editor'
-              'youtube-dl: Play videos from the web')
+              'vim: The default editor'
+              'yt-dlp: Play videos from the web')
 
   cd "$pkgname-$pkgver"
 
@@ -103,9 +106,6 @@ package_sxmo-utils() {
   # HACK: doas is built without --with-doas-confdir so install the sxmo config directly
   echo "permit :wheel" > "$pkgdir/etc/doas.conf"
   cat "$pkgdir/etc/doas.d/sxmo.conf" >> "$pkgdir/etc/doas.conf"
-
-  # TODO: This fixes a bug in the sxmo build script it should be removed
-  echo "$pkgver" > "$pkgdir/usr/share/sxmo/version"
 
   install -Dm644 "$srcdir/sxmo-setpermissions.service" "$pkgdir/usr/lib/systemd/system/sxmo-setpermissions.service"
 
@@ -179,7 +179,7 @@ package_sxmo-ui-dwm-meta() {
     "$pkgdir/usr/share/xsessions/sxmo.desktop"
 }
 
-sha512sums=('e5cdcf2143e6f3e61ee6392e4cd152cab94929728d0402ff683c13007dffe96747c9c4807e808d559957d71117f9fa4f9958805d0c7990c00e0a34c559a1c6b4'
+sha512sums=('998577f8bb35dde66a0f6054f9d8c3869d2d656318bb43be4e813bb57658a4b949cb39c8e490958104204b45203a4bfc4a27b556273e58a19fa42cc52314968d'
             'abc5ccd74157f1188f2d43370d228a498017cb2a2e17aec131ab34329d95ed76d7323bf1d802754574c26a2463ffe4f426e0ac567e115f581bee8b0bcf9b64cd'
             '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
             '6e42f9acc015a21596cdf2d35eb5a80e8fbe97959aabf129861c8e1016bbebad5c706126730515494a0fcb33ad38fd6cd971048d2b5340557a803febf41967a4'
