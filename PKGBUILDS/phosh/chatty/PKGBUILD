@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=chatty
-pkgver=0.6.0
-pkgrel=2
+pkgver=0.6.1
+pkgrel=1
 pkgdesc="Messaging client"
 url="https://source.puri.sm/Librem5/chatty"
 license=('GPL')
@@ -15,7 +15,7 @@ optdepends=('mmsd-tng: MMS support'
             'libpurple-carbons: message carbons support'
             'libpurple-xmpp-http-upload: XMPP HTTP File Upload support'
             'purple-telegram: Telegram chat protocol support')
-_commit="da26b33a98137e542efd840eadae426b0cdb7b42"  # tags/v0.6.0
+_commit="d86b6bc2f613118218d4f4638e7dee21bd096e40"  # tags/v0.6.1
 source=(git+https://source.puri.sm/Librem5/chatty.git#commit=${_commit})
 
 pkgver() {
