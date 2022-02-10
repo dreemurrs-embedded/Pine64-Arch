@@ -4,7 +4,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=kclock
-pkgver=21.12
+pkgver=22.02
 pkgrel=1
 pkgdesc="Simple Clock application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
@@ -13,7 +13,7 @@ license=('GPL-2.0-or-later')
 depends=('kdbusaddons' 'kirigami-addons' 'knotifications' 'plasma-framework' 'qt5-quickcontrols2' 'qt5-declarative' 'qt5-multimedia')
 makedepends=('cmake' 'extra-cmake-modules' 'qt5-svg')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('4ea9ca9f5b5ffc24766c3a64696bd308')
+md5sums=('9aa6b669ce49ebf954a2da6108231c7a')
 
 prepare() {
   mkdir -p build
