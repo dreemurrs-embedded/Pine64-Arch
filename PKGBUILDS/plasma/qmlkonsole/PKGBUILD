@@ -2,7 +2,7 @@
 # Contributor: Dan Johansen <strit@manjaro.org>
 
 pkgname=qmlkonsole
-pkgver=21.12
+pkgver=22.02
 pkgrel=1
 pkgdesc="Terminal app for Plasma Mobile"
 arch=('aarch64' 'x86_64')
@@ -11,7 +11,7 @@ license=('GPL3')
 depends=('qmltermwidget' 'kirigami2' 'ki18n' 'kconfig')
 makedepends=('extra-cmake-modules' 'qt5-base' 'qt5-declarative' 'qt5-svg' 'qt5-quickcontrols2')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-sha256sums=('8a359f3e3bb6b1704909177cbd77b2562ef2814397d01119e4109008c0cf8d7b')
+sha256sums=('983a391546ce10c1cb5e3bcc87baeda459b9da885028f586ab7de9eeccad6d57')
 
 build() {
   mkdir -p build
