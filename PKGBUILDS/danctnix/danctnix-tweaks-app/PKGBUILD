@@ -1,15 +1,15 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgbase=danctnix-tweaks-app
 pkgname=("$pkgbase" "$pkgbase-phosh" "$pkgbase-pinephone")
-pkgver=0.8.1
-pkgrel=2
+pkgver=0.9.0
+pkgrel=1
 pkgdesc="Tweaks tool for phone UIs"
 url="https://github.com/dreemurrs-embedded/danctnix-tweaks"
 license=('LGPL')
 arch=('any')
 makedepends=('libhandy' 'python' 'python-gobject' 'python-yaml' 'gtk3'
              'python-setuptools' 'meson' 'git')
-_commit="e674c236781da03220878d8dc3b7da1f46ebb6f6" # tags/0.8.1
+_commit="de7da6fd1602ba7f283315de22066d9d70053072" # tags/0.9.0
 source=("git+https://github.com/dreemurrs-embedded/danctnix-tweaks.git#commit=$_commit")
 
 pkgver() {
