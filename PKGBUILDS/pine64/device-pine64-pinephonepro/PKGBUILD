@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephonepro
-pkgver=0.2
-pkgrel=3
+pkgver=0.3
+pkgrel=1
 pkgdesc="PinePhone Pro device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -14,7 +14,6 @@ depends=(danctnix-tweaks
         eg25-manager)
 install="$pkgname.install"
 source=(10-proximity.rules
-        10-pinephone-brightness.rules
         pinephone-suspend-hook.sh
         machine-info
         pulseaudio-pinetweaks.conf
@@ -25,10 +24,6 @@ package() {
     # proximity sensor.
     install -Dm644 "$srcdir"/10-proximity.rules \
         "$pkgdir"/usr/lib/udev/rules.d/10-proximity.rules
-
-    # Calibrate minimum brightness
-    install -Dm644 "$srcdir"/10-pinephone-brightness.rules \
-        "$pkgdir"/usr/lib/udev/rules.d/10-pinephone-brightness.rules
 
     # Some workaround for suspend
     install -Dm755 "$srcdir"/pinephone-suspend-hook.sh \
@@ -43,7 +38,6 @@ package() {
 }
 
 md5sums=('b72ff096c022588f72c226283ac328bd'
-         '3a478fece4381cf41fb795009bfe8cc3'
          'b0912b95d7d810a0f161d9bd79fc162b'
          'a3414404885e67eadef3c22ef83034df'
          '1504e684e5a2aec439e0674cdfc9d3c1'
