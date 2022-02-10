@@ -5,7 +5,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=kasts
-pkgver=21.12
+pkgver=22.02
 pkgrel=1
 pkgdesc="Kirigami-based podcast player"
 arch=('x86_64' 'aarch64')
@@ -15,7 +15,7 @@ depends=('kcoreaddons' 'ki18n' 'kconfig' 'kirigami2' 'syndication' 'qt5-multimed
          'qtkeychain-qt5')
 makedepends=('cmake' 'extra-cmake-modules')
 source=("http://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('9f48a62e5ce45fdbb94684d5698722ef')
+md5sums=('92b27ceb1c73dd246fffe33bdc63245b')
 
 prepare() {
   mkdir -p build
