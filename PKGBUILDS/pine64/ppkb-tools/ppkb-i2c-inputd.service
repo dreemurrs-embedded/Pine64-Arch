@@ -1,0 +1,10 @@
+[Unit]
+Description=PinePhone Keyboard I2C Input Daemon
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ppkb-i2c-inputd
+Restart=on-failure
+
+[Install]
+WantedBy=sysinit.target
