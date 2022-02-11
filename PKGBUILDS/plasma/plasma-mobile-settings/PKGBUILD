@@ -3,7 +3,7 @@
 
 pkgname=plasma-mobile-settings
 pkgver=20220211
-pkgrel=1
+pkgrel=2
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
 license=('GPL')
@@ -15,6 +15,7 @@ install=$pkgname.install
 source=('applications-blacklistrc'
     'kdeglobals'
     'kwinrc'
+    'kscreenlockerrc'
     'startkderc'
     '91_plasma-mobile.gschema.override'
     'plasmamobile.json'
@@ -27,6 +28,7 @@ source=('applications-blacklistrc'
 sha256sums=('8cac5ea4a4fe2e9c68735e72fde74f8def30465f15e9924bc1a66906c8e2b8a4'
             '90327c5957ac4b798d5c32393579d1d93bd060320245062a7ae93d60f8701852'
             '1da8a74dbeb58cfe2be26788e1a70da72085da28677f49354dd37fcf8d16b034'
+            'a8ba8eb604185b184e46d2bfd43df12f239295dd7bfe9e6711e0e0d238b40a3b'
             'bf14819bb36a95cbb465169ca3640d8a93f9a648881f9f52f6315a1ba40d273c'
             'fd5a89ce81197a912a9879aa5aa33daf68c8f80a4b70192fff89364ef9d18734'
             '42db6e099ab56aa4f6c01107fe83897a059bc371a389379cd3c260d4ab8fd2bc'
@@ -46,6 +48,7 @@ package() {
     install -Dm644 applications-blacklistrc $xdg/applications-blacklistrc
     install -Dm644 kdeglobals $xdg/kdeglobals
     install -Dm644 kwinrc $xdg/kwinrc
+    install -Dm644 kscreenlockerrc $xdg/kscreenlockerrc
     install -Dm644 startkderc $xdg/startkderc
     install -Dm644 "${srcdir}/91_plasma-mobile.gschema.override" -t "${pkgdir}/usr/share/glib-2.0/schemas"
     install -Dm644 "${srcdir}/plasmamobile.json" -t "${pkgdir}/usr/share/maliit/keyboard2/devices/"
