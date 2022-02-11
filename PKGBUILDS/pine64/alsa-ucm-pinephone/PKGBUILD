@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=alsa-ucm-pinephone
-pkgver=0.6.0
-pkgrel=2
+pkgver=0.6.1
+pkgrel=1
 pkgdesc="UCM files for PinePhone"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -25,6 +25,6 @@ package() {
 
 }
 
-md5sums=('2402e0d5b7a2566d40562158aca3f681'
-         '2738f3bc5e0e892b32c5b9abf202f5a3'
-         '97a14a5c87e251e911d44f01d2a10c4a')
+md5sums=('033cfc8ef84857aafd8a9c3ec7ecef4d'
+         'a29a11c713f799146d105b8a3545a269'
+         'de345ba905f9f8af49da1f6f22d36289')
