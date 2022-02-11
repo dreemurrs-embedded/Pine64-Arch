@@ -2,8 +2,8 @@
 # Contributor: Bernhard Landauer <oberon@manjaro.org>
 
 pkgname=plasma-mobile-settings
-pkgver=20211208
-pkgrel=2
+pkgver=20220211
+pkgrel=1
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
 license=('GPL')
@@ -25,8 +25,8 @@ source=('applications-blacklistrc'
     'kdewallet.kwl'
     'kdewallet.salt')
 sha256sums=('8cac5ea4a4fe2e9c68735e72fde74f8def30465f15e9924bc1a66906c8e2b8a4'
-            'f7621041edd8dde4a2d15110c5c1d902a78ac1f57a4de6ceb250e12da5db7417'
-            '68bc1f74168a8d4f9c3418b37b9373d5a46d3fe550c3d5357dd3d737114abdcf'
+            '90327c5957ac4b798d5c32393579d1d93bd060320245062a7ae93d60f8701852'
+            '1da8a74dbeb58cfe2be26788e1a70da72085da28677f49354dd37fcf8d16b034'
             'bf14819bb36a95cbb465169ca3640d8a93f9a648881f9f52f6315a1ba40d273c'
             'fd5a89ce81197a912a9879aa5aa33daf68c8f80a4b70192fff89364ef9d18734'
             '42db6e099ab56aa4f6c01107fe83897a059bc371a389379cd3c260d4ab8fd2bc'
