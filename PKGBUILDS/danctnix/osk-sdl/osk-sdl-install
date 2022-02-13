@@ -24,6 +24,10 @@ build() {
 
     # add DRI drivers so we can have hw accel
     add_binary /usr/lib/dri/sun4i-drm_dri.so
+
+    # HACK: mkinitcpio does not understand hardlinks, symlink those DRI libs
+    add_symlink /usr/lib/dri/rockchip_dri.so /usr/lib/dri/sun4i-drm_dri.so
+
     add_binary /usr/lib/libGL.so.1
     add_binary /usr/lib/libEGL.so.1
     add_binary /usr/lib/libEGL_mesa.so.0
