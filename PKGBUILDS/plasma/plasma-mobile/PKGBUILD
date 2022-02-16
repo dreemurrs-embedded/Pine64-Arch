@@ -3,19 +3,19 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-mobile
-pkgver=5.24.0
+pkgver=5.24.1
 pkgrel=1
 pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('desktop-file-utils' 'plasma-workspace' 'modemmanager-qt' 'kpeople' 'telepathy-qt' 'libphonenumber'
-         'plasma-wayland-session' 'pipewire-media-session')
+depends=('desktop-file-utils' 'plasma-workspace' 'networkmanager-qt' 'modemmanager-qt' 'kpeople' 'telepathy-qt'
+         'libphonenumber' 'plasma-wayland-session' 'pipewire-media-session')
 makedepends=('cmake' 'baloo' 'extra-cmake-modules' 'kdoctools')
 replaces=('plasma-phone-components')
 source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-sha512sums=('4e9d8b167cf804c1d36315aa883b095946483cc870fe12edb00f326b131a12dd5268cef30bf3c15c401e9a4aeea173c0873c66c878d1ed7e073ca588b79df0b5')
+sha512sums=('0aa513e0c261a441c5cf298664e03e59080b042387a6b36fc9e1d0f5acef72abbd890c693e9cb688bf5da6546f576c9c09b71bfb7a0a2bd2e6fae1e3cb0caa6d')
 
 prepare() {
   mkdir -p build
