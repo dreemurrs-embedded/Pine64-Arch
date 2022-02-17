@@ -5,7 +5,7 @@ buildarch=8
 
 pkgname=uboot-pinephone
 pkgver=2022.01
-pkgrel=3
+pkgrel=4
 pkgdesc="U-Boot for PinePhone"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -15,7 +15,7 @@ makedepends=('bc' 'python' 'swig' 'dtc' 'python-setuptools')
 install=${pkgname}.install
 backup=("boot/boot.txt")
 
-_commit_atf="fb6953b28903d6ba4b097c19ee90ea75f5aa4e74"
+_commit_atf="d005bfcdff423fc84f03c657e0dcdb4b45621b22"
 
 source=("https://ftp.denx.de/pub/u-boot/u-boot-${pkgver/rc/-rc}.tar.bz2"
         "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/crust-firmware/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
@@ -28,7 +28,7 @@ source=("https://ftp.denx.de/pub/u-boot/u-boot-${pkgver/rc/-rc}.tar.bz2"
         'update-u-boot'
         'scp.bin')
 md5sums=('49ba74a214d14c6340c8067bc1ed5fa0'
-         '4c1beabd0d926920f5c8de0b521b6d93'
+         '0724b567a680e98d3240648ea14183ba'
          '348a6943a1c220047ce5312b59da95b6'
          '061a510280d16bddf16679cf0d23bf6e'
          '98ad5f31b1d7ff2e6e03555f29ebc6e6'
