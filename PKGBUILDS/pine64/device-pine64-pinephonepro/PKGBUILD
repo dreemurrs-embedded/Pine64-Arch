@@ -1,23 +1,17 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephonepro
 pkgver=0.3
-pkgrel=1
+pkgrel=2
 pkgdesc="PinePhone Pro device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=(danctnix-tweaks
-        linux-megi
-        brcm-firmware
-        alsa-ucm-pinephonepro
-        uboot-pinephonepro
-        eg25-manager)
+depends=(danctnix-tweaks linux-megi brcm-firmware alsa-ucm-pinephonepro uboot-pinephonepro eg25-manager)
 install="$pkgname.install"
 source=(10-proximity.rules
         pinephone-suspend-hook.sh
         machine-info
-        pulseaudio-pinetweaks.conf
-        gsk-renderer-gl.sh)
+        pulseaudio-pinetweaks.conf)
 
 package() {
     # Kanged from Mobian, this is to make iio-sensor-proxy works with
@@ -33,12 +27,9 @@ package() {
 
     install -Dm644 "$srcdir"/pulseaudio-pinetweaks.conf \
         "$pkgdir"/etc/pulse/daemon.conf.d/pinetweaks.conf
-
-    install -Dm755 "$srcdir"/gsk-renderer-gl.sh -t "$pkgdir"/etc/profile.d/
 }
 
 md5sums=('b72ff096c022588f72c226283ac328bd'
          'b0912b95d7d810a0f161d9bd79fc162b'
          'a3414404885e67eadef3c22ef83034df'
-         '1504e684e5a2aec439e0674cdfc9d3c1'
-         'df623da01912f5ce89c178639fc22656')
+         '1504e684e5a2aec439e0674cdfc9d3c1')
