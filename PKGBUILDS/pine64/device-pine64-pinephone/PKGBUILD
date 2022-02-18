@@ -1,49 +1,37 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephone
 pkgver=0.2
-pkgrel=3
+pkgrel=4
 pkgdesc="PinePhone device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=(
-	danctnix-tweaks
-	alsa-ucm-pinephone
-	linux-megi
-	uboot-pinephone
-	rtl8723bt-firmware
-	anx7688-firmware
-	ov5640-firmware
-	eg25-manager
-	)
+depends=(danctnix-tweaks alsa-ucm-pinephone linux-megi uboot-pinephone rtl8723bt-firmware anx7688-firmware
+         ov5640-firmware eg25-manager)
 install="$pkgname.install"
 source=(10-proximity.rules
-	10-pinephone-brightness.rules
-	pinephone-suspend-hook.sh
-	machine-info
-	pulseaudio-pinetweaks.conf
-	gsk-renderer-gl.sh)
+        10-pinephone-brightness.rules
+        pinephone-suspend-hook.sh
+        machine-info
+        pulseaudio-pinetweaks.conf)
 
 package() {
-	# Kanged from Mobian, this is to make iio-sensor-proxy works with proximity sensor.
-	install -Dm644 "$srcdir"/10-proximity.rules "$pkgdir"/usr/lib/udev/rules.d/10-proximity.rules
+  # Kanged from Mobian, this is to make iio-sensor-proxy works with proximity sensor.
+  install -Dm644 "$srcdir"/10-proximity.rules "$pkgdir"/usr/lib/udev/rules.d/10-proximity.rules
 
-	# Calibrate minimum brightness
-	install -Dm644 "$srcdir"/10-pinephone-brightness.rules "$pkgdir"/usr/lib/udev/rules.d/10-pinephone-brightness.rules
+  # Calibrate minimum brightness
+  install -Dm644 "$srcdir"/10-pinephone-brightness.rules "$pkgdir"/usr/lib/udev/rules.d/10-pinephone-brightness.rules
 
-	# Current workaround for suspend
-	install -Dm755 "$srcdir"/pinephone-suspend-hook.sh "$pkgdir"/usr/lib/systemd/system-sleep/pinephone-suspend-hook.sh
+  # Current workaround for suspend
+  install -Dm755 "$srcdir"/pinephone-suspend-hook.sh "$pkgdir"/usr/lib/systemd/system-sleep/pinephone-suspend-hook.sh
 
-	install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
+  install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
 
-	install -Dm644 "$srcdir"/pulseaudio-pinetweaks.conf "$pkgdir"/etc/pulse/daemon.conf.d/pinetweaks.conf
-
-	install -Dm755 "$srcdir"/gsk-renderer-gl.sh -t "$pkgdir"/etc/profile.d/
+  install -Dm644 "$srcdir"/pulseaudio-pinetweaks.conf "$pkgdir"/etc/pulse/daemon.conf.d/pinetweaks.conf
 }
 
 md5sums=('b72ff096c022588f72c226283ac328bd'
          '3a478fece4381cf41fb795009bfe8cc3'
          'b0912b95d7d810a0f161d9bd79fc162b'
          'b53781dde1d7a9a44e5076f3be463570'
-         '1504e684e5a2aec439e0674cdfc9d3c1'
-         'df623da01912f5ce89c178639fc22656')
+         '1504e684e5a2aec439e0674cdfc9d3c1')
