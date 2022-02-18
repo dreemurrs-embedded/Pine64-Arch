@@ -3,7 +3,7 @@
 
 pkgname=gnome-initial-setup-mobile
 _pkgname=gnome-initial-setup
-pkgver=41.0
+pkgver=41.4
 pkgrel=1
 pkgdesc="Simple, easy, and safe way to prepare a new system - Forked with Purism patches"
 arch=(x86_64 armv7h aarch64)
@@ -52,7 +52,7 @@ source=("https://download.gnome.org/sources/$_pkgname/${pkgver%.*}/$_pkgname-$pk
         0034-language-page-Always-change-system-language.patch
         0035-driver-change-small-screen-condition.patch
         0036-Revert-Disable-existing-user-mode.patch)
-sha256sums=('47f6475b66c843e7d53d90ba0e7b3948762df151634a436f68c2b9bba050560a'
+sha256sums=('96ecd2db6e76c513b18c606dc262bb523228c4aaedbed6a07811e568fd5db642'
             '6d1c714a6e97efc499502163edcebca8466f995bcb8d34dcf2de3fa93b7e34c6'
             '6f9871aed8446a1af601ac3a8ae6131ec97658575ad02e3e56dc6d347b3a7378'
             '60870f399779db61aa41c7808fab7442173614660ebd49eec82560a7420bb2b9'
