@@ -4,8 +4,8 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=41.2
-pkgrel=2
+pkgver=41.4
+pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-control-center"
 license=(GPL2)
@@ -24,7 +24,7 @@ optdepends=('system-config-printer: Printer settings'
             'openssh: remote login')
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=babeb0ce357d55406b0ba0a4597e0513a0419de8  # tags/41.2^0
+_commit=d08fac3f0be63f0a4c65d26f47d3b77f8738cfab  # tags/41.4^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
         # purism
@@ -54,7 +54,6 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_co
         common-Wrap-all-subtitles.patch
         fix-keyboard-panel-width.patch
         fix-region-login-width.patch
-        build-fix-build-with-meson-0.60.0.patch
         # backport
         shell-Mirror-the-main-leaflet-s-folded-property.patch
         display-Use-ComboBox-when-folded.patch)
@@ -85,7 +84,6 @@ sha256sums=('SKIP'
             'a44f1417e6cebeb5f68cf747b3a752392eb00b55fc472bcd9b2d5f6814a2e4b7'
             '4cacc517e85c00e9751343e0301aa3b23beaf112c7681269c807a79355e9a59b'
             '415b29ddf4601b7cb4ddb1ecdb0e7a6b8347210a8fa75654b06ba63aff2c7e7b'
-            '75ef4cf9c04995587396caddb149401fe8581792ed479fb5ed5fd4314a55d738'
             '7f1ac5a0cdb74c4400c743f836f7c052fceee0da9cc267c9752ddc1bd2d945da'
             '8b89bd38a48d58fdf102ea10f6f7e8351985cffede13e58560cfb127175a62fc')
 
