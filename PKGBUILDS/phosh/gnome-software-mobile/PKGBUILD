@@ -5,8 +5,8 @@
 
 pkgname=gnome-software-mobile
 _pkgname=gnome-software
-pkgver=41.2
-pkgrel=2
+pkgver=41.4
+pkgrel=1
 pkgdesc="GNOME Software Tools (w/ Purism patches)"
 url="https://gitlab.gnome.org/GNOME/gnome-software"
 arch=(x86_64 armv7h aarch64)
@@ -14,7 +14,7 @@ license=(GPL2)
 makedepends=(appstream gsettings-desktop-schemas libpackagekit-glib flatpak fwupd
              docbook-xsl git gobject-introspection gspell gtk-doc meson valgrind
              gnome-online-accounts libxmlb malcontent libhandy)
-_commit=a0bcbe2dfabb93ae0695822ff08affd59bcc4e82 # tags/41.2^0
+_commit=c6ab7cfd7b022b1dde128b12e873f79dad870033 # tags/41.4^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-software.git#commit=$_commit"
         0001-assets-Make-the-up-to-date-picture-fit-phones.patch
         0002-Add-GsInfoWindow.patch
@@ -52,7 +52,7 @@ sha256sums=('SKIP'
 
 pkgver() {
   cd $_pkgname
-  git describe --tags | sed 's/^GNOME_SOFTWARE_//;s/_/./g;s/-/+/g'
+  git describe --tags | sed 's/^GNOME_SOFTWARE_//;s/_/./g;s/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
