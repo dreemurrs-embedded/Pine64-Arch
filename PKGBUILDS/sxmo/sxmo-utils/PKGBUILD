@@ -3,7 +3,7 @@
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
 pkgver=1.8.2
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -77,7 +77,8 @@ package_sxmo-utils() {
     'mpv'
     'nerd-fonts-fira-mono' # system font
     'nerd-fonts-terminus'
-    'sxmo-bemenu')
+    'bemenu'
+    'bemenu-wayland')
   optdepends=('clickclack: haptic feedback'
               'codemadness-frontends: Youtube & Reddit scripts'
               'sfeed: Rss and atom feeds'

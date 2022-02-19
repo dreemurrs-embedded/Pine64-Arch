@@ -3,25 +3,9 @@
 
 pkgname=sxmo-bemenu
 pkgver=0.6.3.0
-pkgrel=1
-pkgdesc='Dynamic menu library and client program inspired by dmenu'
-url='https://github.com/Cloudef/bemenu'
-arch=('x86_64' 'armv7h' 'aarch64')
-license=('GPL3' 'LGPL3')
-depends=('ncurses' 'libxkbcommon' 'pango' 'wayland' 'wayland-protocols' 'libxinerama')
-makedepends=('wlroots')
-source=("bemenu-$pkgver.tar.gz::https://git.sr.ht/~stacyharper/bemenu/archive/$pkgver.tar.gz")
-sha256sums=('2e2e45b7b4ef82232bc0d14174127fdedaf58be044e3c5740abfb4ab0cb0b239')
-provides=('bemenu' 'libbemenu' 'bemenu-ncurses' 'bemenu-x11' 'bemenu-wayland')
-conflicts=('bemenu' 'bemenu-ncurses' 'bemenu-x11' 'bemenu-wayland')
-
-build() {
-  cd "bemenu-$pkgver"
-  make PREFIX=/usr
-}
-
-package() {
-  cd "bemenu-$pkgver"
-
-  make DESTDIR="$pkgdir" PREFIX=/usr install
-}
+pkgrel=99
+pkgdesc="This is a dummy package. It is no longer needed."
+url="https://danctnix.org"
+license=(NONE)
+arch=(any)
+depends=(bemenu)
