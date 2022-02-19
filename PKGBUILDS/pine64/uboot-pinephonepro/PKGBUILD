@@ -4,7 +4,7 @@
 
 pkgname=uboot-pinephonepro
 pkgver=2022.01
-pkgrel=4
+pkgrel=5
 _tfaver=2.6
 pkgdesc="U-Boot for Pinephone Pro"
 arch=('aarch64')
@@ -25,7 +25,7 @@ sha256sums=('81b4543227db228c03f8a1bf5ddbc813b0bb8f6555ce46064ef721a6fc680413'
             '4e59f02ccb042d5d18c89c849701b96e6cf4b788709564405354b5d313d173f7'
             '7c3d76f4bee0e54900142043241248072e334387065212141e1f600afe0aafba'
             'a4fc8b6b92bc364d6542670d294aa618a8501fb8729f415cc0a3eed776ef0c8e'
-            'e50196101e7619a85f3406f4f2408fd9f8c0fc1f928d9185dde1f0b3868390e6')
+            '6e618b53037e0319dcd5fc8ada4cbf342df59953c429fe0f1eebe4e26cb9d88d')
 
 prepare() {
   cd u-boot-${pkgver/rc/-rc}

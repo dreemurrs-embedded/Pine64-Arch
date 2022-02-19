@@ -1,4 +1,19 @@
-gpio set 105 # Enable vibrator
+#
+# /boot/boot.txt
+# After modifying, run "./mkscr" inside the boot directory to re-generate the U-Boot boot script.
+#
+
+#
+# This is the description of the GPIO lines that can be used for indication:
+#
+# GPIO #105 is GPIO3_B1, or RK3399 ball C27, which controls the vibrator motor
+# GPIO #154 is GPIO4_D2, or RK3399 ball AH3, which controls the red part of the multicolor LED
+# GPIO #157 is GPIO4_D5, or RK3399 ball AJ3, which controls the green part of the multicolor LED
+# GPIO #158 is GPIO4_D6, or RK3399 ball AG4, which controls the blue part of the multicolor LED
+#
+
+gpio set 105
+gpio set 157
 
 if test ${devnum} -eq 1; then
         echo "Booting from SD"
@@ -32,5 +47,6 @@ echo "Loading dtb..."
 load mmc ${devnum}:1 ${fdt_addr_r} ${bootdir}/dtbs/${fdtfile}
 
 echo "Booting..."
+gpio clear 157
 gpio clear 105 # Disable vibrator
 booti ${kernel_addr_r} ${ramdisk_addr_r}:0x${ramdisk_size} ${fdt_addr_r}
