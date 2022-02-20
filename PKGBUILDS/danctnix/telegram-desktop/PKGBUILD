@@ -4,13 +4,13 @@
 
 # DANCTNIX: This patches Telegram Desktop so that it can be more adaptive on mobile.
 pkgname=telegram-desktop
-pkgver=3.5.0
+pkgver=3.5.2
 pkgrel=1
 pkgdesc='Official Telegram Desktop client'
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://desktop.telegram.org/"
 license=('GPL3')
-depends=('hunspell' 'ffmpeg' 'hicolor-icon-theme' 'lz4' 'minizip' 'openal' 'ttf-opensans'
+depends=('hunspell' 'ffmpeg4.4' 'hicolor-icon-theme' 'lz4' 'minizip' 'openal' 'ttf-opensans'
          'qt6-imageformats' 'qt6-svg' 'qt6-wayland' 'qt6-5compat' 'xxhash' 'glibmm'
          'rnnoise' 'pipewire' 'libxtst' 'libxrandr' 'jemalloc' 'abseil-cpp' 'libdispatch')
 makedepends=('cmake' 'git' 'ninja' 'python' 'range-v3' 'tl-expected' 'microsoft-gsl' 'meson'
@@ -20,7 +20,7 @@ optdepends=('webkit2gtk: embedded browser features'
 source=("https://github.com/telegramdesktop/tdesktop/releases/download/v${pkgver}/tdesktop-${pkgver}-full.tar.gz"
         'small-sizes.patch'
         'more-scale.patch')
-sha512sums=('5a86f8e3dd1b7fca2a615a2de86f9640f14bbf27b7e73f735dad60629ddb99bd5c951d7311f99c044ab6178a49ff997aae5e8da0f8bb6753fa7eecfb12562cef'
+sha512sums=('adb95fb37fedba6344107e4dd789b88563e24e6a01c7b944d9e5365ceccff60d774eb31a2c1e39cd200ef6de83317fe654956cfecaa1e13c7b2fdbf4c38f057e'
             '413a2bb5dc8ff582c97351ba35158f5926c157465c72545f488ea5d5dde1a048fc339dcb158c0e17cd5baa1d600b8ff7acdd86262254ddd18585559413871566'
             '452ebf8a8c2bf841521ebd304ad6c0212a2939f16ed9b278eb3b0327e608867d1ed86b4ef4e24ad18d3fcb40ce9e01fcdfe4e8c694ac4e5525176fef7974e781')
 
@@ -40,7 +40,10 @@ prepare() {
 build() {
     cd tdesktop-$pkgver-full
 
+    # Fix https://bugs.archlinux.org/task/73220
     export CXXFLAGS+=" -Wp,-U_GLIBCXX_ASSERTIONS"
+
+    export PKG_CONFIG_PATH='/usr/lib/ffmpeg4.4/pkgconfig'
     # Turns out we're allowed to use the official API key that telegram uses for their snap builds:
     # https://github.com/telegramdesktop/tdesktop/blob/8fab9167beb2407c1153930ed03a4badd0c2b59f/snap/snapcraft.yaml#L87-L88
     # Thanks @primeos!
@@ -51,6 +54,14 @@ build() {
         -DCMAKE_BUILD_TYPE=Release \
         -DTDESKTOP_API_ID=611335 \
         -DTDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c
+    # Hack to compile for ffmpeg4.4
+    sed -i "s|/usr/lib/libav|/usr/lib/ffmpeg4.4/libav|g" build/build.ninja
+    sed -i "s|/usr/lib/libsw|/usr/lib/ffmpeg4.4/libsw|g" build/build.ninja
+    sed -i "s|-lavcodec|/usr/lib/ffmpeg4.4/libavcodec.so|g" build/build.ninja
+    sed -i "s|-lavformat|/usr/lib/ffmpeg4.4/libavformat.so|g" build/build.ninja
+    sed -i "s|-lavutil|/usr/lib/ffmpeg4.4/libavutil.so|g" build/build.ninja
+    sed -i "s|-lswscale|/usr/lib/ffmpeg4.4/libswscale.so|g" build/build.ninja
+    sed -i "s|-lswresample|/usr/lib/ffmpeg4.4/libswresample.so|g" build/build.ninja
     ninja -C build
 }
 
