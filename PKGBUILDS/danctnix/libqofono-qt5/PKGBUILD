@@ -8,10 +8,10 @@ pkgver=0.103
 pkgrel=1
 pkgdesc="A library for accessing the ofono daemon, and a declarative plugin for it. This allows accessing ofono in qtquick and friends."
 arch=('aarch64' 'x86_64')
-url="https://git.merproject.org/mer-core/libqofono"
+url="https://github.com/sailfishos/libqofono/"
 license=('LGPL')
 depends=('qt5-declarative' 'qt5-xmlpatterns')
-source=("https://git.merproject.org/mer-core/libqofono/-/archive/${pkgver}/libqofono-${pkgver}.tar.gz")
+source=("https://github.com/sailfishos/libqofono/archive/refs/tags/${pkgver}.tar.gz")
 md5sums=('2a738ebe372740ff5049493e84ce5ed8')
 
 prepare() {
