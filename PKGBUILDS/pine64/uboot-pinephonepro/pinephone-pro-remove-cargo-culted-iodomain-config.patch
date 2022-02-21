@@ -1,0 +1,31 @@
+From 0885f6b57b218f0de18cd67856fcfdd68843fc9a Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Sun, 30 Jan 2022 21:44:07 -0500
+Subject: [PATCH] [WIP] pinephone-pro: Remove cargo-culted iodomain config
+
+It is unclear what it actually does, and the TRM states this register
+should already be at `0x1` on reset.
+
+Thus it is assumed this would be redundant. Except that it is not, and
+keeping this change in will break SPI NOR Flash support. The SPI bus(?)
+will be tied up, I assume, and thus return `ff ff ff` as an identifier
+---
+ board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c b/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
+index c51d1657a2a..22c2ced2d79 100644
+--- a/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
++++ b/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
+@@ -33,9 +33,6 @@ static void setup_iodomain(void)
+ 
+ 	/* BT565 is in 1.8v domain */
+ 	rk_setreg(&grf->io_vsel, 1 << GRF_IO_VSEL_BT565_SHIFT);
+-
+-	/* Set GPIO1 1.8v/3.0v source select to PMU1830_VOL */
+-	rk_setreg(&pmugrf->soc_con0, 1 << PMUGRF_CON0_VSEL_SHIFT);
+ }
+ 
+ int misc_init_r(void)
+-- 
+2.34.0
