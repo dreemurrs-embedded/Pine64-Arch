@@ -7,7 +7,7 @@ url="https://github.com/Orange-OpenSource/pn"
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('libphonenumber' 'icu')
 license=('Apache')
-makedepends=('cmake' 'gawk')
+makedepends=('cmake' 'gawk' 'abseil-cpp')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
 
 build() {
