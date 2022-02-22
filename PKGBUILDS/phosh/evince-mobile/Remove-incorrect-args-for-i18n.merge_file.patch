@@ -1,0 +1,36 @@
+diff --git a/backend/meson.build b/backend/meson.build
+index e44c1d6d74f8c5659a6d2886ba21f5cea91769f5..ab3df9acfeaa7e5b5bd7929261a62ba90f400798 100644
+--- a/backend/meson.build
++++ b/backend/meson.build
+@@ -50,7 +50,6 @@ foreach backend, backend_mime_types: backends
+   )
+ 
+   i18n.merge_file(
+-    appstream,
+     input: appstream_in,
+     output: appstream,
+     po_dir: po_dir,
+diff --git a/data/meson.build b/data/meson.build
+index 8a308b853e5413721455fe57a21cb019292134fa..afc30209833a9d7030f719c45409681b1f655e6a 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -15,7 +15,6 @@ foreach desktop: desktops
+   )
+ 
+   i18n.merge_file(
+-    desktop,
+     type: 'desktop',
+     input: desktop_in,
+     output: desktop,
+diff --git a/meson.build b/meson.build
+index 34c86661f960e971a3211ca1008d9302a85fd511..f74efb3c409b7d1df4eb5029c6ec5182a07bef4c 100644
+--- a/meson.build
++++ b/meson.build
+@@ -492,7 +492,6 @@ install_headers(
+ appdata = ev_namespace + '.appdata.xml'
+ 
+ i18n.merge_file(
+-  appdata,
+   input: appdata + '.in',
+   output: appdata,
+   po_dir: po_dir,

@@ -18,14 +18,16 @@ source=("git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
         'Disable-fullscreen-actions-in-phosh.patch'
         'toolbar-Allow-to-toggle-the-sidebar-button.patch'
         'toolbar-Allow-hiding-zoom-annotation-and-page-widgets.patch'
-        'window-Port-it-to-phones.patch')
+        'window-Port-it-to-phones.patch'
+        'Remove-incorrect-args-for-i18n.merge_file.patch')
 sha256sums=('SKIP'
             '84f300a09dd5435647b1f7837db8f11d149d7add5d62779ed26a03eb35f1444d'
             '194086757f539afc7cd5d24f4bc3e1b16fa321d5cb6c9e27fe0470eb62508098'
             'fa8554c29ef59ad926bc33adead0c4b327cc14c5b444f4fbaa897c76fb67f1c3'
             '3ce259a56cc4f35badbdc142b83c72a4fe1422aeb483979ec343ab8a68a76302'
             '6dbd8d185cd896e1ab772f2aee6147113333109ea8f0e8446335f4da6a9f2bb9'
-            '00413c8f03b75a309c02acb2ab9ea5b52d4f4096994e0bec691fd998c2ed8ef5')
+            '00413c8f03b75a309c02acb2ab9ea5b52d4f4096994e0bec691fd998c2ed8ef5'
+            '5e9690beee8a472148a7c6fda78793a3499d5d0c38e08f61e1589598fab68f1a')
 provides=(libev{document,view}3.so $_pkgname)
 conflicts=($_pkgname)
 depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre t1lib dconf libsecret libsynctex
