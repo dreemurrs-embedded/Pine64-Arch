@@ -5,7 +5,7 @@
 # DANCTNIX: This patches Telegram Desktop so that it can be more adaptive on mobile.
 pkgname=telegram-desktop
 pkgver=3.5.2
-pkgrel=1
+pkgrel=2
 pkgdesc='Official Telegram Desktop client'
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://desktop.telegram.org/"
@@ -68,6 +68,7 @@ build() {
 package() {
     cd tdesktop-$pkgver-full
     DESTDIR="$pkgdir" ninja -C build install
+    sed -i "18i X-Purism-FormFactor=Workstation;Mobile;" "$pkgdir/usr/share/applications/telegramdesktop.desktop"
     # They botched the release and put a lot of stuff here.
     rm -rf "$pkgdir/build"
 }
