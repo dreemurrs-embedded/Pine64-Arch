@@ -1,0 +1,33 @@
+From 16c5f2174da10b0fc406e137eb2ca0290f0d775c Mon Sep 17 00:00:00 2001
+From: 3np <3np>
+Date: Tue, 22 Feb 2022 21:57:52 +0100
+Subject: [PATCH] skip calculating charge for power devices without
+
+---
+ configs/default_hooks/sxmo_hook_statusbar.sh | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/configs/default_hooks/sxmo_hook_statusbar.sh b/configs/default_hooks/sxmo_hook_statusbar.sh
+index 0cecdc4..79df3be 100644
+--- a/configs/default_hooks/sxmo_hook_statusbar.sh
++++ b/configs/default_hooks/sxmo_hook_statusbar.sh
+@@ -163,9 +163,13 @@ _battery() {
+ 			if [ -e "$power_supply"/capacity ]; then
+ 				PCT="$(cat "$power_supply"/capacity)"
+ 			else
+-				CHARGE_NOW="$(cat "$power_supply"/charge_now)"
+-				CHARGE_FULL="$(cat "$power_supply"/charge_full_design)"
+-				PCT="$(printf "scale=2; %s / %s * 100\n" "$CHARGE_NOW" "$CHARGE_FULL" | bc | cut -d'.' -f1)"
++				if [ -e "$power_supply"/charge_now ]; then
++					CHARGE_NOW="$(cat "$power_supply"/charge_now)"
++					CHARGE_FULL="$(cat "$power_supply"/charge_full_design)"
++					PCT="$(printf "scale=2; %s / %s * 100\n" "$CHARGE_NOW" "$CHARGE_FULL" | bc | cut -d'.' -f1)"
++				else
++					continue
++				fi
+ 			fi
+ 
+ 			BATSTATUS="$(cut -c1 "$power_supply"/status)"
+-- 
+2.35.1
+

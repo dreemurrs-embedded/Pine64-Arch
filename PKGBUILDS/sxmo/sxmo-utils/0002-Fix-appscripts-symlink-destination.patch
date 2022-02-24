@@ -1,0 +1,25 @@
+From 15b0a1a4baf670d9e62a1c57f4d93cd188c370fa Mon Sep 17 00:00:00 2001
+From: 3np <3np>
+Date: Tue, 22 Feb 2022 22:54:40 +0100
+Subject: [PATCH] Fix appscripts symlink destination
+
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index d88d11a..d088ce9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -70,7 +70,7 @@ install: $(PROGRAMS)
+ 
+ 	# Appscripts
+ 	mkdir -p "$(DESTDIR)$(PREFIX)/share/sxmo/appscripts"
+-	cd scripts/appscripts && find . -name 'sxmo_*.sh' | xargs -I{} ln -fs "$(DESTDIR)$(PREFIX)/bin/{}" "$(DESTDIR)$(PREFIX)/share/sxmo/appscripts/{}" && cd ../..
++	cd scripts/appscripts && find . -name 'sxmo_*.sh' | xargs -I{} ln -fs "$(PREFIX)/bin/{}" "$(DESTDIR)$(PREFIX)/share/sxmo/appscripts/{}" && cd ../..
+ 
+ 	@echo "-------------------------------------------------------------------">&2
+ 	@echo "NOTICE 1: Do not forget to add sxmo-setpermissions to your init system, e.g. for openrc: rc-update add sxmo-setpermissions default && rc-service sxmo-setpermissions start" >&2
+-- 
+2.35.1
+

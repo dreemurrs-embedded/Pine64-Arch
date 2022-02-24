@@ -13,6 +13,8 @@ makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox' 'git')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$_pkgcommit.tar.gz"
         '0001-Let-systemd-handle-service-supervision.patch'
+	'0002-Fix-appscripts-symlink-destination.patch'
+	'0003-skip-calculating-charge-for-power-devices-without.patch'
         'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
         'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
         'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
@@ -35,6 +37,8 @@ prepare() {
   sed -i 's/.*vvmd.*/:/' configs/default_hooks/sxmo_hook_start.sh
 
   patch -p1 < '../0001-Let-systemd-handle-service-supervision.patch'
+  patch -p1 < '../0002-Fix-appscripts-symlink-destination.patch'
+  patch -p1 < '../0003-skip-calculating-charge-for-power-devices-without.patch'
 
   # A quick hack becaue $XDG_RUNTIME_DIR contains some files that aren't
   # accessable to the default user, which causes the dialer to fail
@@ -183,6 +187,8 @@ package_sxmo-ui-dwm-meta() {
 
 sha512sums=('e598a4851f889e5d7d48f32c94eff048d864b061ef65e90f004be7657f6807a8b8bb2c75bbccef6a8c68f90da95a22f00f2f548711f95e3f065b6d959389b1f1'
             'abc5ccd74157f1188f2d43370d228a498017cb2a2e17aec131ab34329d95ed76d7323bf1d802754574c26a2463ffe4f426e0ac567e115f581bee8b0bcf9b64cd'
+            'd2f065557cb6e2bd1eb8b16eb67e98724c14f055f921b46f478fca26489ce39dc99ae866b130cd17854782a81f1fc6a07c023b530bb14d46faf877dd3bf36ebc'
+            '0eda21c2ee3f428fecb47322c26d037162ea4fa15020d1110c58a0d141de3aa013a0c2afdf947b2edd704db6dbe411007778751ede63e53767228e79c494a19d'
             '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
             '6e42f9acc015a21596cdf2d35eb5a80e8fbe97959aabf129861c8e1016bbebad5c706126730515494a0fcb33ad38fd6cd971048d2b5340557a803febf41967a4'
             '4c8f047c4608d89409a44db6370ca225d42e186323f42d0c564edb34f18c84a69a500a89cc2c31d5f0e5c292aa94ea20eaf8213e3e266b8f9e959c3d4ce9fb58'
