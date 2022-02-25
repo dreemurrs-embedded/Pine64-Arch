@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.15.0
+pkgver=0.16.0
 pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -9,7 +9,7 @@ license=('GPL')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell' 'upower' 'libpulse'
          'gcr' 'feedbackd' 'libnm' 'phoc' 'callaudiod')
 makedepends=('meson' 'ninja' 'git')
-_commit="a964be122953d4cbcf63b75793c60f231ec35d71"  # tags/v0.15.0
+_commit="f1ad6df16774c97c905b9cdc899a68d12d95ae6b"  # tags/v0.16.0
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         'pam_phosh'
         'sm.puri.OSK0.desktop'
@@ -44,4 +44,4 @@ package() {
 md5sums=('SKIP'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
-         '8fad8bdef9442f81cfd1cfd468f9c6fb')
+         '60c659ae0e643bb63f7fbc484a8d9666')

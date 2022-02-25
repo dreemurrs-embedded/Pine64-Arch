@@ -30,7 +30,7 @@ Before=graphical.target
 ConditionPathExists=/dev/tty0
 
 [Service]
-Environment=XDG_CURRENT_DESKTOP=GNOME:Phosh
+Environment=XDG_CURRENT_DESKTOP=Phosh:GNOME
 Environment=XDG_SESSION_DESKTOP=phosh
 Environment=XDG_SESSION_TYPE=wayland
 ExecStart=/usr/bin/phosh
