@@ -11,6 +11,7 @@ depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell'
 makedepends=('meson' 'ninja' 'git')
 _commit="f1ad6df16774c97c905b9cdc899a68d12d95ae6b"  # tags/v0.16.0
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
+        'osk-button-remove-margins.patch'
         'pam_phosh'
         'sm.puri.OSK0.desktop'
         'phosh.service')
@@ -23,6 +24,8 @@ pkgver() {
 prepare() {
     cd phosh
     git submodule update --init
+
+    patch -p1 < ../osk-button-remove-margins.patch
 }
 
 build() {
@@ -42,6 +45,7 @@ package() {
 }
 
 md5sums=('SKIP'
+         'cf968e048f074d9d3b4854751363bad7'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
          '60c659ae0e643bb63f7fbc484a8d9666')
