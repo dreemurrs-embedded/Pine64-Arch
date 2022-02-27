@@ -9,7 +9,7 @@ pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environmen
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('MIT')
-makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox')
+makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox' 'git')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$_pkgcommit.tar.gz"
         '0001-Let-systemd-handle-service-supervision.patch'
