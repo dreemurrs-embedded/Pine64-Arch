@@ -3,7 +3,7 @@
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
 pkgver=1.8.2
-pkgrel=2
+pkgrel=3
 _pkgcommit=de71ed7b3400b96d59e4380466c0f9c39272e8d0
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
