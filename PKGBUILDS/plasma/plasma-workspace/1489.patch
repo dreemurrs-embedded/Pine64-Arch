@@ -1,0 +1,31 @@
+From be50191b437231d42709163f102418c06da02538 Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bhush94@gmail.com>
+Date: Thu, 24 Feb 2022 19:00:10 +0530
+Subject: [PATCH] Revert "Fix overdraw on Wayland"
+
+It caused issues on the Plasma Mobile where it throws the GL error in
+the console and does not render panel windows at all. Till we can figure
+this issue out, revert it to restore functionality
+---
+ shell/desktopview.cpp | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/shell/desktopview.cpp b/shell/desktopview.cpp
+index 4516ce327..b42082870 100644
+--- a/shell/desktopview.cpp
++++ b/shell/desktopview.cpp
+@@ -34,11 +34,6 @@ DesktopView::DesktopView(Plasma::Corona *corona, QScreen *targetScreen)
+     , m_shellSurface(nullptr)
+ {
+     QObject::setParent(corona);
+-    // Some people reported that setColor(Qt::black) breaks panel translucency on X11. Needs more investigation.
+-    if (KWindowSystem::isPlatformWayland()) {
+-        setColor(Qt::black);
+-    }
+-
+     if (targetScreen) {
+         setScreenToFollow(targetScreen);
+         setScreen(targetScreen);
+-- 
+GitLab
+
