@@ -5,7 +5,7 @@
 pkgname=gnome-calendar-mobile
 _pkgname=gnome-calendar
 pkgver=41.2+5+g2222a4ee
-pkgrel=1
+pkgrel=2
 pkgdesc="Simple and beautiful calendar application designed to perfectly fit the GNOME desktop"
 url="https://wiki.gnome.org/Apps/Calendar"
 arch=(x86_64 armv7h aarch64)
@@ -41,6 +41,7 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-calendar.git#commit=$_commit"
         0020-calendars-page-Make-the-rows-ellipsize.patch
         0021-window-Hide-Keyboard-Shortcuts-when-narrow.patch
         0022-event-popover-Reduce-the-text-s-width.patch
+        0023-week-grid-Don-t-emit-create-event-on-invalid-selecti.patch
         # Mobian patches for fixing build
         0001-build-fix-build-with-meson-0.60.0.patch
         0002-quick-add-popover-reduce-width-to-fit-phone-screens.patch)
@@ -67,6 +68,7 @@ sha256sums=('SKIP'
             '7762be90edcec9f7ae7c961bb9f40fafcd22b8c3656bcb33168953d6978c6418'
             'a9d38e8c0347f658de5fa2bb5ab8617ee642d02dc28f3f08f3058b27698bea21'
             'a1ed69000ea562785932b62bebcebd53acb0912936ea02a5824fdf9337574228'
+            'db6aa81d0ad6ac4e7dd9417eac84b644a98e20a5581c1d844789289e6279d92b'
             'ba3e91a5bdd18e9e6b24eba1347949975ecaa1e3aa2ad29cc962500b0c06d899'
             '4a619f38725863a0a9cf30f102a8e7234773acd99d994fdc170c0743f6df9e95')
 
