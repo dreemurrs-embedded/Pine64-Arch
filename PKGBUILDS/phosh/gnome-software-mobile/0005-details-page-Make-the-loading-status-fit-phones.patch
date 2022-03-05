@@ -1,0 +1,26 @@
+From 1d68a56078ab7d8f296a621833a3e4496fbf6bb5 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Thu, 2 Sep 2021 09:03:50 +0200
+Subject: [PATCH] details-page: Make the loading status fit phones
+
+---
+ src/gs-details-page.ui | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/gs-details-page.ui b/src/gs-details-page.ui
+index 4dfe50530..06783a349 100644
+--- a/src/gs-details-page.ui
++++ b/src/gs-details-page.ui
+@@ -37,6 +37,9 @@
+             <child>
+               <object class="GtkLabel" id="loading_label">
+                 <property name="visible">True</property>
++	    <!-- FIXME: Make this a proper status page. -->
++                <property name="wrap">True</property>
++                <property name="justify">center</property>
+                 <property name="label" translatable="yes">Loading application details…</property>
+                 <attributes>
+                   <attribute name="scale" value="1.4"/>
+-- 
+2.30.2
+

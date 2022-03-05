@@ -15,8 +15,8 @@ The vertical orientation is set only on phones (ie, when
 
 Index: gnome-control-center/panels/display/cc-display-panel.c
 ===================================================================
---- gnome-control-center.orig/panels/display/cc-display-panel.c	2021-07-29 00:48:45.964000000 +0000
-+++ gnome-control-center/panels/display/cc-display-panel.c	2021-07-29 00:49:03.491000000 +0000
+--- gnome-control-center.orig/panels/display/cc-display-panel.c	2021-10-23 07:56:40.512000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.c	2021-10-23 07:56:45.000000000 +0000
 @@ -20,6 +20,8 @@
  
  #include "cc-display-panel.h"
@@ -26,7 +26,7 @@ Index: gnome-control-center/panels/display/cc-display-panel.c
  #include <gtk/gtk.h>
  #include <glib/gi18n.h>
  #include <stdlib.h>
-@@ -1236,4 +1238,11 @@
+@@ -1239,4 +1241,11 @@
    gtk_style_context_add_provider_for_screen (gdk_screen_get_default (),
                                               GTK_STYLE_PROVIDER (provider),
                                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
@@ -40,8 +40,8 @@ Index: gnome-control-center/panels/display/cc-display-panel.c
  }
 Index: gnome-control-center/panels/display/cc-display-panel.ui
 ===================================================================
---- gnome-control-center.orig/panels/display/cc-display-panel.ui	2021-07-29 00:48:45.964000000 +0000
-+++ gnome-control-center/panels/display/cc-display-panel.ui	2021-07-29 00:48:45.960000000 +0000
+--- gnome-control-center.orig/panels/display/cc-display-panel.ui	2021-10-23 07:56:40.512000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.ui	2021-10-23 07:56:40.509000000 +0000
 @@ -84,6 +84,8 @@
                                  <property name="can_focus">False</property>
                                  <property name="homogeneous">True</property>

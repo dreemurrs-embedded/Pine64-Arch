@@ -10,8 +10,8 @@ Fixes #102
 
 Index: gnome-control-center/panels/user-accounts/cc-user-panel.c
 ===================================================================
---- gnome-control-center.orig/panels/user-accounts/cc-user-panel.c	2021-07-29 00:30:07.596000000 +0000
-+++ gnome-control-center/panels/user-accounts/cc-user-panel.c	2021-07-29 00:37:07.000000000 +0000
+--- gnome-control-center.orig/panels/user-accounts/cc-user-panel.c	2021-10-23 07:56:40.332000000 +0000
++++ gnome-control-center/panels/user-accounts/cc-user-panel.c	2021-10-23 07:56:47.000000000 +0000
 @@ -19,6 +19,7 @@
   */
  
@@ -20,7 +20,7 @@ Index: gnome-control-center/panels/user-accounts/cc-user-panel.c
  
  #include "cc-user-panel.h"
  
-@@ -916,7 +917,7 @@
+@@ -921,7 +922,7 @@
  
          /* Autologin: show when local account */
          show = act_user_is_local_account (user);

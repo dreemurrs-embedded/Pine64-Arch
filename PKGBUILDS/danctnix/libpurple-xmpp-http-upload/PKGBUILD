@@ -2,7 +2,7 @@
 # Contributor: Silvio Knizek <killermoehre@gmx.net>
 _pkgname="purple-xmpp-http-upload"
 pkgname="lib${_pkgname}"
-pkgver=0.2.2
+pkgver=0.2.4
 pkgrel=1
 pkgdesc="HTTP File Upload plugin for libpurple (XMPP Protocol)"
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')

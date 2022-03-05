@@ -1,0 +1,25 @@
+From f8a921c4ea7f4001ac5de448b7140baaf60da719 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 30 Jul 2019 10:23:26 +0200
+Subject: [PATCH 05/38] language: Simplify margins and spacing
+
+---
+ gnome-initial-setup/pages/language/gis-language-page.ui | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+--- a/gnome-initial-setup/pages/language/gis-language-page.ui
++++ b/gnome-initial-setup/pages/language/gis-language-page.ui
+@@ -13,12 +13,12 @@
+             <property name="orientation">vertical</property>
+             <property name="halign">center</property>
+             <property name="valign">center</property>
++            <property name="spacing">18</property>
+             <property name="expand" bind-source="language_chooser" bind-property="visible" bind-flags="invert-boolean|sync-create"/>
+             <child>
+               <object class="GtkImage" id="logo">
+                 <property name="visible" bind-source="GisLanguagePage" bind-property="small-screen" bind-flags="invert-boolean|sync-create"/>
+                 <property name="can_focus">False</property>
+-                <property name="margin_top">24</property>
+                 <property name="pixel_size">96</property>
+                 <property name="icon_name">start-here-symbolic</property>
+               </object>

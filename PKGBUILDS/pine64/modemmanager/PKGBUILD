@@ -4,16 +4,17 @@
 
 pkgbase=modemmanager
 pkgname=(modemmanager libmm-glib)
-pkgver=1.18.0
-pkgrel=2
+pkgver=1.18.6
+pkgrel=1
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
 url="https://www.freedesktop.org/wiki/Software/ModemManager/"
 license=(GPL2 LGPL2.1)
 depends=(systemd libgudev polkit ppp libqmi libmbim
          mobile-broadband-provider-info)
-makedepends=(gtk-doc gobject-introspection vala autoconf-archive git)
-_commit=4ccbfcd0167b5e6134eba5da34c33b8b0b5b1619  # tags/1.18.0
+makedepends=(gtk-doc gobject-introspection vala meson git bash-completion)
+checkdepends=(python-gobject python-dbus)
+_commit=a7bcf2036b34d5043dbc33fee7d98bae5859c4d3  # tags/1.18.6
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
         'modemmanager-polkit.rules'
         '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
@@ -23,7 +24,7 @@ sha256sums=('SKIP'
 
 pkgver() {
   cd ModemManager
-  git describe --tags | sed 's/-rc/rc/;s/-/+/g'
+  git describe --tags | sed 's/-rc/rc/;s/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
@@ -31,43 +32,53 @@ prepare() {
 
   # PinePhone Patches
   patch -p1 -N < ../0001-mm-broadband-modem-improve-voice-capabilities-detect.patch
-
-  NOCONFIGURE=1 ./autogen.sh
 }
 
 build() {
-  cd ModemManager
-  ./configure \
-    --prefix=/usr \
-    --sysconfdir=/etc \
-    --localstatedir=/var \
-    --sbindir=/usr/bin \
-    --with-dbus-sys-dir=/usr/share/dbus-1/system.d \
-    --with-udev-base-dir=/usr/lib/udev \
-    --with-polkit=permissive \
-    --with-systemd-journal \
-    --with-at-command-via-dbus \
-    --with-systemd-suspend-resume \
-    --enable-compile-warnings=yes \
-    --enable-gtk-doc \
-    --disable-static
+  local meson_options=(
+    -D dbus_policy_dir=/usr/share/dbus-1/system.d
+    -D dist_version="\"$pkgver-$pkgrel\""
+    -D gtk_doc=true
+    -D plugin_qcom_soc=disabled
+    -D polkit=permissive
+    -D vapi=true
+    -D at_command_via_dbus=true
+  )
 
-  # https://bugzilla.gnome.org/show_bug.cgi?id=655517
-  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  arch-meson ModemManager build "${meson_options[@]}"
+  meson compile -C build
+}
 
-  make
+check() {
+  # Tests don't work yet
+  : meson test -C build --print-errorlogs
+}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
 }
 
 package_modemmanager() {
   depends+=(libmm-glib.so libg{lib,object,io,module}-2.0.so libsystemd.so libgudev-1.0.so
             libqmi-glib.so libmbim-glib.so)
   optdepends=('usb_modeswitch: install if your modem shows up as a storage drive')
-  options=(!emptydirs)
 
-  cd ModemManager
-  make DESTDIR="$pkgdir" install
-  make DESTDIR="$pkgdir" -C libmm-glib uninstall
-  make DESTDIR="$pkgdir" -C vapi uninstall
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+  _pick libmm usr/include
+  _pick libmm usr/lib/girepository-1.0
+  _pick libmm usr/lib/libmm-glib.so*
+  _pick libmm usr/lib/pkgconfig
+  _pick libmm usr/share/gir-1.0
+  _pick libmm usr/share/gtk-doc/html/libmm-glib
+  _pick libmm usr/share/vala
 
   install -d -o root -g 102 -m 750 "${pkgdir}/usr/share/polkit-1/rules.d"
   install -m644 -D "$srcdir/modemmanager-polkit.rules" \
@@ -76,10 +87,6 @@ package_modemmanager() {
   # Disable suspend/resume hooks for the EG25-G modem in the PinePhone
   sed -i -e 's|bin/ModemManager|bin/ModemManager --test-quick-suspend-resume|g' \
         "$pkgdir/usr/lib/systemd/system/ModemManager.service"
-
-  # Some stuff to move is left over
-  mv "$pkgdir/usr/include" ..
-  mv "$pkgdir/usr/lib/pkgconfig" ..
 }
 
 package_libmm-glib() {
@@ -87,11 +94,7 @@ package_libmm-glib() {
   depends=(libg{lib,object,io}-2.0.so)
   provides=(libmm-glib.so)
 
-  install -d "$pkgdir/usr/lib"
-  mv include "$pkgdir/usr"
-  mv pkgconfig "$pkgdir/usr/lib"
-
-  cd ModemManager
-  make DESTDIR="$pkgdir" -C libmm-glib install
-  make DESTDIR="$pkgdir" -C vapi install
+  mv libmm/* "$pkgdir"
 }
+
+# vim:set sw=2 et:

@@ -2,18 +2,21 @@
 # Contributor: Bernhard Landauer <oberon@manjaro.org>
 
 pkgname=plasma-mobile-settings
-pkgver=20211018
+pkgver=20220222
 pkgrel=1
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
 license=('GPL')
 pkgdesc='Settings files for Plasma Mobile'
-depends=('accountsservice' 'noto-fonts' 'breeze' 'breeze-gtk' 'pipewire' 'pipewire-media-session' 'hfd-service')
+depends=('accountsservice' 'noto-fonts' 'breeze' 'breeze-gtk' 'pipewire' 'pipewire-media-session' 'hfd-service'
+         'modemmanager' 'systemd')
 makedepends=('git')
+install=$pkgname.install
 source=('applications-blacklistrc'
     'kdeglobals'
     'kwinrc'
-    'ofono-fast-dormancy.sh'
+    'kscreenlockerrc'
+    'startkderc'
     '91_plasma-mobile.gschema.override'
     'plasmamobile.json'
     'settings.ini'
@@ -22,10 +25,11 @@ source=('applications-blacklistrc'
     'kde-tweaks.sh'
     'kdewallet.kwl'
     'kdewallet.salt')
-sha256sums=('8cac5ea4a4fe2e9c68735e72fde74f8def30465f15e9924bc1a66906c8e2b8a4'
-            'f7621041edd8dde4a2d15110c5c1d902a78ac1f57a4de6ceb250e12da5db7417'
-            '68bc1f74168a8d4f9c3418b37b9373d5a46d3fe550c3d5357dd3d737114abdcf'
-            '187bd69ff45ddedb5a2f2152792bd65c0c46ee0082239e86a0d0aab654327617'
+sha256sums=('e6f9737ffd2b0750defe36487a66cff27f44c751ddf6583db971bfbb04583d0a'
+            '90327c5957ac4b798d5c32393579d1d93bd060320245062a7ae93d60f8701852'
+            '1da8a74dbeb58cfe2be26788e1a70da72085da28677f49354dd37fcf8d16b034'
+            'a8ba8eb604185b184e46d2bfd43df12f239295dd7bfe9e6711e0e0d238b40a3b'
+            'bf14819bb36a95cbb465169ca3640d8a93f9a648881f9f52f6315a1ba40d273c'
             'fd5a89ce81197a912a9879aa5aa33daf68c8f80a4b70192fff89364ef9d18734'
             '42db6e099ab56aa4f6c01107fe83897a059bc371a389379cd3c260d4ab8fd2bc'
             'e3e671c730f7a4ed54011a1152a54e5ce11e6092850c379deb5641d88b5463bd'
@@ -44,7 +48,8 @@ package() {
     install -Dm644 applications-blacklistrc $xdg/applications-blacklistrc
     install -Dm644 kdeglobals $xdg/kdeglobals
     install -Dm644 kwinrc $xdg/kwinrc
-    install -Dm755 ofono-fast-dormancy.sh $pkgdir/usr/lib/systemd/system-sleep/ofono-fast-dormancy.sh
+    install -Dm644 kscreenlockerrc $xdg/kscreenlockerrc
+    install -Dm644 startkderc $xdg/startkderc
     install -Dm644 "${srcdir}/91_plasma-mobile.gschema.override" -t "${pkgdir}/usr/share/glib-2.0/schemas"
     install -Dm644 "${srcdir}/plasmamobile.json" -t "${pkgdir}/usr/share/maliit/keyboard2/devices/"
     install -Dm644 "${srcdir}/settings.ini" -t "${pkgdir}/etc/skel/.config/gtk-3.0/"

@@ -11,6 +11,10 @@ Placement=Maximizing
 [TabBox]
 TouchBorderActivate=9
 TouchBorderAlternativeActivate=9
+BorderActivate=9
+
+[Effect-PresentWindows]
+BorderActivateAll=9
 
 [org.kde.kdecoration2]
 NoPlugin=true
@@ -19,5 +23,6 @@ NoPlugin=true
 Left=None
 Right=None
 
-[HWComposerOutputs][0]
-Scale=3
+[Wayland]
+InputMethod[$e]=/usr/share/applications/com.github.maliit.keyboard.desktop
+VirtualKeyboardEnabled=true

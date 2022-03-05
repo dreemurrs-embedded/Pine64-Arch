@@ -1,0 +1,504 @@
+From e8584352c152fc891fa82a0d3fceb1810cc6f4e0 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Fri, 13 Nov 2020 17:59:06 +0100
+Subject: [PATCH 06/16] alarms: Make alarms persisted and add missed alarms
+ notation
+
+This stores the alarm state as well as the alarm and snooze time
+to gsettings. This alllows us to tell the user about missed alarms.
+A user could miss alarms for two reasons:
+ - Clocks wasn't running when the alarm went of.
+ - The user didn't stop the alarm within "ring-time"
+
+This also adds the baseline for starting Clocks via systemd user .timer
+units by making Clocks checks at startup if any alarms need to go off.
+
+As a side effect: closing Clocks doesn't stop an alarm and when Clocks
+is reopend within "ring-time" after an alarm or snooze the alarm starts
+ringing again.
+---
+ src/alarm-face.vala         |   5 +-
+ src/alarm-item.vala         | 218 +++++++++++++++++++++++-------------
+ src/alarm-setup-dialog.vala |  12 +-
+ src/application.vala        |   5 +-
+ src/window.vala             |   3 +
+ 5 files changed, 156 insertions(+), 87 deletions(-)
+
+diff --git a/src/alarm-face.vala b/src/alarm-face.vala
+index 9cf1207..8654e76 100644
+--- a/src/alarm-face.vala
++++ b/src/alarm-face.vala
+@@ -66,7 +66,7 @@ public class Face : Gtk.Stack, Clocks.Clock {
+         });
+ 
+         listbox.bind_model (alarms, (item) => {
+-            item.notify["active"].connect (save);
++            item.notify["state"].connect (save);
+             return new Row ((Item) item, this);
+         });
+ 
+@@ -134,12 +134,13 @@ public class Face : Gtk.Stack, Clocks.Clock {
+ 
+     public void activate_new () {
+         var wc = Utils.WallClock.get_default ();
+-        var alarm = new Item ({ wc.date_time.get_hour (), wc.date_time.get_minute () }, false);
++        var alarm = new Item (wc.date_time.get_hour (), wc.date_time.get_minute ());
+         var dialog = new SetupDialog ((Gtk.Window) get_toplevel (), alarm, alarms);
+ 
+         dialog.response.connect ((dialog, response) => {
+           // Enable the newly created alarm
+           alarm.active = true;
++
+             if (response == Gtk.ResponseType.OK) {
+                 ((SetupDialog) dialog).apply_to_alarm ();
+                 alarms.add (alarm);
+diff --git a/src/alarm-item.vala b/src/alarm-item.vala
+index 9febf63..ab9ca9b 100644
+--- a/src/alarm-item.vala
++++ b/src/alarm-item.vala
+@@ -20,15 +20,9 @@
+ namespace Clocks {
+ namespace Alarm {
+ 
+-private struct AlarmTime {
+-    public int hour;
+-    public int minute;
+-}
+-
+ private class Item : Object, ContentItem {
+-    // FIXME: should we add a "MISSED" state where the alarm stopped
+-    // ringing but we keep showing the ringing panel?
+     public enum State {
++        DISABLED,
+         READY,
+         RINGING,
+         SNOOZING
+@@ -43,6 +37,12 @@ private class Item : Object, ContentItem {
+ 
+     public int ring_minutes { get; set; default = 5; }
+ 
++    public bool recurring {
++        get {
++            return days != null && !((!) days).empty;
++        }
++    }
++
+     public string? name {
+         get {
+             return _name;
+@@ -54,21 +54,34 @@ private class Item : Object, ContentItem {
+         }
+     }
+ 
+-    public AlarmTime time { get; set; }
+-
+     public Utils.Weekdays? days { get; set; }
+ 
+-    public State state { get; private set; }
++    private State _state = State.DISABLED;
++    public State state {
++        get {
++            return _state;
++        }
++        private set {
++            if (_state == value)
++                return;
++
++            _state = value;
++            notify_property ("active");
++        }
++    }
+ 
+     public string time_label {
+          owned get {
+-            return Utils.WallClock.get_default ().format_time (alarm_time);
++            return Utils.WallClock.get_default ().format_time (time);
+          }
+     }
+ 
+     public string snooze_time_label {
+          owned get {
+-            return Utils.WallClock.get_default ().format_time (snooze_time);
++            if (snooze_time == null)
++                return Utils.WallClock.get_default ().format_time (time.add_minutes (snooze_minutes));
++            else
++                return Utils.WallClock.get_default ().format_time ((!) snooze_time);
+          }
+     }
+ 
+@@ -78,37 +91,43 @@ private class Item : Object, ContentItem {
+          }
+     }
+ 
++    public GLib.DateTime time { get; set; }
++
+     [CCode (notify = false)]
+     public bool active {
+         get {
+-            return _active && !this.editing;
++            return this.state > State.DISABLED;
+         }
+-
+         set {
+-            if (value != _active) {
+-                _active = value;
+-                if (_active) {
+-                    reset ();
+-                } else if (state == State.RINGING) {
+-                    stop ();
+-                }
++            if (this.state != State.DISABLED && !value) {
++                stop ();
++                this.state = State.DISABLED;
++                notify_property ("active");
++            } else if (this.state == State.DISABLED && value) {
++                this.missed = false;
++                this.time = get_next_alarm_time (time.get_hour (), time.get_minute (), days);
++                this.state = State.READY;
+                 notify_property ("active");
+             }
+         }
+     }
+ 
+     private string _name;
+-    private bool _active = true;
+-    private GLib.DateTime alarm_time;
+-    private GLib.DateTime snooze_time;
+-    private GLib.DateTime ring_end_time;
++    private GLib.DateTime? snooze_time;
+     private Utils.Bell bell;
+     private GLib.Notification notification;
+ 
+-    public Item (AlarmTime time, bool active = true, Utils.Weekdays? days = null, string? id = null) {
++    public Item (int hour, int minute, Utils.Weekdays? days = null, string? id = null) {
++        var guid = id != null ? (string) id : GLib.DBus.generate_guid ();
++        var time = get_next_alarm_time (hour, minute, days);
++        Object (id: guid,
++                time: time,
++                days: days);
++    }
++
++    public Item.for_specific_time (GLib.DateTime time, Utils.Weekdays? days = null, string? id = null) {
+         var guid = id != null ? (string) id : GLib.DBus.generate_guid ();
+         Object (id: guid,
+-                active: active,
+                 time: time,
+                 days: days);
+     }
+@@ -122,24 +141,39 @@ private class Item : Object, ContentItem {
+         notification.add_button (_("Snooze"), "app.snooze-alarm::".concat (id));
+     }
+ 
+-    public void reset () {
+-        update_alarm_time ();
+-        update_snooze_time (alarm_time);
+-        state = State.READY;
++    private void show_missed_notification () {
++        var app = (Clocks.Application) GLib.Application.get_default ();
++        var notification = new GLib.Notification (_("Missed alarm"));
++        string label;
++        if (name != null && ((!) name).length > 0) {
++                // Translators: The first %s is the time and the second %s is the title
++                label = _("%s: %s").printf (time_label, (!) name);
++            } else {
++                // Translators: %s is a time
++                label = _("%s").printf (time_label);
++            }
++
++        notification.set_body (label);
++        app.send_notification ("alarm-clock-missed", notification);
++    }
++
++    public void set_alarm_time (int hour, int minute, Utils.Weekdays? days) {
++      this.days = days;
++      this.time = get_next_alarm_time (hour, minute, days);
+     }
+ 
+-    private void update_alarm_time () {
++    private static GLib.DateTime get_next_alarm_time (int hour, int minute, Utils.Weekdays? days) {
+         var wallclock = Utils.WallClock.get_default ();
+         var now = wallclock.date_time;
+         var dt = new GLib.DateTime (wallclock.timezone,
+                                     now.get_year (),
+                                     now.get_month (),
+                                     now.get_day_of_month (),
+-                                    time.hour,
+-                                    time.minute,
++                                    hour,
++                                    minute,
+                                     0);
+ 
+-        if (days == null || ((Utils.Weekdays) days).empty) {
++        if (days == null || ((!) days).empty) {
+             // Alarm without days.
+             if (dt.compare (now) <= 0) {
+                 // Time already passed, ring tomorrow.
+@@ -148,16 +182,13 @@ private class Item : Object, ContentItem {
+         } else {
+             // Alarm with at least one day set.
+             // Find the next possible day for ringing
+-            while (dt.compare (now) <= 0 || ! ((Utils.Weekdays) days).get ((Utils.Weekdays.Day) (dt.get_day_of_week () - 1))) {
++            while (dt.compare (now) <= 0 ||
++                   ! ((Utils.Weekdays) days).get ((Utils.Weekdays.Day) (dt.get_day_of_week () - 1))) {
+                 dt = dt.add_days (1);
+             }
+         }
+ 
+-        alarm_time = dt;
+-    }
+-
+-    private void update_snooze_time (GLib.DateTime start_time) {
+-        snooze_time = start_time.add_minutes (snooze_minutes);
++        return dt;
+     }
+ 
+     public virtual signal void ring () {
+@@ -167,30 +198,43 @@ private class Item : Object, ContentItem {
+     }
+ 
+     private void start_ringing (GLib.DateTime now) {
+-        update_snooze_time (now);
+-        ring_end_time = now.add_minutes (ring_minutes);
+         state = State.RINGING;
+         ring ();
+     }
+ 
+     public void snooze () {
+         bell.stop ();
++        if (snooze_time == null)
++            snooze_time = time.add_minutes (snooze_minutes);
++        else
++            snooze_time = ((!) snooze_time).add_minutes (snooze_minutes);
++
+         state = State.SNOOZING;
+     }
+ 
+     public void stop () {
+         bell.stop ();
+-        update_snooze_time (alarm_time);
+-        state = State.READY;
++        snooze_time = null;
++
++        // scheduale the next alarm if recurring
++        if (recurring) {
++            time = get_next_alarm_time (time.get_hour (), time.get_minute (), days);
++            state = State.READY;
++            GLib.Timeout.add_seconds (120, () => {
++                missed = false;
++                return GLib.Source.REMOVE;
++            });
++        } else {
++            state = State.DISABLED;
++        }
+     }
+ 
+     private bool compare_with_item (Item i) {
+-        return (this.time.compare (i.time) == 0);
++        return (this.time.get_hour () == i.time.get_hour () &&
++                this.time.get_minute () == i.time.get_minute ());
+     }
+ 
+     public bool check_duplicate_alarm (List<Item> alarms) {
+-        update_alarm_time ();
+-
+         foreach (var item in alarms) {
+             if (this.compare_with_item (item)) {
+                 return true;
+@@ -199,11 +243,21 @@ private class Item : Object, ContentItem {
+         return false;
+     }
+ 
++    private void start_ringing_or_missed (GLib.DateTime now, GLib.DateTime ring_end_time) {
++        if (now.compare (ring_end_time) > 0 ) {
++            missed = true;
++            show_missed_notification ();
++            stop ();
++        } else {
++            start_ringing (now);
++        }
++    }
++
+     // Update the state and ringing time. Ring or stop
+     // depending on the current time.
+     // Returns true if the state changed, false otherwise.
+     public bool tick () {
+-        if (!active) {
++        if (state == State.DISABLED) {
+             return false;
+         }
+ 
+@@ -212,17 +266,28 @@ private class Item : Object, ContentItem {
+         var wallclock = Utils.WallClock.get_default ();
+         var now = wallclock.date_time;
+ 
+-        if (state == State.RINGING && now.compare (ring_end_time) > 0) {
+-            stop ();
+-        }
+-
+-        if (state == State.SNOOZING && now.compare (snooze_time) > 0) {
+-            start_ringing (now);
+-        }
+-
+-        if (state == State.READY && now.compare (alarm_time) > 0) {
+-            start_ringing (now);
+-            update_alarm_time (); // reschedule for the next repeat
++        GLib.DateTime ring_end_time;
++        if (snooze_time != null)
++            ring_end_time = ((!) snooze_time).add_minutes (ring_minutes);
++        else
++            ring_end_time = time.add_minutes (ring_minutes);
++
++        switch (state) {
++            case State.DISABLED:
++                break;
++            case State.RINGING:
++                // make sure the state changes
++                last_state = State.READY;
++                start_ringing_or_missed (now, ring_end_time);
++                break;
++            case State.SNOOZING:
++                if (snooze_time != null && now.compare ((!) snooze_time) > 0)
++                    start_ringing_or_missed (now, ring_end_time);
++                break;
++            case State.READY:
++                if (now.compare (time) > 0)
++                    start_ringing_or_missed (now, ring_end_time);
++                break;
+         }
+ 
+         return state != last_state;
+@@ -232,9 +297,10 @@ private class Item : Object, ContentItem {
+         builder.open (new GLib.VariantType ("a{sv}"));
+         builder.add ("{sv}", "name", new GLib.Variant.string ((string) name));
+         builder.add ("{sv}", "id", new GLib.Variant.string (id));
+-        builder.add ("{sv}", "active", new GLib.Variant.boolean (active));
+-        builder.add ("{sv}", "hour", new GLib.Variant.int32 (time.hour));
+-        builder.add ("{sv}", "minute", new GLib.Variant.int32 (time.minute));
++        builder.add ("{sv}", "state", new GLib.Variant.int32 (state));
++        builder.add ("{sv}", "time", new GLib.Variant.int64 (time.to_unix ()));
++        if (snooze_time != null)
++            builder.add ("{sv}", "snooze_time", new GLib.Variant.int64 (((!) snooze_time).to_unix ()));
+         builder.add ("{sv}", "days", ((Utils.Weekdays) days).serialize ());
+         builder.add ("{sv}", "snooze_minutes", new GLib.Variant.int32 (snooze_minutes));
+         builder.add ("{sv}", "ring_minutes", new GLib.Variant.int32 (ring_minutes));
+@@ -246,9 +312,9 @@ private class Item : Object, ContentItem {
+         Variant val;
+         string? name = null;
+         string? id = null;
+-        bool active = true;
+-        int hour = -1;
+-        int minute = -1;
++        State state = State.DISABLED;
++        GLib.DateTime? time = null;
++        GLib.DateTime? snooze_time = null;
+         int snooze_minutes = 10;
+         int ring_minutes = 5;
+         Utils.Weekdays? days = null;
+@@ -259,12 +325,12 @@ private class Item : Object, ContentItem {
+                 name = (string) val;
+             } else if (key == "id") {
+                 id = (string) val;
+-            } else if (key == "active") {
+-                active = (bool) val;
+-            } else if (key == "hour") {
+-                hour = (int32) val;
+-            } else if (key == "minute") {
+-                minute = (int32) val;
++            } else if (key == "state") {
++                state = (State) val;
++            } else if (key == "time") {
++                time = new GLib.DateTime.from_unix_local ((int64) val);
++            } else if (key == "snooze_time") {
++                snooze_time = new GLib.DateTime.from_unix_local ((int64) val);
+             } else if (key == "days") {
+                 days = Utils.Weekdays.deserialize (val);
+             } else if (key == "snooze_minutes") {
+@@ -274,12 +340,14 @@ private class Item : Object, ContentItem {
+             }
+         }
+ 
+-        if (hour >= 0 && minute >= 0) {
+-            Item alarm = new Item ({ hour, minute }, active, days, id);
++        if (time != null) {
++            Item alarm = new Item.for_specific_time ((!) time, days, id);
++            alarm.state = state;
+             alarm.name = name;
++            if (snooze_time != null)
++                alarm.snooze_time = (!) snooze_time;
+             alarm.ring_minutes = ring_minutes;
+             alarm.snooze_minutes = snooze_minutes;
+-            alarm.reset ();
+             return alarm;
+         } else {
+             warning ("Invalid alarm %s", name != null ? (string) name : "[unnamed]");
+diff --git a/src/alarm-setup-dialog.vala b/src/alarm-setup-dialog.vala
+index d20ec61..2d826d0 100644
+--- a/src/alarm-setup-dialog.vala
++++ b/src/alarm-setup-dialog.vala
+@@ -165,8 +165,8 @@ private class SetupDialog : Gtk.Dialog {
+ 
+     // Sets up the dialog to show the values of alarm.
+     public void set_from_alarm () {
+-      var hour = alarm.time.hour;
+-      var minute = alarm.time.minute;
++      var hour = alarm.time.get_hour ();
++      var minute = alarm.time.get_minute ();
+         // Set the time.
+         if (format == Utils.WallClock.Format.TWELVE) {
+             if (hour < 12) {
+@@ -211,21 +211,15 @@ private class SetupDialog : Gtk.Dialog {
+             }
+         }
+ 
+-        AlarmTime time = { hour, minute };
+-
+         var days = repeats.store ();
+ 
+         alarm.freeze_notify ();
+ 
+         alarm.name = name;
+-        alarm.time = time;
+-        alarm.days = days;
++        alarm.set_alarm_time (hour, minute, days);
+         alarm.snooze_minutes = snooze_item.minutes;
+         alarm.ring_minutes = ring_item.minutes;
+ 
+-        // Force update of alarm_time before notifying the changes
+-        alarm.reset ();
+-
+         alarm.thaw_notify ();
+     }
+ 
+diff --git a/src/application.vala b/src/application.vala
+index 2e67046..92aba34 100644
+--- a/src/application.vala
++++ b/src/application.vala
+@@ -170,7 +170,10 @@ public class Application : Gtk.Application {
+     public new void send_notification (string notification_id, GLib.Notification notification) {
+         base.send_notification (notification_id, notification);
+ 
+-        system_notifications.append (notification_id);
++        // We don't want to withdraw missed notifications
++        if (notification_id != "alarm-clock-missed") {
++          system_notifications.append (notification_id);
++        }
+     }
+ 
+     private void withdraw_notifications () {
+diff --git a/src/window.vala b/src/window.vala
+index 55c7f2e..5c35967 100644
+--- a/src/window.vala
++++ b/src/window.vala
+@@ -158,6 +158,9 @@ public class Window : Hdy.ApplicationWindow {
+         if (Config.PROFILE == "Devel") {
+             style.add_class ("devel");
+         }
++
++        // Immidiatly check if we need to notifiy the user about alarms
++        Utils.WallClock.get_default ().tick ();
+     }
+ 
+     [Signal (action = true)]
+-- 
+2.34.1
+

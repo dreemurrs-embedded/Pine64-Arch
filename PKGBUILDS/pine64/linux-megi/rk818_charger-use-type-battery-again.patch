@@ -1,0 +1,11 @@
+--- a/drivers/power/supply/rk818_charger.c	2022-01-28 17:51:57.000000000 +0100
++++ b/drivers/power/supply/rk818_charger.c	2022-02-02 15:06:51.303222817 +0100
+@@ -522,7 +522,7 @@ static enum power_supply_property rk818_
+  */
+ static const struct power_supply_desc rk818_charger_desc = {
+ 	.name			= "rk818-charger",
+-	.type			= POWER_SUPPLY_TYPE_MAINS,
++	.type			= POWER_SUPPLY_TYPE_BATTERY,
+ 	.properties		= rk818_charger_props,
+ 	.num_properties		= ARRAY_SIZE(rk818_charger_props),
+ 	.property_is_writeable	= rk818_charger_prop_writeable,

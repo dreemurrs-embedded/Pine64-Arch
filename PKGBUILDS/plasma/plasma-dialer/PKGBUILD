@@ -3,17 +3,19 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-dialer
-pkgver=21.08
+pkgver=22.02
 pkgrel=1
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('desktop-file-utils' 'ofono' 'kcontacts' 'libqofono-qt5' 'kpeople' 'telepathy-qt' 'libphonenumber' 'kdbusaddons' 'knotifications' 'telepathy-ofono' 'telepathy-mission-control' 'pulseaudio-qt')
+depends=('desktop-file-utils' 'kcontacts' 'modemmanager-qt' 'kpeople' 'telepathy-qt' 'libphonenumber'
+         'kdbusaddons' 'knotifications' 'telepathy-mission-control' 'pulseaudio-qt' 'qt5-feedback'
+         'qt5-quickcontrols2' 'qtmpris')
 makedepends=('cmake' 'extra-cmake-modules' 'kdoctools')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-md5sums=('146d276d7c54e3a90c7e876a20794ebe')
+md5sums=('32421c5395fd195ec886861fad923870')
 
 prepare() {
   mkdir -p build

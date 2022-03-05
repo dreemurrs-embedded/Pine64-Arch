@@ -2,16 +2,18 @@
 # Contributor: Dan Johansen <strit@manjaro.org>
 
 pkgname=tokodon
-pkgver=21.08
+pkgver=22.02
 pkgrel=1
 pkgdesc="Mastodon client for Plasma and Plasma Mobile"
 arch=('x86_64' 'aarch64')
 url="https://www.plasma-mobile.org/"
 license=('GPL2')
-depends=('qt5-base' 'qt5-quickcontrols2' 'qt5-multimedia' 'qt5-svg' 'qt5-websockets' 'qtkeychain-qt5' 'kirigami2' 'ki18n' 'knotifications' 'kconfig' 'kcoreaddons' 'kdbusaddons' 'kitemmodels')
+depends=('qt5-base' 'qt5-quickcontrols2' 'qt5-multimedia' 'qt5-svg' 'qt5-websockets' 'qtkeychain-qt5'
+         'kirigami2' 'ki18n' 'knotifications' 'kconfig' 'kcoreaddons' 'kdbusaddons' 'kitemmodels'
+         'qqc2-desktop-style')
 makedepends=('cmake' 'extra-cmake-modules')
 source=("http://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('390619316e7c71d73269f5170e57e7a5')
+md5sums=('ad0d2476cf6430b0bb12dae4326dddac')
 
 prepare() {
   mkdir -p build

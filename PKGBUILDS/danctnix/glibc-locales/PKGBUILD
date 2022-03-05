@@ -1,6 +1,6 @@
 pkgname=glibc-locales
-pkgver=2.32
-pkgrel=2
+pkgver=2.33
+pkgrel=5
 arch=(x86_64 armv7h aarch64)
 url="https://manjaro.org"
 license=('GPL3')

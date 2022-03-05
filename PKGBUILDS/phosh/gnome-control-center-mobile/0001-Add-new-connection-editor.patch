@@ -41,7 +41,7 @@ Subject: [PATCH 4/4] Add new connection editor
 Index: gnome-control-center/panels/network/connection-editor/cc-connection-editor.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.c	2021-07-28 23:43:55.507000000 +0000
++++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.c	2021-10-23 07:56:40.289000000 +0000
 @@ -0,0 +1,618 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-network-editor.c
@@ -664,7 +664,7 @@ Index: gnome-control-center/panels/network/connection-editor/cc-connection-edito
 Index: gnome-control-center/panels/network/connection-editor/cc-connection-editor.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.h	2021-07-28 23:43:55.507000000 +0000
++++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.h	2021-10-23 07:56:40.289000000 +0000
 @@ -0,0 +1,43 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* cc-network-editor.h
@@ -712,7 +712,7 @@ Index: gnome-control-center/panels/network/connection-editor/cc-connection-edito
 Index: gnome-control-center/panels/network/connection-editor/cc-connection-editor.ui
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.ui	2021-07-28 23:43:55.508000000 +0000
++++ gnome-control-center/panels/network/connection-editor/cc-connection-editor.ui	2021-10-23 07:56:40.289000000 +0000
 @@ -0,0 +1,311 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -1028,7 +1028,7 @@ Index: gnome-control-center/panels/network/connection-editor/cc-connection-edito
 Index: gnome-control-center/panels/network/connection-editor/ce-details-page.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-details-page.c	2021-07-28 23:43:55.508000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-details-page.c	2021-10-23 07:56:40.289000000 +0000
 @@ -0,0 +1,838 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-wifi-page.c
@@ -1871,7 +1871,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-details-page.c
 Index: gnome-control-center/panels/network/connection-editor/ce-details-page.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-details-page.h	2021-07-28 23:43:55.508000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-details-page.h	2021-10-23 07:56:40.290000000 +0000
 @@ -0,0 +1,53 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-wifi-page.h
@@ -1929,7 +1929,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-details-page.h
 Index: gnome-control-center/panels/network/connection-editor/ce-details-page.ui
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-details-page.ui	2021-07-28 23:43:55.508000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-details-page.ui	2021-10-23 07:56:40.290000000 +0000
 @@ -0,0 +1,179 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -2113,7 +2113,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-details-page.ui
 Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-ip-page.c	2021-07-28 23:43:55.509000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-ip-page.c	2021-10-23 07:56:40.290000000 +0000
 @@ -0,0 +1,1055 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-wifi-page.c
@@ -3173,7 +3173,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.c
 Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-ip-page.h	2021-07-28 23:43:55.509000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-ip-page.h	2021-10-23 07:56:40.290000000 +0000
 @@ -0,0 +1,47 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-ip-page.h
@@ -3225,7 +3225,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.h
 Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.ui
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-ip-page.ui	2021-07-28 23:43:55.509000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-ip-page.ui	2021-10-23 07:56:40.291000000 +0000
 @@ -0,0 +1,421 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -3651,7 +3651,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-ip-page.ui
 Index: gnome-control-center/panels/network/connection-editor/ce-password-row.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-password-row.c	2021-07-28 23:43:55.509000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-password-row.c	2021-10-23 07:56:40.291000000 +0000
 @@ -0,0 +1,194 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-password-row.c
@@ -3850,7 +3850,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-password-row.c
 Index: gnome-control-center/panels/network/connection-editor/ce-password-row.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-password-row.h	2021-07-28 23:43:55.509000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-password-row.h	2021-10-23 07:56:40.291000000 +0000
 @@ -0,0 +1,43 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-password-row.h
@@ -3898,7 +3898,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-password-row.h
 Index: gnome-control-center/panels/network/connection-editor/ce-password-row.ui
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-password-row.ui	2021-07-28 23:43:55.510000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-password-row.ui	2021-10-23 07:56:40.292000000 +0000
 @@ -0,0 +1,65 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -3968,7 +3968,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-password-row.ui
 Index: gnome-control-center/panels/network/connection-editor/ce-security-page.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-security-page.c	2021-07-28 23:43:55.510000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-security-page.c	2021-10-23 07:56:40.292000000 +0000
 @@ -0,0 +1,925 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-security-page.c
@@ -4898,7 +4898,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-security-page.c
 Index: gnome-control-center/panels/network/connection-editor/ce-security-page.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-security-page.h	2021-07-28 23:43:55.510000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-security-page.h	2021-10-23 07:56:40.292000000 +0000
 @@ -0,0 +1,45 @@
 +/* -*- Mode: C; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/* ce-security-page.h
@@ -4948,7 +4948,7 @@ Index: gnome-control-center/panels/network/connection-editor/ce-security-page.h
 Index: gnome-control-center/panels/network/connection-editor/ce-security-page.ui
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-security-page.ui	2021-07-28 23:43:55.510000000 +0000
++++ gnome-control-center/panels/network/connection-editor/ce-security-page.ui	2021-10-23 07:56:40.292000000 +0000
 @@ -0,0 +1,273 @@
 +<?xml version="1.0" encoding="UTF-8"?>
 +<interface>
@@ -5225,8 +5225,8 @@ Index: gnome-control-center/panels/network/connection-editor/ce-security-page.ui
 +</interface>
 Index: gnome-control-center/panels/network/connection-editor/connection-editor.gresource.xml
 ===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/connection-editor.gresource.xml	2021-07-28 23:43:55.514000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/connection-editor.gresource.xml	2021-07-28 23:43:55.511000000 +0000
+--- gnome-control-center.orig/panels/network/connection-editor/connection-editor.gresource.xml	2021-10-23 07:56:40.296000000 +0000
++++ gnome-control-center/panels/network/connection-editor/connection-editor.gresource.xml	2021-10-23 07:56:40.293000000 +0000
 @@ -1,6 +1,11 @@
  <?xml version="1.0" encoding="UTF-8"?>
  <gresources>
@@ -5241,8 +5241,8 @@ Index: gnome-control-center/panels/network/connection-editor/connection-editor.g
      <file preprocess="xml-stripblanks">details-page.ui</file>
 Index: gnome-control-center/panels/network/connection-editor/meson.build
 ===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/meson.build	2021-07-28 23:43:55.514000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/meson.build	2021-07-28 23:43:55.511000000 +0000
+--- gnome-control-center.orig/panels/network/connection-editor/meson.build	2021-10-23 07:56:40.296000000 +0000
++++ gnome-control-center/panels/network/connection-editor/meson.build	2021-10-23 07:56:40.293000000 +0000
 @@ -1,6 +1,11 @@
  name = 'connection-editor'
  

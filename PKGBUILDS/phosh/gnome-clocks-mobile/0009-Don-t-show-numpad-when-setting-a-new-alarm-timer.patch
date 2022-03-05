@@ -1,0 +1,44 @@
+From 7f0a060e316ceb9e123ec71d74c7a7502d5dfc1b Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Wed, 2 Dec 2020 16:57:31 +0100
+Subject: [PATCH 09/16] Don't show numpad when setting a new alarm/timer
+
+Fixes https://source.puri.sm/Librem5/gnome-clocks/-/issues/26
+---
+ src/alarm-setup-dialog.vala | 4 ++++
+ src/timer-setup.vala        | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/src/alarm-setup-dialog.vala b/src/alarm-setup-dialog.vala
+index 85c9d06..5831cf3 100644
+--- a/src/alarm-setup-dialog.vala
++++ b/src/alarm-setup-dialog.vala
+@@ -160,6 +160,10 @@ private class SetupDialog : Gtk.Dialog {
+             am_pm_stack.add (am_pm_button);
+             am_pm_stack.visible_child = am_pm_button;
+         }
++        /* Workaround: To keep the osk closed
++         * https://gitlab.gnome.org/GNOME/gtk/merge_requests/978#note_546576 */
++        h_spinbutton.set ("im-module", "gtk-im-context-none", null);
++        m_spinbutton.set ("im-module", "gtk-im-context-none", null);
+ 
+         set_from_alarm ();
+     }
+diff --git a/src/timer-setup.vala b/src/timer-setup.vala
+index 69129f9..4f460ce 100644
+--- a/src/timer-setup.vala
++++ b/src/timer-setup.vala
+@@ -49,6 +49,10 @@ public class Setup : Gtk.Box {
+         insert_action_group ("timer-setup", actions);
+ 
+         time_grid.set_direction (Gtk.TextDirection.LTR);
++
++        h_spinbutton.set ("im-module", "gtk-im-context-none", null);
++        m_spinbutton.set ("im-module", "gtk-im-context-none", null);
++        s_spinbutton.set ("im-module", "gtk-im-context-none", null);
+     }
+ 
+     private int get_duration () {
+-- 
+2.34.1
+

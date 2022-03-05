@@ -1,1 +1,0 @@
-:0 local /usr/bin/X -nolisten tcp -nocursor :0

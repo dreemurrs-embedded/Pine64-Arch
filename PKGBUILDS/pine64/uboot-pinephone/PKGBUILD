@@ -4,9 +4,9 @@
 buildarch=8
 
 pkgname=uboot-pinephone
-pkgver=v2021.07_rc4
-pkgrel=1
-pkgdesc="U-Boot for PinePhone (contains crust scp firmware)"
+pkgver=2022.01
+pkgrel=4
+pkgdesc="U-Boot for PinePhone"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
 license=('GPL')
@@ -15,36 +15,37 @@ makedepends=('bc' 'python' 'swig' 'dtc' 'python-setuptools')
 install=${pkgname}.install
 backup=("boot/boot.txt")
 
-_commit_uboot="89cb280f35abc0f2b0b66ddec035d1ebf1674e64"
-_commit_atf="fb6953b28903d6ba4b097c19ee90ea75f5aa4e74"
+_commit_atf="d005bfcdff423fc84f03c657e0dcdb4b45621b22"
 
-source=("u-boot-$_commit_uboot.tar.gz::https://gitlab.com/pine64-org/u-boot/-/archive/${_commit_uboot}/u-boot-${_commit_uboot}.tar.gz"
+source=("https://ftp.denx.de/pub/u-boot/u-boot-${pkgver/rc/-rc}.tar.bz2"
         "arm-trusted-firmware-$_commit_atf.tar.gz::https://github.com/crust-firmware/arm-trusted-firmware/archive/${_commit_atf}.tar.gz"
         '0001-ATF-set-fno-stack-protector.patch'
-        '0001-configs-Add-Pinetab-configuration.patch'
         '0001-expose-DRAM-clock-speed.patch'
         'Improve-Allwinner-A64-timer-workaround.patch'
+        'Add-volume_key-environment-variable.patch'
         'boot.txt'
         'mkscr'
+        'update-u-boot'
         'scp.bin')
-md5sums=('470606502bdfd4c1f1492d8f0fc451a1'
-         '4c1beabd0d926920f5c8de0b521b6d93'
+md5sums=('49ba74a214d14c6340c8067bc1ed5fa0'
+         '0724b567a680e98d3240648ea14183ba'
          '348a6943a1c220047ce5312b59da95b6'
-         'bdb8e9686df7fccbedf8577a8d3e350a'
          '061a510280d16bddf16679cf0d23bf6e'
          '98ad5f31b1d7ff2e6e03555f29ebc6e6'
-         '90caaaf7c972240e2992c5c46102b2e9'
+         'fb9def68f0b44c69f88f7923e21379cc'
+         '06c27a80909035513aac45036e8d954b'
          '021623a04afd29ac3f368977140cfbfd'
-         'e2fb38f602fdf17d5b554462f130333c')
+         'c251a9b0601caa3dd6b805aa0889660f'
+         '90616d501a12d6f7a12c4349f789c343')
 
 prepare() {
   cd arm-trusted-firmware-${_commit_atf}
   patch -N -p1 < ../0001-ATF-set-fno-stack-protector.patch
 
-  cd ../u-boot-${_commit_uboot}
-  patch -N -p1 < ../0001-configs-Add-Pinetab-configuration.patch
+  cd ../u-boot-${pkgver/rc/-rc}
   patch -N -p1 < ../0001-expose-DRAM-clock-speed.patch
   patch -N -p1 < ../Improve-Allwinner-A64-timer-workaround.patch
+  patch -N -p1 < ../Add-volume_key-environment-variable.patch
 
   cp ../scp.bin .
 }
@@ -55,9 +56,9 @@ build() {
   cd arm-trusted-firmware-${_commit_atf}
 
   make PLAT=sun50i_a64 DEBUG=1 bl31
-  cp build/sun50i_a64/debug/bl31.bin ../u-boot-${_commit_uboot}
+  cp build/sun50i_a64/debug/bl31.bin ../u-boot-${pkgver/rc/-rc}
 
-  cd ../u-boot-${_commit_uboot}
+  cd ../u-boot-${pkgver/rc/-rc}
 
   # This builds the PineTab (624)
   msg2 "Building U-Boot for PineTab..."
@@ -71,6 +72,8 @@ build() {
   echo 'CONFIG_SUPPORT_RAW_INITRD=y' >> .config
   echo 'CONFIG_CMD_EXT4_WRITE=n' >> .config
   echo 'CONFIG_EXT4_WRITE=n' >> .config
+  echo 'CONFIG_DRAM_CLK=624' >> .config
+  echo 'CONFIG_BOOTDELAY=0' >> .config
   make EXTRAVERSION=-${pkgrel}
   mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinetab-624.bin
 
@@ -101,6 +104,7 @@ build() {
   echo 'CONFIG_CMD_EXT4_WRITE=n' >> .config
   echo 'CONFIG_EXT4_WRITE=n' >> .config
   echo 'CONFIG_DRAM_CLK=624' >> .config
+  echo 'CONFIG_BOOTDELAY=0' >> .config
   make EXTRAVERSION=-${pkgrel}
   mv u-boot-sunxi-with-spl.bin u-boot-sunxi-with-spl-pinephone-624.bin
 
@@ -121,7 +125,7 @@ build() {
 }
 
 package() {
-  cd u-boot-${_commit_uboot}
+  cd u-boot-${pkgver/rc/-rc}
 
   mkdir -p "${pkgdir}"/boot
 
@@ -129,4 +133,5 @@ package() {
   cp u-boot-sunxi-with-spl-pinephone{-624,-552,-528,-492}.bin "${pkgdir}"/boot
 
   cp ../boot.txt ../mkscr "${pkgdir}"/boot
+  mkdir -p "${pkgdir}"/usr/bin && cp ../update-u-boot "${pkgdir}"/usr/bin
 }

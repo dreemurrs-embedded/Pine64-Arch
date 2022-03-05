@@ -1,2 +1,0 @@
-SUBSYSTEM=="leds", ACTION=="add", KERNEL=="white:flash", \
-  RUN+="/bin/chmod 777 /sys/class/leds/%k/brightness"

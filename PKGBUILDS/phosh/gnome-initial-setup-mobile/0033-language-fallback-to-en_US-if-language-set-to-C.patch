@@ -1,0 +1,27 @@
+From d617be4889bd8ba11700545477113527d7cb254c Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Thu, 28 Nov 2019 20:31:26 +0530
+Subject: [PATCH 2/3] =?UTF-8?q?language:=20fallback=20to=20en=5FUS=20if=20?=
+ =?UTF-8?q?language=20set=20to=20=E2=80=98C=E2=80=99?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+During initial setup, no language might be set.
+---
+ gnome-initial-setup/cc-common-language.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+--- a/gnome-initial-setup/cc-common-language.c
++++ b/gnome-initial-setup/cc-common-language.c
+@@ -100,6 +100,10 @@
+ cc_common_language_get_current_language (void)
+ {
+         g_assert (current_language != NULL);
++
++        if (g_strcmp0 (current_language, "C"))
++                return g_strdup ("en_US.UTF-8");
++
+         return g_strdup (current_language);
+ }
+ 

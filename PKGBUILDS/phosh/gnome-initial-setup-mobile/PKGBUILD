@@ -3,27 +3,107 @@
 
 pkgname=gnome-initial-setup-mobile
 _pkgname=gnome-initial-setup
-pkgver=3.36.4
+pkgver=41.4
 pkgrel=1
 pkgdesc="Simple, easy, and safe way to prepare a new system - Forked with Purism patches"
 arch=(x86_64 armv7h aarch64)
-url="https://www.gnome.org/"
+url="https://gitlab.gnome.org/GNOME/gnome-initial-setup"
 license=(GPL)
-depends=(nm-connection-editor accountsservice gnome-desktop libgweather
+depends=(libnma accountsservice gnome-desktop libgweather
          gnome-online-accounts libgdm libpwquality libibus libgnomekbd
-         libpackagekit-glib geoclue libhandy0)
+         geoclue libhandy0)
 makedepends=(meson git)
 optdepends=('gdm: GDM Initial Setup mode'
             'gnome-getting-started-docs: GNOME Welcome Tour')
 replaces=('gnome-initial-setup')
 conflicts=('gnome-initial-setup')
-_commit="ce0e063bda2b18274e3fe0bf8680a9f6f948e500"
-source=(git+https://github.com/Danct12/gnome-initial-setup.git#commit=$_commit)
-sha256sums=('SKIP')
+source=("https://download.gnome.org/sources/$_pkgname/${pkgver%.*}/$_pkgname-$pkgver.tar.xz"
+        0001-Add-libhandy-0.0.10-dependency.patch
+        0002-Init-libhandy-in-main.patch
+        0003-language-Use-hdy_list_box_separator_header.patch
+        0004-language-Simplify-margins-and-spacing.patch
+        0005-language-Keep-the-search-entry-at-the-bottom.patch
+        0006-language-Make-the-page-adaptive.patch
+        0007-keyboard-Use-hdy_list_box_separator_header.patch
+        0008-keyboard-Simplify-margins-and-spacing.patch
+        0009-keyboard-Don-t-make-the-list-larger-than-its-content.patch
+        0010-keyboard-Make-the-page-adaptive.patch
+        0011-keyboard-Drop-the-layout-preview.patch
+        0012-network-Simplify-margins-and-spacing.patch
+        0013-network-Make-the-page-adaptive.patch
+        0014-privacy-Simplify-margins-and-spacing.patch
+        0015-privacy-Wrap-the-Mozilla-privacy-policy-label.patch
+        0016-privacy-Reduce-the-Mozilla-policy-window-size-reques.patch
+        0017-privacy-Make-the-page-adaptive.patch
+        0018-timezone-Simplify-margins-and-spacing.patch
+        0019-timezone-Make-the-page-adaptive.patch
+        0020-goa-Simplify-margins-and-spacing.patch
+        0021-goa-Make-the-page-adaptive.patch
+        0022-account-Simplify-margins-and-spacing.patch
+        0023-account-Make-the-page-adaptive.patch
+        0024-account-Make-the-avatar-chooser-fit-the-phone.patch
+        0025-account-Drop-the-button-to-take-photos.patch
+        0026-password-Simplify-margins-and-spacing.patch
+        0027-password-Make-the-page-adaptive.patch
+        0030-timezone-Center-the-map.patch
+        0031-network-Propagate-the-list-s-natural-height.patch
+        0032-password-page-Constrain-to-6-digit-password.patch
+        0033-language-fallback-to-en_US-if-language-set-to-C.patch
+        0034-language-page-Always-change-system-language.patch
+        0035-driver-change-small-screen-condition.patch
+        0036-Revert-Disable-existing-user-mode.patch)
+sha256sums=('96ecd2db6e76c513b18c606dc262bb523228c4aaedbed6a07811e568fd5db642'
+            '6d1c714a6e97efc499502163edcebca8466f995bcb8d34dcf2de3fa93b7e34c6'
+            '6f9871aed8446a1af601ac3a8ae6131ec97658575ad02e3e56dc6d347b3a7378'
+            '60870f399779db61aa41c7808fab7442173614660ebd49eec82560a7420bb2b9'
+            'fd2d2716f1e01f884a4724890417df891ef63a32c780c3796c31463777b3a336'
+            '262d6a1682c3a65511241732e803a96ab33153e70c68c639c99420f72eebbc03'
+            'c06aa16d1dd1a55ad818aa7b07207a3e3e75f2c5bc347d313f78b858b8c65819'
+            '3cf36becba69fd2c67cfd2d74d03b852db514e6ad13b131a09057d21ff9cb828'
+            '6b35242d65b7e1c7f1f04dfe174b3bdd61e6ce21e924c3203de5a82bd6df90f8'
+            '4aa285bfabf598a1bb670262a2ebfab61b5a36e876d90b6ead591dd0d116d0fe'
+            '80d055ec8efe16dd8c57d6efcc1b6141465676204027b7b0d378c8c92f0ffc0a'
+            '5d282fddb57c63e213ebaa73494814b0f9a480e195e358e3bba147e7ff18ab52'
+            '9872b73fb0e57b53ab1b6ca80bd75828cf935e3f4f70a2375a483806f8997532'
+            'eb86a36588a95e93627ce243dbb48491c209f3b2a0659d945ae1840fb395a6ab'
+            '2501b530a2b55a90906856668963613ea7380a78490ea2eac094c12676394773'
+            '38c573de63118a5924d70924a911997cff91292200828f97ce8cb90a31e98ab1'
+            '14de8bb84f61969a6c732c9ea088c9ea4b949ccf73c3b554d44a1bfe57720ee4'
+            'f75ab8d285122e5e25874f3bbf166fd7bf70879d36a96665450c79688d7e41d7'
+            'ea6c0ffff3e22cd2d2eb201ea1ea2f17041a5b0d8ce4a38b6fd59a4135cb28cc'
+            'dc71b17feac21dedbea542dd3d4713b5b12ce28a800baabf0c00dfc84d4e3151'
+            'decfecdc3dd960d82928413ce2745e434504fb13cfd3a3aad112f08054318e86'
+            'dd8100b2ae30658f91e4d1fff7922ec440705f7aea1fb9dac0c0f48554bbd00e'
+            'aa983bde37196d9bf986a66c55850596b69784bde10e57df82549f5119553127'
+            '00a4b7c83095fcc27687c8371a93fee29a0c6ecd8967b9e1f056fa8871eb2d64'
+            'b4cefb076b4f1a61044acf4187bfea2c97d395b83b54933393eddccd679786fc'
+            '3e79989cd42f71d10c9b155e9809165e522e1fe043a0acadd53d689f523cfc01'
+            'e83e41f902feabfc96b3ce2f7dc55773deb95947314c817c67514d47cd9627fb'
+            '3518193b2936c49337787b72a516e0bd679e2131136501094768ee8575d5dc18'
+            '6855bdde72db65a7ebf2571a041056957eae0aba4fa1a447dbefaae0b4510931'
+            '52387c69dd246b6e3b5ad3320cbdf281658585ec944e7463a21c6cee33a68d95'
+            '87aeefd6833393d1bc671bdb89c163ccbfa516ea76643ec10d651231141dcc92'
+            'f4ada65b536d7a62f34056dd39069ea6ebf9ad39a53610596737234d4bdeef1c'
+            '00eb97f4a312271d6b65f9b7ffb24571a4e4022df5cf94ae77f347424a584d1b'
+            'bd6a35639ae6befbfd446b80b4bbd66b755899a76cf1006733a0f0190fcb9481'
+            '8ace3cb1ca874d4ea4562fe59a8edad130293d9f572af7ebf8a14195333b5e54')
+
+prepare() {
+  cd $_pkgname-$pkgver
+
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+}
 
 build() {
-  arch-meson $_pkgname build -Dparental_controls=disabled -Dcheese=disabled
-  ninja -C build
+  arch-meson $_pkgname-$pkgver build -Dparental_controls=disabled -Dcheese=disabled
+  meson compile -C build
 }
 
 check() {

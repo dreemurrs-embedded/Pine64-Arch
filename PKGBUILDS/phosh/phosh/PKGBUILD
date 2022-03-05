@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.14.0
+pkgver=0.16.0
 pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -8,28 +8,25 @@ url="https://gitlab.gnome.org/World/Phosh/phosh"
 license=('GPL')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell' 'upower' 'libpulse'
          'gcr' 'feedbackd' 'libnm' 'phoc' 'callaudiod')
-makedepends=('meson' 'ninja')
-_commit_gvc="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
-_commit_libcall_ui="465f6add090b623fb80c6c5cbb9ab2880ff531a4"
-source=("https://gitlab.gnome.org/World/Phosh/phosh/-/archive/v$pkgver/phosh-v$pkgver.tar.gz"
-        "https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/$_commit_gvc/libgnome-volume-control-$_commit_gvc.tar.gz"
-        "https://gitlab.gnome.org/guidog/libcall-ui/-/archive/$_commit_libcall_ui/libcall-ui-$_commit_libcall_ui.tar.gz"
+makedepends=('meson' 'ninja' 'git')
+_commit="f1ad6df16774c97c905b9cdc899a68d12d95ae6b"  # tags/v0.16.0
+source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         'pam_phosh'
         'sm.puri.OSK0.desktop'
         'phosh.service')
 
+pkgver() {
+    cd $pkgname
+    git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
 prepare() {
-    cd ${pkgname}-v${pkgver}
-
-    rm -r subprojects/gvc
-    mv "$srcdir/libgnome-volume-control-$_commit_gvc" subprojects/gvc
-
-    rm -r subprojects/libcall-ui
-    mv "$srcdir/libcall-ui-$_commit_libcall_ui" subprojects/libcall-ui
+    cd phosh
+    git submodule update --init
 }
 
 build() {
-    arch-meson ${pkgname}-v${pkgver} output -Dsystemd=true
+    arch-meson phosh output -Dsystemd=true
     ninja -C output
 }
 
@@ -44,9 +41,7 @@ package() {
         "$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
-md5sums=('73c5f5e1310cbfcf12537796c3f3dfaa'
-         'c08f04485db11997525c139346faecc8'
-         'bd1569dc4925fc873ec32ca477559725'
+md5sums=('SKIP'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
-         '8fad8bdef9442f81cfd1cfd468f9c6fb')
+         '60c659ae0e643bb63f7fbc484a8d9666')

@@ -1,0 +1,250 @@
+From 735ccf5dd593324b5045ec222a71f2ac32b1b70a Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 24 Jun 2019 10:35:01 +0200
+Subject: [PATCH 21/38] privacy: Make the page adaptive
+
+---
+ .../pages/privacy/gis-privacy-page.c          |  14 +-
+ .../pages/privacy/gis-privacy-page.ui         | 148 +++++++++---------
+ 2 files changed, 87 insertions(+), 75 deletions(-)
+
+--- a/gnome-initial-setup/pages/privacy/gis-privacy-page.c
++++ b/gnome-initial-setup/pages/privacy/gis-privacy-page.c
+@@ -31,11 +31,14 @@
+ 
+ #include <locale.h>
+ #include <gtk/gtk.h>
++#define HANDY_USE_UNSTABLE_API
++#include <handy.h>
+ 
+ #include "gis-page-header.h"
+ 
+ struct _GisPrivacyPagePrivate
+ {
++  GtkWidget *list;
+   GtkWidget *location_switch;
+   GtkWidget *reporting_row;
+   GtkWidget *reporting_switch;
+@@ -96,8 +99,7 @@
+   GisPrivacyPagePrivate *priv = gis_privacy_page_get_instance_private (page);
+ 
+   gtk_widget_show (priv->reporting_row);
+-  gtk_widget_show (priv->reporting_label);
+-  gtk_widget_show (priv->distro_privacy_policy_label);
++  gtk_list_box_invalidate_headers (GTK_LIST_BOX (priv->list));
+ }
+ 
+ static void
+@@ -108,9 +110,8 @@
+   GisPrivacyPage *page = user_data;
+   GisPrivacyPagePrivate *priv = gis_privacy_page_get_instance_private (page);
+ 
+-  gtk_widget_hide (priv->reporting_row);
+-  gtk_widget_hide (priv->reporting_label);
+-  gtk_widget_hide (priv->distro_privacy_policy_label);
++  /* gtk_widget_hide (priv->reporting_row); */
++  gtk_list_box_invalidate_headers (GTK_LIST_BOX (priv->list));
+ }
+ 
+ static void
+@@ -143,6 +144,8 @@
+                                           abrt_vanished_cb,
+                                           page,
+                                           NULL);
++
++  gtk_list_box_set_header_func (GTK_LIST_BOX (priv->list), hdy_list_box_separator_header, NULL, NULL);
+ }
+ 
+ static void
+@@ -254,6 +257,7 @@
+   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+ 
+   gtk_widget_class_set_template_from_resource (GTK_WIDGET_CLASS (klass), "/org/gnome/initial-setup/gis-privacy-page.ui");
++  gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (klass), GisPrivacyPage, list);
+   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (klass), GisPrivacyPage, location_switch);
+   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (klass), GisPrivacyPage, reporting_row);
+   gtk_widget_class_bind_template_child_private (GTK_WIDGET_CLASS (klass), GisPrivacyPage, reporting_switch);
+--- a/gnome-initial-setup/pages/privacy/gis-privacy-page.ui
++++ b/gnome-initial-setup/pages/privacy/gis-privacy-page.ui
+@@ -4,10 +4,13 @@
+   <template class="GisPrivacyPage" parent="GisPage">
+     <property name="visible">True</property>
+     <child>
++      <object class="HdyColumn">
++        <property name="linear_growth_width">400</property>
++        <property name="maximum_width">600</property>
++        <property name="visible">True</property>
++    <child>
+       <object class="GtkBox" id="box">
+         <property name="visible">True</property>
+-        <property name="halign">center</property>
+-        <property name="valign">fill</property>
+         <property name="orientation">vertical</property>
+         <property name="spacing">18</property>
+         <child>
+@@ -19,86 +22,89 @@
+           </object>
+         </child>
+         <child>
+-          <object class="GtkBox">
+-            <property name="visible">True</property>
+-            <property name="orientation">horizontal</property>
+-            <property name="homogeneous">True</property>
+-            <child>
+-              <object class="GtkLabel">
+-                <property name="visible">True</property>
+-                <property name="halign">start</property>
+-                <property name="label" translatable="yes">Location Services</property>
+-                <attributes>
+-                  <attribute name="weight" value="bold"/>
+-                </attributes>
+-              </object>
+-            </child>
+-            <child>
+-              <object class="GtkSwitch" id="location_switch">
+-                <property name="halign">end</property>
+-                <property name="visible">True</property>
+-              </object>
+-            </child>
+-          </object>
+-        </child>
+-        <child>
+-          <object class="GtkLabel">
++          <object class="GtkListBox" id="list">
++            <property name="selection-mode">none</property>
+             <property name="visible">True</property>
+-            <property name="xalign">0</property>
+-            <property name="max-width-chars">50</property>
+-            <property name="wrap">True</property>
+-            <property name="label" translatable="yes">Allows applications to determine your geographical location. An indication is shown when location services are in use.</property>
+-          </object>
+-        </child>
+-        <child>
+-          <object class="GtkLabel" id="mozilla_privacy_policy_label">
+-            <property name="visible">True</property>
+-            <property name="xalign">0</property>
+-            <property name="halign">start</property>
+-            <property name="use-markup">True</property>
+-            <property name="wrap">True</property>
+-            <signal name="activate-link" handler="activate_link"/>
+-          </object>
+-        </child>
+-        <child>
+-          <object class="GtkBox" id="reporting_row">
+-            <property name="orientation">horizontal</property>
+-            <property name="homogeneous">True</property>
++            <style>
++              <class name="frame"/>
++            </style>
+             <child>
+-              <object class="GtkLabel">
++              <object class="HdyActionRow">
++                <property name="title" translatable="yes">Location Services</property>
+                 <property name="visible">True</property>
+-                <property name="halign">start</property>
+-                <property name="label" translatable="yes">Automatic Problem Reporting</property>
+-                <attributes>
+-                  <attribute name="weight" value="bold"/>
+-                </attributes>
++                <child type="action">
++                  <object class="GtkSwitch" id="location_switch">
++                    <property name="valign">center</property>
++                    <property name="visible">True</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkLabel">
++                    <property name="visible">True</property>
++                    <property name="margin-bottom">6</property>
++                    <property name="margin-end">12</property>
++                    <property name="margin-start">12</property>
++                    <property name="margin-top">6</property>
++                    <property name="xalign">0</property>
++                    <property name="wrap">True</property>
++                    <property name="label" translatable="yes">Allows applications to determine your geographical location. An indication is shown when location services are in use.</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkLabel" id="mozilla_privacy_policy_label">
++                    <property name="visible">True</property>
++                    <property name="margin-bottom">6</property>
++                    <property name="margin-end">12</property>
++                    <property name="margin-start">12</property>
++                    <property name="margin-top">6</property>
++                    <property name="xalign">0</property>
++                    <property name="halign">start</property>
++                    <property name="use-markup">True</property>
++                    <property name="wrap">True</property>
++                    <signal name="activate-link" handler="activate_link"/>
++                  </object>
++                </child>
+               </object>
+             </child>
+             <child>
+-              <object class="GtkSwitch" id="reporting_switch">
++              <object class="HdyActionRow" id="reporting_row">
++                <property name="title" translatable="yes">Automatic Problem Reporting</property>
+                 <property name="visible">True</property>
+-                <property name="halign">end</property>
++                <child type="action">
++                  <object class="GtkSwitch" id="reporting_switch">
++                    <property name="valign">center</property>
++                    <property name="visible">True</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkLabel" id="reporting_label">
++                    <property name="visible">True</property>
++                    <property name="margin-bottom">6</property>
++                    <property name="margin-end">12</property>
++                    <property name="margin-start">12</property>
++                    <property name="margin-top">6</property>
++                    <property name="xalign">0</property>
++                    <property name="wrap">True</property>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkLabel" id="distro_privacy_policy_label">
++                    <property name="visible">True</property>
++                    <property name="margin-bottom">6</property>
++                    <property name="margin-end">12</property>
++                    <property name="margin-start">12</property>
++                    <property name="margin-top">6</property>
++                    <property name="xalign">0</property>
++                    <property name="halign">start</property>
++                    <property name="use-markup">True</property>
++                    <signal name="activate-link" handler="activate_link"/>
++                  </object>
++                </child>
+               </object>
+             </child>
+           </object>
+         </child>
+         <child>
+-          <object class="GtkLabel" id="reporting_label">
+-            <property name="xalign">0</property>
+-            <property name="max-width-chars">50</property>
+-            <property name="wrap">True</property>
+-          </object>
+-        </child>
+-        <child>
+-          <object class="GtkLabel" id="distro_privacy_policy_label">
+-            <property name="visible">True</property>
+-            <property name="xalign">0</property>
+-            <property name="halign">start</property>
+-            <property name="use-markup">True</property>
+-            <signal name="activate-link" handler="activate_link"/>
+-          </object>
+-        </child>
+-        <child>
+           <object class="GtkLabel" id="footer_label">
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+@@ -118,5 +124,7 @@
+         </child>
+       </object>
+     </child>
++      </object>
++    </child>
+   </template>
+ </interface>

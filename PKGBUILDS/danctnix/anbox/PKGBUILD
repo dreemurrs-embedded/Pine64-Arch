@@ -2,14 +2,14 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=anbox
-pkgver=0_git20210625
-pkgrel=2
+pkgver=0_git20211020
+pkgrel=1
 arch=(x86_64 armv7h aarch64)
 url="http://anbox.io/"
 license=('GPL3')
 depends=('lxc' 'sdl2_image' 'protobuf' 'libsystemd' 'boost-libs')
 makedepends=('cmake' 'git' 'glm' 'lxc' 'sdl2_image' 'protobuf' 'properties-cpp' 'boost' 'python3' 'gtest')
-_commit="04ac697c890b96aa70814a29696adee6a2fc7ff8"
+_commit="84f0268012cbe322ad858d76613f4182074510ac"
 _cpu_features_commit="b5c271c53759b2b15ff91df19bd0b32f2966e275"
 _sdbus_cpp_commit="3b735bf1aad65277f56e65c828a22455cbaf5245"
 source=("$pkgname-$_commit.tar.gz::https://github.com/anbox/anbox/archive/$_commit.tar.gz"
@@ -80,7 +80,7 @@ package() {
   mkdir -p $pkgdir/usr/lib/systemd/system/multi-user.target.wants
   ln -sfv ../anbox-container-manager.service $pkgdir/usr/lib/systemd/system/multi-user.target.wants/anbox-container-manager.service
 }
-md5sums=('94f0e718785e28cbbd4119fa0fd771a1'
+md5sums=('677f77400293b13423a33a714dd17550'
          '68954a1285359f2de777a4a6aa82bcc7'
          '403b77272d205aaa2bfcdceb8fa3afa3'
          '2dc0a582de4429cd28f050f58cf1f815'

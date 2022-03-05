@@ -3,7 +3,7 @@
 # Contributor: Bernhard Landauer <bernhard@manjaro.org
 
 pkgname=keysmith
-pkgver=21.08
+pkgver=22.02
 pkgrel=1
 pkgdesc="OTP client for Plasma Mobile and Desktop"
 arch=('aarch64' 'x86_64')
@@ -12,7 +12,7 @@ license=('GPL-2.0-or-later')
 depends=('ki18n' 'libsodium' 'qt5-quickcontrols2' 'kirigami2' 'oath-toolkit' 'kdbusaddons' 'kwindowsystem')
 makedepends=('cmake' 'extra-cmake-modules' 'qt5-svg')
 source=("http://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('d7e0bc8d5a4a6965166f1dbfbb00e6aa')
+md5sums=('29feeab4ce7bdd34c294940c5881e571')
 
 prepare() {
   mkdir -p build

@@ -1,0 +1,32 @@
+From 7bed348b2c53c4ad0082c23b74908912f83ba44f Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 30 Jul 2019 10:31:27 +0200
+Subject: [PATCH 16/38] network: Simplify margins and spacing
+
+---
+ gnome-initial-setup/pages/network/gis-network-page.ui | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/gnome-initial-setup/pages/network/gis-network-page.ui
++++ b/gnome-initial-setup/pages/network/gis-network-page.ui
+@@ -10,11 +10,10 @@
+         <property name="can_focus">False</property>
+         <property name="halign">center</property>
+         <property name="valign">fill</property>
+-        <property name="margin_bottom">32</property>
++        <property name="spacing">18</property>
+         <child>
+           <object class="GisPageHeader" id="header">
+             <property name="visible">True</property>
+-            <property name="margin_top">24</property>
+             <property name="title" translatable="yes">Wi-Fi</property>
+             <property name="subtitle" translatable="yes">Connecting to the internet helps you get new apps, information, and other upgrades. It also helps set the time and your location automatically.</property>
+             <property name="icon_name">network-wireless-symbolic</property>
+@@ -23,7 +22,6 @@
+         </child>
+         <child>
+           <object class="GtkScrolledWindow" id="scrolled_window">
+-            <property name="margin_top">18</property>
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
+             <property name="hscrollbar_policy">never</property>

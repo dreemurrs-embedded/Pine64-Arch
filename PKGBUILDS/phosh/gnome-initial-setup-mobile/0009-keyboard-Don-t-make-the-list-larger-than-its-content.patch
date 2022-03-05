@@ -1,0 +1,59 @@
+From b31e8b435ab9bf4c01857d5f9a021610207024c9 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 23 Jul 2019 21:36:37 +0200
+Subject: [PATCH 11/38] keyboard: Don't make the list larger than its content
+
+This makes it look like the languages list and make it look good by
+avoiding to have empty space in the row.
+---
+ gnome-initial-setup/pages/keyboard/cc-input-chooser.c   | 5 -----
+ gnome-initial-setup/pages/keyboard/gis-keyboard-page.ui | 2 --
+ gnome-initial-setup/pages/keyboard/input-chooser.ui     | 3 ++-
+ 3 files changed, 2 insertions(+), 8 deletions(-)
+
+--- a/gnome-initial-setup/pages/keyboard/cc-input-chooser.c
++++ b/gnome-initial-setup/pages/keyboard/cc-input-chooser.c
+@@ -511,11 +511,6 @@
+         gtk_widget_show (priv->filter_entry);
+         gtk_widget_grab_focus (priv->filter_entry);
+ 
+-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (priv->scrolled_window),
+-					GTK_POLICY_NEVER,
+-					GTK_POLICY_AUTOMATIC);
+-	gtk_widget_set_valign (GTK_WIDGET (chooser), GTK_ALIGN_FILL);
+-
+         priv->showing_extra = TRUE;
+         gtk_list_box_invalidate_filter (GTK_LIST_BOX (priv->input_list));
+         g_object_notify_by_pspec (G_OBJECT (chooser), obj_props[PROP_SHOWING_EXTRA]);
+--- a/gnome-initial-setup/pages/keyboard/gis-keyboard-page.ui
++++ b/gnome-initial-setup/pages/keyboard/gis-keyboard-page.ui
+@@ -6,7 +6,6 @@
+         <property name="visible">True</property>
+         <property name="can_focus">False</property>
+ 	<property name="halign">center</property>
+-        <property name="valign">fill</property>
+         <property name="orientation">vertical</property>
+         <property name="spacing">18</property>
+         <child>
+@@ -22,7 +21,6 @@
+           <object class="CcInputChooser" id="input_chooser">
+             <property name="visible">True</property>
+             <property name="halign">center</property>
+-            <property name="valign">start</property>
+           </object>
+         </child>
+       </object>
+--- a/gnome-initial-setup/pages/keyboard/input-chooser.ui
++++ b/gnome-initial-setup/pages/keyboard/input-chooser.ui
+@@ -8,9 +8,10 @@
+     <child>
+       <object class="GtkScrolledWindow" id="scrolled_window">
+         <property name="visible">True</property>
++        <property name="propagate-natural-height">True</property>
+         <property name="hscrollbar-policy">never</property>
+-        <property name="vscrollbar-policy">never</property>
+         <property name="shadow-type">in</property>
++        <property name="valign">start</property>
+         <child>
+           <object class="GtkListBox" id="input_list">
+              <property name="visible">True</property>

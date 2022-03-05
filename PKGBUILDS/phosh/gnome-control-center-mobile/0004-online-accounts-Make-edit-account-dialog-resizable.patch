@@ -10,9 +10,9 @@ Allow the downstream fork of GTK to maximize it.
 
 Index: gnome-control-center/panels/online-accounts/online-accounts.ui
 ===================================================================
---- gnome-control-center.orig/panels/online-accounts/online-accounts.ui	2021-07-28 23:43:55.688000000 +0000
-+++ gnome-control-center/panels/online-accounts/online-accounts.ui	2021-07-28 23:43:55.684000000 +0000
-@@ -185,7 +185,6 @@
+--- gnome-control-center.orig/panels/online-accounts/online-accounts.ui	2021-10-23 07:56:40.421000000 +0000
++++ gnome-control-center/panels/online-accounts/online-accounts.ui	2021-10-23 07:56:40.418000000 +0000
+@@ -170,7 +170,6 @@
      <property name="can_focus">False</property>
      <property name="type_hint">dialog</property>
      <property name="use_header_bar">1</property>

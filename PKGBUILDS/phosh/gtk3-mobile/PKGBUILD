@@ -3,8 +3,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.30+90+g20be04f7ac
-pkgrel=1
+pkgver=3.24.31
+pkgrel=2
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -12,12 +12,11 @@ depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2
          dconf libxcomposite libxdamage pango shared-mime-info at-spi2-atk
          wayland libxkbcommon adwaita-icon-theme json-glib librsvg
          desktop-file-utils mesa cantarell-fonts libcolord rest libcups
-         libcanberra fribidi iso-codes libcloudproviders tracker3
-         gtk-update-icon-cache)
+         fribidi iso-codes libcloudproviders tracker3 gtk-update-icon-cache)
 makedepends=(gobject-introspection gtk-doc git glib2-docs sassc meson
              wayland-protocols)
 license=(LGPL)
-_commit=20be04f7ac4a2081ce34768397873b7551e17c69  # gtk-3-24
+_commit=ab45bde94c7bbd140b12fa0dd6203f7b98d1a715  # tags/3.24.31^0
 source=("git+https://gitlab.gnome.org/GNOME/gtk.git#commit=$_commit"
         gtk-query-immodules-3.0.hook
         # Purism patches
@@ -88,7 +87,7 @@ sha256sums=('SKIP'
 
 pkgver() {
   cd gtk
-  git describe --tags | sed 's/-/+/g'
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
@@ -120,6 +119,7 @@ build() {
 }
 
 package() {
+  optdepends=('evince: Default print preview command')
   provides=(gtk3 gtk3-print-backends libgtk-3.so libgdk-3.so libgailutil-3.so)
   conflicts=(gtk3 gtk3-print-backends)
   install=gtk3.install

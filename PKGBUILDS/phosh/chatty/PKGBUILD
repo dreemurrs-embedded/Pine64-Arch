@@ -1,22 +1,43 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=chatty
-pkgver=0.4.0
+pkgver=0.6.2
 pkgrel=1
 pkgdesc="Messaging client"
 url="https://source.puri.sm/Librem5/chatty"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('evolution-data-server' 'feedbackd' 'gtk4' 'libhandy' 'libolm' 'libpurple'
-    'gspell' 'libmm-glib')
-makedepends=('meson' 'ninja')
-source=(https://source.puri.sm/Librem5/chatty/-/archive/v$pkgver/chatty-v$pkgver.tar.gz)
+    'gspell' 'libmm-glib' 'gnome-desktop')
+makedepends=('meson' 'ninja' 'git' 'itstool')
+checkdepends=('xorg-server-xvfb')
+optdepends=('mmsd-tng: MMS support'
+            'libpurple-lurch: OMEMO encryption'
+            'libpurple-carbons: message carbons support'
+            'libpurple-xmpp-http-upload: XMPP HTTP File Upload support'
+            'purple-telegram: Telegram chat protocol support')
+_commit="fd08dde09e7af2bdbffd065411a53bc7e726686d"  # tags/v0.6.2
+source=(git+https://source.puri.sm/Librem5/chatty.git#commit=${_commit})
+
+pkgver() {
+    cd $pkgname
+    git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+    cd $pkgname
+    git submodule update --init
+}
 
 build() {
-    arch-meson $pkgname-v$pkgver output
+    arch-meson $pkgname output
     ninja -C output
+}
+
+check() {
+    xvfb-run ninja -C output test
 }
 
 package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
-md5sums=('d0776d3d9a32eb23458bb4c4fa5f9a1f')
+md5sums=('SKIP')

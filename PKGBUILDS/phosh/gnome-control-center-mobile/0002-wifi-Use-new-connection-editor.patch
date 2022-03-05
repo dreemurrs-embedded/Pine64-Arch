@@ -9,8 +9,8 @@ Subject: [PATCH 2/4] wifi: Use new connection editor
 
 Index: gnome-control-center/panels/network/net-device-wifi.c
 ===================================================================
---- gnome-control-center.orig/panels/network/net-device-wifi.c	2021-07-29 09:37:27.583000000 +0000
-+++ gnome-control-center/panels/network/net-device-wifi.c	2021-07-29 09:37:50.030000000 +0000
+--- gnome-control-center.orig/panels/network/net-device-wifi.c	2021-10-23 07:56:40.314000000 +0000
++++ gnome-control-center/panels/network/net-device-wifi.c	2021-10-23 07:56:40.311000000 +0000
 @@ -962,6 +962,8 @@
          return 0;
  }

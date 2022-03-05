@@ -1,0 +1,59 @@
+From 1242e51b08a822d5d726cdce43129be196814290 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 12 Jan 2022 15:35:25 +0100
+Subject: [PATCH] moderate-page: Use a HdyStatusPage
+
+This makes the code simpler and ensures the page is adaptive.
+---
+ src/gs-moderate-page.ui | 32 +++-----------------------------
+ 1 file changed, 3 insertions(+), 29 deletions(-)
+
+diff --git a/src/gs-moderate-page.ui b/src/gs-moderate-page.ui
+index 65b81c1e2..a96094538 100644
+--- a/src/gs-moderate-page.ui
++++ b/src/gs-moderate-page.ui
+@@ -60,38 +60,12 @@
+         </child>
+ 
+         <child>
+-          <object class="GtkBox" id="updates_uptodate_box">
++          <object class="HdyStatusPage" id="updates_uptodate_box">
+             <property name="visible">True</property>
+-            <property name="orientation">vertical</property>
+-            <property name="spacing">48</property>
+             <property name="hexpand">True</property>
+             <property name="vexpand">True</property>
+-            <style>
+-              <class name="dim-label"/>
+-            </style>
+-            <child type="center">
+-              <object class="GtkBox" id="updates_uptodate_centerbox">
+-                <property name="visible">True</property>
+-                <property name="orientation">vertical</property>
+-                <property name="spacing">12</property>
+-                <child>
+-                  <object class="GtkImage" id="image_updates">
+-                    <property name="visible">True</property>
+-                    <property name="pixel_size">128</property>
+-                    <property name="icon_name">object-select-symbolic</property>
+-                  </object>
+-                </child>
+-                <child>
+-                  <object class="GtkLabel" id="label10">
+-                    <property name="visible">True</property>
+-                    <property name="label" translatable="yes">There are no reviews to moderate</property>
+-                    <attributes>
+-                      <attribute name="scale" value="1.4"/>
+-                    </attributes>
+-                  </object>
+-                </child>
+-              </object>
+-            </child>
++            <property name="icon_name">object-select-symbolic</property>
++            <property name="title" translatable="yes">There are no reviews to moderate</property>
+           </object>
+           <packing>
+             <property name="name">uptodate</property>
+-- 
+2.30.2
+

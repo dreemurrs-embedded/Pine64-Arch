@@ -1,0 +1,29 @@
+From b9431c5f7524a6551f1b8fdd8ec8aed51a84ddf9 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Fri, 4 Mar 2022 08:26:22 +0100
+Subject: [PATCH] week-grid: Don't emit 'create-event' on invalid selection
+
+This avoids the signal to be emitted after a scroll from the
+touchscreen.
+---
+ src/gui/views/gcal-week-grid.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/gui/views/gcal-week-grid.c b/src/gui/views/gcal-week-grid.c
+index 8df2a5e4..18e8871a 100644
+--- a/src/gui/views/gcal-week-grid.c
++++ b/src/gui/views/gcal-week-grid.c
+@@ -776,6 +776,10 @@ gcal_week_grid_button_release (GtkWidget      *widget,
+   gint out_y;
+ 
+   self = GCAL_WEEK_GRID (widget);
++
++  if (self->selection_start == -1 || self->selection_end == -1)
++    return GDK_EVENT_STOP;
++
+   ltr = gtk_widget_get_direction (widget) != GTK_TEXT_DIR_RTL;
+ 
+   gtk_widget_get_allocation (widget, &alloc);
+-- 
+2.30.2
+

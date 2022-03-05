@@ -1,0 +1,295 @@
+From df2b24057ebd55735600677b67fef88b0db436b8 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 1 Sep 2021 12:16:53 +0200
+Subject: [PATCH] Add GsInfoWindow
+
+This will help homogeneize and simplify the many windows implementing
+this pattern.
+---
+ src/gnome-software.gresource.xml |   1 +
+ src/gs-info-window.c             | 171 +++++++++++++++++++++++++++++++
+ src/gs-info-window.h             |  31 ++++++
+ src/gs-info-window.ui            |  30 ++++++
+ src/meson.build                  |   1 +
+ 5 files changed, 234 insertions(+)
+ create mode 100644 src/gs-info-window.c
+ create mode 100644 src/gs-info-window.h
+ create mode 100644 src/gs-info-window.ui
+
+diff --git a/src/gnome-software.gresource.xml b/src/gnome-software.gresource.xml
+index 6e11870e0..ca9c48c1d 100644
+--- a/src/gnome-software.gresource.xml
++++ b/src/gnome-software.gresource.xml
+@@ -20,6 +20,7 @@
+   <file preprocess="xml-stripblanks">gs-first-run-dialog.ui</file>
+   <file preprocess="xml-stripblanks">gs-hardware-support-context-dialog.ui</file>
+   <file preprocess="xml-stripblanks">gs-info-bar.ui</file>
++  <file preprocess="xml-stripblanks">gs-info-window.ui</file>
+   <file preprocess="xml-stripblanks">gs-installed-page.ui</file>
+   <file preprocess="xml-stripblanks">gs-license-tile.ui</file>
+   <file preprocess="xml-stripblanks">gs-loading-page.ui</file>
+diff --git a/src/gs-info-window.c b/src/gs-info-window.c
+new file mode 100644
+index 000000000..c4e5472f6
+--- /dev/null
++++ b/src/gs-info-window.c
+@@ -0,0 +1,171 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*-
++ * vi:set noexpandtab tabstop=8 shiftwidth=8:
++ *
++ * Copyright (C) 2021 Purism SPC
++ *
++ * Author: Adrien Plazas <adrien.plazas@puri.sm>
++ *
++ * SPDX-License-Identifier: GPL-2.0+
++ */
++
++/**
++ * SECTION:gs-info-window
++ * @short_description: A minimalist window designed to present information
++ *
++ * #GsInfoWindow is a window with floating window buttons which can be closed
++ * by pressing the Escape key. It is intended to present information and to not
++ * give the user many interaction possibilities.
++ *
++ * Since: 41
++ */
++
++#include "config.h"
++
++#include <glib.h>
++#include <glib-object.h>
++#include <glib/gi18n.h>
++#include <gtk/gtk.h>
++#include <handy.h>
++#include <locale.h>
++
++#include "gs-common.h"
++#include "gs-info-window.h"
++
++typedef struct
++{
++	GtkWidget	*overlay;
++
++	GtkWidget	*user_widget;
++} GsInfoWindowPrivate;
++
++
++G_DEFINE_TYPE_WITH_PRIVATE (GsInfoWindow, gs_info_window, HDY_TYPE_WINDOW)
++
++static gboolean
++key_press_event_cb (GtkWidget            *sender,
++                    GdkEvent             *event,
++                    HdyPreferencesWindow *self)
++{
++	guint keyval;
++	GdkModifierType state;
++	GdkKeymap *keymap;
++	GdkEventKey *key_event = (GdkEventKey *) event;
++
++	gdk_event_get_state (event, &state);
++
++	keymap = gdk_keymap_get_for_display (gtk_widget_get_display (sender));
++
++	gdk_keymap_translate_keyboard_state (keymap,
++					     key_event->hardware_keycode,
++					     state,
++					     key_event->group,
++					     &keyval, NULL, NULL, NULL);
++
++	if (keyval == GDK_KEY_Escape) {
++		gtk_window_close (GTK_WINDOW (self));
++
++		return GDK_EVENT_STOP;
++	}
++
++	return GDK_EVENT_PROPAGATE;
++}
++
++static void
++gs_info_window_init (GsInfoWindow *self)
++{
++	gtk_widget_init_template (GTK_WIDGET (self));
++}
++
++static void
++gs_info_window_destroy (GtkWidget *widget)
++{
++	GsInfoWindow *self = GS_INFO_WINDOW (widget);
++	GsInfoWindowPrivate *priv = gs_info_window_get_instance_private (self);
++
++	if (priv->overlay) {
++		gtk_container_remove (GTK_CONTAINER (self), priv->overlay);
++		priv->user_widget = NULL;
++	}
++
++	GTK_WIDGET_CLASS (gs_info_window_parent_class)->destroy (widget);
++}
++
++static void
++gs_info_window_add (GtkContainer *container, GtkWidget *child)
++{
++	GsInfoWindow *self = GS_INFO_WINDOW (container);
++	GsInfoWindowPrivate *priv = gs_info_window_get_instance_private (self);
++
++	if (!priv->overlay) {
++		GTK_CONTAINER_CLASS (gs_info_window_parent_class)->add (container, child);
++	} else if (!priv->user_widget) {
++		gtk_container_add (GTK_CONTAINER (priv->overlay), child);
++		priv->user_widget = child;
++	} else {
++		g_warning ("Attempting to add a second child to a GsInfoWindow, but a GsInfoWindow can only have one child");
++	}
++}
++
++static void
++gs_info_window_remove (GtkContainer *container, GtkWidget *child)
++{
++	GsInfoWindow *self = GS_INFO_WINDOW (container);
++	GsInfoWindowPrivate *priv = gs_info_window_get_instance_private (self);
++
++	if (child == priv->overlay) {
++		GTK_CONTAINER_CLASS (gs_info_window_parent_class)->remove (container, child);
++	} else if (child == priv->user_widget) {
++		gtk_container_remove (GTK_CONTAINER (priv->overlay), child);
++		priv->user_widget = NULL;
++	} else {
++		g_return_if_reached ();
++	}
++}
++
++static void
++gs_info_window_forall (GtkContainer *container, gboolean include_internals, GtkCallback callback, gpointer callback_data)
++{
++	GsInfoWindow *self = GS_INFO_WINDOW (container);
++	GsInfoWindowPrivate *priv = gs_info_window_get_instance_private (self);
++
++	if (include_internals) {
++		GTK_CONTAINER_CLASS (gs_info_window_parent_class)->forall (container,
++									   include_internals,
++									   callback,
++									   callback_data);
++	} else if (priv->user_widget) {
++		callback (priv->user_widget, callback_data);
++	}
++}
++
++static void
++gs_info_window_class_init (GsInfoWindowClass *klass)
++{
++	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
++	GtkContainerClass *container_class = GTK_CONTAINER_CLASS (klass);
++
++	widget_class->destroy = gs_info_window_destroy;
++	container_class->add = gs_info_window_add;
++	container_class->remove = gs_info_window_remove;
++	container_class->forall = gs_info_window_forall;
++
++	gtk_widget_class_set_template_from_resource (widget_class, "/org/gnome/Software/gs-info-window.ui");
++
++	gtk_widget_class_bind_template_child_private (widget_class, GsInfoWindow, overlay);
++
++	gtk_widget_class_bind_template_callback (widget_class, key_press_event_cb);
++}
++
++/**
++ * gs_info_window_new:
++ *
++ * Create a new #GsInfoWindow.
++ *
++ * Returns: (transfer full): a new #GsInfoWindow
++ * Since: 41
++ */
++GsInfoWindow *
++gs_info_window_new (void)
++{
++	return g_object_new (GS_TYPE_INFO_WINDOW, NULL);
++}
+diff --git a/src/gs-info-window.h b/src/gs-info-window.h
+new file mode 100644
+index 000000000..b303737a0
+--- /dev/null
++++ b/src/gs-info-window.h
+@@ -0,0 +1,31 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*-
++ * vi:set noexpandtab tabstop=8 shiftwidth=8:
++ *
++ * Copyright (C) 2021 Purism SPC
++ *
++ * Author: Adrien Plazas <adrien.plazas@puri.sm>
++ *
++ * SPDX-License-Identifier: GPL-2.0+
++ */
++
++#pragma once
++
++#include <glib.h>
++#include <glib-object.h>
++#include <gtk/gtk.h>
++#include <handy.h>
++
++G_BEGIN_DECLS
++
++#define GS_TYPE_INFO_WINDOW (gs_info_window_get_type ())
++
++G_DECLARE_DERIVABLE_TYPE (GsInfoWindow, gs_info_window, GS, INFO_WINDOW, HdyWindow)
++
++struct _GsInfoWindowClass
++{
++	HdyWindowClass	 parent_class;
++};
++
++GsInfoWindow	*gs_info_window_new	(void);
++
++G_END_DECLS
+diff --git a/src/gs-info-window.ui b/src/gs-info-window.ui
+new file mode 100644
+index 000000000..a96862107
+--- /dev/null
++++ b/src/gs-info-window.ui
+@@ -0,0 +1,30 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <requires lib="gtk+" version="3.10"/>
++  <template class="GsInfoWindow" parent="HdyWindow">
++    <property name="modal">True</property>
++    <property name="window_position">center</property>
++    <property name="destroy_with_parent">True</property>
++    <property name="icon_name">dialog-information</property>
++    <property name="type_hint">dialog</property>
++    <property name="default-width">640</property>
++    <property name="default-height">576</property>
++    <signal name="key-press-event" handler="key_press_event_cb" after="yes" swapped="no"/>
++    <style>
++      <class name="toolbox"/>
++    </style>
++
++    <child>
++      <object class="GtkOverlay" id="overlay">
++        <property name="visible">True</property>
++        <child type="overlay">
++          <object class="HdyHeaderBar">
++            <property name="show_close_button">True</property>
++            <property name="visible">True</property>
++            <property name="valign">start</property>
++          </object>
++        </child>
++      </object>
++    </child>
++  </template>
++</interface>
+diff --git a/src/meson.build b/src/meson.build
+index 36252f241..fd22d07fd 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -48,6 +48,7 @@ gnome_software_sources = [
+   'gs-folders.c',
+   'gs-hardware-support-context-dialog.c',
+   'gs-info-bar.c',
++  'gs-info-window.c',
+   'gs-installed-page.c',
+   'gs-language.c',
+   'gs-license-tile.c',
+-- 
+2.30.2
+

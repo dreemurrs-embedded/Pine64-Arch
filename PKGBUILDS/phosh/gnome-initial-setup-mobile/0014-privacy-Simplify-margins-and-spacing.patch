@@ -1,0 +1,79 @@
+From e0529e96c71d08e4eeebebf2f7954f82013ecdbe Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 30 Jul 2019 10:32:09 +0200
+Subject: [PATCH 18/38] privacy: Simplify margins and spacing
+
+---
+ gnome-initial-setup/pages/privacy/gis-privacy-page.ui | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+--- a/gnome-initial-setup/pages/privacy/gis-privacy-page.ui
++++ b/gnome-initial-setup/pages/privacy/gis-privacy-page.ui
+@@ -9,10 +9,10 @@
+         <property name="halign">center</property>
+         <property name="valign">fill</property>
+         <property name="orientation">vertical</property>
++        <property name="spacing">18</property>
+         <child>
+           <object class="GisPageHeader" id="header">
+             <property name="visible">True</property>
+-            <property name="margin_top">24</property>
+             <property name="title" translatable="yes">Privacy</property>
+             <property name="icon_name">preferences-system-privacy-symbolic</property>
+             <property name="show_icon" bind-source="GisPrivacyPage" bind-property="small-screen" bind-flags="invert-boolean|sync-create"/>
+@@ -21,7 +21,6 @@
+         <child>
+           <object class="GtkBox">
+             <property name="visible">True</property>
+-            <property name="margin-top">40</property>
+             <property name="orientation">horizontal</property>
+             <property name="homogeneous">True</property>
+             <child>
+@@ -45,7 +44,6 @@
+         <child>
+           <object class="GtkLabel">
+             <property name="visible">True</property>
+-            <property name="margin-top">10</property>
+             <property name="xalign">0</property>
+             <property name="max-width-chars">50</property>
+             <property name="wrap">True</property>
+@@ -55,7 +53,6 @@
+         <child>
+           <object class="GtkLabel" id="mozilla_privacy_policy_label">
+             <property name="visible">True</property>
+-            <property name="margin-top">10</property>
+             <property name="xalign">0</property>
+             <property name="halign">start</property>
+             <property name="use-markup">True</property>
+@@ -64,7 +61,6 @@
+         </child>
+         <child>
+           <object class="GtkBox" id="reporting_row">
+-            <property name="margin-top">20</property>
+             <property name="orientation">horizontal</property>
+             <property name="homogeneous">True</property>
+             <child>
+@@ -87,7 +83,6 @@
+         </child>
+         <child>
+           <object class="GtkLabel" id="reporting_label">
+-            <property name="margin-top">10</property>
+             <property name="xalign">0</property>
+             <property name="max-width-chars">50</property>
+             <property name="wrap">True</property>
+@@ -96,7 +91,6 @@
+         <child>
+           <object class="GtkLabel" id="distro_privacy_policy_label">
+             <property name="visible">True</property>
+-            <property name="margin-top">10</property>
+             <property name="xalign">0</property>
+             <property name="halign">start</property>
+             <property name="use-markup">True</property>
+@@ -110,7 +104,6 @@
+             <property name="label" translatable="yes">Privacy controls can be changed at any time from the Settings application.</property>
+             <property name="justify">center</property>
+             <property name="wrap">True</property>
+-            <property name="margin_bottom">18</property>
+             <style>
+               <class name="dim-label"/>
+             </style>

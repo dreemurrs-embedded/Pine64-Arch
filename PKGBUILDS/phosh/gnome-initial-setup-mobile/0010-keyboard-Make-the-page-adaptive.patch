@@ -1,0 +1,71 @@
+From b94295773d329d05e42c1a2f5f89163b0a1afa0b Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 5 Jun 2019 16:05:29 +0200
+Subject: [PATCH 12/38] keyboard: Make the page adaptive
+
+Put the keyboard layout chooser in a HdyColumn, don't center the box and
+rework the row elements' packing to make the page adaptive, allowing it
+to reach narrower widths.
+---
+ gnome-initial-setup/pages/keyboard/cc-input-chooser.c  |  8 +++-----
+ .../pages/keyboard/gis-keyboard-page.ui                | 10 +++++++---
+ 2 files changed, 10 insertions(+), 8 deletions(-)
+
+--- a/gnome-initial-setup/pages/keyboard/cc-input-chooser.c
++++ b/gnome-initial-setup/pages/keyboard/cc-input-chooser.c
+@@ -232,13 +232,11 @@
+         gtk_label_set_yalign (GTK_LABEL (widget->label), 0.5);
+         gtk_label_set_ellipsize (GTK_LABEL (widget->label), PANGO_ELLIPSIZE_END);
+         gtk_label_set_max_width_chars (GTK_LABEL (widget->label), 40);
+-	gtk_label_set_width_chars (GTK_LABEL (widget->label), 40);
+-	gtk_box_pack_start (GTK_BOX (widget->box), widget->label, FALSE, FALSE, 0);
++	gtk_box_pack_start (GTK_BOX (widget->box), widget->label, TRUE, TRUE, 0);
+ 	widget->checkmark = gtk_image_new_from_icon_name ("object-select-symbolic", GTK_ICON_SIZE_MENU);
+-	gtk_box_pack_start (GTK_BOX (widget->box), widget->checkmark, TRUE, TRUE, 0);
++	gtk_box_pack_start (GTK_BOX (widget->box), widget->checkmark, FALSE, TRUE, 0);
+ 	gtk_widget_set_margin_start (widget->checkmark, 10);
+ 	gtk_widget_set_margin_end (widget->checkmark, 10);
+-	gtk_widget_set_halign (widget->box, GTK_ALIGN_START);
+ 
+ 	text = g_strdup_printf ("<a href='preview'>%s</a>", _("Preview"));
+ 	label = gtk_label_new ("");
+@@ -246,7 +244,7 @@
+ 	g_free (text);
+ 	g_signal_connect (label, "activate-link",
+ 			  G_CALLBACK (preview_cb), chooser);
+-	gtk_box_pack_start (GTK_BOX (widget->box), label, TRUE, TRUE, 0);
++	gtk_box_pack_start (GTK_BOX (widget->box), label, FALSE, TRUE, 0);
+ 
+ 	gtk_widget_show_all (widget->box);
+ 
+--- a/gnome-initial-setup/pages/keyboard/gis-keyboard-page.ui
++++ b/gnome-initial-setup/pages/keyboard/gis-keyboard-page.ui
+@@ -2,10 +2,13 @@
+ <interface>
+   <template class="GisKeyboardPage" parent="GisPage">
+     <child>
++      <object class="HdyColumn">
++        <property name="linear_growth_width">400</property>
++        <property name="maximum_width">600</property>
++        <property name="visible">True</property>
++    <child>
+       <object class="GtkBox" id="page">
+         <property name="visible">True</property>
+-        <property name="can_focus">False</property>
+-	<property name="halign">center</property>
+         <property name="orientation">vertical</property>
+         <property name="spacing">18</property>
+         <child>
+@@ -20,10 +23,11 @@
+         <child>
+           <object class="CcInputChooser" id="input_chooser">
+             <property name="visible">True</property>
+-            <property name="halign">center</property>
+           </object>
+         </child>
+       </object>
+     </child>
++      </object>
++    </child>
+   </template>
+ </interface>

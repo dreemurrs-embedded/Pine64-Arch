@@ -2,7 +2,7 @@
 
 pkgname=danctnix-tweaks
 pkgver=0.3
-pkgrel=1
+pkgrel=3
 pkgdesc="Tweaks made to DanctNIX Mobile."
 arch=(any)
 url="https://danctnix.org"

@@ -1,12 +1,12 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=danctnix-sxmo-settings
-pkgver=20211019
-pkgrel=3
+pkgver=20211117
+pkgrel=1
 pkgdesc="Configuration files for SXMO"
 url="https://sr.ht/~mil/Sxmo/"
 arch=('any')
 license=('MIT')
-depends=('modemmanager' 'bluez' 'sxmo-utils' 'sxmo-xdm-config')
+depends=('modemmanager' 'bluez' 'sxmo-utils' 'tinydm')
 install="$pkgname.install"
 source=('10-sxmo.conf'
         'sxmo-qt-mobile-controls.sh')

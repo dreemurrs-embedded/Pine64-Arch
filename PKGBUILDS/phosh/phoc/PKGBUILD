@@ -1,17 +1,17 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.9.0
+pkgver=0.12.0
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phoc"
 license=('GPL')
-depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'mutter'
-         'xcb-util-errors' 'xcb-util-wm' 'wayland-protocols')
+depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'seatd' 'mutter'
+         'xcb-util-errors' 'xcb-util-renderutil' 'xcb-util-wm' 'wayland-protocols')
 makedepends=('meson' 'ninja')
 
 # We don't want to maintain the wlroots package, so we static compile it
-_wlroots_commit="5413b1ec61c6e3390929db595c0ec92f92ea2594"
+_wlroots_commit="c9cd3502ba6113070020de50e41f0af72e0f5031"
 source=(https://gitlab.gnome.org/World/Phosh/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
         https://source.puri.sm/Librem5/wlroots/-/archive/${_wlroots_commit}/wlroots-${_wlroots_commit}.tar.gz)
 
@@ -22,8 +22,6 @@ prepare() {
 
 build() {
 	arch-meson ${pkgname}-v${pkgver} output -Dtests=false \
-		-Dwlroots:logind-provider=systemd \
-		-Dwlroots:libseat=disabled \
 		-Dembed-wlroots=enabled \
 		--default-library=static
 	ninja -C output
@@ -40,5 +38,5 @@ package() {
 	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('d86e00b631af3af5ed127bfd898ad909'
-         '65de7563a03281e822de0e5452ee851d')
+md5sums=('d622985ef9923ab8a336efe4a595f168'
+         '4593e0646b7e9b2a38072348f31f0437')

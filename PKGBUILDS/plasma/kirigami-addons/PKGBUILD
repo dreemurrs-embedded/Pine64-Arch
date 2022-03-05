@@ -1,7 +1,7 @@
 # Maintainer: Gustavo Castro < gustawho [ at ] gmail [ dot ] com >
 
 pkgname=kirigami-addons
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 pkgdesc="Add-ons for the Kirigami framework"
 arch=(x86_64 armv7h aarch64)
@@ -10,7 +10,7 @@ license=(GPL3)
 depends=(ki18n kirigami2)
 makedepends=(cmake extra-cmake-modules)
 source=("https://download.kde.org/unstable/kirigami-addons/$pkgver/kirigami-addons-$pkgver.tar.xz")
-sha256sums=('b63f070ea62dd92670170aa885a6c1d478a4e9a42c1e00bf283882dadc81dd0a')
+sha256sums=('f8be68831c3261cfd2ffd84b61530cdf84c9cc5f26101d0c48e185b7f0017092')
 
 prepare() {
   cd kirigami-addons-$pkgver

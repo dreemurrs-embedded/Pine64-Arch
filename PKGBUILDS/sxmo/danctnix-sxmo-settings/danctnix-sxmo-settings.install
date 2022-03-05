@@ -1,13 +1,45 @@
-post_install() {
+post_upgrade() {
+  # Disable sxmo-xdm-config in case we're upgrading from pre 1.6
+  if systemctl list-unit-files | grep sxmo-xdm-config; then
+    systemctl disable sxmo-xdm-config
+  fi
+
+  # If the current system doesn't have a locale available it will break foot
+  if locale -a 2> /dev/null | grep -v -e "^C$" -e "^POSIX$" > /dev/null; then
+    echo "WARNING: Make sure you have a locale configured, otherwise the terminal in swmo will break"
+  else
+    printf "\n\n\n\nWARNING: You don't have a locale installed this MUST be fixed before rebooting\n"
+    echo "	Please generate a locale according to https://wiki.archlinux.org/title/Locale"
+    echo "	Or install the glibc-locales package"
+    printf "	Otherwise there will be no terminal in swmo\n\n\n\n"
+  fi
+
+  if [ $(vercmp 1.5.3 1.6) -lt 0 ]; then
+    echo "sxmo no longer depends on some packages, you should remove unused packages"
+  fi
+
   systemctl enable ModemManager
   systemctl enable bluetooth
-  systemctl enable sxmo-xdm-config
+  systemctl enable tinydm
   systemctl enable sxmo-setpermissions
+
+  # TODO: it might be better to do this in a hook in case the user removes the ui
+  if ! [ -L /var/lib/tinydm/default-session.desktop ]; then
+    if [ -f "/usr/share/wayland-sessions/swmo.desktop" ]; then
+      tinydm-set-session -s "/usr/share/wayland-sessions/swmo.desktop" 
+    elif [ -f "/usr/share/xsessions/sxmo.desktop" ]; then
+      tinydm-set-session -s "/usr/share/xsessions/sxmo.desktop"
+    fi
+  fi
+}
+
+post_install() {
+  post_upgrade
 }
 
 post_remove() {
   systemctl disable ModemManager
   systemctl disable bluetooth
-  systemctl disable sxmo-xdm-config
+  systemctl disable tinydm
   systemctl disable sxmo-setpermissions
 }

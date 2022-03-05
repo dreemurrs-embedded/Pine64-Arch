@@ -6,8 +6,6 @@ This document serves as a general guide for contributing to Pine64-Arch. Follow 
 
 The [Arch Linux Wiki](https://wiki.archlinux.org) and [the project wiki](https://github.com/dreemurrs-embedded/Pine64-Arch/wiki) is a great way to get started with Arch Linux and this project in general.
 
-Please read out [Code of Conduct](./CODE_OF_CONDUCT.md) before contributing to the project!
-
 ## Reporting bugs
 
 Issue reports and feature requests are encouraged.

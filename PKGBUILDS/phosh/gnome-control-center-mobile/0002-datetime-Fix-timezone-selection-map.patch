@@ -10,8 +10,8 @@ So as to fit on small screen
 
 Index: gnome-control-center/panels/datetime/cc-datetime-panel.ui
 ===================================================================
---- gnome-control-center.orig/panels/datetime/cc-datetime-panel.ui	2021-07-28 23:43:55.644000000 +0000
-+++ gnome-control-center/panels/datetime/cc-datetime-panel.ui	2021-07-28 23:43:55.641000000 +0000
+--- gnome-control-center.orig/panels/datetime/cc-datetime-panel.ui	2021-10-23 07:56:40.386000000 +0000
++++ gnome-control-center/panels/datetime/cc-datetime-panel.ui	2021-10-23 07:56:40.383000000 +0000
 @@ -284,7 +284,7 @@
    <object class="GtkDialog" id="timezone_dialog">
      <property name="can_focus">False</property>

@@ -1,0 +1,22 @@
+From 9b6cadd398b46648dc36a81a10077a975eb6b43c Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 9 Oct 2019 13:14:27 +0200
+Subject: [PATCH 38/38] network: Propagate the list's natural height
+
+This prevents the networks list from being too small.
+
+Fixes https://source.puri.sm/Librem5/gnome-initial-setup/issues/7.
+---
+ gnome-initial-setup/pages/network/gis-network-page.ui | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/gnome-initial-setup/pages/network/gis-network-page.ui
++++ b/gnome-initial-setup/pages/network/gis-network-page.ui
+@@ -29,6 +29,7 @@
+           <object class="GtkScrolledWindow" id="scrolled_window">
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
++            <property name="propagate-natural-height">True</property>
+             <property name="hscrollbar_policy">never</property>
+             <property name="shadow_type">in</property>
+             <child>

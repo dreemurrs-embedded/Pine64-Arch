@@ -16,11 +16,11 @@ more tweaks to shrink to smaller sizes.
  panels/display/cc-display-settings.h |  2 +
  3 files changed, 65 insertions(+), 40 deletions(-)
 
-diff --git a/panels/display/cc-display-panel.c b/panels/display/cc-display-panel.c
-index 3e238c2..48a8d1e 100644
---- a/panels/display/cc-display-panel.c
-+++ b/panels/display/cc-display-panel.c
-@@ -456,6 +456,7 @@ static void
+Index: gnome-control-center/panels/display/cc-display-panel.c
+===================================================================
+--- gnome-control-center.orig/panels/display/cc-display-panel.c	2021-10-23 07:56:40.795000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.c	2021-10-23 07:56:40.792000000 +0000
+@@ -459,6 +459,7 @@
  cc_display_panel_dispose (GObject *object)
  {
    CcDisplayPanel *self = CC_DISPLAY_PANEL (object);
@@ -28,7 +28,7 @@ index 3e238c2..48a8d1e 100644
  
    reset_titlebar (CC_DISPLAY_PANEL (object));
  
-@@ -473,6 +474,8 @@ cc_display_panel_dispose (GObject *object)
+@@ -476,6 +477,8 @@
  
    g_clear_pointer ((GtkWidget **) &self->night_light_dialog, gtk_widget_destroy);
  
@@ -37,11 +37,10 @@ index 3e238c2..48a8d1e 100644
    G_OBJECT_CLASS (cc_display_panel_parent_class)->dispose (object);
  }
  
-@@ -644,12 +647,26 @@ on_primary_display_selected_index_changed_cb (CcDisplayPanel *panel)
-   update_apply_button (panel);
+@@ -648,11 +651,25 @@
  }
  
-+static void
+ static void
 +on_toplevel_folded (CcDisplayPanel *panel, GParamSpec *pspec, GtkWidget *toplevel)
 +{
 +  gboolean folded;
@@ -50,7 +49,7 @@ index 3e238c2..48a8d1e 100644
 +  cc_display_settings_refresh_layout (panel->settings, folded);
 +}
 +
- static void
++static void
  cc_display_panel_constructed (GObject *object)
  {
 +  GtkWidget *toplevel = cc_shell_get_toplevel (cc_panel_get_shell (CC_PANEL (object)));
@@ -64,7 +63,7 @@ index 3e238c2..48a8d1e 100644
    G_OBJECT_CLASS (cc_display_panel_parent_class)->constructed (object);
  }
  
-@@ -927,7 +944,7 @@ reset_current_config (CcDisplayPanel *panel)
+@@ -930,7 +947,7 @@
  
    if (!current)
      return;
@@ -73,11 +72,11 @@ index 3e238c2..48a8d1e 100644
    cc_display_config_set_minimum_size (current, MINIMUM_WIDTH, MINIMUM_HEIGHT);
    panel->current_config = current;
  
-diff --git a/panels/display/cc-display-settings.c b/panels/display/cc-display-settings.c
-index a4f914e..efda194 100644
---- a/panels/display/cc-display-settings.c
-+++ b/panels/display/cc-display-settings.c
-@@ -35,6 +35,8 @@ struct _CcDisplaySettings
+Index: gnome-control-center/panels/display/cc-display-settings.c
+===================================================================
+--- gnome-control-center.orig/panels/display/cc-display-settings.c	2021-10-23 07:56:40.795000000 +0000
++++ gnome-control-center/panels/display/cc-display-settings.c	2021-10-23 07:56:40.792000000 +0000
+@@ -35,6 +35,8 @@
    GtkDrawingArea    object;
  
    gboolean          updating;
@@ -86,7 +85,7 @@ index a4f914e..efda194 100644
    guint             idle_udpate_id;
  
    gboolean          has_accelerometer;
-@@ -393,57 +395,49 @@ cc_display_settings_rebuild_ui (CcDisplaySettings *self)
+@@ -393,57 +395,49 @@
    /* Scale row is usually shown. */
    gtk_container_foreach (GTK_CONTAINER (self->scale_bbox), (GtkCallback) gtk_widget_destroy, NULL);
    g_list_store_remove_all (self->scale_list);
@@ -175,7 +174,7 @@ index a4f914e..efda194 100644
  
    gtk_widget_set_visible (self->underscanning_row,
                            cc_display_monitor_supports_underscanning (self->selected_output) &&
-@@ -843,3 +837,15 @@ cc_display_settings_set_selected_output (CcDisplaySettings *self,
+@@ -843,3 +837,15 @@
    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_SELECTED_OUTPUT]);
  }
  
@@ -191,11 +190,11 @@ index a4f914e..efda194 100644
 +  gtk_widget_set_visible (self->scale_combo_row, use_combo);
 +  gtk_widget_set_visible (self->scale_buttons_row, self->num_scales > 1 && !use_combo);
 +}
-diff --git a/panels/display/cc-display-settings.h b/panels/display/cc-display-settings.h
-index 58709dd..de3c88d 100644
---- a/panels/display/cc-display-settings.h
-+++ b/panels/display/cc-display-settings.h
-@@ -39,6 +39,8 @@ void                cc_display_settings_set_config            (CcDisplaySettings
+Index: gnome-control-center/panels/display/cc-display-settings.h
+===================================================================
+--- gnome-control-center.orig/panels/display/cc-display-settings.h	2021-10-23 07:56:40.795000000 +0000
++++ gnome-control-center/panels/display/cc-display-settings.h	2021-10-23 07:56:40.792000000 +0000
+@@ -39,6 +39,8 @@
  CcDisplayMonitor*   cc_display_settings_get_selected_output   (CcDisplaySettings    *settings);
  void                cc_display_settings_set_selected_output   (CcDisplaySettings    *settings,
                                                                 CcDisplayMonitor     *output);

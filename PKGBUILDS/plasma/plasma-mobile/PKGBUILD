@@ -1,0 +1,42 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: dodgejcr@gmail.com
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+
+pkgname=plasma-mobile
+pkgver=5.24.2
+pkgrel=1
+pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
+arch=('aarch64' 'x86_64')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL3')
+depends=('desktop-file-utils' 'plasma-workspace' 'networkmanager-qt' 'modemmanager-qt' 'kpeople' 'telepathy-qt'
+         'libphonenumber' 'plasma-wayland-session' 'pipewire-media-session')
+makedepends=('cmake' 'baloo' 'extra-cmake-modules' 'kdoctools')
+replaces=('plasma-phone-components')
+source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz")
+install=$pkgname.install
+sha512sums=('b80d3d825401557c08b1ff9f787e83e27aa30e83b59960a0f89b2e1958992e23b0376e74fac8691f5093d556f91f6058111efb69bbef2fb839cf650983fd9f01')
+
+prepare() {
+  cd $pkgname-$pkgver
+  cd ..
+
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DLIB_INSTALL_DIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+    -DCMAKE_BUILD_TYPE=Release
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir/" install
+}
