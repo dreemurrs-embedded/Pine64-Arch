@@ -3,8 +3,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.31
-pkgrel=2
+pkgver=3.24.33
+pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://www.gtk.org/"
@@ -16,7 +16,7 @@ depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2
 makedepends=(gobject-introspection gtk-doc git glib2-docs sassc meson
              wayland-protocols)
 license=(LGPL)
-_commit=ab45bde94c7bbd140b12fa0dd6203f7b98d1a715  # tags/3.24.31^0
+_commit=8ff9b2f83ff491cbfcbf9b30c706bd917679e7cc  # tags/3.24.33^0
 source=("git+https://gitlab.gnome.org/GNOME/gtk.git#commit=$_commit"
         gtk-query-immodules-3.0.hook
         # Purism patches
@@ -55,16 +55,16 @@ sha256sums=('SKIP'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
             'eb23fd4fb6fdf355b3d9c8502772eb5bafc5a6c498de37b994d26354153d0c36'
             'e4bf5a6d4a4d9841241d4dd30b0bfa81d93aa1f107392b1dbb3beee7e2fe0a5d'
-            '223d6f9411882754fce173a24f481c5b3b73c252cd61bf5c0cec76858042ea9e'
+            '05ad25ad6058c1ee2cea5cb5d6682d5ca91023be67bbf1d8a1dcf07b4eec587a'
             'd82cd38b32a7389a11f0afaa998d79b2005638587f194b4098a1ad091579b418'
             '35bdee4c4d947fa5ebfc751565a61cff77892defb1d47e23a114b971f2801fa3'
-            'c7abe65030476ff937bf1cae92d20e3b687272bf7912105506f84370e577fa5b'
+            '8d31ae4cf51673a696d1625e034254a180821ebeed8995c9721a3c3ab104cf70'
             'c0d407ec37f78e54e66742bef569161d94186050c3b1554bdff1e8ff818073d0'
             'b4b4359bcc058cda1ee3aa1fb6cfd7b7b60bb3791ceb5832fb03bb20ff860298'
-            'ae6f2df77cb50dbec30780a8550df33685e115113185190503ed7f9a2c798524'
-            '6ce74ea7d90ffa33e4feec4c8436adaffd10c5bb1b51eafc76a95a84b3eb0e3a'
+            '8d071f14fcac5a5cb3c3bc2465bf62713e4cb9542f0a44772472fd542ac151ad'
+            'bb70c5023fe950514b80c65beefeae9935784855a19d61223d4e216e62d0546e'
             '0d0a535702c1097e130c1663e60140f37ca8d521f80e1f32b51db6b14619d382'
-            'deb83fc619d98da1c5f7c0610469c067134d7192feabf2f98731f80dd190459f'
+            'e208f9548a0d9533ad4a3833c093dc5573658910bfe92dc387b4d615a3b20987'
             'af35d2a2c47b8c91b3e39b4b04c3e5292fefa14d041514eb31a32af6dfd4226c'
             '8c2c46c698fc016f78e249d8f5e58cc9d05f2b30428545932317f01d4c1db060'
             'dd45a31922dd3f991510231db2b6bba177b6bba87391359cb3c0f952efe35e8d'
@@ -146,7 +146,7 @@ END
   # provided by gtk3-demos
   rm -r usr/bin/gtk3-{demo,demo-application,icon-browser,widget-factory}
   rm -r usr/share/applications/gtk3-{demo,icon-browser,widget-factory}.desktop
-  rm -r usr/share/glib-2.0/schemas/org.gtk.Demo.gschema.xml
+  rm -r usr/share/glib-2.0/schemas/org.gtk.{Demo,exampleapp}.gschema.xml
   rm -r usr/share/icons/hicolor/*/apps/gtk3-{demo,widget-factory}[-.]*
   rm -r usr/share/man/man1/gtk3-{demo,demo-application,icon-browser,widget-factory}.1
 }

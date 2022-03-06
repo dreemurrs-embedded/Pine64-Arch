@@ -4,34 +4,25 @@ Subject: Add GtkHdyViewSwitcher
 
 This is imported from HdyViewSwitcher from libhandy 1.0.1.
 ---
- gtk/Makefile.am                 |   7 +-
+ gtk/Makefile.am                 |   4 +
+ gtk/gtk-mkenums-headers.mak     |   3 +-
  gtk/gtkprivate.h                |   1 +
  gtk/hdy-css-private.h           |  25 ++
  gtk/hdy-css.c                   |  74 ++++
- gtk/hdy-view-switcher-private.h |  43 +++
- gtk/hdy-view-switcher.c         | 733 ++++++++++++++++++++++++++++++++++++++++
+ gtk/hdy-view-switcher-private.h |  43 ++
+ gtk/hdy-view-switcher.c         | 733 ++++++++++++++++++++++++++++++++
  gtk/meson.build                 |   4 +
- 7 files changed, 886 insertions(+), 1 deletion(-)
+ 8 files changed, 886 insertions(+), 1 deletion(-)
  create mode 100644 gtk/hdy-css-private.h
  create mode 100644 gtk/hdy-css.c
  create mode 100644 gtk/hdy-view-switcher-private.h
  create mode 100644 gtk/hdy-view-switcher.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index e2a459d..87de9c3 100644
+index 0e76672..9ea96eb 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -363,7 +363,8 @@ gtk_semi_private_h_sources = \
- 
- gtk_private_type_h_sources =	\
- 	gtkcsstypesprivate.h	\
--	gtktexthandleprivate.h
-+	gtktexthandleprivate.h	\
-+	hdy-view-switcher-private.h
- 
- 
- # GTK+ header files that don't get installed
-@@ -600,7 +601,9 @@ gtk_private_h_sources =		\
+@@ -373,7 +373,9 @@ gtk_private_h_sources =		\
  	gtkwindowprivate.h	\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
@@ -41,7 +32,7 @@ index e2a459d..87de9c3 100644
  	open-type-layout.h	\
  	language-names.h	\
  	script-names.h
-@@ -976,6 +979,8 @@ gtk_base_c_sources = 		\
+@@ -749,6 +751,8 @@ gtk_base_c_sources = 		\
  	gtkwin32draw.c		\
  	gtkwin32theme.c		\
  	gdkpixbufutils.c	\
@@ -50,8 +41,19 @@ index e2a459d..87de9c3 100644
  	hdy-view-switcher-button.c	\
  	language-names.c	\
  	script-names.c
+diff --git a/gtk/gtk-mkenums-headers.mak b/gtk/gtk-mkenums-headers.mak
+index 86c38f9..63df675 100644
+--- a/gtk/gtk-mkenums-headers.mak
++++ b/gtk/gtk-mkenums-headers.mak
+@@ -233,4 +233,5 @@ GTK_PUB_HDRS = 		\
+ 
+ GTK_PRIVATE_TYPE_HDRS =	\
+ 	gtkcsstypesprivate.h	\
+-	gtktexthandleprivate.h
++	gtktexthandleprivate.h	\
++	hdy-view-switcher-private.h
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
-index 80a18a1..b470e62 100644
+index dcab28d..473bb99 100644
 --- a/gtk/gtkprivate.h
 +++ b/gtk/gtkprivate.h
 @@ -30,6 +30,7 @@
@@ -962,7 +964,7 @@ index 0000000..2664b3e
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STACK]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 40be825..b009f2f 100644
+index 8585ac3..9a6e303 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -383,7 +383,9 @@ gtk_sources = files(

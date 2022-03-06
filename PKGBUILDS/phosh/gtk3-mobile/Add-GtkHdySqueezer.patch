@@ -4,30 +4,23 @@ Subject: Add GtkHdySqueezer
 
 This is imported from HdySqueezer from libhandy 1.0.2.
 ---
- gtk/Makefile.am            |    4 +
- gtk/gtkprivate.h           |    1 +
- gtk/hdy-cairo-private.h    |   21 +
- gtk/hdy-squeezer-private.h |   63 ++
- gtk/hdy-squeezer.c         | 1573 ++++++++++++++++++++++++++++++++++++++++++++
- gtk/meson.build            |    3 +
- 6 files changed, 1665 insertions(+)
+ gtk/Makefile.am             |    3 +
+ gtk/gtk-mkenums-headers.mak |    1 +
+ gtk/gtkprivate.h            |    1 +
+ gtk/hdy-cairo-private.h     |   21 +
+ gtk/hdy-squeezer-private.h  |   63 ++
+ gtk/hdy-squeezer.c          | 1573 +++++++++++++++++++++++++++++++++++
+ gtk/meson.build             |    3 +
+ 7 files changed, 1665 insertions(+)
  create mode 100644 gtk/hdy-cairo-private.h
  create mode 100644 gtk/hdy-squeezer-private.h
  create mode 100644 gtk/hdy-squeezer.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 94dc775..0418128 100644
+index d58e14e..b72975f 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
- gtk_private_type_h_sources =	\
- 	gtkcsstypesprivate.h	\
- 	gtktexthandleprivate.h	\
-+	hdy-squeezer-private.h	\
- 	hdy-view-switcher-private.h
- 
- 
-@@ -602,7 +603,9 @@ gtk_private_h_sources =		\
+@@ -374,7 +374,9 @@ gtk_private_h_sources =		\
  	gtktreemenu.h		\
  	gdkpixbufutilsprivate.h \
  	hdy-animation-private.h	\
@@ -37,7 +30,7 @@ index 94dc775..0418128 100644
  	hdy-view-switcher-bar-private.h	\
  	hdy-view-switcher-button-private.h	\
  	hdy-view-switcher-private.h	\
-@@ -983,6 +986,7 @@ gtk_base_c_sources = 		\
+@@ -755,6 +757,7 @@ gtk_base_c_sources = 		\
  	gdkpixbufutils.c	\
  	hdy-animation.c	\
  	hdy-css.c	\
@@ -45,8 +38,18 @@ index 94dc775..0418128 100644
  	hdy-view-switcher.c	\
  	hdy-view-switcher-bar.c	\
  	hdy-view-switcher-button.c	\
+diff --git a/gtk/gtk-mkenums-headers.mak b/gtk/gtk-mkenums-headers.mak
+index 63df675..3b5721d 100644
+--- a/gtk/gtk-mkenums-headers.mak
++++ b/gtk/gtk-mkenums-headers.mak
+@@ -234,4 +234,5 @@ GTK_PUB_HDRS = 		\
+ GTK_PRIVATE_TYPE_HDRS =	\
+ 	gtkcsstypesprivate.h	\
+ 	gtktexthandleprivate.h	\
++	hdy-squeezer-private.h	\
+ 	hdy-view-switcher-private.h
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
-index b470e62..9b5f8bb 100644
+index 473bb99..68f0f8d 100644
 --- a/gtk/gtkprivate.h
 +++ b/gtk/gtkprivate.h
 @@ -30,6 +30,7 @@
@@ -1733,7 +1736,7 @@ index 0000000..b36db93
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_YALIGN]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 5c2ba51..13dd69a 100644
+index 71c56e0..3ca0c61 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -385,6 +385,7 @@ gtk_sources = files(

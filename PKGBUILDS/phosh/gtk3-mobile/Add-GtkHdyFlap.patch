@@ -4,28 +4,21 @@ Subject: Add GtkHdyFlap
 
 This is imported from HdyFlap from libhandy 1.0.3.
 ---
- gtk/Makefile.am        |    3 +
- gtk/gtkprivate.h       |    1 +
- gtk/hdy-flap-private.h |   92 ++
- gtk/hdy-flap.c         | 2663 ++++++++++++++++++++++++++++++++++++++++++++++++
- gtk/meson.build        |    2 +
- 5 files changed, 2761 insertions(+)
+ gtk/Makefile.am             |    2 +
+ gtk/gtk-mkenums-headers.mak |    1 +
+ gtk/gtkprivate.h            |    1 +
+ gtk/hdy-flap-private.h      |   92 ++
+ gtk/hdy-flap.c              | 2663 +++++++++++++++++++++++++++++++++++
+ gtk/meson.build             |    2 +
+ 6 files changed, 2761 insertions(+)
  create mode 100644 gtk/hdy-flap-private.h
  create mode 100644 gtk/hdy-flap.c
 
 diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index b0fc9b0..1099cc6 100644
+index a9cb2c9..1600198 100644
 --- a/gtk/Makefile.am
 +++ b/gtk/Makefile.am
-@@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
- gtk_private_type_h_sources =	\
- 	gtkcsstypesprivate.h	\
- 	gtktexthandleprivate.h	\
-+	hdy-flap-private.h	\
- 	hdy-navigation-direction-private.h \
- 	hdy-squeezer-private.h	\
- 	hdy-swipeable-private.h \
-@@ -609,6 +610,7 @@ gtk_private_h_sources =		\
+@@ -377,6 +377,7 @@ gtk_private_h_sources =		\
  	hdy-cairo-private.h	\
  	hdy-clamp-private.h	\
  	hdy-css-private.h	\
@@ -33,7 +26,7 @@ index b0fc9b0..1099cc6 100644
  	hdy-navigation-direction-private.h	\
  	hdy-shadow-helper-private.h	\
  	hdy-squeezer-private.h	\
-@@ -996,6 +998,7 @@ gtk_base_c_sources = 		\
+@@ -764,6 +765,7 @@ gtk_base_c_sources = 		\
  	hdy-animation.c	\
  	hdy-clamp.c	\
  	hdy-css.c	\
@@ -41,8 +34,20 @@ index b0fc9b0..1099cc6 100644
  	hdy-navigation-direction.c	\
  	hdy-squeezer.c	\
  	hdy-shadow-helper.c	\
+diff --git a/gtk/gtk-mkenums-headers.mak b/gtk/gtk-mkenums-headers.mak
+index 6b05800..86927d3 100644
+--- a/gtk/gtk-mkenums-headers.mak
++++ b/gtk/gtk-mkenums-headers.mak
+@@ -234,6 +234,7 @@ GTK_PUB_HDRS = 		\
+ GTK_PRIVATE_TYPE_HDRS =	\
+ 	gtkcsstypesprivate.h	\
+ 	gtktexthandleprivate.h	\
++	hdy-flap-private.h	\
+ 	hdy-navigation-direction-private.h	\
+ 	hdy-squeezer-private.h	\
+ 	hdy-swipeable-private.h	\
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
-index 8322900..91d63e2 100644
+index 8c6eded..aca24fd 100644
 --- a/gtk/gtkprivate.h
 +++ b/gtk/gtkprivate.h
 @@ -30,6 +30,7 @@
@@ -2821,7 +2826,7 @@ index 0000000..8735ad9
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_SWIPE_TO_CLOSE]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index b6251f2..a669c7c 100644
+index c2754e2..975839a 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -386,6 +386,7 @@ gtk_sources = files(
