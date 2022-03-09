@@ -1,0 +1,26 @@
+From b106355977f0c6adbb7af227ba48ade6c1a42834 Mon Sep 17 00:00:00 2001
+From: ArenM <aren@peacevolution.org>
+Date: Wed, 9 Mar 2022 13:46:37 -0500
+Subject: [PATCH sxmo-utils 1/2] Backport PPP deviceprofile from upstream
+
+---
+ .../sxmo_deviceprofile_pinephone-prorockchip.sh            | 7 +++++++
+ 1 file changed, 7 insertions(+)
+ create mode 100644 scripts/deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh
+
+diff --git a/scripts/deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh b/scripts/deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh
+new file mode 100644
+index 0000000..866ccb3
+--- /dev/null
++++ b/scripts/deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh
+@@ -0,0 +1,7 @@
++#!/bin/sh
++
++export SXMO_SYS_FILES="/sys/module/8723cs/parameters/rtw_scan_interval_thr /sys/power/state /sys/devices/platform/soc/1f00000.rtc/power/wakeup /sys/power/mem_s
++eep /sys/bus/usb/drivers/usb/unbind /sys/bus/usb/drivers/usb/bind /dev/rtc0 /sys/devices/platform/soc/1f03400.rsb/sunxi-rsb-3a3/axp221-pek/power/wakeup"
++export SXMO_TOUCHSCREEN_ID=8
++export SXMO_POWER_BUTTON="1:1:gpio-key-power"
++export SXMO_VOLUME_BUTTON="1:1:adc-keys"
+-- 
+2.35.1
+
