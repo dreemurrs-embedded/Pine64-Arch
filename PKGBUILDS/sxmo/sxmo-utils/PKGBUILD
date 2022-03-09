@@ -3,7 +3,7 @@
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
 pkgver=1.8.2
-pkgrel=2
+pkgrel=3
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -12,6 +12,8 @@ makedepends=('libx11' 'xorgproto' 'linux-headers')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
         '0001-Let-systemd-handle-service-supervision.patch'
+        '0001-Backport-PPP-deviceprofile-from-upstream.patch'
+        '0002-PPP-deviceprofile-set-SXMO_SPEAKER.patch'
         'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
         'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
         'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
@@ -34,6 +36,8 @@ prepare() {
   sed -i 's/.*vvmd.*/:/' configs/default_hooks/start
 
   patch -p1 < '../0001-Let-systemd-handle-service-supervision.patch'
+  patch -p1 < '../0001-Backport-PPP-deviceprofile-from-upstream.patch'
+  patch -p1 < '../0002-PPP-deviceprofile-set-SXMO_SPEAKER.patch'
 
   # A quick hack becaue $XDG_RUNTIME_DIR contains some files that aren't
   # accessable to the default user, which causes the dialer to fail
@@ -182,6 +186,8 @@ package_sxmo-ui-dwm-meta() {
 
 sha512sums=('998577f8bb35dde66a0f6054f9d8c3869d2d656318bb43be4e813bb57658a4b949cb39c8e490958104204b45203a4bfc4a27b556273e58a19fa42cc52314968d'
             'abc5ccd74157f1188f2d43370d228a498017cb2a2e17aec131ab34329d95ed76d7323bf1d802754574c26a2463ffe4f426e0ac567e115f581bee8b0bcf9b64cd'
+            '6e35a3640ee42cd86799efc8aeb7e74b1a4e282baa5112e2da21ac279aebd7d4bd5f90f8be3914361b598170859261e27f5c3c6c3d1934b7feddeb5f3d80ef69'
+            'e9784819ca13effc0e4ab9b66f3e61fe6a2bfdd6fbf8c8ce0ff42917a0c3b212d6d8955ec188cea64bd934e9862d80d78cd610266eee343e16052fe5023b2574'
             '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
             '6e42f9acc015a21596cdf2d35eb5a80e8fbe97959aabf129861c8e1016bbebad5c706126730515494a0fcb33ad38fd6cd971048d2b5340557a803febf41967a4'
             '4c8f047c4608d89409a44db6370ca225d42e186323f42d0c564edb34f18c84a69a500a89cc2c31d5f0e5c292aa94ea20eaf8213e3e266b8f9e959c3d4ce9fb58'

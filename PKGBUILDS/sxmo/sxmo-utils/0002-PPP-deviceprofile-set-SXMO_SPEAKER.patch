@@ -1,0 +1,21 @@
+From f114d3ac56ad60a0fb5dae0f1ec5e89955825043 Mon Sep 17 00:00:00 2001
+From: ArenM <aren@peacevolution.org>
+Date: Wed, 9 Mar 2022 13:48:30 -0500
+Subject: [PATCH sxmo-utils 2/2] PPP deviceprofile: set SXMO_SPEAKER
+
+---
+ .../deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh   | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/scripts/deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh b/scripts/deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh
+index 866ccb3..ebe92d6 100644
+--- a/scripts/deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh
++++ b/scripts/deviceprofiles/sxmo_deviceprofile_pinephone-prorockchip.sh
+@@ -5,3 +5,4 @@ eep /sys/bus/usb/drivers/usb/unbind /sys/bus/usb/drivers/usb/bind /dev/rtc0 /sys
+ export SXMO_TOUCHSCREEN_ID=8
+ export SXMO_POWER_BUTTON="1:1:gpio-key-power"
+ export SXMO_VOLUME_BUTTON="1:1:adc-keys"
++export SXMO_SPEAKER="Speaker"
+-- 
+2.35.1
+
