@@ -5,7 +5,7 @@
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
 pkgver=41.4
-pkgrel=1
+pkgrel=2
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://source.puri.sm/Librem5/gnome-control-center"
 license=(GPL2)
@@ -14,14 +14,15 @@ depends=(accountsservice cups-pk-helper gnome-bluetooth gnome-desktop
          gnome-online-accounts gnome-settings-daemon gsettings-desktop-schemas gtk3
          libgtop nm-connection-editor sound-theme-freedesktop upower libpwquality
          gnome-color-manager smbclient libmm-glib libgnomekbd libibus
-         libgudev bolt udisks2 libhandy gsound colord-gtk modemmanager power-profiles-daemon)
+         libgudev bolt udisks2 libhandy gsound colord-gtk modemmanager)
 makedepends=(docbook-xsl git python meson)
 checkdepends=(python-dbusmock python-gobject xorg-server-xvfb)
 optdepends=('system-config-printer: Printer settings'
             'gnome-user-share: WebDAV file sharing'
             'gnome-remote-desktop: screen sharing'
             'rygel: media sharing'
-            'openssh: remote login')
+            'openssh: remote login'
+            'power-profiles-daemon: Power profiles support')
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
 _commit=d08fac3f0be63f0a4c65d26f47d3b77f8738cfab  # tags/41.4^0
