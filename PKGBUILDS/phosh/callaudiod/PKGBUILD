@@ -1,6 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=callaudiod
-pkgver=0.1.3
+pkgver=0.1.3+12+g4a92e48
+_commit=4a92e48fc1eee40088d802eead4c2445b0cebc02
 pkgrel=1
 pkgdesc="Call audio routing daemon"
 url="https://gitlab.com/mobian1/callaudiod"
@@ -8,16 +9,31 @@ license=('GPL3')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('alsa-lib' 'glib2' 'libpulse')
 makedepends=('meson')
-source=(https://gitlab.com/mobian1/callaudiod/-/archive/$pkgver/callaudiod-$pkgver.tar.gz)
+source=("git+https://gitlab.com/mobian1/${pkgname}.git#commit=${_commit}")
+md5sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^v//;s/-/+/g'
+}
+
+prepare() {
+  cd "$srcdir/$pkgname"
+
+  local src
+  for src in "${source[@]}"; do
+      src="${src%%::*}"
+      src="${src##*/}"
+      [[ $src = *.patch ]] || continue
+  done
+}
 
 build() {
-    cd $pkgname-$pkgver
-    arch-meson . output
-    ninja -C output
+    arch-meson $pkgname build \
+    -D gtk_doc=true
+    ninja -C build
 }
 
 package() {
-    cd $pkgname-$pkgver
-    DESTDIR="$pkgdir" ninja -C output install
+    DESTDIR="$pkgdir" ninja -C build install
 }
-md5sums=('54e2a4b576dab1b9ba43b99bcc42094f')
