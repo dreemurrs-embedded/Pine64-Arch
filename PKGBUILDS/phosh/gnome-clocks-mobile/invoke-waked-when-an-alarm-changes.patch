@@ -1,0 +1,164 @@
+From f4385bc96e4520c6ef00d124bda41065d5dee266 Mon Sep 17 00:00:00 2001
+From: Robin Westermann <gitlab@seath.de>
+Date: Sat, 27 Feb 2021 14:41:22 +0100
+Subject: [PATCH] invoke waked when an alarm changes
+
+When an alarm is deleted, created, edited or rearmed the service
+waked is notified about the update. So waked can wake the system
+from suspend when an alarm is fired.
+
+Fixes #100
+
+Co-Authored-By: pcworld <0188801@gmail.com>
+[kenchen1368@gmail.com: port to Pine64-Arch]
+[reference: https://gitlab.com/postmarketOS/pmaports/-/issues/1170]
+Co-Authored-By: kclisp <kenchen1368@gmail.com>
+---
+ build-aux/flatpak/org.gnome.clocks.json |  1 +
+ src/alarm-face.vala                     |  2 +
+ src/alarm-item.vala                     | 16 ++++++++
+ src/meson.build                         |  1 +
+ src/waked-utils.vala                    | 53 +++++++++++++++++++++++++
+ 5 files changed, 73 insertions(+)
+ create mode 100644 src/waked-utils.vala
+
+diff --git a/build-aux/flatpak/org.gnome.clocks.json b/build-aux/flatpak/org.gnome.clocks.json
+index 2e015a3..dcd7b5b 100644
+--- a/build-aux/flatpak/org.gnome.clocks.json
++++ b/build-aux/flatpak/org.gnome.clocks.json
+@@ -10,6 +10,7 @@
+         "--socket=fallback-x11",
+         "--socket=wayland",
+         "--socket=pulseaudio",
++        "--system-talk-name=de.seath.Waked",
+         "--share=network",
+         "--system-talk-name=org.freedesktop.GeoClue2",
+         "--filesystem=xdg-run/dconf",
+diff --git a/src/alarm-face.vala b/src/alarm-face.vala
+index 8654e76..73eb7b6 100644
+--- a/src/alarm-face.vala
++++ b/src/alarm-face.vala
+@@ -115,6 +115,7 @@ public class Face : Gtk.Stack, Clocks.Clock {
+                 ((SetupDialog) dialog).apply_to_alarm ();
+                 save ();
+             } else if (response == DELETE_ALARM) {
++                WakedUtils.remove_timer (alarm.id);
+                 alarms.delete_item (alarm);
+                 save ();
+             }
+@@ -124,6 +125,7 @@ public class Face : Gtk.Stack, Clocks.Clock {
+     }
+ 
+     internal void delete (Item alarm) {
++        WakedUtils.remove_timer (alarm.id);
+         alarms.delete_item (alarm);
+         save ();
+     }
+diff --git a/src/alarm-item.vala b/src/alarm-item.vala
+index 6dcb73d..afbc59e 100644
+--- a/src/alarm-item.vala
++++ b/src/alarm-item.vala
+@@ -65,6 +65,20 @@ private class Item : Object, ContentItem {
+             if (_state == value)
+                 return;
+ 
++            switch (value) {
++            case State.DISABLED:
++                WakedUtils.remove_timer (id);
++                break;
++            case State.READY:
++                WakedUtils.update_timer (id, time);
++                break;
++            case State.RINGING:
++                break;
++            case State.SNOOZING:
++                WakedUtils.update_timer (id, (!) snooze_time);
++                break;
++            }
++
+             _state = value;
+             notify_property ("active");
+         }
+@@ -160,6 +174,8 @@ private class Item : Object, ContentItem {
+     public void set_alarm_time (int hour, int minute, Utils.Weekdays? days) {
+       this.days = days;
+       this.time = get_next_alarm_time (hour, minute, days);
++      if (active)
++          WakedUtils.update_timer (id, time);
+     }
+ 
+     private static GLib.DateTime get_next_alarm_time (int hour, int minute, Utils.Weekdays? days) {
+diff --git a/src/meson.build b/src/meson.build
+index e5b0edd..296d524 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -24,6 +24,7 @@ clocks_vala_sources = files(
+   'timer-setup.vala',
+   'timer-setup-dialog.vala',
+   'utils.vala',
++  'waked-utils.vala',
+   'widgets.vala',
+   'window.vala',
+   'world-face.vala',
+diff --git a/src/waked-utils.vala b/src/waked-utils.vala
+new file mode 100644
+index 0000000..9b8fa4a
+--- /dev/null
++++ b/src/waked-utils.vala
+@@ -0,0 +1,53 @@
++/*
++ * Copyright (C) 2021 Robin Westermann <waked@seath.de>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
++ */
++
++namespace Clocks {
++namespace WakedUtils {
++
++    [DBus (name = "de.seath.Waked")]
++    interface Waked : Object {
++        public abstract void add (string id, uint64 time) throws GLib.Error;
++        public abstract void update (string id, uint64 time) throws GLib.Error;
++        public abstract void remove (string id) throws GLib.Error;
++    }
++
++    public void update_timer (string id, GLib.DateTime time) {
++        try {
++            Waked waked = Bus.get_proxy_sync (BusType.SYSTEM, "de.seath.Waked",
++                                                              "/de/seath/Waked/Alarm");
++
++            waked.update (id, time.to_unix ());
++
++        } catch (GLib.Error e) {
++            stderr.printf ("%s\n", e.message);
++        }
++    }
++
++    public void remove_timer (string id) {
++        try {
++            Waked waked = Bus.get_proxy_sync (BusType.SYSTEM, "de.seath.Waked",
++                                                              "/de/seath/Waked/Alarm");
++
++            waked.remove (id);
++
++        } catch (GLib.Error e) {
++            stderr.printf ("%s\n", e.message);
++        }
++    }
++}
++}
+-- 
+2.35.1
+
