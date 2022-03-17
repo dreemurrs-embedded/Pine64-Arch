@@ -1,0 +1,65 @@
+From 8a82244bcb2fea009ddb87970402b36139d4baac Mon Sep 17 00:00:00 2001
+From: Dragan Simic <dragan.simic@gmail.com>
+Date: Thu, 10 Feb 2022 14:43:05 +0100
+Subject: [PATCH] Reconfigure GPIO4_D3 as input on PinePhone Pro
+
+---
+ .../pinephone-pro-rk3399.c                    | 38 +++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+diff --git a/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c b/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
+index f9fecb14e0..7745dd90dc 100644
+--- a/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
++++ b/board/pine64/pinephone-pro-rk3399/pinephone-pro-rk3399.c
+@@ -13,6 +13,7 @@
+ #include <asm/arch-rockchip/grf_rk3399.h>
+ #include <asm/arch-rockchip/hardware.h>
+ #include <asm/arch-rockchip/misc.h>
++#include <asm-generic/gpio.h>
+ 
+ #define GRF_IO_VSEL_BT565_SHIFT 0
+ #define PMUGRF_CON0_VSEL_SHIFT 8
+@@ -52,3 +53,40 @@ int misc_init_r(void)
+ }
+ 
+ #endif
++
++#define GPIO4_D3 "155"
++
++static int setup_gpios(void)
++{
++	struct gpio_desc gpio;
++	int ret;
++
++	/*
++	 * MaskROM enables output on GPIO4_D3 and leaves it that way, seemingly
++	 * because the RK3399 reference BOX and VR REF designs use GPIO4_D3 as
++	 * EFUSE_VQPS (AD23) power control output, while it is a light sensor
++	 * interrupt on the PinePhone Pro and needs to be configured as input.
++	 */
++	ret = dm_gpio_lookup_name(GPIO4_D3, &gpio);
++	if (ret)
++		return ret;
++
++	ret = dm_gpio_request(&gpio, "light_int_l");
++	if (ret)
++		return ret;
++
++	dm_gpio_set_dir_flags(&gpio, GPIOD_IS_IN);
++
++	return 0;
++}
++
++int rk_board_late_init(void)
++{
++	int ret;
++
++	ret = setup_gpios();
++	if (ret)
++		debug("Failed to configure GPIO lines: %d\n", ret);
++
++	return ret;
++}
+-- 
+2.35.1
+
