@@ -1,0 +1,99 @@
+From 08a6f2a8fd1bdbe4e24d1d5926691575d9b18a8a Mon Sep 17 00:00:00 2001
+From: kclisp <kenchen1368@gmail.com>
+Date: Thu, 17 Mar 2022 17:56:39 -0400
+Subject: [PATCH] Have alarms ring in quiet and silent profiles
+
+---
+ data/pine64,pinephone-pro.json | 18 +++++-------------
+ data/pine64,pinephone.json     | 18 +++++-------------
+ 2 files changed, 10 insertions(+), 26 deletions(-)
+
+diff --git a/data/pine64,pinephone-pro.json b/data/pine64,pinephone-pro.json
+index f145996..35ec6c9 100644
+--- a/data/pine64,pinephone-pro.json
++++ b/data/pine64,pinephone-pro.json
+@@ -4,11 +4,6 @@
+     {
+       "name" : "full",
+       "feedbacks" : [
+-        {
+-          "event-name" : "alarm-clock-elapsed",
+-          "type"       : "Sound",
+-          "effect"     : "alarm-clock-elapsed"
+-        },
+         {
+           "event-name" : "button-pressed",
+           "type"       : "Sound",
+@@ -59,14 +54,6 @@
+     {
+       "name" : "quiet",
+       "feedbacks" : [
+-        {
+-          "event-name"   : "alarm-clock-elapsed",
+-          "type"         : "VibraPeriodic",
+-          "magnitude"    : 32767,
+-          "duration"     : 10000,
+-          "fade-in-time" : 10000,
+-          "fade-in-level": 4096
+-        },
+         {
+           "event-name" : "bell-terminal",
+           "type"       : "VibraRumble",
+@@ -132,6 +119,11 @@
+     {
+       "name" : "silent",
+       "feedbacks" : [
++        {
++          "event-name" : "alarm-clock-elapsed",
++          "type"       : "Sound",
++          "effect"     : "alarm-clock-elapsed"
++        },
+         {
+           "event-name" : "battery-caution",
+           "type"       : "Led",
+diff --git a/data/pine64,pinephone.json b/data/pine64,pinephone.json
+index 2b62845..edba51f 100644
+--- a/data/pine64,pinephone.json
++++ b/data/pine64,pinephone.json
+@@ -4,11 +4,6 @@
+     {
+       "name" : "full",
+       "feedbacks" : [
+-        {
+-          "event-name" : "alarm-clock-elapsed",
+-          "type"       : "Sound",
+-          "effect"     : "alarm-clock-elapsed"
+-        },
+         {
+           "event-name" : "button-pressed",
+           "type"       : "Sound",
+@@ -59,14 +54,6 @@
+     {
+       "name" : "quiet",
+       "feedbacks" : [
+-        {
+-          "event-name"   : "alarm-clock-elapsed",
+-          "type"         : "VibraPeriodic",
+-          "magnitude"    : 32767,
+-          "duration"     : 10000,
+-          "fade-in-time" : 10000,
+-          "fade-in-level": 4096
+-        },
+         {
+           "event-name" : "bell-terminal",
+           "type"       : "VibraRumble",
+@@ -132,6 +119,11 @@
+     {
+       "name" : "silent",
+       "feedbacks" : [
++        {
++          "event-name" : "alarm-clock-elapsed",
++          "type"       : "Sound",
++          "effect"     : "alarm-clock-elapsed"
++        },
+         {
+           "event-name" : "battery-caution",
+           "type"       : "Led",
+-- 
+2.35.1
+
