@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=5.16.15
+pkgver=5.17.0
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -15,7 +15,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="0752dfcc486615b2749a1e9588effc0fce6c1fe6"
+_commit="1ede9e2d077404ce6f78676ad68d20244282860f"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -24,13 +24,9 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         # Patches
         # PinePhone Patches
         'dts-pinephone-drop-modem-power-node.patch'
-        'dts-pinephone-pro-improve-sound-device.patch'
-        'dts-pinephone-pro-add-flash-fix-led.patch'
         'dts-pinephone-pro-remove-modem-node.patch'
         'dts-pinephone-pro-add-modem-ri.patch'
         'rk818_charger-use-type-battery-again.patch' # HACK!!
-        # Camera
-        'media-ov5640-Implement-autofocus.patch'
         # PineTab Patches
         'pinetab-bluetooth.patch'
         'pinetab-accelerometer.patch'
@@ -250,18 +246,15 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('c55e008e041f91c44ba9c1b7580bd0d7'
-         'f676f622a3559cd9353cfeb3b245adc9'
+md5sums=('f4e1eae64c0869d518d409c162fc11e2'
+         '933c5d5062367937e22466fc120f45a4'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
          '10d200e0a964f24cdb744678a758e22b'
-         'b53a0c9d3c25fe3f1346a963f3539a6f'
-         'f81da11c84ba3ba0195ced119b893482'
          '75dac30d08e3a91871c072c016d1ab90'
          '7d80f76f1647afa00de320f5866484a1'
          '05d5f7c196eef8cbb3d9b301937e04a4'
-         'a25d069b2b008ae22aa7fe55716239da'
          '85d8339bc3d5daf45aa579d578ef0255'
          'd0fd6bd627223d4c9fc001ffff9df401'
          '3182f25beb0b76e8abd2e9de8213351d'
