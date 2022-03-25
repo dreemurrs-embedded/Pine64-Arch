@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=callaudiod
-pkgver=0.1.3
+pkgver=0.1.4
 pkgrel=1
 pkgdesc="Call audio routing daemon"
 url="https://gitlab.com/mobian1/callaudiod"
@@ -20,4 +20,4 @@ package() {
     cd $pkgname-$pkgver
     DESTDIR="$pkgdir" ninja -C output install
 }
-md5sums=('54e2a4b576dab1b9ba43b99bcc42094f')
+md5sums=('1f60da464cf612379f751e80929c164f')
