@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.12.0
+pkgver=0.13.0
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -11,7 +11,7 @@ depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'seatd' 'mutter'
 makedepends=('meson' 'ninja')
 
 # We don't want to maintain the wlroots package, so we static compile it
-_wlroots_commit="c9cd3502ba6113070020de50e41f0af72e0f5031"
+_wlroots_commit="d9d667512ef23df7d57eff755fdf6b6e06217dab"
 source=(https://gitlab.gnome.org/World/Phosh/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
         https://source.puri.sm/Librem5/wlroots/-/archive/${_wlroots_commit}/wlroots-${_wlroots_commit}.tar.gz)
 
@@ -38,5 +38,5 @@ package() {
 	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('d622985ef9923ab8a336efe4a595f168'
-         '4593e0646b7e9b2a38072348f31f0437')
+md5sums=('d7ed7529d4eb3f4c819f4495de1be1af'
+         '523133ac988321da7940075733b757ea')
