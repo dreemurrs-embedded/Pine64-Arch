@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.16.0
+pkgver=0.17.0
 pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -9,7 +9,7 @@ license=('GPL')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell' 'upower' 'libpulse'
          'gcr' 'feedbackd' 'libnm' 'phoc' 'callaudiod')
 makedepends=('meson' 'ninja' 'git')
-_commit="f1ad6df16774c97c905b9cdc899a68d12d95ae6b"  # tags/v0.16.0
+_commit="e9651c72a6c3033597d40b135c230262a2bf4cb6"  # tags/v0.17.0
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         'pam_phosh'
         'sm.puri.OSK0.desktop'
@@ -23,6 +23,9 @@ pkgver() {
 prepare() {
     cd phosh
     git submodule update --init
+
+    # At the time of 0.17.0 release, GNOME 42 hasn't arrived on Arch Linux yet.
+    git revert -n bc26bf0827abe4d841dcf252b9f5195de4b4c691
 }
 
 build() {
