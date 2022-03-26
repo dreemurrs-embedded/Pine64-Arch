@@ -4,7 +4,7 @@
 
 pkgname=uboot-pinephonepro
 pkgver=2022.01
-pkgrel=7
+pkgrel=8
 _tfaver=2.6
 pkgdesc="U-Boot for Pinephone Pro"
 arch=('aarch64')
@@ -20,14 +20,12 @@ source=("https://ftp.denx.de/pub/u-boot/u-boot-${pkgver/rc/-rc}.tar.bz2"
         "https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-$_tfaver.tar.gz"
         'rockchip-Add-initial-support-for-the-PinePhone-Pro.patch'
         'pinephone-pro-remove-cargo-culted-iodomain-config.patch'
-        'reconfigure-GPIO4_D3-as-input-on-pinephone-pro.patch'
         'mkscr'
         'boot.txt')
 sha256sums=('81b4543227db228c03f8a1bf5ddbc813b0bb8f6555ce46064ef721a6fc680413'
             '4e59f02ccb042d5d18c89c849701b96e6cf4b788709564405354b5d313d173f7'
             '7c3d76f4bee0e54900142043241248072e334387065212141e1f600afe0aafba'
             '8fda0085f428ca73f7a6a1d8f17fc7d5c25c4eaa6ea6f05b57fb61612bea021a'
-            '74aec8e16289dd92de5a807c4bcf3ab09d314391ce02ef9dc945d656dc8bf37f'
             'a4fc8b6b92bc364d6542670d294aa618a8501fb8729f415cc0a3eed776ef0c8e'
             '6e618b53037e0319dcd5fc8ada4cbf342df59953c429fe0f1eebe4e26cb9d88d')
 
@@ -35,7 +33,6 @@ prepare() {
   cd u-boot-${pkgver/rc/-rc}
   patch -p1 -N < ../rockchip-Add-initial-support-for-the-PinePhone-Pro.patch
   patch -p1 -N < ../pinephone-pro-remove-cargo-culted-iodomain-config.patch
-  patch -p1 -N < ../reconfigure-GPIO4_D3-as-input-on-pinephone-pro.patch
 
   # Change baudrate from 1.5mbps to 115200, it makes it Tow-Boot compliance. (hi samueldr)
   # https://github.com/Tow-Boot/Tow-Boot/blob/released/support/builders/tow-boot/default.nix
