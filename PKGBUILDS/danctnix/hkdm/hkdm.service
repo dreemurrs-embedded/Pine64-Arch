@@ -1,0 +1,10 @@
+[Unit]
+Description=Hotkey Daemon (For) Mobile
+After=multi-user.target
+
+[Service]
+Restart=on-failure
+ExecStart=/usr/bin/hkdm
+
+[Install]
+WantedBy=multi-user.target
