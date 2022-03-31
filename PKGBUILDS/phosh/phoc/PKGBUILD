@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.13.0
+pkgver=0.13.1
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -38,5 +38,5 @@ package() {
 	rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('d7ed7529d4eb3f4c819f4495de1be1af'
+md5sums=('dc27e168517e0bb303e9045e4204b82e'
          '523133ac988321da7940075733b757ea')
