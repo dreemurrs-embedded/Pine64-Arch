@@ -5,7 +5,7 @@
 
 pkgname=plasma-mobile-nm
 _pkgname=plasma-nm
-pkgver=5.24.3
+pkgver=5.24.4
 pkgrel=1
 pkgdesc='Plasma applet written in QML for managing network connections - Mobile Edition'
 arch=(x86_64 armv7h aarch64)
@@ -17,7 +17,7 @@ optdepends=('openconnect: Cisco AnyConnect VPN plugin')
 provides=("${_pkgname}")
 conflicts=("${_pkgname}")
 source=("https://download.kde.org/stable/plasma/$pkgver/$_pkgname-$pkgver.tar.xz")
-sha256sums=('2cf64e94ed921546bc0be44f50e3490033a353bf3f0ad7a5a513ef5585fc3bfd')
+sha256sums=('086c28cfdaa6f4de785662ccd8123cd48b2a333fbaa2ca70b2a6d9dc3622ec2f')
 
 build() {
   cmake -B build -S $_pkgname-$pkgver \
