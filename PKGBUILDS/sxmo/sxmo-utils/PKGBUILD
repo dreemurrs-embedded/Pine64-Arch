@@ -3,7 +3,7 @@
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
 pkgver=1.8.2
-pkgrel=3
+pkgrel=4
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -52,6 +52,7 @@ package_sxmo-utils() {
   depends=(
     # Core cli dependencies
     'alsa-utils'
+    'bc' # for the autorotate script
     'bluez'
     'bluez-utils'
     'busybox'
