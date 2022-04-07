@@ -32,10 +32,10 @@ index 75306a7..633102d 100644
 +	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->sidebar_button), visible);
 +}
 diff --git a/shell/ev-toolbar.h b/shell/ev-toolbar.h
-index 9ad76fc..e1be165 100644
+index 432563e..66414f9 100644
 --- a/shell/ev-toolbar.h
 +++ b/shell/ev-toolbar.h
-@@ -59,6 +59,9 @@ void          ev_toolbar_set_mode           (EvToolbar     *ev_toolbar,
+@@ -58,4 +58,7 @@ void          ev_toolbar_set_mode           (EvToolbar     *ev_toolbar,
  					     EvToolbarMode  mode);
  EvToolbarMode ev_toolbar_get_mode           (EvToolbar     *ev_toolbar);
  
@@ -43,5 +43,3 @@ index 9ad76fc..e1be165 100644
 +                                     gboolean   visible);
 +
  G_END_DECLS
- 
- #endif /* __EV_TOOLBAR_H__ */

@@ -5,37 +5,32 @@
 
 _pkgname=evince
 pkgname=$_pkgname-mobile
-pkgver=41.3
+pkgver=42.1
 pkgrel=1
-pkgdesc='Purism mobile document viewer (PDF, Postscript, djvu, tiff, dvi, XPS, SyncTex support with gedit, comics books (cbr,cbz,cb7 and cbt))'
-url='https://gitlab.gnome.org/GNOME/evince'
+pkgdesc="Document viewer (PDF, PostScript, XPS, djvu, dvi, tiff, cbr, cbz, cb7, cbt)"
+url="https://wiki.gnome.org/Apps/Evince"
 arch=('aarch64')
 license=('GPL')
-_commit=08780f527ac0306f527c48ea6cc77a7b2c6c5fa8  # tags/41.3^0
+_commit=67084a4f4ec10445bf8f3ef2cf98cb0ccaabcb19  # tags/42.1^0
 source=("git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
-        'data-List-compatible-form-factors.patch'
-        'properties-view-Reduce-the-label-width-chars.patch'
-        'Disable-fullscreen-actions-in-phosh.patch'
-        'toolbar-Allow-to-toggle-the-sidebar-button.patch'
-        'toolbar-Allow-hiding-zoom-annotation-and-page-widgets.patch'
-        'window-Port-it-to-phones.patch')
+        '0001-toolbar-Allow-to-toggle-the-sidebar-button.patch'
+        '0002-toolbar-Allow-hiding-zoom-annotation-and-page-widgets.patch'
+        '0003-properties-view-Reduce-the-label-width-chars.patch'
+        '0004-window-Port-it-to-phones.patch')
 sha256sums=('SKIP'
-            '84f300a09dd5435647b1f7837db8f11d149d7add5d62779ed26a03eb35f1444d'
-            '194086757f539afc7cd5d24f4bc3e1b16fa321d5cb6c9e27fe0470eb62508098'
-            'fa8554c29ef59ad926bc33adead0c4b327cc14c5b444f4fbaa897c76fb67f1c3'
-            '3ce259a56cc4f35badbdc142b83c72a4fe1422aeb483979ec343ab8a68a76302'
-            '6dbd8d185cd896e1ab772f2aee6147113333109ea8f0e8446335f4da6a9f2bb9'
-            '00413c8f03b75a309c02acb2ab9ea5b52d4f4096994e0bec691fd998c2ed8ef5')
-provides=(libev{document,view}3.so $_pkgname)
+            '39cf66991132953400d6825d4aa671dabe37538ac543ddd5ccce73d6217927c2'
+            '70274e065c512593d6f82865e48090c2ec9440fbfbfcfb505fa0e99731de3f39'
+            '9573069449b6eeca2157fb55976bed217076427c23863870159ce83ef4727539'
+            'b81b9747537fb478e5bdb056062211d2ed2c5dd43b2afa75fc3ddae2667da6a0')
+provides=(libev{document,view}3.so $_pkgname $_pkgname-lib-docs)
 conflicts=($_pkgname)
-depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre t1lib dconf libsecret libsynctex
-         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy)
-makedepends=(libnautilus-extension texlive-bin gobject-introspection docbook-xsl python gtk-doc
-             git meson appstream-glib yelp-tools)
-
+depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre dconf libsecret libsynctex
+         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy
+         gvfs)
+makedepends=(libnautilus-extension texlive-bin gobject-introspection gi-docgen git meson
+             appstream-glib yelp-tools)
 optdepends=(
   'texlive-bin: DVI support'
-  'gvfs: bookmark support and session saving'
 )
 
 pkgver() {
@@ -51,7 +46,7 @@ prepare() {
     src="${src%%::*}"
     src="${src##*/}"
     [[ $src = *.patch ]] || continue
-    msg2 "Applying patch $src..."
+    echo "Applying patch $src..."
     patch -Np1 < "../$src"
   done
 }
@@ -66,5 +61,5 @@ check() {
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

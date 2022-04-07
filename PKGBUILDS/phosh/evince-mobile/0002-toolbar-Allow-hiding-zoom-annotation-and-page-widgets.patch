@@ -137,10 +137,10 @@ index 633102d..e18df20 100644
 +		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->annots_button), FALSE);
 +}
 diff --git a/shell/ev-toolbar.h b/shell/ev-toolbar.h
-index e1be165..eceaa4c 100644
+index 66414f9..7f53f46 100644
 --- a/shell/ev-toolbar.h
 +++ b/shell/ev-toolbar.h
-@@ -61,6 +61,8 @@ EvToolbarMode ev_toolbar_get_mode           (EvToolbar     *ev_toolbar);
+@@ -60,5 +60,7 @@ EvToolbarMode ev_toolbar_get_mode           (EvToolbar     *ev_toolbar);
  
  void ev_toolbar_set_sidebar_visible (EvToolbar *ev_toolbar,
                                       gboolean   visible);
@@ -148,4 +148,3 @@ index e1be165..eceaa4c 100644
 +                                     gboolean   mobile);
  
  G_END_DECLS
- 
