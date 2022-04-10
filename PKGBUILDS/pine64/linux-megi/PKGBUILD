@@ -5,8 +5,8 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=5.17.0
-pkgrel=2
+pkgver=5.17.2
+pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -15,7 +15,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="3c21ce2225ed70086783d87f8fbeb2d6026c7034"
+_commit="d271a7047cc19ab25304fd08b1d6c45202b81b31"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -26,7 +26,6 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         'dts-pinephone-drop-modem-power-node.patch'
         'dts-pinephone-pro-remove-modem-node.patch'
         'dts-pinephone-pro-add-modem-ri.patch'
-        'rk818_charger-use-type-battery-again.patch' # HACK!!
         # PineTab Patches
         'pinetab-bluetooth.patch'
         'pinetab-accelerometer.patch'
@@ -246,15 +245,14 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('f93c8344a8db001f5eb8cff3f8a9cd72'
-         'adc34cecc78eb01ee01c6cf6c4442a98'
+md5sums=('46691e2b6e92b333e321007367e869aa'
+         '0d7b4cbabe00ba3429184a82a71aada5'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
          '10d200e0a964f24cdb744678a758e22b'
          '75dac30d08e3a91871c072c016d1ab90'
          '7d80f76f1647afa00de320f5866484a1'
-         '05d5f7c196eef8cbb3d9b301937e04a4'
          '85d8339bc3d5daf45aa579d578ef0255'
          'd0fd6bd627223d4c9fc001ffff9df401'
          '3182f25beb0b76e8abd2e9de8213351d'
