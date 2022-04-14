@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pinenote
 _desc="PineNote Kernel (pgwipeout)"
 pkgver=5.17.0
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://gitlab.com/pgwipeout/linux-next"
 license=('GPL2')
@@ -218,7 +218,7 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('8c6f9c49a8cb4a2fed93301e5ec7ac0c'
-         'f48f4a8b82401f5aa82f37d295ee897e'
+         '7f8b8c6b728c6c8f21d0480fac414a68'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77')
