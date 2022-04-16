@@ -1,0 +1,485 @@
+From 7b7062ae0bb52411ac1d9d0fb2f7542e1b7c382e Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bhush94@gmail.com>
+Date: Sun, 20 Mar 2022 12:53:55 +0530
+Subject: [PATCH] kde-telephony-daemon: port to callaudio
+
+This ports the custom audio handling logic to use callaudio interface
+from mobian, port is quite straight-forward for most part, it removes
+the custom PulseAudioQt based logic and opts for using libcallaudio
+provided by the callaudio project.
+---
+ CMakeLists.txt                              |   2 +
+ kde-telephony-daemon/src/CMakeLists.txt     |   4 +-
+ kde-telephony-daemon/src/dialer-audio.cpp   | 236 --------------------
+ kde-telephony-daemon/src/dialer-audio.h     |  58 -----
+ kde-telephony-daemon/src/dialer-manager.cpp |  49 ++--
+ 5 files changed, 33 insertions(+), 316 deletions(-)
+ delete mode 100644 kde-telephony-daemon/src/dialer-audio.cpp
+ delete mode 100644 kde-telephony-daemon/src/dialer-audio.h
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7d12f40..c034358 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -33,6 +33,8 @@ ecm_setup_version(${PROJECT_VERSION}
+     VERSION_HEADER ${CMAKE_CURRENT_BINARY_DIR}/version.h
+ )
+ 
++find_package(PkgConfig QUIET)
++pkg_check_modules(LIBCALLAUDIO libcallaudio-0.1 REQUIRED IMPORTED_TARGET)
+ #set(DBUS_INTERFACES_PATH "${CMAKE_INSTALL_PREFIX}/${DBUS_INTERFACES_INSTALL_DIR}/")
+ 
+ add_subdirectory(kde-telephony-meta)
+diff --git a/kde-telephony-daemon/src/CMakeLists.txt b/kde-telephony-daemon/src/CMakeLists.txt
+index f2d7938..27c177c 100644
+--- a/kde-telephony-daemon/src/CMakeLists.txt
++++ b/kde-telephony-daemon/src/CMakeLists.txt
+@@ -7,7 +7,6 @@ set(ktelephonyd_SRCS
+     dialer-utils.cpp
+     contact-utils.cpp
+     dialer-manager.cpp
+-    dialer-audio.cpp
+     notification-manager.cpp
+     )
+ 
+@@ -21,7 +20,6 @@ set_source_files_properties(
+ 
+ find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Sql Sql Feedback)
+ find_package(KF5 ${KF5_MIN_VERSION} REQUIRED COMPONENTS I18n ModemManagerQt Notifications)
+-find_package(KF5PulseAudioQt 1.3 REQUIRED)
+ 
+ find_package(PkgConfig REQUIRED)
+ pkg_check_modules(MPRISQT REQUIRED mpris-qt5) # https://github.com/sailfishos/qtmpris
+@@ -55,7 +53,7 @@ target_link_libraries(kde-telephony-daemon
+     KF5::I18n
+     KF5::Notifications
+     KF5::ModemManagerQt
+-    KF5::PulseAudioQt
++    PkgConfig::LIBCALLAUDIO
+     ktelephonymetatypes # FIXME: KF5 cmake files
+     contactphonenumbermapper
+     )
+diff --git a/kde-telephony-daemon/src/dialer-audio.cpp b/kde-telephony-daemon/src/dialer-audio.cpp
+deleted file mode 100644
+index 4a0203f..0000000
+--- a/kde-telephony-daemon/src/dialer-audio.cpp
++++ /dev/null
+@@ -1,236 +0,0 @@
+-// SPDX-FileCopyrightText: 2021 Bhushan Shah <bshah@kde.org>
+-// SPDX-FileCopyrightText: 2021 Alexey Andreyev <aa13q@ya.ru>
+-//
+-// SPDX-License-Identifier: GPL-2.0-or-later
+-
+-#include <QDebug>
+-
+-#include <PulseAudioQt/Card>
+-#include <PulseAudioQt/CardPort>
+-#include <PulseAudioQt/Context>
+-#include <PulseAudioQt/Profile>
+-#include <PulseAudioQt/Source>
+-
+-#include <optional>
+-
+-#include "dialer-audio.h"
+-
+-DialerAudio::DialerAudio(QObject *parent)
+-    : QObject(parent)
+-{
+-    if (!PulseAudioQt::Context::instance()->isValid()) {
+-        qDebug() << "Pulseaudio context is not valid";
+-        return;
+-    }
+-
+-    connect(PulseAudioQt::Context::instance(), &PulseAudioQt::Context::cardAdded, this, &DialerAudio::cardAdded);
+-}
+-
+-void DialerAudio::cardAdded(PulseAudioQt::Card *card)
+-{
+-    if (_voiceCallCard) {
+-        qWarning() << "We already found voicecall compatible card";
+-        return;
+-    }
+-
+-    // first check if we have a voicecall profile in card?
+-    const auto profiles = card->profiles();
+-    auto voiceCallProfile = std::find_if(profiles.constBegin(), profiles.constEnd(), [](PulseAudioQt::Profile *profile) {
+-        return profile->name() == QLatin1String("VoiceCall") || profile->name() == QLatin1String("Voice Call");
+-    });
+-
+-    if (voiceCallProfile == profiles.constEnd()) {
+-        qDebug() << "Card" << card->name() << "is not voice call capable, no VoiceCall profile found";
+-        return;
+-    }
+-
+-    // next check if we have at least earpiece and some form of mic, otherwise this is not usable for the calling
+-    bool builtinMic = false;
+-    bool headsetMic = false;
+-    bool outputSpeaker = false;
+-    bool outputEarpiece = false;
+-    bool outputHeadPhone = false;
+-
+-    const auto ports = card->ports();
+-    for (const auto port : ports) {
+-        qDebug() << "Found card port " << port->name();
+-        builtinMic |= port->type() == PulseAudioQt::Port::Mic;
+-        headsetMic |= port->type() == PulseAudioQt::Port::Headset;
+-        outputSpeaker |= port->type() == PulseAudioQt::Port::Speaker;
+-        outputEarpiece |= port->type() == PulseAudioQt::Port::Earpiece;
+-        outputHeadPhone |= port->type() == PulseAudioQt::Port::Headphones;
+-    }
+-
+-    if (!builtinMic) {
+-        qDebug() << "Not correct card, no builtin mic" << card->name();
+-        return;
+-    }
+-
+-    if (!outputSpeaker || !outputEarpiece) {
+-        qDebug() << "Not correct card, no speaker or earpiece found" << card->name();
+-        return;
+-    }
+-
+-    _voiceCallCard = card;
+-    _voiceCallProfile = *voiceCallProfile;
+-
+-    // init mute value
+-    const auto sources = _voiceCallCard->sources();
+-    PulseAudioQt::Source *activeCardSource = sources.first();
+-    _micMuted = activeCardSource->isMuted();
+-    if (!_micMuted) {
+-        _prevVolume = activeCardSource->volume();
+-    }
+-}
+-
+-void DialerAudio::setCallMode(CallStatus callStatus, AudioMode audioMode)
+-{
+-    // first record previous state
+-    CallStatus prevStatus = _callStatus;
+-    AudioMode prevMode = _audioMode;
+-
+-    // if we are transitioning to active/ringing call status, we need to save pulseaudio state
+-    if (prevStatus == CallEnded && callStatus != CallEnded) {
+-        // save pulseaudio state
+-        qDebug() << "saving pulseaudio state";
+-        savePulseState();
+-    }
+-
+-    // save new state
+-    _callStatus = callStatus;
+-    _audioMode = audioMode;
+-
+-    if (!_voiceCallCard) {
+-        qWarning() << "Skipping audio setup because no voice compatible card found";
+-        return;
+-    }
+-
+-    // now if we have a active call then switch profile to the VoiceCall profile
+-    quint32 voiceCardIndex = PulseAudioQt::Context::instance()->cards().indexOf(_voiceCallCard);
+-    if ((_callStatus == CallActive) && (prevStatus != CallActive) && _voiceCallCard && _voiceCallProfile) {
+-        qDebug() << "Call active. Setting current profile to " << _voiceCallProfile->name();
+-        PulseAudioQt::Context::instance()->setCardProfile(voiceCardIndex, _voiceCallProfile->name());
+-    } else if ((_callStatus == CallEnded) && (prevStatus != CallEnded) && _voiceCallCard && _previousProfile) {
+-        qDebug() << "Call ended. Setting current profile to " << _previousProfile->name();
+-        PulseAudioQt::Context::instance()->setCardProfile(voiceCardIndex, _previousProfile->name());
+-    }
+-
+-    // now we figure out the audio sink/source switching part
+-    // this works in two steps, first we query active source/sink
+-    // and then depending on requested mode, we set the active port for both source and sink
+-
+-    const auto sources = _voiceCallCard->sources();
+-    const auto sinks = _voiceCallCard->sinks();
+-    PulseAudioQt::Sink *activeCardSink = sinks.first();
+-    PulseAudioQt::Source *activeCardSource = sources.first();
+-
+-    // find out the ports for both sources and sinks
+-    std::optional<quint32> builtinMicIndex, headsetMicIndex;
+-    const auto sourcePorts = activeCardSource->ports();
+-    for (const auto port : sourcePorts) {
+-        if (port->type() == PulseAudioQt::Port::Mic) {
+-            builtinMicIndex = sourcePorts.indexOf(port);
+-        }
+-        if (port->type() == PulseAudioQt::Port::Headset) {
+-            headsetMicIndex = sourcePorts.indexOf(port);
+-        }
+-    }
+-
+-    std::optional<quint32> outputSpeakerIndex, outputEarpieceIndex, outputHeadPhoneIndex;
+-    const auto sinkPorts = activeCardSink->ports();
+-    for (const auto port : sinkPorts) {
+-        if (port->type() == PulseAudioQt::Port::Speaker) {
+-            outputSpeakerIndex = sinkPorts.indexOf(port);
+-        }
+-        if (port->type() == PulseAudioQt::Port::Earpiece) {
+-            outputEarpieceIndex = sinkPorts.indexOf(port);
+-        }
+-        if (port->type() == PulseAudioQt::Port::Headphones) {
+-            outputHeadPhoneIndex = sinkPorts.indexOf(port);
+-        }
+-    }
+-
+-    quint32 preferredSourcePort, preferredSinkPort;
+-    if (_audioMode & AudioModeEarpiece) {
+-        if (builtinMicIndex.has_value()) {
+-            preferredSourcePort = builtinMicIndex.value();
+-        }
+-        if (outputEarpieceIndex.has_value()) {
+-            preferredSinkPort = outputEarpieceIndex.value();
+-        }
+-    }
+-    if (_audioMode & AudioModeSpeaker) {
+-        if (builtinMicIndex.has_value()) {
+-            preferredSourcePort = builtinMicIndex.value();
+-        }
+-        if (outputSpeakerIndex.has_value()) {
+-            preferredSinkPort = outputSpeakerIndex.value();
+-        }
+-    }
+-    if ((_audioMode & AudioModeWiredHeadset)) {
+-        if (headsetMicIndex.has_value()) {
+-            preferredSourcePort = headsetMicIndex.value();
+-        }
+-        if (outputHeadPhoneIndex.has_value()) {
+-            preferredSinkPort = outputHeadPhoneIndex.value();
+-        }
+-    }
+-
+-    activeCardSink->setActivePortIndex(preferredSinkPort);
+-    activeCardSource->setActivePortIndex(preferredSourcePort);
+-}
+-
+-void DialerAudio::savePulseState()
+-{
+-    if (!_voiceCallCard) {
+-        return;
+-    }
+-    quint32 prevIndex = _voiceCallCard->activeProfileIndex();
+-    _previousProfile = _voiceCallCard->profiles().at(prevIndex);
+-}
+-
+-void DialerAudio::setMicMute(bool muted)
+-{
+-    if (!_voiceCallCard) {
+-        return;
+-    }
+-    _micMuted = muted;
+-
+-    if (_callStatus == CallEnded)
+-        return;
+-    const auto sources = _voiceCallCard->sources();
+-    PulseAudioQt::Source *activeCardSource = sources.first();
+-    if (_micMuted) {
+-        _prevVolume = activeCardSource->volume();
+-        activeCardSource->setVolume(0);
+-        activeCardSource->setMuted(_micMuted);
+-    } else {
+-        activeCardSource->setMuted(_micMuted);
+-        if (_prevVolume <= PulseAudioQt::minimumVolume()) {
+-            // workaround to not have problems with the silent mic
+-            qWarning() << Q_FUNC_INFO << "setting mic volume above the minimal";
+-            _prevVolume = PulseAudioQt::normalVolume() / 2;
+-        }
+-        activeCardSource->setVolume(_prevVolume);
+-    }
+-}
+-
+-Q_GLOBAL_STATIC(DialerAudio, dialerAudio)
+-
+-DialerAudio *DialerAudio::instance()
+-{
+-    DialerAudio *audio = dialerAudio();
+-    return audio;
+-}
+-
+-AudioMode DialerAudio::getCallMode()
+-{
+-    return _audioMode;
+-}
+-
+-bool DialerAudio::getMicMute()
+-{
+-    return _micMuted;
+-}
+-
+-DialerAudio::~DialerAudio() = default;
+diff --git a/kde-telephony-daemon/src/dialer-audio.h b/kde-telephony-daemon/src/dialer-audio.h
+deleted file mode 100644
+index be73603..0000000
+--- a/kde-telephony-daemon/src/dialer-audio.h
++++ /dev/null
+@@ -1,58 +0,0 @@
+-// SPDX-FileCopyrightText: 2021 Bhushan Shah <bshah@kde.org>
+-// SPDX-FileCopyrightText: 2021 Alexey Andreyev <aa13q@ya.ru>
+-//
+-// SPDX-License-Identifier: GPL-2.0-or-later
+-
+-#pragma once
+-
+-#include <PulseAudioQt/Card>
+-#include <PulseAudioQt/Context>
+-#include <PulseAudioQt/Sink>
+-#include <PulseAudioQt/Source>
+-#include <QObject>
+-
+-enum AudioMode {
+-    AudioModeEarpiece = 0x0001,
+-    AudioModeWiredHeadset = 0x0002,
+-    AudioModeSpeaker = 0x0004,
+-    AudioModeWiredOrEarpiece = AudioModeWiredHeadset | AudioModeEarpiece,
+-    AudioModeWiredOrSpeaker = AudioModeWiredHeadset | AudioModeSpeaker,
+-};
+-
+-Q_DECLARE_METATYPE(AudioMode)
+-
+-typedef QList<AudioMode> AudioModes;
+-Q_DECLARE_METATYPE(AudioModes)
+-
+-enum CallStatus { CallRinging, CallActive, CallEnded };
+-
+-Q_DECLARE_METATYPE(CallStatus)
+-
+-class DialerAudio : public QObject
+-{
+-    Q_OBJECT
+-public:
+-    explicit DialerAudio(QObject *parent = nullptr);
+-    ~DialerAudio() override;
+-    static DialerAudio *instance();
+-
+-    AudioMode getCallMode();
+-    bool getMicMute();
+-
+-    void setCallMode(CallStatus callstatus, AudioMode audiomode);
+-    void setMicMute(bool muted);
+-
+-private:
+-    void cardAdded(PulseAudioQt::Card *card);
+-
+-    void savePulseState();
+-
+-    PulseAudioQt::Card *_voiceCallCard = nullptr;
+-    PulseAudioQt::Profile *_voiceCallProfile = nullptr;
+-    PulseAudioQt::Profile *_previousProfile = nullptr;
+-
+-    CallStatus _callStatus = CallEnded;
+-    AudioMode _audioMode = AudioModeWiredOrSpeaker;
+-    bool _micMuted = false;
+-    qint64 _prevVolume;
+-};
+diff --git a/kde-telephony-daemon/src/dialer-manager.cpp b/kde-telephony-daemon/src/dialer-manager.cpp
+index 1846201..24c86d5 100644
+--- a/kde-telephony-daemon/src/dialer-manager.cpp
++++ b/kde-telephony-daemon/src/dialer-manager.cpp
+@@ -1,9 +1,14 @@
+ // SPDX-FileCopyrightText: 2012 George Kiagiadakis <kiagiadakis.george@gmail.com>
+ // SPDX-FileCopyrightText: 2021 Alexey Andreyev <aa13q@ya.ru>
++// SPDX-FileCopyrightText: 2022 Bhushan Shah <bshah@kde.org>
+ // SPDX-License-Identifier: LGPL-2.1-or-later
+ 
+ #include "dialer-manager.h"
+-#include "dialer-audio.h"
++
++#include <glib.h>
++
++#include <libcallaudio-enums.h>
++#include <libcallaudio.h>
+ 
+ #include <KLocalizedString>
+ #include <QDBusConnection>
+@@ -11,30 +16,35 @@
+ 
+ #include <QDebug>
+ 
+-static void enable_earpiece()
++static void enable_callmode()
+ {
+-    DialerAudio::instance()->setCallMode(CallActive, AudioModeEarpiece);
++    GError *err = nullptr;
++    if (!call_audio_select_mode(CALL_AUDIO_MODE_CALL, &err)) {
++        qWarning() << "Failed to set call mode to earpiece";
++    }
+ }
+ 
+ static void enable_normal()
+ {
+-    DialerAudio::instance()->setCallMode(CallEnded, AudioModeWiredOrSpeaker);
+-}
+-
+-static void enable_speaker()
+-{
+-    DialerAudio::instance()->setCallMode(CallActive, AudioModeSpeaker);
++    GError *err = nullptr;
++    if (!call_audio_select_mode(CALL_AUDIO_MODE_DEFAULT, &err)) {
++        qWarning() << "Failed to set default callaudio mode";
++    }
+ }
+ 
+ DialerManager::DialerManager(QObject *parent)
+     : QObject(parent)
+ {
+-    DialerAudio::instance();
++    GError *err = nullptr;
++    if (!call_audio_init(&err)) {
++        qWarning() << "Failed to init callaudio" << err->message;
++    }
+ }
+ 
+ DialerManager::~DialerManager()
+ {
+     enable_normal();
++    call_audio_deinit();
+     qDebug() << "Deleting DialerManager";
+ }
+ 
+@@ -49,7 +59,6 @@ void DialerManager::setDialerUtils(DialerUtils *dialerUtils)
+ {
+     qDebug() << Q_FUNC_INFO;
+     _dialerUtils = dialerUtils;
+-    DialerAudio::instance();
+ 
+     connect(_dialerUtils, &DialerUtils::speakerModeChanged, this, &DialerManager::onSetSpeakerModeRequested);
+     connect(_dialerUtils, &DialerUtils::muteChanged, this, &DialerManager::onSetMuteRequested);
+@@ -75,7 +84,7 @@ void DialerManager::onCallStateChanged(const QString &deviceUni,
+     qDebug() << Q_FUNC_INFO << "new call state:" << callState;
+     switch (callState) {
+     case DialerTypes::CallState::Active:
+-        enable_earpiece();
++        enable_callmode();
+         break;
+     case DialerTypes::CallState::Terminated:
+         enable_normal();
+@@ -87,26 +96,28 @@ void DialerManager::onCallStateChanged(const QString &deviceUni,
+ 
+ void DialerManager::onSpeakerModeFetched()
+ {
+-    bool speakerMode = DialerAudio::instance()->getCallMode() & AudioModeSpeaker;
++    bool speakerMode = call_audio_get_speaker_state() == CALL_AUDIO_SPEAKER_ON;
+     Q_EMIT _dialerUtils->speakerModeChanged(speakerMode);
+ }
+ 
+ void DialerManager::onMuteFetched()
+ {
+-    auto micMute = DialerAudio::instance()->getMicMute();
++    auto micMute = call_audio_get_mic_state() == CALL_AUDIO_MIC_OFF;
+     Q_EMIT _dialerUtils->muteChanged(micMute);
+ }
+ 
+ void DialerManager::onSetSpeakerModeRequested(bool enabled)
+ {
+-    if (enabled) {
+-        enable_speaker();
+-    } else {
+-        enable_earpiece();
++    GError *err = nullptr;
++    if (!call_audio_enable_speaker(enabled, &err)) {
++        qWarning() << "Failed to set speaker mode" << enabled;
+     }
+ }
+ 
+ void DialerManager::onSetMuteRequested(bool muted)
+ {
+-    DialerAudio::instance()->setMicMute(muted);
++    GError *err = nullptr;
++    if (!call_audio_mute_mic(muted, &err)) {
++        qWarning() << "Failed to set mute mode" << muted;
++    }
+ }

@@ -4,22 +4,28 @@
 
 pkgname=plasma-dialer
 pkgver=22.02
-pkgrel=1
+pkgrel=2
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
 depends=('desktop-file-utils' 'kcontacts' 'modemmanager-qt' 'kpeople' 'telepathy-qt' 'libphonenumber'
          'kdbusaddons' 'knotifications' 'telepathy-mission-control' 'pulseaudio-qt' 'qt5-feedback'
-         'qt5-quickcontrols2' 'qtmpris')
+         'qt5-quickcontrols2' 'qtmpris' 'callaudiod')
 makedepends=('cmake' 'extra-cmake-modules' 'kdoctools')
-source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
+source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz"
+        'port-to-callaudiod.patch')
 install=$pkgname.install
-md5sums=('32421c5395fd195ec886861fad923870')
+md5sums=('32421c5395fd195ec886861fad923870'
+         '17da259328b8dcc1f67535d7ad4b5e78')
 
 prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 < ../port-to-callaudiod.patch
+  cd ..
+
   mkdir -p build
- }
+}
 
 build() {
   cd build
