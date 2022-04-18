@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=5.17.2
+pkgver=5.17.3
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -15,7 +15,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="d271a7047cc19ab25304fd08b1d6c45202b81b31"
+_commit="1a72e4104b8bf8d042068e80d1ceb8d6618bceaa"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -46,7 +46,12 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         '0009-bootsplash.patch'
         '0010-bootsplash.patch'
         '0011-bootsplash.patch'
-        '0012-bootsplash.patch')
+        '0012-bootsplash.patch'
+        # a workaround for suspend/resume on some OG PinePhone
+        # if you run into this issue, please check dmesg with this new kernel
+        # on every suspend/resume and let us know. also see pmaports#1478
+        'usb-musb-add-loop-blocker.patch'
+        'usb-musb-direct-musb-debug-output-to-kernel-log.patch')
 
 prepare() {
   cd linux-$_commit
@@ -245,8 +250,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('46691e2b6e92b333e321007367e869aa'
-         '0d7b4cbabe00ba3429184a82a71aada5'
+md5sums=('b10000c815dd8f1df851275ca5db3d3c'
+         '277334c7aef0d570fec1c48b43008828'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
@@ -271,4 +276,6 @@ md5sums=('46691e2b6e92b333e321007367e869aa'
          '6b6def41b404422dc04b39e2f1adffc8'
          '1922e3a7727d2bf51641b98d6d354738'
          'd6b7e4e43e42128cf950251e0d0aee23'
-         'ecfd8a30c480149005fcf349e4d06f4b')
+         'ecfd8a30c480149005fcf349e4d06f4b'
+         '61e0372287dd8081a5f312e2af4f7d56'
+         '758465e002744b2708fe1e25b8d37125')
