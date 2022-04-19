@@ -1,10 +1,10 @@
 # Maintainer: Danct12 <danct12@disroot.org>
-# Contributor: Sven-Hendrik Haase <svenstaro@gmail.com>
+# Contributor: Sven-Hendrik Haase <svenstaro@archlinux.org>
 # Contributor: hexchain <i@hexchain.org>
 
 # DANCTNIX: This patches Telegram Desktop so that it can be more adaptive on mobile.
 pkgname=telegram-desktop
-pkgver=3.6.1
+pkgver=3.7.0
 pkgrel=1
 pkgdesc='Official Telegram Desktop client'
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -20,7 +20,7 @@ optdepends=('webkit2gtk: embedded browser features'
 source=("https://github.com/telegramdesktop/tdesktop/releases/download/v${pkgver}/tdesktop-${pkgver}-full.tar.gz"
         'small-sizes.patch'
         'more-scale.patch')
-sha512sums=('dd216c720ea3b1c72669805bb31319746a7ddfe746d188bf2ae0c5cdf0a10b379fc2e888a26fe755d77381fc5d9aa638cedc76b2dce1f1126a9c1ef9c02da2ba'
+sha512sums=('425e78e8950c9289b665dda468924b165ed29ec2f4cfa87bd7e8a1e4c9acf08db5949caa87e1d9f4c9e295d9b0bd4ee9caec5eaea2789517bc79fc0b96e14d88'
             '413a2bb5dc8ff582c97351ba35158f5926c157465c72545f488ea5d5dde1a048fc339dcb158c0e17cd5baa1d600b8ff7acdd86262254ddd18585559413871566'
             '452ebf8a8c2bf841521ebd304ad6c0212a2939f16ed9b278eb3b0327e608867d1ed86b4ef4e24ad18d3fcb40ce9e01fcdfe4e8c694ac4e5525176fef7974e781')
 
@@ -44,7 +44,7 @@ build() {
     export CXXFLAGS+=" -Wp,-U_GLIBCXX_ASSERTIONS"
 
     export PKG_CONFIG_PATH='/usr/lib/ffmpeg4.4/pkgconfig'
-    # Turns out we're allowed to use the official API key that telegram uses for their snap builds:
+    #Turns out we're allowed to use the official API key that telegram uses for their snap builds:
     # https://github.com/telegramdesktop/tdesktop/blob/8fab9167beb2407c1153930ed03a4badd0c2b59f/snap/snapcraft.yaml#L87-L88
     # Thanks @primeos!
     cmake \
@@ -54,8 +54,7 @@ build() {
         -DCMAKE_BUILD_TYPE=Release \
         -DTDESKTOP_API_ID=611335 \
         -DTDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c
-    # Hack to compile for ffmpeg4.4
-    sed -i "s|/usr/lib/libav|/usr/lib/ffmpeg4.4/libav|g" build/build.ninja
+        sed -i "s|/usr/lib/libav|/usr/lib/ffmpeg4.4/libav|g" build/build.ninja
     sed -i "s|/usr/lib/libsw|/usr/lib/ffmpeg4.4/libsw|g" build/build.ninja
     sed -i "s|-lavcodec|/usr/lib/ffmpeg4.4/libavcodec.so|g" build/build.ninja
     sed -i "s|-lavformat|/usr/lib/ffmpeg4.4/libavformat.so|g" build/build.ninja
