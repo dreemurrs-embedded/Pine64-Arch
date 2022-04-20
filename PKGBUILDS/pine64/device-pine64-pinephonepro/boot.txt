@@ -1,0 +1,52 @@
+#
+# /boot/boot.txt
+# After modifying, run "./mkscr" inside the boot directory to re-generate the U-Boot boot script.
+#
+
+#
+# This is the description of the GPIO lines that can be used for indication:
+#
+# GPIO #105 is GPIO3_B1, or RK3399 ball C27, which controls the vibrator motor
+# GPIO #154 is GPIO4_D2, or RK3399 ball AH3, which controls the red part of the multicolor LED
+# GPIO #157 is GPIO4_D5, or RK3399 ball AJ3, which controls the green part of the multicolor LED
+# GPIO #158 is GPIO4_D6, or RK3399 ball AG4, which controls the blue part of the multicolor LED
+#
+
+gpio set 105
+gpio set 157
+
+if test ${devnum} -eq 1; then
+        echo "Booting from SD"
+        setenv linux_mmcdev 1
+else
+        echo "Booting from eMMC"
+        setenv linux_mmcdev 2
+fi
+
+# If we have at least 2 partitions, then the 1st one is /boot, and / is #2
+if part size mmc ${devnum} 2 none; then
+        setenv rootpart 2
+else
+        setenv rootpart 1
+        setenv bootdir "/boot"
+fi
+
+setenv bootargs loglevel=4 console=ttyS2,115200 console=tty0 root=/dev/mmcblk${linux_mmcdev}p${rootpart} rw rootwait quiet bootsplash.bootfile=bootsplash-themes/danctnix/bootsplash
+
+echo "Loading kernel..."
+load mmc ${devnum}:1 ${ramdisk_addr_r} ${bootdir}/Image.gz
+
+echo "Uncompressing kernel..."
+unzip ${ramdisk_addr_r} ${kernel_addr_r}
+
+echo "Loading initramfs..."
+load mmc ${devnum}:1 ${ramdisk_addr_r} ${bootdir}/initramfs-linux.img
+setenv ramdisk_size ${filesize}
+
+echo "Loading dtb..."
+load mmc ${devnum}:1 ${fdt_addr_r} ${bootdir}/dtbs/${fdtfile}
+
+echo "Booting..."
+gpio clear 157
+gpio clear 105 # Disable vibrator
+booti ${kernel_addr_r} ${ramdisk_addr_r}:0x${ramdisk_size} ${fdt_addr_r}
