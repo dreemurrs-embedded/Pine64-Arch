@@ -2,7 +2,7 @@
 # Contributor: Dan Johansen <strit@manjaro.org>
 
 pkgname=plasma-angelfish
-pkgver=22.02
+pkgver=22.04
 pkgrel=1
 pkgdesc="Plasma Webbrowser for Mobile Devices"
 arch=('x86_64' 'aarch64')
@@ -12,7 +12,7 @@ depends=('desktop-file-utils' 'plasma-framework' 'qt5-webengine' 'qt5-feedback' 
 makedepends=('cmake' 'extra-cmake-modules')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/angelfish-$pkgver.tar.xz")
 install=$pkgname.install
-md5sums=('acaf7b4c7f4c5faf12a6265e49d8ba25')
+md5sums=('c6c9ea06342076d65c5eb4bd0535a68c')
 
 prepare() {
   mkdir -p build
@@ -22,11 +22,15 @@ build() {
   cd build
   cmake ../angelfish-${pkgver} \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DBUILD_TESTING=OFF \
     -DLIB_INSTALL_DIR=lib \
     -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
     -DCMAKE_BUILD_TYPE=Release
   make
+}
+
+check() {
+  cd build
+  ctest --output-on-failure
 }
 
 package() {
