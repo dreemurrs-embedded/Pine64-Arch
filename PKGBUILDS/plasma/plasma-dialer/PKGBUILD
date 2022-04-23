@@ -3,8 +3,8 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-dialer
-pkgver=22.02
-pkgrel=2
+pkgver=22.04
+pkgrel=1
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
@@ -13,17 +13,11 @@ depends=('desktop-file-utils' 'kcontacts' 'modemmanager-qt' 'kpeople' 'telepathy
          'kdbusaddons' 'knotifications' 'telepathy-mission-control' 'pulseaudio-qt' 'qt5-feedback'
          'qt5-quickcontrols2' 'qtmpris' 'callaudiod')
 makedepends=('cmake' 'extra-cmake-modules' 'kdoctools')
-source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz"
-        'port-to-callaudiod.patch')
+source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-md5sums=('32421c5395fd195ec886861fad923870'
-         '17da259328b8dcc1f67535d7ad4b5e78')
+md5sums=('8837f0f6c5f810bb75f186b1f6642def')
 
 prepare() {
-  cd $pkgname-$pkgver
-  patch -p1 < ../port-to-callaudiod.patch
-  cd ..
-
   mkdir -p build
 }
 
@@ -32,11 +26,15 @@ build() {
   cmake ../$pkgname-$pkgver \
     -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DBUILD_TESTING=OFF \
     -DLIB_INSTALL_DIR=lib \
     -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
     -DCMAKE_BUILD_TYPE=Release
   make
+}
+
+check() {
+  cd build
+  ctest --output-on-failure
 }
 
 package() {
