@@ -1,0 +1,73 @@
+From b6bbcd635db71a6b508223db85f433db91b339a8 Mon Sep 17 00:00:00 2001
+From: undef <gitlab@undef.tools>
+Date: Thu, 14 Apr 2022 08:54:12 +0000
+Subject: [PATCH] Add model for Pine64 PinePhone keyboard
+
+This adds a model for the Pine64 PinePhone Keyboard
+(https://wiki.pine64.org/wiki/PinePhone_(Pro)_Keyboard).
+Specifically, it implements the symbols listed on the top
+row of the keyboard as a third layer which are not
+available in the kernel driver.
+---
+ rules/0002-base.lists.part |  2 +-
+ rules/base.xml             |  7 +++++++
+ symbols/inet               | 15 +++++++++++++++
+ 3 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/rules/0002-base.lists.part b/rules/0002-base.lists.part
+index 75059447..8c9eaf82 100644
+--- a/rules/0002-base.lists.part
++++ b/rules/0002-base.lists.part
+@@ -37,7 +37,7 @@
+               sven sven303 symplon \
+               teck227 teck229 \
+               toshiba_s3000 trust trustda \
+-              unitekkb1925 yahoo \
++              unitekkb1925 yahoo ppkb \
+               apex300
+ 
+ ! $inetmediakbds = acer_ferrari4k acer_laptop btc5090 btc9019u cherryblueb \
+diff --git a/rules/base.xml b/rules/base.xml
+index 8bc0447a..ef5fe221 100644
+--- a/rules/base.xml
++++ b/rules/base.xml
+@@ -1333,6 +1333,13 @@
+        <vendor>Google</vendor>
+      </configItem>
+     </model>
++    <model>
++      <configItem>
++       <name>ppkb</name>
++       <description>PinePhone Keyboard</description>
++       <vendor>Pine64</vendor>
++     </configItem>
++    </model>
+   </modelList>
+   <layoutList>
+     <layout>
+diff --git a/symbols/inet b/symbols/inet
+index 518d846e..18fa9eb5 100644
+--- a/symbols/inet
++++ b/symbols/inet
+@@ -2071,3 +2071,18 @@ xkb_symbols "teck229" {
+     include "inet(teck227)"
+ };
+ 
++
++partial alphanumeric_keys
++xkb_symbols "ppkb" {
++
++    key <AE01> {        [         1,    exclam,         bar             ]       };
++    key <AE02> {        [         2,    at,             backslash       ]       };
++    key <AE03> {        [         3,    numbersign,     sterling        ]       };
++    key <AE04> {        [         4,    dollar,         EuroSign        ]       };
++    key <AE05> {        [         5,    percent,        asciitilde      ]       };
++    key <AE06> {        [         6,    asciicircum,    grave           ]       };
++    key <AE07> {        [         7,    ampersand,      minus           ]       };
++    key <AE08> {        [         8,    asterisk,       equal           ]       };
++    key <AE09> {        [         9,    parenleft,      underscore      ]       };
++    key <AE10> {        [         0,    parenright,     plus            ]       };
++};
+-- 
+2.36.0
+
