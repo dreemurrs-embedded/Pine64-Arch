@@ -1,0 +1,118 @@
+From 2e0b21c5b9f7ff7fef3057210423cfa11057edbd Mon Sep 17 00:00:00 2001
+From: ArenM <aren@peacevolution.org>
+Date: Wed, 27 Apr 2022 23:57:38 -0400
+Subject: [PATCH sxmo-utils 3/5] avoid conflicting with systemd services
+
+Arch, Debian, and probably most other systemd based ditros, enable
+pipewire / mmsd / vvmd by default. If we start them with superd either
+it or systemd will think the services failed to start.
+
+If we want to manage these services (e.g. mmsdconfig & vvmdconfig) we
+need to know which service manager is being used, to do this we should
+allow systemd to manage the service because we can't easily disable it.
+
+Also rename mmsd service to mmsd-tng; most distributions use mmsd-tng
+for the service name, following this will make it easier to integrate
+with them.
+---
+ configs/default_hooks/sxmo_hook_start.sh      | 22 ++++++++++++-------
+ .../{mmsd.service => mmsd-tng.service}        |  0
+ scripts/core/sxmo_mmsdconfig.sh               | 10 +++++++--
+ scripts/core/sxmo_vvmdconfig.sh               | 10 +++++++--
+ 4 files changed, 30 insertions(+), 12 deletions(-)
+ rename configs/superd/services/{mmsd.service => mmsd-tng.service} (100%)
+
+diff --git a/configs/default_hooks/sxmo_hook_start.sh b/configs/default_hooks/sxmo_hook_start.sh
+index 277646a..79612ea 100644
+--- a/configs/default_hooks/sxmo_hook_start.sh
++++ b/configs/default_hooks/sxmo_hook_start.sh
+@@ -46,12 +46,15 @@ case "$SXMO_WM" in
+ 		;;
+ esac
+ 
+-if [ -f "${SXMO_MMS_BASE_DIR:-"$HOME"/.mms/modemmanager}/mms" ]; then
+-	superctl start mmsd
+-fi
++# Systemd runs these by default, don't conflict
++if ! command -v systemctl > /dev/null; then
++	if [ -f "${SXMO_MMS_BASE_DIR:-"$HOME"/.mms/modemmanager}/mms" ]; then
++		superctl start mmsd-tng
++	fi
+ 
+-if [ -f "${SXMO_VVM_BASE_DIR:-"$HOME"/.vvm/modemmanager}/vvm" ]; then
+-	superctl start vvmd
++	if [ -f "${SXMO_VVM_BASE_DIR:-"$HOME"/.vvm/modemmanager}/vvm" ]; then
++		superctl start vvmd
++	fi
+ fi
+ 
+ # Start the desktop widget (e.g. clock)
+@@ -74,9 +77,12 @@ superctl start sxmo_notificationmonitor
+ # To setup initial lock state
+ sxmo_hook_unlock.sh
+ 
+-superctl start pipewire
+-superctl start pipewire-pulse
+-superctl start wireplumber
++# Systemd runs these by default, don't conflict
++if ! command -v systemctl > /dev/null; then
++	superctl start pipewire
++	superctl start pipewire-pulse
++	superctl start wireplumber
++fi
+ 
+ # Verify modemmanager and eg25-manager are running
+ if ! sxmo_modemdaemons.sh status; then
+diff --git a/configs/superd/services/mmsd.service b/configs/superd/services/mmsd-tng.service
+similarity index 100%
+rename from configs/superd/services/mmsd.service
+rename to configs/superd/services/mmsd-tng.service
+diff --git a/scripts/core/sxmo_mmsdconfig.sh b/scripts/core/sxmo_mmsdconfig.sh
+index 78d9378..aea0c45 100644
+--- a/scripts/core/sxmo_mmsdconfig.sh
++++ b/scripts/core/sxmo_mmsdconfig.sh
+@@ -75,10 +75,16 @@ newfile() {
+ 
+ mkdir -p "$MMS_BASE_DIR"
+ 
+-superctl stop mmsd
++if command -v systemctl > /dev/null; then
++	SERVICE="systemctl --user"
++else
++	SERVICE=superctl
++fi
++
++$SERVICE stop mmsd-tng
+ 
+ finish() {
+-	superctl start mmsd
++	$SERVICE start mmsd-tng
+ }
+ trap 'finish' EXIT
+ 
+diff --git a/scripts/core/sxmo_vvmdconfig.sh b/scripts/core/sxmo_vvmdconfig.sh
+index ab14e4e..335b595 100644
+--- a/scripts/core/sxmo_vvmdconfig.sh
++++ b/scripts/core/sxmo_vvmdconfig.sh
+@@ -65,10 +65,16 @@ newfile() {
+ 
+ mkdir -p "$VVM_BASE_DIR"
+ 
+-superctl stop vvmd
++if command -v systemctl > /dev/null; then
++	SERVICE="systemctl --user"
++else
++	SERVICE=superctl
++fi
++
++$SERVICE stop vvmd
+ 
+ finish() {
+-	superctl start vvmd
++	$SERVICE start vvmd
+ }
+ trap 'finish' EXIT
+ 
+-- 
+2.36.1
+
