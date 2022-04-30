@@ -1,0 +1,29 @@
+# Maintainer: Aren <aren@peacevolution.org>
+# Contributor: Clayton Craft <clayton@craftyguy.net>
+
+pkgname=superd
+pkgver=0.3.1
+pkgrel=1
+pkgdesc='lightweight user service supervising daemon'
+url='https://sr.ht/~craftyguy/superd'
+arch=('x86_64' 'i686' 'armv7h' 'aarch64')
+license=('GPL3')
+makedepends=('go' 'scdoc')
+source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~craftyguy/superd/archive/$pkgver.tar.gz")
+
+build() {
+	cd "$pkgname-$pkgver"
+	unset LDFLAGS # passed as go linker flags and invalid
+	make PREFIX='/usr' VERSION='$pkgver'
+}
+
+check() {
+	cd "$pkgname-$pkgver"
+	go test ./...
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	make PREFIX='/usr' DESTDIR="$pkgdir" install
+}
+sha256sums=('1b3032a7b7bf8f75794e39d673fdc8adb7aecc665382bd5c30bb17f7dd5a8275')
