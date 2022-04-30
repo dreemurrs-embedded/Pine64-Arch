@@ -1,0 +1,29 @@
+From 0085c125dc3fbd2d300d739d91154cb3628ca3ac Mon Sep 17 00:00:00 2001
+From: ArenM <aren@peacevolution.org>
+Date: Wed, 27 Apr 2022 14:33:20 -0400
+Subject: [PATCH sxmo-utils 1/5] prevent modemdial from bailing early
+
+systemd puts a directory in XDG_RUNTIME_DIR that isn't readable by the
+user, when find hits this it causes the script to bail which shouldn't
+happen. This is a quick fix to prevent this, a better solution is on the
+mailing list: https://lists.sr.ht/~mil/sxmo-devel/patches/30644
+---
+ scripts/modem/sxmo_modemdial.sh | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/scripts/modem/sxmo_modemdial.sh b/scripts/modem/sxmo_modemdial.sh
+index 69c32f9..65630f8 100755
+--- a/scripts/modem/sxmo_modemdial.sh
++++ b/scripts/modem/sxmo_modemdial.sh
+@@ -6,8 +6,6 @@
+ # shellcheck source=scripts/core/sxmo_common.sh
+ . sxmo_common.sh
+ 
+-set -e
+-
+ dial_number() {
+ 	NUMBER="$1"
+ 
+-- 
+2.36.1
+
