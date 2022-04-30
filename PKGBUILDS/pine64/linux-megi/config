@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.17.4-1 Kernel Configuration
+# Linux/arm64 5.17.5-1 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 11.2.0"
 CONFIG_CC_IS_GCC=y
@@ -1924,7 +1924,6 @@ CONFIG_NET_VENDOR_ASIX=y
 # CONFIG_NET_VENDOR_HISILICON is not set
 # CONFIG_NET_VENDOR_HUAWEI is not set
 # CONFIG_NET_VENDOR_INTEL is not set
-# CONFIG_NET_VENDOR_MICROSOFT is not set
 CONFIG_NET_VENDOR_LITEX=y
 # CONFIG_LITEX_LITEETH is not set
 # CONFIG_NET_VENDOR_MARVELL is not set
@@ -1932,9 +1931,10 @@ CONFIG_NET_VENDOR_LITEX=y
 # CONFIG_NET_VENDOR_MICREL is not set
 # CONFIG_NET_VENDOR_MICROCHIP is not set
 # CONFIG_NET_VENDOR_MICROSEMI is not set
+# CONFIG_NET_VENDOR_MICROSOFT is not set
+# CONFIG_NET_VENDOR_NI is not set
 # CONFIG_NET_VENDOR_NATSEMI is not set
 # CONFIG_NET_VENDOR_NETRONOME is not set
-# CONFIG_NET_VENDOR_NI is not set
 # CONFIG_ETHOC is not set
 # CONFIG_NET_VENDOR_PENSANDO is not set
 # CONFIG_NET_VENDOR_QUALCOMM is not set
