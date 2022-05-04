@@ -1,6 +1,6 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-dwm
-pkgver=6.2.15
+pkgver=6.2.17
 pkgrel=1
 pkgdesc="Dwm fork for Sxmo UI; supports volume-key hotkeys, swallow, keyboard, among other patches"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -25,4 +25,4 @@ package() {
   make PREFIX=/usr DESTDIR="$pkgdir" install
 }
 
-sha512sums=('a92eded8ca829b866f268d9d62980242a029c17febdf1a89d4944fc53f2da374e02e5a1255164aebaf6abf1d53278495e28fae38b2502328b814e27b849c5057')
+sha512sums=('2e07f97beb1104f4c792df8a4895a7c89c0159659343833c2dac1a8c7b8089e348f9d676f23b05b04857b9134c345ef2de100a826a968773761064ba4dc214db')
