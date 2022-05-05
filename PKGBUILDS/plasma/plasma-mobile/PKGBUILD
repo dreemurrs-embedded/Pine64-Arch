@@ -3,7 +3,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-mobile
-pkgver=5.24.4
+pkgver=5.24.5
 pkgrel=1
 pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
 arch=('aarch64' 'x86_64')
@@ -15,7 +15,7 @@ makedepends=('cmake' 'baloo' 'extra-cmake-modules' 'kdoctools')
 replaces=('plasma-phone-components')
 source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-sha512sums=('237bb1748591de1e04b1414ecdb261c6f0505e92b3ccdb306adaee9e8a33c260a64f56a7363a3ab6f117e9e41d525e5491a337c66d4463c3edac4f642b7bde09')
+sha512sums=('fe5c6f80b784bfef6d9d64b33582c6a3f8e764d6d14007acbdb8cc21df42f633ef365ff4398f91a972309e07637b3d3113f2a88d78b32147a5605b02f84a35ed')
 
 prepare() {
   cd $pkgname-$pkgver
