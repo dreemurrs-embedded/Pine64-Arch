@@ -4,7 +4,7 @@
 
 pkgname=xkeyboard-config
 pkgver=2.35.1
-pkgrel=2
+pkgrel=3
 pkgdesc="X keyboard configuration files"
 arch=(any)
 license=('custom')
@@ -14,16 +14,19 @@ provides=('xkbdata')
 replaces=('xkbdata')
 conflicts=('xkbdata')
 source=(https://xorg.freedesktop.org/archive/individual/data/${pkgname}/${pkgname}-${pkgver}.tar.xz{,.sig}
-        'Add-model-for-PinePhone-keyboard.patch')
+        'Add-model-for-PinePhone-keyboard.patch'
+        'Add-evdev-rule-for-ppkb-model.patch')
 validpgpkeys=('FFB4CCD275AAA422F5F9808E0661D98FC933A145') # Sergey Udaltsov <sergey.udaltsov@gmail.com>
 #validpgpkeys=('15CFA5C595041D2CCBEA155F1732AA424A0E86B4') # "Sergey Udaltsov (For GNOME-related tasks) <svu@gnome.org>"
 sha256sums=('18ce50ff0c74ae6093062bce1aeab3d363913ea35162fe271f8a0ce399de85cc'
             'SKIP'
-            '1c54ba3d1b4a0311ed69438aa3331558d1664b692f9e4f2e1231e85fb8587237')
+            '1c54ba3d1b4a0311ed69438aa3331558d1664b692f9e4f2e1231e85fb8587237'
+            '2286decb583bdbe64d5db1184bd06df59eeaf72ea8018fb63ccb8af758a30448')
 
 prepare() {
   cd ${pkgname}-${pkgver}
   patch -p1 < ../Add-model-for-PinePhone-keyboard.patch
+  patch -p1 < ../Add-evdev-rule-for-ppkb-model.patch
 }
 
 build() {

@@ -1,0 +1,25 @@
+From 4fcc197e60fc6f2cc64466672c3d17ae2fd2c542 Mon Sep 17 00:00:00 2001
+From: undef <gitlab@undef.tools>
+Date: Sat, 23 Apr 2022 02:52:20 +0000
+Subject: [PATCH] Add evdev rule for ppkb model
+
+This allows the keyboard model to be picked up automatically on wayland
+based systems.
+---
+ rules/0026-evdev.m_s.part | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/rules/0026-evdev.m_s.part b/rules/0026-evdev.m_s.part
+index c79a02e2..2dd72051 100644
+--- a/rules/0026-evdev.m_s.part
++++ b/rules/0026-evdev.m_s.part
+@@ -1,5 +1,6 @@
+ ! model		=	symbols
+   $evdevkbds    =   +inet(evdev)+inet(%m)
+   chromebook    =   +inet(evdev)+inet(chromebook)
++  ppkb          =   +inet(evdev)+inet(ppkb)
+   applealu_jis  =   +inet(evdev)+macintosh_vndr/jp(alujiskeys)
+   *             =   +inet(evdev)
+-- 
+2.30.2
+
