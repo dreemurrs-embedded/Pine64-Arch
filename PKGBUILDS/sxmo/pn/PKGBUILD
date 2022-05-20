@@ -10,6 +10,7 @@ license=('Apache')
 makedepends=('cmake' 'gawk')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
 
+
 build() {
   cd "$pkgname-$pkgver"
   if [ "$CBUILD" != "$CHOST" ]; then
