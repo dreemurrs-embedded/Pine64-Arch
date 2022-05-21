@@ -3,7 +3,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.33
+pkgver=3.24.34
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -16,7 +16,7 @@ depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2
 makedepends=(gobject-introspection gtk-doc git glib2-docs sassc meson
              wayland-protocols)
 license=(LGPL)
-_commit=8ff9b2f83ff491cbfcbf9b30c706bd917679e7cc  # tags/3.24.33^0
+_commit=4e3a3f05533789e1a68c70c185e1755d386d6c47  # tags/3.24.34^0
 source=("git+https://gitlab.gnome.org/GNOME/gtk.git#commit=$_commit"
         gtk-query-immodules-3.0.hook
         # Purism patches
