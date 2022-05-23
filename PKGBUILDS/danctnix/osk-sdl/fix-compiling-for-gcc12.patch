@@ -1,0 +1,10 @@
+--- src/keyboard.h
++++ src/keyboard.h
+@@ -22,6 +22,7 @@
+ #include "config.h"
+ #include <SDL2/SDL.h>
+ #include <SDL2/SDL_ttf.h>
++#include <array>
+ #include <cmath>
+ #include <cstdint>
+ #include <list>

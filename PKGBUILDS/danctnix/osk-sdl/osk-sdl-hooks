@@ -1,14 +1,69 @@
 #!/usr/bin/ash
 
 run_hook() {
-    if cryptsetup isLuks "$root"; then
-        echo "Device is encrypted, starting osk-sdl."
-        until cryptsetup status cryptroot | grep -qwi active; do
-            osk-sdl -G -d $root -n cryptroot -c /etc/osk.conf
-        done
-        export root="/dev/mapper/cryptroot"
+
+    # Set these variables to help osk-sdl display correctly.
+    export ETNA_MESA_DEBUG=no_supertile
+    export SDL_VIDEODRIVER=kmsdrm
+
+    modprobe -a -q dm-crypt >/dev/null 2>&1
+    [ "${quiet}" = "y" ] && CSQUIET=">/dev/null"
+
+    if [ -n "${cryptdevice}" ]; then
+        DEPRECATED_CRYPT=0
+        IFS=: read cryptdev cryptname <<EOF
+$cryptdevice
+EOF
     else
-        echo "Device is not encrypted, quitting."
-        return 1
+        DEPRECATED_CRYPT=1
+        cryptdev="${root}"
+        cryptname="root"
+    fi
+
+    # This may happen if third party hooks do the crypt setup
+    if [ -b "/dev/mapper/${cryptname}" ]; then
+        echo "Device ${cryptname} already exists, not doing any crypt setup."
+        return 0
+    fi
+
+    warn_deprecated() {
+        echo "The syntax 'root=${root}' where '${root}' is an encrypted volume is deprecated"
+        echo "Use 'cryptdevice=${root}:root root=/dev/mapper/root' instead."
+    }
+
+    if resolved=$(resolve_device "${cryptdev}" ${rootdelay}); then
+        if cryptsetup isLuks ${resolved} >/dev/null 2>&1; then
+            [ ${DEPRECATED_CRYPT} -eq 1 ] && warn_deprecated
+            dopassphrase=1
+            # Ask for a passphrase
+            if [ ${dopassphrase} -gt 0 ]; then
+                echo ""
+                echo "A password is required to access the ${cryptname} volume"
+
+                #loop until we get a real password
+                while ! [ -b "/dev/mapper/${cryptname}" ]; do
+                   osk-sdl -G -d ${resolved} -n ${cryptname} -c /etc/osk.conf
+                done
+            fi
+            if [ -e "/dev/mapper/${cryptname}" ]; then
+                if [ ${DEPRECATED_CRYPT} -eq 1 ]; then
+                    export root="/dev/mapper/root"
+                fi
+            else
+                err "Password succeeded, but ${cryptname} creation failed, aborting..."
+                return 1
+            fi
+        else
+            err "Failed to open encryption mapping: The device ${cryptdev} is not a LUKS volume."
+        fi
+    fi
+
+    IFS=,
+    if [ -n "${osk_kms}" ]; then
+      for i in $osk_kms
+      do
+        echo "Resetting $i module"
+        rmmod -f "$i"
+      done
     fi
 }
