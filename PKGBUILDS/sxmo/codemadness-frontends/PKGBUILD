@@ -1,7 +1,9 @@
-# Maintainer: Anjandev Momi <anjan@momi.ca>
+# Maintainer: Aren <aren@peacevolution.org>
+# Contributor: Anjandev Momi <anjan@momi.ca>
+
 pkgname=codemadness-frontends
 pkgver=0.5
-pkgrel=1
+pkgrel=2
 pkgdesc="Experimental (cli, web, and gopher) frontends for youtube, reddit, & duckduckgo"
 url="https://www.codemadness.org/idiotbox.html"
 arch=('x86_64' 'armv7h' 'aarch64')
