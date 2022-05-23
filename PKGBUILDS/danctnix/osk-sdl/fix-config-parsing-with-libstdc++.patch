@@ -1,0 +1,13 @@
+--- src/config.cpp
++++ src/config.cpp	
+@@ -183,7 +183,9 @@
+ 			continue;
+ 		} else if (id.empty()) {
+ 			continue;
+-		} else if (!(iss >> eq >> val >> std::ws) || eq != "=" || iss.get() != EOF) {
++		}
++		iss >> eq >> val >> std::ws;
++		if (eq != "=" || iss.get() != EOF) {
+ 			error = true;
+ 		}
+ 
