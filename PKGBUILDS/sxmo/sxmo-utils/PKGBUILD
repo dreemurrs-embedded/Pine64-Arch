@@ -3,13 +3,12 @@
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
 pkgver=1.9.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('AGPL3')
-depends=('busybox')
-makedepends=('libx11' 'xorgproto' 'linux-headers')
+makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
         '0001-prevent-modemdial-from-bailing-early.patch'
@@ -42,6 +41,7 @@ build() {
 package_sxmo-utils() {
   depends=(
     # Core cli dependencies
+    'busybox'
     'callaudiod'
     'curl'
     'doas'
