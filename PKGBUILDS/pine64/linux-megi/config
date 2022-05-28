@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 5.18.0-1 Kernel Configuration
+# Linux/arm64 5.18.0-2 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 11.2.0"
 CONFIG_CC_IS_GCC=y
@@ -3565,6 +3565,8 @@ CONFIG_VIDEO_OV8858=m
 # CONFIG_VIDEO_CCS is not set
 # CONFIG_VIDEO_ET8EK8 is not set
 # CONFIG_VIDEO_M5MOLS is not set
+# CONFIG_VIDEO_HM5065 is not set
+CONFIG_VIDEO_GC2145=m
 # end of Camera sensor devices
 
 #
