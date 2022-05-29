@@ -10,10 +10,8 @@ pkgdesc="U-Boot for PinePhone"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
 license=('GPL')
-depends=('uboot-tools') # we need this for mkscr
 makedepends=('bc' 'python' 'swig' 'dtc' 'python-setuptools')
 install=${pkgname}.install
-backup=("boot/boot.txt")
 
 _commit_atf="d005bfcdff423fc84f03c657e0dcdb4b45621b22"
 
@@ -23,8 +21,6 @@ source=("https://ftp.denx.de/pub/u-boot/u-boot-${pkgver/rc/-rc}.tar.bz2"
         '0001-expose-DRAM-clock-speed.patch'
         'Improve-Allwinner-A64-timer-workaround.patch'
         'Add-volume_key-environment-variable.patch'
-        'boot.txt'
-        'mkscr'
         'update-u-boot'
         'scp.bin')
 md5sums=('49ba74a214d14c6340c8067bc1ed5fa0'
@@ -33,8 +29,6 @@ md5sums=('49ba74a214d14c6340c8067bc1ed5fa0'
          '061a510280d16bddf16679cf0d23bf6e'
          '98ad5f31b1d7ff2e6e03555f29ebc6e6'
          'fb9def68f0b44c69f88f7923e21379cc'
-         '06c27a80909035513aac45036e8d954b'
-         '021623a04afd29ac3f368977140cfbfd'
          '5f85361d1d5ce47ff11ec4009cc2e18a'
          '90616d501a12d6f7a12c4349f789c343')
 
@@ -132,6 +126,5 @@ package() {
   cp u-boot-sunxi-with-spl-pinetab{-624,-552,-528,-492}.bin "${pkgdir}"/boot
   cp u-boot-sunxi-with-spl-pinephone{-624,-552,-528,-492}.bin "${pkgdir}"/boot
 
-  cp ../boot.txt ../mkscr "${pkgdir}"/boot
   mkdir -p "${pkgdir}"/usr/bin && cp ../update-u-boot "${pkgdir}"/usr/bin
 }
