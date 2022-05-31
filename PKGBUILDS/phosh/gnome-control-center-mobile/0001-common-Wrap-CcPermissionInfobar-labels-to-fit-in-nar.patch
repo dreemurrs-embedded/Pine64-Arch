@@ -1,0 +1,41 @@
+From 224d621fa69aa5b29cc810d1da0d89f663c17a96 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Correa=20G=C3=B3mez?= <ablocorrea@hotmail.com>
+Date: Mon, 14 Feb 2022 20:03:59 +0100
+Subject: [PATCH] common: Wrap CcPermissionInfobar labels to fit in narrower
+ screens
+
+---
+ panels/common/cc-permission-infobar.ui | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/panels/common/cc-permission-infobar.ui b/panels/common/cc-permission-infobar.ui
+index 851fcd040..a2830b98f 100644
+--- a/panels/common/cc-permission-infobar.ui
++++ b/panels/common/cc-permission-infobar.ui
+@@ -27,6 +27,7 @@
+                     <child>
+                       <object class="GtkLabel" id="title">
+                         <property name="halign">start</property>
++                        <property name="wrap">True</property>
+                         <!-- Actual string set in code -->
+                         <property name="label"></property>
+                         <attributes>
+@@ -37,6 +38,7 @@
+                     <child>
+                       <object class="GtkLabel">
+                         <property name="halign">start</property>
++                        <property name="wrap">True</property>
+                         <property name="label" translatable="yes">Some settings must be unlocked before they can be changed.</property>
+                       </object>
+                     </child>
+@@ -55,6 +57,7 @@
+                   <object class="GtkLockButton" id="lock_button">
+                     <property name="receives-default">True</property>
+                     <property name="label" translatable="yes">Unlock…</property>
++                    <property name="valign">GTK_ALIGN_CENTER</property>
+                   </object>
+                 </child>
+               </object>
+-- 
+2.35.1
+

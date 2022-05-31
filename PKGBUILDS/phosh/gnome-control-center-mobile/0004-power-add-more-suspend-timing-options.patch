@@ -1,4 +1,3 @@
-From 7c6347bf9cf38d82d1d8e07f973f23c1ca2b871a Mon Sep 17 00:00:00 2001
 From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
 Date: Mon, 25 May 2020 21:03:38 +0200
 Subject: [PATCH 4/4] power: add more suspend timing options
@@ -9,9 +8,9 @@ Subject: [PATCH 4/4] power: add more suspend timing options
 
 Index: gnome-control-center/panels/power/cc-power-panel.ui
 ===================================================================
---- gnome-control-center.orig/panels/power/cc-power-panel.ui	2021-10-23 07:56:40.667000000 +0000
-+++ gnome-control-center/panels/power/cc-power-panel.ui	2021-10-23 07:56:40.664000000 +0000
-@@ -10,6 +10,14 @@
+--- gnome-control-center.orig/panels/power/cc-power-panel.ui	2022-03-31 05:05:48.557000000 +0000
++++ gnome-control-center/panels/power/cc-power-panel.ui	2022-03-31 05:05:48.553000000 +0000
+@@ -9,6 +9,14 @@
      </columns>
      <data>
        <row>

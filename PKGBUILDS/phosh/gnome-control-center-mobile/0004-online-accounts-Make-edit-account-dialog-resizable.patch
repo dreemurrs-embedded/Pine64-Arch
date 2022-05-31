@@ -1,4 +1,3 @@
-From 16214de00e2f3f2fc8a95ada62882a42371e80a7 Mon Sep 17 00:00:00 2001
 From: Alexander Mikhaylenko <alexander.mikhaylenko@puri.sm>
 Date: Tue, 13 Oct 2020 14:24:03 +0500
 Subject: [PATCH 4/7] online-accounts: Make edit account dialog resizable
@@ -8,10 +7,10 @@ Allow the downstream fork of GTK to maximize it.
  panels/online-accounts/online-accounts.ui | 1 -
  1 file changed, 1 deletion(-)
 
-Index: gnome-control-center/panels/online-accounts/online-accounts.ui
-===================================================================
---- gnome-control-center.orig/panels/online-accounts/online-accounts.ui	2021-10-23 07:56:40.421000000 +0000
-+++ gnome-control-center/panels/online-accounts/online-accounts.ui	2021-10-23 07:56:40.418000000 +0000
+diff --git a/panels/online-accounts/online-accounts.ui b/panels/online-accounts/online-accounts.ui
+index c0dfb54..a1be335 100644
+--- a/panels/online-accounts/online-accounts.ui
++++ b/panels/online-accounts/online-accounts.ui
 @@ -170,7 +170,6 @@
      <property name="can_focus">False</property>
      <property name="type_hint">dialog</property>

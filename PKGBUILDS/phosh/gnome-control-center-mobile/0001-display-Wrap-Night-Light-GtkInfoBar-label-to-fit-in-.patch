@@ -1,0 +1,33 @@
+From ebf8cda2377ee7e936947548067ea1a8626cc8fc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Correa=20G=C3=B3mez?= <ablocorrea@hotmail.com>
+Date: Mon, 14 Feb 2022 20:05:01 +0100
+Subject: [PATCH] display: Wrap Night Light GtkInfoBar label to fit in narrower
+ screens
+
+---
+ panels/display/cc-night-light-page.ui | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/panels/display/cc-night-light-page.ui b/panels/display/cc-night-light-page.ui
+index 300d93ec5..b87c9d2ed 100644
+--- a/panels/display/cc-night-light-page.ui
++++ b/panels/display/cc-night-light-page.ui
+@@ -18,6 +18,7 @@
+                     <property name="halign">start</property>
+                     <property name="margin-start">12</property>
+                     <property name="hexpand">False</property>
++                    <property name="wrap">True</property>
+                     <property name="label" translatable="yes" comments="Inhibit the redshift functionality until the next day starts">Temporarily Disabled Until Tomorrow</property>
+                     <attributes>
+                       <attribute name="weight" value="bold"/>
+@@ -36,6 +37,7 @@
+                 <property name="name">button_undisable</property>
+                 <property name="can_focus">True</property>
+                 <property name="receives_default">True</property>
++                <property name="valign">GTK_ALIGN_CENTER</property>
+                 <signal name="clicked" handler="dialog_undisable_clicked_cb" object="CcNightLightPage" swapped="no" />
+               </object>
+             </child>
+-- 
+2.35.1
+

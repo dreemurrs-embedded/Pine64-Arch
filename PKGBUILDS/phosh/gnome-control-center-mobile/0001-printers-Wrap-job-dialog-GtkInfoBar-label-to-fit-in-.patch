@@ -1,0 +1,33 @@
+From bc31c6cb512478cb908381a5d535e69945f532dc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Correa=20G=C3=B3mez?= <ablocorrea@hotmail.com>
+Date: Mon, 14 Feb 2022 20:05:38 +0100
+Subject: [PATCH] printers: Wrap job dialog GtkInfoBar label to fit in narrower
+ screens
+
+---
+ panels/printers/pp-jobs-dialog.ui | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/panels/printers/pp-jobs-dialog.ui b/panels/printers/pp-jobs-dialog.ui
+index a1a9ae144..e650dcf8d 100644
+--- a/panels/printers/pp-jobs-dialog.ui
++++ b/panels/printers/pp-jobs-dialog.ui
+@@ -153,6 +153,7 @@
+                   <object class="GtkLabel" id="authenticate_jobs_label">
+                     <property name="halign">start</property>
+                     <property name="hexpand">False</property>
++                    <property name="wrap">True</property>
+                     <property name="label" translatable="no">2 Jobs Require Authentication</property>
+                     <attributes>
+                       <attribute name="weight" value="bold"/>
+@@ -172,6 +173,7 @@
+                   <object class="GtkMenuButton" id="authenticate_jobs_button">
+                     <property name="label" translatable="yes" comments="Translators: This button pop up authentication dialog for print jobs which need credentials.">_Authenticate</property><property name="receives_default">False</property>
+                     <property name="halign">end</property>
++                    <property name="valign">GTK_ALIGN_CENTER</property>
+                     <property name="popover">authentication_popover</property>
+                   </object>
+                 </child>
+-- 
+2.35.1
+

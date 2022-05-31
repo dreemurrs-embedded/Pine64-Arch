@@ -1,0 +1,13 @@
+Index: gnome-control-center/panels/network/connection-editor/connection-editor.ui
+===================================================================
+--- gnome-control-center.orig/panels/network/connection-editor/connection-editor.ui	2022-03-31 04:55:33.442000000 +0000
++++ gnome-control-center/panels/network/connection-editor/connection-editor.ui	2022-04-04 10:45:16.949000000 +0000
+@@ -2,7 +2,7 @@
+ <interface>
+   <!-- interface-requires gtk+ 3.0 -->
+   <template class="NetConnectionEditor" parent="GtkDialog">
+-    <property name="resizable">False</property>
++    <property name="resizable">true</property>
+     <property name="modal">True</property>
+     <property name="default_width">500</property>
+     <property name="default_height">300</property>

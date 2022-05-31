@@ -1,0 +1,53 @@
+From f17198e875df1c5be83da5a578fb766a91cbb09b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Correa=20G=C3=B3mez?= <ablocorrea@hotmail.com>
+Date: Mon, 14 Feb 2022 21:08:01 +0100
+Subject: [PATCH] removable-media: Wrap GtkCheckButton label to fit narrow
+ displays
+
+GTK4 does not yet[1][2] allow to edit the wrap property of the associated
+label. Until that happens and to allow fitting the panel in narrow displays,
+split the label into its own object.
+
+[1] https://gitlab.gnome.org/GNOME/gtk/-/issues/4698
+[2] https://gitlab.gnome.org/GNOME/gtk/-/merge_requests/4489
+---
+ .../cc-removable-media-panel.ui               | 23 ++++++++++++++-----
+ 1 file changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/panels/removable-media/cc-removable-media-panel.ui b/panels/removable-media/cc-removable-media-panel.ui
+index 899956ee9..1bb5efdbe 100644
+--- a/panels/removable-media/cc-removable-media-panel.ui
++++ b/panels/removable-media/cc-removable-media-panel.ui
+@@ -188,12 +188,23 @@
+               </object>
+             </child>
+             <child>
+-              <object class="GtkCheckButton" id="autorun_never_checkbutton">
+-                <property name="valign">end</property>
+-                <property name="vexpand">False</property>
+-                <property name="use_underline">True</property>
+-                <property name="label" translatable="yes">_Never prompt or start programs on media insertion</property>
+-              </object>
++	      <object class="GtkBox">
++		<property name="orientation">horizontal</property>
++		<child>
++		  <object class="GtkCheckButton" id="autorun_never_checkbutton">
++                    <property name="valign">end</property>
++                    <property name="vexpand">False</property>
++		  </object>
++		</child>
++		<!-- Workaround for https://gitlab.gnome.org/GNOME/gtk/-/issues/4698 -->
++		<child>
++		  <object class="GtkLabel">
++		    <property name="use_underline">True</property>
++                    <property name="label" translatable="yes">_Never prompt or start programs on media insertion</property>
++		    <property name="wrap">True</property>
++		  </object>
++		</child>
++	      </object>
+             </child>
+           </object>
+         </child>
+-- 
+2.35.1
+

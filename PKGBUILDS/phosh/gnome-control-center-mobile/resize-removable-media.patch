@@ -1,0 +1,13 @@
+Index: gnome-control-center/panels/removable-media/cc-removable-media-panel.ui
+===================================================================
+--- gnome-control-center.orig/panels/removable-media/cc-removable-media-panel.ui	2022-04-29 23:55:26.277000000 +0000
++++ gnome-control-center/panels/removable-media/cc-removable-media-panel.ui	2022-04-29 23:55:50.978000000 +0000
+@@ -192,7 +192,7 @@
+                 <property name="valign">end</property>
+                 <property name="vexpand">False</property>
+                 <property name="use_underline">True</property>
+-                <property name="label" translatable="yes">_Never prompt or start programs on media insertion</property>
++                <property name="label" translatable="yes">_Never prompt or autostart on media insertion</property>
+               </object>
+             </child>
+           </object>

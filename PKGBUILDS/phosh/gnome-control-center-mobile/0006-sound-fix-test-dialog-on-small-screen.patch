@@ -1,4 +1,3 @@
-From 93d5364ca090e441dac9de42551bcecb7b125113 Mon Sep 17 00:00:00 2001
 From: Mohammed Sadiq <sadiq@sadiqpk.org>
 Date: Wed, 20 Nov 2019 14:52:20 +0530
 Subject: [PATCH 6/7] sound: fix test dialog on small screen
@@ -10,31 +9,42 @@ Subject: [PATCH 6/7] sound: fix test dialog on small screen
 
 Index: gnome-control-center/panels/sound/cc-output-test-dialog.ui
 ===================================================================
---- gnome-control-center.orig/panels/sound/cc-output-test-dialog.ui	2021-10-23 07:56:40.458000000 +0000
-+++ gnome-control-center/panels/sound/cc-output-test-dialog.ui	2021-10-23 07:56:40.455000000 +0000
-@@ -8,9 +8,9 @@
+--- gnome-control-center.orig/panels/sound/cc-output-test-dialog.ui	2022-04-04 10:07:19.181000000 +0000
++++ gnome-control-center/panels/sound/cc-output-test-dialog.ui	2022-04-04 10:08:16.508000000 +0000
+@@ -9,12 +9,12 @@
          <child>
            <object class="GtkGrid">
              <property name="visible">True</property>
 -            <property name="row_spacing">30</property>
 -            <property name="column_spacing">30</property>
--            <property name="margin">30</property>
 +            <property name="row_spacing">12</property>
 +            <property name="column_spacing">12</property>
-+            <property name="margin">9</property>
+             <property name="margin-top">30</property>
+-            <property name="margin-bottom">30</property>
+-            <property name="margin-start">30</property>
+-            <property name="margin-end">30</property>
++            <property name="margin-bottom">9</property>
++            <property name="margin-start">9</property>
++            <property name="margin-end">9</property>
              <child>
                <object class="CcSpeakerTestButton" id="front_left_speaker_button">
                  <property name="visible">True</property>
 Index: gnome-control-center/panels/sound/cc-speaker-test-button.ui
 ===================================================================
---- gnome-control-center.orig/panels/sound/cc-speaker-test-button.ui	2021-10-23 07:56:40.458000000 +0000
-+++ gnome-control-center/panels/sound/cc-speaker-test-button.ui	2021-10-23 07:56:40.455000000 +0000
-@@ -8,7 +8,7 @@
+--- gnome-control-center.orig/panels/sound/cc-speaker-test-button.ui	2022-04-04 10:07:19.181000000 +0000
++++ gnome-control-center/panels/sound/cc-speaker-test-button.ui	2022-04-04 10:08:40.273000000 +0000
+@@ -8,10 +8,10 @@
          <property name="visible">True</property>
          <property name="orientation">vertical</property>
          <property name="spacing">6</property>
--        <property name="margin">12</property>
-+        <property name="margin">9</property>
+-        <property name="margin-top">12</property>
+-        <property name="margin-bottom">12</property>
+-        <property name="margin-start">12</property>
+-        <property name="margin-end">12</property>
++        <property name="margin-top">9</property>
++        <property name="margin-bottom">9</property>
++        <property name="margin-start">9</property>
++        <property name="margin-end">9</property>
          <child>
            <object class="GtkImage" id="image">
              <property name="visible">True</property>

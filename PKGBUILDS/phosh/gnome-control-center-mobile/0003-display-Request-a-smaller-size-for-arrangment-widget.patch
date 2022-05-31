@@ -1,4 +1,3 @@
-From 28cdba9c21e2cff551f9d388190f523538354b12 Mon Sep 17 00:00:00 2001
 From: Mohammed Sadiq <sadiq@sadiqpk.org>
 Date: Tue, 15 Sep 2020 16:38:47 +0530
 Subject: [PATCH 3/7] display: Request a smaller size for arrangment widget
@@ -10,14 +9,14 @@ So that it fits smaller screens well
 
 Index: gnome-control-center/panels/display/cc-display-panel.c
 ===================================================================
---- gnome-control-center.orig/panels/display/cc-display-panel.c	2021-10-23 07:56:40.403000000 +0000
-+++ gnome-control-center/panels/display/cc-display-panel.c	2021-10-23 07:56:48.000000000 +0000
-@@ -1170,7 +1170,7 @@
-   self->arrangement = cc_display_arrangement_new (NULL);
+--- gnome-control-center.orig/panels/display/cc-display-panel.c	2022-04-04 10:03:01.504000000 +0000
++++ gnome-control-center/panels/display/cc-display-panel.c	2022-04-04 10:03:54.920000000 +0000
+@@ -1078,7 +1078,7 @@
+   gtk_widget_init_template (GTK_WIDGET (self));
  
-   gtk_widget_show (GTK_WIDGET (self->arrangement));
+   self->arrangement = cc_display_arrangement_new (NULL);
 -  gtk_widget_set_size_request (GTK_WIDGET (self->arrangement), 400, 175);
 +  gtk_widget_set_size_request (GTK_WIDGET (self->arrangement), 320, 175);
-   gtk_container_add (GTK_CONTAINER (self->arrangement_bin), GTK_WIDGET (self->arrangement));
+   adw_bin_set_child (self->arrangement_bin, GTK_WIDGET (self->arrangement));
  
    g_signal_connect_object (self->arrangement, "updated",
