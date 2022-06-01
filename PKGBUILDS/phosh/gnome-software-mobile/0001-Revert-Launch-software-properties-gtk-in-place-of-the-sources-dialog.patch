@@ -1,0 +1,28 @@
+From abc45148c37fc511baacffd3c9c9bbeb65cc77d8 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 28 Sep 2020 10:05:42 +0200
+Subject: [PATCH] Revert "Launch software-properties-gtk in place of the
+ sources dialog"
+
+This reverts commit 8e0ddc874f4884476fcb4ec405baf6f180274a2c.
+---
+ src/gs-shell.c | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/gs-shell.c b/src/gs-shell.c
+index 5df4e6e3..48394b5d 100644
+--- a/src/gs-shell.c
++++ b/src/gs-shell.c
+@@ -2311,10 +2311,6 @@ gs_shell_show_sources (GsShell *shell)
+ {
+ 	GtkWidget *dialog;
+ 
+-	/* use if available */
+-	if (g_spawn_command_line_async ("software-properties-gtk", NULL))
+-		return;
+-
+ 	dialog = gs_repos_dialog_new (GTK_WINDOW (shell), shell->plugin_loader);
+ 	gs_shell_modal_dialog_present (shell, GTK_WINDOW (dialog));
+ }
+-- 
+2.26.2
