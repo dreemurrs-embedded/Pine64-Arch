@@ -1,13 +1,39 @@
 --- src/config.cpp
-+++ src/config.cpp	
-@@ -183,7 +183,9 @@
++++ src/config.cpp
+@@ -175,24 +175,26 @@
+ 		std::istringstream iss(line);
+ 		std::string id, eq, val;
+ 
+-		bool error = false;
+-
+-		if (!(iss >> id)) {
+-			continue;
+-		} else if (id[0] == '#') {
++		iss >> id;
++		if (iss.fail()) {
  			continue;
  		} else if (id.empty()) {
  			continue;
 -		} else if (!(iss >> eq >> val >> std::ws) || eq != "=" || iss.get() != EOF) {
-+		}
-+		iss >> eq >> val >> std::ws;
-+		if (eq != "=" || iss.get() != EOF) {
- 			error = true;
+-			error = true;
++		} else if (id[0] == '#') {
++			continue;
  		}
  
+-		if (error) {
++		iss >> eq >> val;
++		// check that:
++		// 1) fail/bad bits aren't set
++		// 2) eq field is '='
++		// 3) that there are no trailing fields, after ignoring any trailing whitespace
++		if (iss.fail() || eq.compare("=") || !(iss >> std::ws).eof()) {
+ 			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Syntax error on line %d", lineno);
+ 			return false;
+-		} else {
+-			Config::options[id] = val;
+ 		}
++
++		Config::options[id] = val;
+ 	}
+ 	return true;
+ }
