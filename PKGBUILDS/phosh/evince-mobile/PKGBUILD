@@ -5,13 +5,13 @@
 
 _pkgname=evince
 pkgname=$_pkgname-mobile
-pkgver=42.1
+pkgver=42.3
 pkgrel=1
 pkgdesc="Document viewer (PDF, PostScript, XPS, djvu, dvi, tiff, cbr, cbz, cb7, cbt)"
 url="https://wiki.gnome.org/Apps/Evince"
-arch=('aarch64')
+arch=('x86_64' 'armv7h' 'aarch64')
 license=('GPL')
-_commit=67084a4f4ec10445bf8f3ef2cf98cb0ccaabcb19  # tags/42.1^0
+_commit=0ff17893679b05e7635e76e5c77384995b802f81  # tags/42.3^0
 source=("git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
         '0001-toolbar-Allow-to-toggle-the-sidebar-button.patch'
         '0002-toolbar-Allow-hiding-zoom-annotation-and-page-widgets.patch'
