@@ -1,42 +1,58 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.13.1
+pkgver=0.20.0
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phoc"
 license=('GPL')
 depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'seatd' 'mutter'
-         'xcb-util-errors' 'xcb-util-renderutil' 'xcb-util-wm' 'wayland-protocols')
-makedepends=('meson' 'ninja')
+         'xcb-util-errors' 'xcb-util-renderutil' 'xcb-util-wm' 'wayland-protocols'
+         'libvulkan.so')
+makedepends=('git' 'meson' 'ninja' 'glslang' 'vulkan-headers')
+checkdepends=('xorg-server-xvfb')
+_commit="b686cc5010a8d0f9a654a8171e90415e0717e10c"
+_commit_wlroots="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
+source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}"
+        "wlroots-phoc::git+https://source.puri.sm/Librem5/wlroots.git#commit=${_commit_wlroots}")
 
-# We don't want to maintain the wlroots package, so we static compile it
-_wlroots_commit="d9d667512ef23df7d57eff755fdf6b6e06217dab"
-source=(https://gitlab.gnome.org/World/Phosh/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
-        https://source.puri.sm/Librem5/wlroots/-/archive/${_wlroots_commit}/wlroots-${_wlroots_commit}.tar.gz)
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^v//;s/-/+/g'
+}
 
 prepare() {
-	rm -r ${pkgname}-v${pkgver}/subprojects/wlroots
-	mv wlroots-${_wlroots_commit} ${pkgname}-v${pkgver}/subprojects/wlroots
+  cd $pkgname
+
+  git submodule init subprojects/wlroots
+  git submodule set-url subprojects/wlroots "$srcdir/wlroots-phoc"
+  git submodule update
 }
 
 build() {
-	arch-meson ${pkgname}-v${pkgver} output -Dtests=false \
-		-Dembed-wlroots=enabled \
-		--default-library=static
-	ninja -C output
+  local meson_options=(
+    -D embed-wlroots=enabled
+    --default-library=static
+  )
+
+  arch-meson $pkgname build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  xvfb-run -s -noreset meson test -C build --print-errorlogs
 }
 
 package() {
-	DESTDIR="$pkgdir" ninja -C output install
+  meson install -C build --destdir "$pkgdir"
 
-	# Install scale-to-fit helper
-	install -Dm755 ${pkgname}-v${pkgver}/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
+  # Install scale-to-fit helper
+  install -Dm755 "$pkgname"/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
 
-	# Remove unnecessary files
-	rm -r "$pkgdir"/usr/lib
-	rm -r "$pkgdir"/usr/include
+  # Remove unnecessary files
+  rm -r "$pkgdir"/usr/lib
+  rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('dc27e168517e0bb303e9045e4204b82e'
-         '523133ac988321da7940075733b757ea')
+sha256sums=('SKIP'
+            'SKIP')
