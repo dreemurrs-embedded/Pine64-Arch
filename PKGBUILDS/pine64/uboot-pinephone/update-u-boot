@@ -29,7 +29,7 @@ get_defaults() {
 	fi
 
 	if [ -z "$freq" -a -e /proc/device-tree/memory/ram_freq ]; then
-		proc_freq=$(cat /proc/device-tree/memory/ram_freq 2>/dev/null)
+		proc_freq=$(tr -d '\0' </proc/device-tree/memory/ram_freq 2>/dev/null)
 		if [ -n "$proc_freq" ]; then
 			echo "Detected clock: $proc_freq MHz"
 			default_freq="$proc_freq"
@@ -66,6 +66,7 @@ options:
  -n,--dry-run             Print commands but don't execute them
 
  -r,--ram-freq            RAM clock speed, one of:
+                          * 492
                           * 528 (recommended, this is the default speed)
                           * 552
                           * 624
@@ -132,7 +133,12 @@ if [ -z "$dryrun" ]; then
 		echo "If you're unable to boot your device you'll have to reflash the bootloader"
 		echo "using the command:"
 		echo
+		echo "For MBR systems:"
 		echo "# dd if=u-boot-sunxi-with-spl-$board-DRAMSPEED.bin of=/dev/DISKDEVICE bs=8k seek=1"
+		echo
+		echo "For GPT systems:"
+		echo "# dd if=u-boot-sunxi-with-spl-$board-DRAMSPEED.bin of=/dev/DISKDEVICE bs=128k seek=1"
+		echo
 		echo "The mentioned bootloader can be found under /boot partition."
 		echo
 		read -p "Continue? (y/n) [n]: " -n 1 -r
@@ -159,7 +165,12 @@ set -e
 case "$board" in
 pinephone|pinetab)
 	[ -f /boot/u-boot-sunxi-with-spl-$board-$freq.bin ] || die "The bootloader image cannot be found."
-	$dryrun dd if=/boot/u-boot-sunxi-with-spl-$board-$freq.bin of=$device bs=8k seek=1
+	part_type=$(blkid -o value -s PTTYPE $device)
+	case $part_type in
+		gpt) $dryrun dd if=/boot/u-boot-sunxi-with-spl-$board-$freq.bin of=$device bs=128k seek=1 ;;
+		dos) $dryrun dd if=/boot/u-boot-sunxi-with-spl-$board-$freq.bin of=$device bs=8k seek=1 ;;
+		*)   echo "Unsupported partition type ${part_type}." && return 1 ;;
+	esac
 	;;
 esac
 $dryrun sync
