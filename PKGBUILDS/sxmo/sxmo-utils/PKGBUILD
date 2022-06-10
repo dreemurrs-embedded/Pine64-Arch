@@ -1,9 +1,9 @@
-# Maintainer: dni <office@dnilabs.com>
 # Maintainer: Aren <aren@peacevolution.org>
+# Contibutor: dni <office@dnilabs.com>
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
-pkgver=1.9.0
-pkgrel=2
+pkgver=1.11.1
+pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -11,25 +11,17 @@ license=('AGPL3')
 makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
-        '0001-prevent-modemdial-from-bailing-early.patch'
-        '0002-Don-t-start-a-dbus-session-if-one-is-already-running.patch'
-        '0003-avoid-conflicting-with-systemd-services.patch'
-        '0004-revert-proximity-lock-to-the-old-polling-version.patch'
-        '0005-fix-conflicting-audio-settings-502.patch'
-        'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
-        'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
-        'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
+        '0001-Systemd-compatibility.patch'
+        '0001-sxmo_hook_statusbar.sh-remove-to-fix-pango-markup.patch'
+        '00-sxmo.rules'
         'sxmo-setpermissions.service')
 backup=('etc/doas.conf')
 
 prepare() {
   cd "$pkgname-$pkgver"
 
-  patch -p1 < '../0001-prevent-modemdial-from-bailing-early.patch'
-  patch -p1 < '../0002-Don-t-start-a-dbus-session-if-one-is-already-running.patch'
-  patch -p1 < '../0003-avoid-conflicting-with-systemd-services.patch'
-  patch -p1 < '../0004-revert-proximity-lock-to-the-old-polling-version.patch'
-  patch -p1 < '../0005-fix-conflicting-audio-settings-502.patch'
+  patch -p1 < '../0001-Systemd-compatibility.patch'
+  patch -p1 < '../0001-sxmo_hook_statusbar.sh-remove-to-fix-pango-markup.patch'
 }
 
 build() {
@@ -49,6 +41,7 @@ package_sxmo-utils() {
     'gawk'
     'geoclue'
     'gojq'
+    'iio-utils'
     'inotify-tools'
     'mmsd-tng'
     'mnc' # for suspend
@@ -62,16 +55,13 @@ package_sxmo-utils() {
     'xdg-user-dirs'
 
     # Audio
-    # TODO: it should be possible to use pulseaudio, can we simply depend on pulseaudio?
     'alsa-utils'
     'bluez'
     'bluez-utils'
     'libpulse'
     'pamixer'
-    'pipewire'
-    'pipewire-alsa'
-    'pipewire-pulse'
-    'wireplumber'
+    'pulseaudio'
+    'pulseaudio-alsa'
 
     # Core GUI dependencies
     'sxmo-ui'
@@ -84,39 +74,31 @@ package_sxmo-utils() {
     'mpv'
     'nerd-fonts-fira-mono' # system font
     'nerd-fonts-terminus')
-  optdepends=('clickclack: haptic feedback'
+  optdepends=('bonsai: better multikey script' # TODO: upload a pkgbuild to the aur
+              'clickclack: haptic feedback'
               'codemadness-frontends: Youtube & Reddit scripts'
+              'pipewire-pulse: recommended sound server'
               'sfeed: Rss and atom feeds'
               'vim: The default editor'
               'yt-dlp: Play videos from the web')
 
-  cd "$pkgname-$pkgver"
+  make -C "$pkgname-$pkgver" OPENRC=0 DESTDIR="$pkgdir" install-scripts
 
-  mkdir -p "$pkgdir/etc/modules-load.d/"
-  printf %b "snd-aloop" > "$pkgdir/etc/modules-load.d/sxmo.conf"
-  mkdir -p "$pkgdir/etc/modprobe.d/"
-  printf %b "options snd slots=,snd-aloop" > "$pkgdir/etc/modprobe.d/sxmo.conf"
+  install -Dm644 -t "$pkgdir/usr/share/polkit-1/rules.d" "00-sxmo.rules"
 
-  make OPENRC=0 DESTDIR="$pkgdir" install
+  # Fixup mode to match polkit
+  install -d -o root -g 102 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
 
-  # TODO: these should be installe to /usr if possible
-  install -Dm644 "$srcdir/rootfs-etc-NetworkManager-conf.d-00-sxmo.conf" "$pkgdir/etc/NetworkManager/conf.d/00-sxmo.conf"
-  install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-00-sxmo.rules" "$pkgdir/etc/polkit-1/rules.d/00-sxmo.rules"
-  install -Dm755 "$srcdir/rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules" "$pkgdir/etc/polkit-1/rules.d/50-org.freedesktop.NetworkManager.rules"
-
-  # fix directory permissions
-  # TODO: should be done upstream
-  chmod 750 "$pkgdir/etc/polkit-1/rules.d"
+  # fix directory permissions, TODO this should be done upstream
   chmod 750 "$pkgdir/etc/doas.d"
+
+  # Fix sxmo internal version, it wasn't properly bumped upstream
+  echo "$pkgver" > "$pkgdir/usr/share/sxmo/version"
 
   # HACK: doas is built without --with-doas-confdir so install the sxmo config directly
   install -Dm640 "$pkgdir/etc/doas.d/sxmo.conf" "$pkgdir/etc/doas.conf"
 
   install -Dm644 "$srcdir/sxmo-setpermissions.service" "$pkgdir/usr/lib/systemd/system/sxmo-setpermissions.service"
-
-  # Remove session files, and only install them we install the ui package
-  rm -r "$pkgdir/usr/share/wayland-sessions/"
-  rm -r "$pkgdir/usr/share/xsessions/"
 }
 
 package_sxmo-ui-sway-meta() {
@@ -142,8 +124,7 @@ package_sxmo-ui-sway-meta() {
            'xorg-xwayland')
   optdepends=('sxmo-sway: better touch event handling')
 
-  install -Dm644 "$pkgbase-$pkgver/configs/applications/swmo.desktop" \
-    "$pkgdir/usr/share/wayland-sessions/swmo.desktop"
+  make -C "$pkgbase-$pkgver" DESTDIR="$pkgdir" install-sway
 }
 
 package_sxmo-ui-dwm-meta() {
@@ -178,17 +159,11 @@ package_sxmo-ui-dwm-meta() {
            'xorg-xwininfo'
            'xprintidle')
 
-  install -Dm644 "$pkgbase-$pkgver/configs/applications/sxmo.desktop" \
-    "$pkgdir/usr/share/xsessions/sxmo.desktop"
+  make -C "$pkgbase-$pkgver" DESTDIR="$pkgdir" install-dwm
 }
 
-sha512sums=('748665867996722560e68933a24fc49068881904e449ac9b39648eae7a106c5d78158adf0bad8fe401f1e760e16248cba338b6280f53514afd7bfa8d4bef20e3'
-            '92078a42cdf272b42f012e0e9ddec3d2808b7db902ad33f525f6a96b2c604baa3745e394e8f191ca84d903bed960d90d3866ab4e470c14cfd8c945a5267859f6'
-            'fd4dcaa51918e50211aae43bc7fb8bf6a98100934a18989976feff421c5921a303a3648942e32efce0e5dbe120312a4f9854fdae15e6ca9e4f57ca1a107ad993'
-            '57b324ca6258254b103434a09bd2444459c41958ee8f9df9768e69aa2354a9aad578ac172fa4961bf69dc5a6d954f0e035b19e5037eb7d654c3ac55bf35931b8'
-            '142929087fd3cbddbe0bad60f9d5ee40ace9f37beaa694f02263073135cd88bf184b586f001bce76c08d6c29d841e3b21170d93bb83caa0a7364c734549955e8'
-            'b4d1c59bca94c9a23e033861dc2e5caf0aa92c336f1f0f3d79b3751f11e60031d1dda297fb5d7f7f55134cbc1c362e84a9b1c6bc3e45c9c7b72e885d1a0d3500'
-            '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
-            '6e42f9acc015a21596cdf2d35eb5a80e8fbe97959aabf129861c8e1016bbebad5c706126730515494a0fcb33ad38fd6cd971048d2b5340557a803febf41967a4'
-            '4c8f047c4608d89409a44db6370ca225d42e186323f42d0c564edb34f18c84a69a500a89cc2c31d5f0e5c292aa94ea20eaf8213e3e266b8f9e959c3d4ce9fb58'
+sha512sums=('fcc59168b37d565fca5fd033bfa8663ae014b3b2adfd6cb5d33a9d8b9583477291d5fa466cdbab9ea2d45df29f60313b2032bb5d18fdf1c450d64c00b5b2db42'
+            'cd68928c83c1f1bed1fd8572a0c06ef111122ffbc969cf697b94067830106cef44183bf8ddd1296e51ef42ed60526a411979078bbb67b8b2a60db719f0c767cd'
+            'bbdd90ceabb558c871485205bb824f379dc4bc2a70e3fad5ca2d08d5a8b9ee03933818e65c8354c50f46362a1646d8e8d15b3cc2b8be8fb54b10581673cc0c4f'
+            'd705fc9611716a73c89da94bf3abc9292e9069bc994b0bd097159f4babd83d4693d5cc3e42336739ac46a8c6b4a0f39d077047202901dc5066df75e597450fa7'
             '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd')
