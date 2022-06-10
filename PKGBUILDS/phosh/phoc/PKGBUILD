@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
 pkgver=0.20.0
-pkgrel=1
+pkgrel=2
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phoc"
@@ -14,7 +14,8 @@ checkdepends=('xorg-server-xvfb')
 _commit="b686cc5010a8d0f9a654a8171e90415e0717e10c"
 _commit_wlroots="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
 source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}"
-        "wlroots-phoc::git+https://source.puri.sm/Librem5/wlroots.git#commit=${_commit_wlroots}")
+        "wlroots-phoc::git+https://source.puri.sm/Librem5/wlroots.git#commit=${_commit_wlroots}"
+        'cursor-avoid-null-pointer-dereference.patch')
 
 pkgver() {
   cd $pkgname
@@ -27,6 +28,8 @@ prepare() {
   git submodule init subprojects/wlroots
   git submodule set-url subprojects/wlroots "$srcdir/wlroots-phoc"
   git submodule update
+
+  patch -p1 < "$srcdir/cursor-avoid-null-pointer-dereference.patch"
 }
 
 build() {
@@ -55,4 +58,5 @@ package() {
 }
 
 sha256sums=('SKIP'
-            'SKIP')
+            'SKIP'
+            '8bb1c3a67f167afe974cb2682ae6e3273e606e8fa7deaba829cdda70d144294e')
