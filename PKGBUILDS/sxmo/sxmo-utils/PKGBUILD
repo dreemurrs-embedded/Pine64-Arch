@@ -3,7 +3,7 @@
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
 pkgver=1.9.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -14,8 +14,8 @@ source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkg
         '0001-prevent-modemdial-from-bailing-early.patch'
         '0002-Don-t-start-a-dbus-session-if-one-is-already-running.patch'
         '0003-avoid-conflicting-with-systemd-services.patch'
-        '0004-revert-proximity-lock-to-the-old-polling-version.patch'
         '0005-fix-conflicting-audio-settings-502.patch'
+        'pinephone-keyboard.conf'
         'rootfs-etc-NetworkManager-conf.d-00-sxmo.conf'
         'rootfs-etc-polkit-1-rules.d-00-sxmo.rules'
         'rootfs-etc-polkit-1-rules.d-50-org.freedesktop.NetworkManager.rules'
@@ -28,7 +28,6 @@ prepare() {
   patch -p1 < '../0001-prevent-modemdial-from-bailing-early.patch'
   patch -p1 < '../0002-Don-t-start-a-dbus-session-if-one-is-already-running.patch'
   patch -p1 < '../0003-avoid-conflicting-with-systemd-services.patch'
-  patch -p1 < '../0004-revert-proximity-lock-to-the-old-polling-version.patch'
   patch -p1 < '../0005-fix-conflicting-audio-settings-502.patch'
 }
 
@@ -49,6 +48,7 @@ package_sxmo-utils() {
     'gawk'
     'geoclue'
     'gojq'
+    'iio-utils'
     'inotify-tools'
     'mmsd-tng'
     'mnc' # for suspend
@@ -71,7 +71,6 @@ package_sxmo-utils() {
     'pipewire'
     'pipewire-alsa'
     'pipewire-pulse'
-    'wireplumber'
 
     # Core GUI dependencies
     'sxmo-ui'
@@ -91,11 +90,6 @@ package_sxmo-utils() {
               'yt-dlp: Play videos from the web')
 
   cd "$pkgname-$pkgver"
-
-  mkdir -p "$pkgdir/etc/modules-load.d/"
-  printf %b "snd-aloop" > "$pkgdir/etc/modules-load.d/sxmo.conf"
-  mkdir -p "$pkgdir/etc/modprobe.d/"
-  printf %b "options snd slots=,snd-aloop" > "$pkgdir/etc/modprobe.d/sxmo.conf"
 
   make OPENRC=0 DESTDIR="$pkgdir" install
 
@@ -144,6 +138,9 @@ package_sxmo-ui-sway-meta() {
 
   install -Dm644 "$pkgbase-$pkgver/configs/applications/swmo.desktop" \
     "$pkgdir/usr/share/wayland-sessions/swmo.desktop"
+
+  install -Dm644 pinephone-keyboard.conf \
+    "$pkgdir/etc/sway/config.d/pinephone-keyboard.conf"
 }
 
 package_sxmo-ui-dwm-meta() {
@@ -186,8 +183,8 @@ sha512sums=('748665867996722560e68933a24fc49068881904e449ac9b39648eae7a106c5d781
             '92078a42cdf272b42f012e0e9ddec3d2808b7db902ad33f525f6a96b2c604baa3745e394e8f191ca84d903bed960d90d3866ab4e470c14cfd8c945a5267859f6'
             'fd4dcaa51918e50211aae43bc7fb8bf6a98100934a18989976feff421c5921a303a3648942e32efce0e5dbe120312a4f9854fdae15e6ca9e4f57ca1a107ad993'
             '57b324ca6258254b103434a09bd2444459c41958ee8f9df9768e69aa2354a9aad578ac172fa4961bf69dc5a6d954f0e035b19e5037eb7d654c3ac55bf35931b8'
-            '142929087fd3cbddbe0bad60f9d5ee40ace9f37beaa694f02263073135cd88bf184b586f001bce76c08d6c29d841e3b21170d93bb83caa0a7364c734549955e8'
             'b4d1c59bca94c9a23e033861dc2e5caf0aa92c336f1f0f3d79b3751f11e60031d1dda297fb5d7f7f55134cbc1c362e84a9b1c6bc3e45c9c7b72e885d1a0d3500'
+            '06dd4b8587416719709df1552741777c188f77c95f7be3e0c45f6dd43e1ee4d34f4dfc53989be8209a82b15598b634eaac147e78a3b237b40b9dc23526158c30'
             '67a031f309a3232ac1e8abc3fedeaee912c035f9c81b4f709248895905a27ab5844ec92c65e55b79af3894450ba3883549d4004f11efebb47114d41f730e4a5f'
             '6e42f9acc015a21596cdf2d35eb5a80e8fbe97959aabf129861c8e1016bbebad5c706126730515494a0fcb33ad38fd6cd971048d2b5340557a803febf41967a4'
             '4c8f047c4608d89409a44db6370ca225d42e186323f42d0c564edb34f18c84a69a500a89cc2c31d5f0e5c292aa94ea20eaf8213e3e266b8f9e959c3d4ce9fb58'
