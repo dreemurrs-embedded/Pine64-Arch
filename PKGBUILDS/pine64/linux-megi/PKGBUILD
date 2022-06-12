@@ -5,8 +5,8 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=5.18.0
-pkgrel=2
+pkgver=5.18.3
+pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -15,7 +15,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="7131d3d8ae7e33816585f516aa1272f8e783e519"
+_commit="c916ff10b88028cce50526344f87a0a03beccf95"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -245,8 +245,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('541213fc2056b44acd9a23498e81a830'
-         'b6392199e8c1aab3ffa92871ffa96ca7'
+md5sums=('42e5ce49a0e843c7ddae204cc63cc2cb'
+         '3dbd760c3177bf4cda69a12a9ab688a9'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
