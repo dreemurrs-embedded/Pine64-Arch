@@ -11,7 +11,7 @@ arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' 'dtc'
-             'python3')
+             'python3' 'pahole')
 options=('!strip')
 
 # Source
