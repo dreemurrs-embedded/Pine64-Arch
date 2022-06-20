@@ -1,8 +1,8 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=squeekboard
-pkgver=1.17.1
+pkgver=1.18.0
 pkgrel=1
-pkgdesc="The final Phosh keyboard"
+pkgdesc="An on-screen-keyboard input method for Wayland"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/squeekboard"
 license=('GPL')
@@ -23,4 +23,4 @@ package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('3732a76e0c8cd2b0bc05f88d76dfce9a')
+md5sums=('200c35e27e8d975c59411f24b20d9908')
