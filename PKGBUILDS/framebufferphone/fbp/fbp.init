@@ -1,0 +1,2 @@
+# Load uinput kernel module for framebufferphone
+uinput

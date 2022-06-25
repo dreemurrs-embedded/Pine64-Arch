@@ -1,0 +1,119 @@
+# Maintainer: Bobby Hamblin <hamblingreen at hotmail dot com>
+# Contributor: Miles Alan <m@milesalan.com>
+
+pkgbase="f_scripts"
+pkgname=('f_audio' 'f_files' 'f_game' 'f_maps' 'f_networks' 'f_phone' 'f_rss' 'f_theme' 'f_timer' 'f_web' 'f_youtube')
+pkgver=0.4
+pkgrel=1
+pkgdesc="Framebufferphone prompt-driven scripts which are compatible with fbp"
+arch=('any')
+url="https://git.sr.ht/~mil/f_scripts"
+license=('GPL-3.0-or-later')
+depends=('oil')
+source=("https://git.sr.ht/~mil/f_scripts/archive/$pkgver.tar.gz"
+	"f_scripts.patch")
+sha256sums=('f2eea6a9717ef43d935a97bcf38f1699a42f833c8cce17e93c4f6fdd16634bfc'
+            'e51e861974a25cc1b7acd8821f91d0bd138422708ecc5963271b88c3e0132b80')
+
+prepare() {
+	patch --directory="f_scripts-$pkgver" --forward --strip=1 --input="${srcdir}/f_scripts.patch"
+}
+
+package_f_audio() {
+	pkgdesc="Adjust audio output devces and volume"
+	depends=('alsa-utils')
+	provides=('f_audio')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_audio" "$pkgdir/usr/bin/f_audio"
+}
+
+package_f_files() {
+	pkgdesc="Browse files on your filesystem"
+	depends=('vim' 'mpv' 'fbida')
+	provides=('f_files')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_files" "$pkgdir/usr/bin/f_files"
+}
+
+package_f_game() {
+	pkgdesc="Play classic console games"
+	depends=('moon-buggy')
+	provides=('f_game')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_game" "$pkgdir/usr/bin/f_game"
+}
+
+package_f_maps() {
+	pkgdesc="Browse OSM maps using mepo (via SDL directfb"
+	depends=('mepo' 'tslib' 'directfb' 'mesa' 'kbd' 'vis')
+	provides=('f_maps')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_maps" "$pkgdir/usr/bin/f_maps"
+}
+
+package_f_networks() {
+	pkgdesc="Allows managing gsm/wpa connections via underlying nmcli calls"
+	depends=('networkmanager' 'ntp')
+	provides=('f_networks')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_networks" "$pkgdir/usr/bin/f_networks"
+}
+
+package_f_phone() {
+	pkgdesc="Manages phone calls / text messages using modemmanager"
+	depends=('polkit' 'modemmanager' 'linuxconsole' 'pinephone-call-audio' 'pn')
+	provides=('f_phone')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_phone" "$pkgdir/usr/bin/f_phone"
+}
+
+package_f_rss() {
+	pkgdesc="Fetches data from RSS via sfeed and allows you to view via sfeed_curses"
+	depends=('sfeed' 'w3m')
+	provides=('f_rss')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_rss" "$pkgdir/usr/bin/f_rss"
+}
+
+package_f_theme() {
+	pkgdesc="Change the framebuffer theme (font & colors)"
+	depends=('terminus-font' 'util-linux')
+	provides=('f_theme')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_theme" "$pkgdir/usr/bin/f_theme"
+}
+
+package_f_timer() {
+	pkgdesc="Set a countdown timer to be alerted"
+	depends=('linuxconsole' 'util-linux' 'bc')
+	provides=('f_timer')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_timer" "$pkgdir/usr/bin/f_timer"
+}
+
+package_f_web() {
+	pkgdesc="Select a website and browse via w3m or netsurf"
+	depends=('linuxconsole' 'util-linux' 'bc')
+	provides=('f_web')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_web" "$pkgdir/usr/bin/f_web"
+}
+
+package_f_youtube() {
+	pkgdesc="Listen or view youtube video via mpv"
+	depends=('codemadness-frontends' 'mpv' 'youtube-dl')
+	provides=('f_youtube')
+
+	mkdir -p "$pkgdir/usr/bin"
+	install "$srcdir/f_scripts-$pkgver/scripts/f_youtube" "$pkgdir/usr/bin/f_youtube"
+}

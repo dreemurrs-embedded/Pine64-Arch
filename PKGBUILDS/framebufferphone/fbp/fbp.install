@@ -1,0 +1,4 @@
+post_install() {
+	sudo systemctl enable fbp
+}
+
