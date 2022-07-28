@@ -4,8 +4,8 @@
 
 # DANCTNIX: This patches Telegram Desktop so that it can be more adaptive on mobile.
 pkgname=telegram-desktop
-pkgver=3.7.3
-pkgrel=1
+pkgver=4.0.2
+pkgrel=4
 pkgdesc='Official Telegram Desktop client'
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://desktop.telegram.org/"
@@ -19,10 +19,12 @@ optdepends=('webkit2gtk: embedded browser features'
             'xdg-desktop-portal: desktop integration')
 source=("https://github.com/telegramdesktop/tdesktop/releases/download/v${pkgver}/tdesktop-${pkgver}-full.tar.gz"
         'small-sizes.patch'
-        'more-scale.patch')
-sha512sums=('f35052e514d520796296fa88e3affa1734973164e4b72f0120b78fc586de98a15e64a4e25f436ee4c2c2c0e100c64b3dbd2d96401dff19c382a6ad1fde88e859'
+        'more-scale.patch'
+        'fix-tgcalls-cstdint.diff')
+sha512sums=('0078b627d06dd8e655bd2bcc222ecbb3b15b7d88f858810bccdca84793ad02a60f4a4bf3808838752d65d4f6cffa3ddb5f70c5afc8e94cb6edae52101362feeb'
             '413a2bb5dc8ff582c97351ba35158f5926c157465c72545f488ea5d5dde1a048fc339dcb158c0e17cd5baa1d600b8ff7acdd86262254ddd18585559413871566'
-            '452ebf8a8c2bf841521ebd304ad6c0212a2939f16ed9b278eb3b0327e608867d1ed86b4ef4e24ad18d3fcb40ce9e01fcdfe4e8c694ac4e5525176fef7974e781')
+            '452ebf8a8c2bf841521ebd304ad6c0212a2939f16ed9b278eb3b0327e608867d1ed86b4ef4e24ad18d3fcb40ce9e01fcdfe4e8c694ac4e5525176fef7974e781'
+            'ba24a2f1524010b4891764aacee2e27a5ebae44cf7626ab2aaf9e6c48b0f8088bf920886ceeb497b3c463fa0c3b885dd63db273d4c29cab6c96c8193c0c5c888')
 
 prepare() {
     cd tdesktop-$pkgver-full
@@ -35,13 +37,13 @@ prepare() {
         msg2 "Applying patch: $src..."
         patch -Np1 < "../$src"
     done
+
+    rm -rf Telegram/ThirdParty/libtgvoip/webrtc_dsp/absl
+    patch -Np1 -i "$srcdir"/fix-tgcalls-cstdint.diff -d Telegram/ThirdParty/tgcalls
 }
 
 build() {
     cd tdesktop-$pkgver-full
-
-    # Fix https://bugs.archlinux.org/task/73220
-    export CXXFLAGS+=" -Wp,-U_GLIBCXX_ASSERTIONS"
 
     export PKG_CONFIG_PATH='/usr/lib/ffmpeg4.4/pkgconfig'
     #Turns out we're allowed to use the official API key that telegram uses for their snap builds:
@@ -54,13 +56,6 @@ build() {
         -DCMAKE_BUILD_TYPE=Release \
         -DTDESKTOP_API_ID=611335 \
         -DTDESKTOP_API_HASH=d524b414d21f4d37f08684c1df41ac9c
-        sed -i "s|/usr/lib/libav|/usr/lib/ffmpeg4.4/libav|g" build/build.ninja
-    sed -i "s|/usr/lib/libsw|/usr/lib/ffmpeg4.4/libsw|g" build/build.ninja
-    sed -i "s|-lavcodec|/usr/lib/ffmpeg4.4/libavcodec.so|g" build/build.ninja
-    sed -i "s|-lavformat|/usr/lib/ffmpeg4.4/libavformat.so|g" build/build.ninja
-    sed -i "s|-lavutil|/usr/lib/ffmpeg4.4/libavutil.so|g" build/build.ninja
-    sed -i "s|-lswscale|/usr/lib/ffmpeg4.4/libswscale.so|g" build/build.ninja
-    sed -i "s|-lswresample|/usr/lib/ffmpeg4.4/libswresample.so|g" build/build.ninja
     ninja -C build
 }
 

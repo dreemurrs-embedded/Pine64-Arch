@@ -5,17 +5,17 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=kasts
-pkgver=22.04
+pkgver=22.06
 pkgrel=1
 pkgdesc="Kirigami-based podcast player"
 arch=('x86_64' 'aarch64')
 url="https://www.plasma-mobile.org/"
 license=('GPL-2.0-or-later')
 depends=('kcoreaddons' 'ki18n' 'kconfig' 'kirigami2' 'syndication' 'qt5-multimedia' 'taglib'
-         'qtkeychain-qt5')
+         'qtkeychain-qt5' 'threadweaver')
 makedepends=('cmake' 'extra-cmake-modules')
 source=("http://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('d4c0d585c104e2245121aa626bad80e8')
+md5sums=('79b54f621da5577c019df4b1ec9194b9')
 
 prepare() {
   mkdir -p build

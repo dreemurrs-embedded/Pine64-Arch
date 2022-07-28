@@ -1,0 +1,4685 @@
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index c4893782055b4..eb92195ca0155 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -5124,6 +5124,30 @@
+ 
+ 	retain_initrd	[RAM] Keep initrd memory after extraction
+ 
++	retbleed=	[X86] Control mitigation of RETBleed (Arbitrary
++			Speculative Code Execution with Return Instructions)
++			vulnerability.
++
++			off          - no mitigation
++			auto         - automatically select a migitation
++			auto,nosmt   - automatically select a mitigation,
++				       disabling SMT if necessary for
++				       the full mitigation (only on Zen1
++				       and older without STIBP).
++			ibpb	     - mitigate short speculation windows on
++				       basic block boundaries too. Safe, highest
++				       perf impact.
++			unret        - force enable untrained return thunks,
++				       only effective on AMD f15h-f17h
++				       based systems.
++			unret,nosmt  - like unret, will disable SMT when STIBP
++			               is not available.
++
++			Selecting 'auto' will choose a mitigation method at run
++			time according to the CPU.
++
++			Not specifying this option is equivalent to retbleed=auto.
++
+ 	rfkill.default_state=
+ 		0	"airplane mode".  All wifi, bluetooth, wimax, gps, fm,
+ 			etc. communication is blocked by default.
+@@ -5482,6 +5506,7 @@
+ 			eibrs		  - enhanced IBRS
+ 			eibrs,retpoline   - enhanced IBRS + Retpolines
+ 			eibrs,lfence      - enhanced IBRS + LFENCE
++			ibrs		  - use IBRS to protect kernel
+ 
+ 			Not specifying this option is equivalent to
+ 			spectre_v2=auto.
+diff --git a/Makefile b/Makefile
+index 1f3c753cb28df..d3723b2f6d6ca 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 18
+-SUBLEVEL = 13
++SUBLEVEL = 14
+ EXTRAVERSION =
+ NAME = Superb Owl
+ 
+diff --git a/arch/um/kernel/um_arch.c b/arch/um/kernel/um_arch.c
+index 0760e24f2ebab..9838967d0b2f1 100644
+--- a/arch/um/kernel/um_arch.c
++++ b/arch/um/kernel/um_arch.c
+@@ -432,6 +432,10 @@ void apply_retpolines(s32 *start, s32 *end)
+ {
+ }
+ 
++void apply_returns(s32 *start, s32 *end)
++{
++}
++
+ void apply_alternatives(struct alt_instr *start, struct alt_instr *end)
+ {
+ }
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index b2c65f5733538..4d1d87f76a74f 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -457,27 +457,6 @@ config GOLDFISH
+ 	def_bool y
+ 	depends on X86_GOLDFISH
+ 
+-config RETPOLINE
+-	bool "Avoid speculative indirect branches in kernel"
+-	default y
+-	help
+-	  Compile kernel with the retpoline compiler options to guard against
+-	  kernel-to-user data leaks by avoiding speculative indirect
+-	  branches. Requires a compiler with -mindirect-branch=thunk-extern
+-	  support for full protection. The kernel may run slower.
+-
+-config CC_HAS_SLS
+-	def_bool $(cc-option,-mharden-sls=all)
+-
+-config SLS
+-	bool "Mitigate Straight-Line-Speculation"
+-	depends on CC_HAS_SLS && X86_64
+-	default n
+-	help
+-	  Compile the kernel with straight-line-speculation options to guard
+-	  against straight line speculation. The kernel image might be slightly
+-	  larger.
+-
+ config X86_CPU_RESCTRL
+ 	bool "x86 CPU resource control support"
+ 	depends on X86 && (CPU_SUP_INTEL || CPU_SUP_AMD)
+@@ -2449,6 +2428,88 @@ source "kernel/livepatch/Kconfig"
+ 
+ endmenu
+ 
++config CC_HAS_SLS
++	def_bool $(cc-option,-mharden-sls=all)
++
++config CC_HAS_RETURN_THUNK
++	def_bool $(cc-option,-mfunction-return=thunk-extern)
++
++menuconfig SPECULATION_MITIGATIONS
++	bool "Mitigations for speculative execution vulnerabilities"
++	default y
++	help
++	  Say Y here to enable options which enable mitigations for
++	  speculative execution hardware vulnerabilities.
++
++	  If you say N, all mitigations will be disabled. You really
++	  should know what you are doing to say so.
++
++if SPECULATION_MITIGATIONS
++
++config PAGE_TABLE_ISOLATION
++	bool "Remove the kernel mapping in user mode"
++	default y
++	depends on (X86_64 || X86_PAE)
++	help
++	  This feature reduces the number of hardware side channels by
++	  ensuring that the majority of kernel addresses are not mapped
++	  into userspace.
++
++	  See Documentation/x86/pti.rst for more details.
++
++config RETPOLINE
++	bool "Avoid speculative indirect branches in kernel"
++	default y
++	help
++	  Compile kernel with the retpoline compiler options to guard against
++	  kernel-to-user data leaks by avoiding speculative indirect
++	  branches. Requires a compiler with -mindirect-branch=thunk-extern
++	  support for full protection. The kernel may run slower.
++
++config RETHUNK
++	bool "Enable return-thunks"
++	depends on RETPOLINE && CC_HAS_RETURN_THUNK
++	default y
++	help
++	  Compile the kernel with the return-thunks compiler option to guard
++	  against kernel-to-user data leaks by avoiding return speculation.
++	  Requires a compiler with -mfunction-return=thunk-extern
++	  support for full protection. The kernel may run slower.
++
++config CPU_UNRET_ENTRY
++	bool "Enable UNRET on kernel entry"
++	depends on CPU_SUP_AMD && RETHUNK
++	default y
++	help
++	  Compile the kernel with support for the retbleed=unret mitigation.
++
++config CPU_IBPB_ENTRY
++	bool "Enable IBPB on kernel entry"
++	depends on CPU_SUP_AMD
++	default y
++	help
++	  Compile the kernel with support for the retbleed=ibpb mitigation.
++
++config CPU_IBRS_ENTRY
++	bool "Enable IBRS on kernel entry"
++	depends on CPU_SUP_INTEL
++	default y
++	help
++	  Compile the kernel with support for the spectre_v2=ibrs mitigation.
++	  This mitigates both spectre_v2 and retbleed at great cost to
++	  performance.
++
++config SLS
++	bool "Mitigate Straight-Line-Speculation"
++	depends on CC_HAS_SLS && X86_64
++	default n
++	help
++	  Compile the kernel with straight-line-speculation options to guard
++	  against straight line speculation. The kernel image might be slightly
++	  larger.
++
++endif
++
+ config ARCH_HAS_ADD_PAGES
+ 	def_bool y
+ 	depends on ARCH_ENABLE_MEMORY_HOTPLUG
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 63d50f65b8283..fb0de637411cb 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -21,6 +21,12 @@ ifdef CONFIG_CC_IS_CLANG
+ RETPOLINE_CFLAGS	:= -mretpoline-external-thunk
+ RETPOLINE_VDSO_CFLAGS	:= -mretpoline
+ endif
++
++ifdef CONFIG_RETHUNK
++RETHUNK_CFLAGS		:= -mfunction-return=thunk-extern
++RETPOLINE_CFLAGS	+= $(RETHUNK_CFLAGS)
++endif
++
+ export RETPOLINE_CFLAGS
+ export RETPOLINE_VDSO_CFLAGS
+ 
+diff --git a/arch/x86/entry/Makefile b/arch/x86/entry/Makefile
+index 7fec5dcf64386..eeadbd7d92cc5 100644
+--- a/arch/x86/entry/Makefile
++++ b/arch/x86/entry/Makefile
+@@ -11,7 +11,7 @@ CFLAGS_REMOVE_common.o		= $(CC_FLAGS_FTRACE)
+ 
+ CFLAGS_common.o			+= -fno-stack-protector
+ 
+-obj-y				:= entry_$(BITS).o thunk_$(BITS).o syscall_$(BITS).o
++obj-y				:= entry.o entry_$(BITS).o thunk_$(BITS).o syscall_$(BITS).o
+ obj-y				+= common.o
+ 
+ obj-y				+= vdso/
+diff --git a/arch/x86/entry/calling.h b/arch/x86/entry/calling.h
+index a4c061fb7c6ea..b00a3a95fbfab 100644
+--- a/arch/x86/entry/calling.h
++++ b/arch/x86/entry/calling.h
+@@ -7,6 +7,8 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/processor-flags.h>
+ #include <asm/ptrace-abi.h>
++#include <asm/msr.h>
++#include <asm/nospec-branch.h>
+ 
+ /*
+ 
+@@ -119,27 +121,19 @@ For 32-bit we have the following conventions - kernel is built with
+ 	CLEAR_REGS
+ .endm
+ 
+-.macro POP_REGS pop_rdi=1 skip_r11rcx=0
++.macro POP_REGS pop_rdi=1
+ 	popq %r15
+ 	popq %r14
+ 	popq %r13
+ 	popq %r12
+ 	popq %rbp
+ 	popq %rbx
+-	.if \skip_r11rcx
+-	popq %rsi
+-	.else
+ 	popq %r11
+-	.endif
+ 	popq %r10
+ 	popq %r9
+ 	popq %r8
+ 	popq %rax
+-	.if \skip_r11rcx
+-	popq %rsi
+-	.else
+ 	popq %rcx
+-	.endif
+ 	popq %rdx
+ 	popq %rsi
+ 	.if \pop_rdi
+@@ -289,6 +283,66 @@ For 32-bit we have the following conventions - kernel is built with
+ 
+ #endif
+ 
++/*
++ * IBRS kernel mitigation for Spectre_v2.
++ *
++ * Assumes full context is established (PUSH_REGS, CR3 and GS) and it clobbers
++ * the regs it uses (AX, CX, DX). Must be called before the first RET
++ * instruction (NOTE! UNTRAIN_RET includes a RET instruction)
++ *
++ * The optional argument is used to save/restore the current value,
++ * which is used on the paranoid paths.
++ *
++ * Assumes x86_spec_ctrl_{base,current} to have SPEC_CTRL_IBRS set.
++ */
++.macro IBRS_ENTER save_reg
++#ifdef CONFIG_CPU_IBRS_ENTRY
++	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
++	movl	$MSR_IA32_SPEC_CTRL, %ecx
++
++.ifnb \save_reg
++	rdmsr
++	shl	$32, %rdx
++	or	%rdx, %rax
++	mov	%rax, \save_reg
++	test	$SPEC_CTRL_IBRS, %eax
++	jz	.Ldo_wrmsr_\@
++	lfence
++	jmp	.Lend_\@
++.Ldo_wrmsr_\@:
++.endif
++
++	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
++	movl	%edx, %eax
++	shr	$32, %rdx
++	wrmsr
++.Lend_\@:
++#endif
++.endm
++
++/*
++ * Similar to IBRS_ENTER, requires KERNEL GS,CR3 and clobbers (AX, CX, DX)
++ * regs. Must be called after the last RET.
++ */
++.macro IBRS_EXIT save_reg
++#ifdef CONFIG_CPU_IBRS_ENTRY
++	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_KERNEL_IBRS
++	movl	$MSR_IA32_SPEC_CTRL, %ecx
++
++.ifnb \save_reg
++	mov	\save_reg, %rdx
++.else
++	movq	PER_CPU_VAR(x86_spec_ctrl_current), %rdx
++	andl	$(~SPEC_CTRL_IBRS), %edx
++.endif
++
++	movl	%edx, %eax
++	shr	$32, %rdx
++	wrmsr
++.Lend_\@:
++#endif
++.endm
++
+ /*
+  * Mitigate Spectre v1 for conditional swapgs code paths.
+  *
+diff --git a/arch/x86/entry/entry.S b/arch/x86/entry/entry.S
+new file mode 100644
+index 0000000000000..bfb7bcb362bcf
+--- /dev/null
++++ b/arch/x86/entry/entry.S
+@@ -0,0 +1,22 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Common place for both 32- and 64-bit entry routines.
++ */
++
++#include <linux/linkage.h>
++#include <asm/export.h>
++#include <asm/msr-index.h>
++
++.pushsection .noinstr.text, "ax"
++
++SYM_FUNC_START(entry_ibpb)
++	movl	$MSR_IA32_PRED_CMD, %ecx
++	movl	$PRED_CMD_IBPB, %eax
++	xorl	%edx, %edx
++	wrmsr
++	RET
++SYM_FUNC_END(entry_ibpb)
++/* For KVM */
++EXPORT_SYMBOL_GPL(entry_ibpb);
++
++.popsection
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index 8874208440664..e309e71560389 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -698,7 +698,6 @@ SYM_CODE_START(__switch_to_asm)
+ 	movl	%ebx, PER_CPU_VAR(__stack_chk_guard)
+ #endif
+ 
+-#ifdef CONFIG_RETPOLINE
+ 	/*
+ 	 * When switching from a shallower to a deeper call stack
+ 	 * the RSB may either underflow or use entries populated
+@@ -707,7 +706,6 @@ SYM_CODE_START(__switch_to_asm)
+ 	 * speculative execution to prevent attack.
+ 	 */
+ 	FILL_RETURN_BUFFER %ebx, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_CTXSW
+-#endif
+ 
+ 	/* Restore flags or the incoming task to restore AC state. */
+ 	popfl
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index d8376e5fe1afe..2ea185d47cfd1 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -85,7 +85,7 @@
+  */
+ 
+ SYM_CODE_START(entry_SYSCALL_64)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 
+ 	swapgs
+@@ -112,6 +112,11 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
+ 	movq	%rsp, %rdi
+ 	/* Sign extend the lower 32bit as syscall numbers are treated as int */
+ 	movslq	%eax, %rsi
++
++	/* clobbers %rax, make sure it is after saving the syscall nr */
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	call	do_syscall_64		/* returns with IRQs disabled */
+ 
+ 	/*
+@@ -191,8 +196,8 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
+ 	 * perf profiles. Nothing jumps here.
+ 	 */
+ syscall_return_via_sysret:
+-	/* rcx and r11 are already restored (see code above) */
+-	POP_REGS pop_rdi=0 skip_r11rcx=1
++	IBRS_EXIT
++	POP_REGS pop_rdi=0
+ 
+ 	/*
+ 	 * Now all regs are restored except RSP and RDI.
+@@ -245,7 +250,6 @@ SYM_FUNC_START(__switch_to_asm)
+ 	movq	%rbx, PER_CPU_VAR(fixed_percpu_data) + stack_canary_offset
+ #endif
+ 
+-#ifdef CONFIG_RETPOLINE
+ 	/*
+ 	 * When switching from a shallower to a deeper call stack
+ 	 * the RSB may either underflow or use entries populated
+@@ -254,7 +258,6 @@ SYM_FUNC_START(__switch_to_asm)
+ 	 * speculative execution to prevent attack.
+ 	 */
+ 	FILL_RETURN_BUFFER %r12, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_CTXSW
+-#endif
+ 
+ 	/* restore callee-saved registers */
+ 	popq	%r15
+@@ -318,6 +321,14 @@ SYM_CODE_END(ret_from_fork)
+ #endif
+ .endm
+ 
++SYM_CODE_START_LOCAL(xen_error_entry)
++	UNWIND_HINT_FUNC
++	PUSH_AND_CLEAR_REGS save_ret=1
++	ENCODE_FRAME_POINTER 8
++	UNTRAIN_RET
++	RET
++SYM_CODE_END(xen_error_entry)
++
+ /**
+  * idtentry_body - Macro to emit code calling the C function
+  * @cfunc:		C function to be called
+@@ -325,7 +336,18 @@ SYM_CODE_END(ret_from_fork)
+  */
+ .macro idtentry_body cfunc has_error_code:req
+ 
+-	call	error_entry
++	/*
++	 * Call error_entry() and switch to the task stack if from userspace.
++	 *
++	 * When in XENPV, it is already in the task stack, and it can't fault
++	 * for native_iret() nor native_load_gs_index() since XENPV uses its
++	 * own pvops for IRET and load_gs_index().  And it doesn't need to
++	 * switch the CR3.  So it can skip invoking error_entry().
++	 */
++	ALTERNATIVE "call error_entry; movq %rax, %rsp", \
++		    "call xen_error_entry", X86_FEATURE_XENPV
++
++	ENCODE_FRAME_POINTER
+ 	UNWIND_HINT_REGS
+ 
+ 	movq	%rsp, %rdi			/* pt_regs pointer into 1st argument*/
+@@ -582,6 +604,7 @@ __irqentry_text_end:
+ 
+ SYM_CODE_START_LOCAL(common_interrupt_return)
+ SYM_INNER_LABEL(swapgs_restore_regs_and_return_to_usermode, SYM_L_GLOBAL)
++	IBRS_EXIT
+ #ifdef CONFIG_DEBUG_ENTRY
+ 	/* Assert that pt_regs indicates user mode. */
+ 	testb	$3, CS(%rsp)
+@@ -695,6 +718,7 @@ native_irq_return_ldt:
+ 	pushq	%rdi				/* Stash user RDI */
+ 	swapgs					/* to kernel GS */
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rdi	/* to kernel CR3 */
++	UNTRAIN_RET
+ 
+ 	movq	PER_CPU_VAR(espfix_waddr), %rdi
+ 	movq	%rax, (0*8)(%rdi)		/* user RAX */
+@@ -867,6 +891,9 @@ SYM_CODE_END(xen_failsafe_callback)
+  *              1 -> no SWAPGS on exit
+  *
+  *     Y        GSBASE value at entry, must be restored in paranoid_exit
++ *
++ * R14 - old CR3
++ * R15 - old SPEC_CTRL
+  */
+ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	UNWIND_HINT_FUNC
+@@ -911,7 +938,7 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	 * is needed here.
+ 	 */
+ 	SAVE_AND_SET_GSBASE scratch_reg=%rax save_reg=%rbx
+-	RET
++	jmp .Lparanoid_gsbase_done
+ 
+ .Lparanoid_entry_checkgs:
+ 	/* EBX = 1 -> kernel GSBASE active, no restore required */
+@@ -930,8 +957,16 @@ SYM_CODE_START_LOCAL(paranoid_entry)
+ 	xorl	%ebx, %ebx
+ 	swapgs
+ .Lparanoid_kernel_gsbase:
+-
+ 	FENCE_SWAPGS_KERNEL_ENTRY
++.Lparanoid_gsbase_done:
++
++	/*
++	 * Once we have CR3 and %GS setup save and set SPEC_CTRL. Just like
++	 * CR3 above, keep the old value in a callee saved register.
++	 */
++	IBRS_ENTER save_reg=%r15
++	UNTRAIN_RET
++
+ 	RET
+ SYM_CODE_END(paranoid_entry)
+ 
+@@ -953,9 +988,19 @@ SYM_CODE_END(paranoid_entry)
+  *              1 -> no SWAPGS on exit
+  *
+  *     Y        User space GSBASE, must be restored unconditionally
++ *
++ * R14 - old CR3
++ * R15 - old SPEC_CTRL
+  */
+ SYM_CODE_START_LOCAL(paranoid_exit)
+ 	UNWIND_HINT_REGS
++
++	/*
++	 * Must restore IBRS state before both CR3 and %GS since we need access
++	 * to the per-CPU x86_spec_ctrl_shadow variable.
++	 */
++	IBRS_EXIT save_reg=%r15
++
+ 	/*
+ 	 * The order of operations is important. RESTORE_CR3 requires
+ 	 * kernel GSBASE.
+@@ -984,13 +1029,15 @@ SYM_CODE_START_LOCAL(paranoid_exit)
+ SYM_CODE_END(paranoid_exit)
+ 
+ /*
+- * Save all registers in pt_regs, and switch GS if needed.
++ * Switch GS and CR3 if needed.
+  */
+ SYM_CODE_START_LOCAL(error_entry)
+ 	UNWIND_HINT_FUNC
+ 	cld
++
+ 	PUSH_AND_CLEAR_REGS save_ret=1
+ 	ENCODE_FRAME_POINTER 8
++
+ 	testb	$3, CS+8(%rsp)
+ 	jz	.Lerror_kernelspace
+ 
+@@ -1002,15 +1049,14 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	FENCE_SWAPGS_USER_ENTRY
+ 	/* We have user CR3.  Change to kernel CR3. */
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
++	IBRS_ENTER
++	UNTRAIN_RET
+ 
++	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
+ .Lerror_entry_from_usermode_after_swapgs:
++
+ 	/* Put us onto the real thread stack. */
+-	popq	%r12				/* save return addr in %12 */
+-	movq	%rsp, %rdi			/* arg0 = pt_regs pointer */
+ 	call	sync_regs
+-	movq	%rax, %rsp			/* switch stack */
+-	ENCODE_FRAME_POINTER
+-	pushq	%r12
+ 	RET
+ 
+ 	/*
+@@ -1042,6 +1088,8 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	 */
+ .Lerror_entry_done_lfence:
+ 	FENCE_SWAPGS_KERNEL_ENTRY
++	leaq	8(%rsp), %rax			/* return pt_regs pointer */
++	ANNOTATE_UNRET_END
+ 	RET
+ 
+ .Lbstep_iret:
+@@ -1057,14 +1105,16 @@ SYM_CODE_START_LOCAL(error_entry)
+ 	SWAPGS
+ 	FENCE_SWAPGS_USER_ENTRY
+ 	SWITCH_TO_KERNEL_CR3 scratch_reg=%rax
++	IBRS_ENTER
++	UNTRAIN_RET
+ 
+ 	/*
+ 	 * Pretend that the exception came from user mode: set up pt_regs
+ 	 * as if we faulted immediately after IRET.
+ 	 */
+-	mov	%rsp, %rdi
++	leaq	8(%rsp), %rdi			/* arg0 = pt_regs pointer */
+ 	call	fixup_bad_iret
+-	mov	%rax, %rsp
++	mov	%rax, %rdi
+ 	jmp	.Lerror_entry_from_usermode_after_swapgs
+ SYM_CODE_END(error_entry)
+ 
+@@ -1162,6 +1212,9 @@ SYM_CODE_START(asm_exc_nmi)
+ 	PUSH_AND_CLEAR_REGS rdx=(%rdx)
+ 	ENCODE_FRAME_POINTER
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	/*
+ 	 * At this point we no longer need to worry about stack damage
+ 	 * due to nesting -- we're on the normal thread stack and we're
+@@ -1386,6 +1439,9 @@ end_repeat_nmi:
+ 	movq	$-1, %rsi
+ 	call	exc_nmi
+ 
++	/* Always restore stashed SPEC_CTRL value (see paranoid_entry) */
++	IBRS_EXIT save_reg=%r15
++
+ 	/* Always restore stashed CR3 value (see paranoid_entry) */
+ 	RESTORE_CR3 scratch_reg=%r15 save_reg=%r14
+ 
+diff --git a/arch/x86/entry/entry_64_compat.S b/arch/x86/entry/entry_64_compat.S
+index 4fdb007cddbd1..4f479cdc7a408 100644
+--- a/arch/x86/entry/entry_64_compat.S
++++ b/arch/x86/entry/entry_64_compat.S
+@@ -4,7 +4,6 @@
+  *
+  * Copyright 2000-2002 Andi Kleen, SuSE Labs.
+  */
+-#include "calling.h"
+ #include <asm/asm-offsets.h>
+ #include <asm/current.h>
+ #include <asm/errno.h>
+@@ -14,9 +13,12 @@
+ #include <asm/irqflags.h>
+ #include <asm/asm.h>
+ #include <asm/smap.h>
++#include <asm/nospec-branch.h>
+ #include <linux/linkage.h>
+ #include <linux/err.h>
+ 
++#include "calling.h"
++
+ 	.section .entry.text, "ax"
+ 
+ /*
+@@ -47,7 +49,7 @@
+  * 0(%ebp) arg6
+  */
+ SYM_CODE_START(entry_SYSENTER_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 	/* Interrupts are off on entry. */
+ 	SWAPGS
+@@ -113,6 +115,9 @@ SYM_INNER_LABEL(entry_SYSENTER_compat_after_hwframe, SYM_L_GLOBAL)
+ 
+ 	cld
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	/*
+ 	 * SYSENTER doesn't filter flags, so we need to clear NT and AC
+ 	 * ourselves.  To save a few cycles, we can check whether
+@@ -199,7 +204,7 @@ SYM_CODE_END(entry_SYSENTER_compat)
+  * 0(%esp) arg6
+  */
+ SYM_CODE_START(entry_SYSCALL_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 	/* Interrupts are off on entry. */
+ 	swapgs
+@@ -256,6 +261,9 @@ SYM_INNER_LABEL(entry_SYSCALL_compat_after_hwframe, SYM_L_GLOBAL)
+ 
+ 	UNWIND_HINT_REGS
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	movq	%rsp, %rdi
+ 	call	do_fast_syscall_32
+ 	/* XEN PV guests always use IRET path */
+@@ -270,6 +278,8 @@ sysret32_from_system_call:
+ 	 */
+ 	STACKLEAK_ERASE
+ 
++	IBRS_EXIT
++
+ 	movq	RBX(%rsp), %rbx		/* pt_regs->rbx */
+ 	movq	RBP(%rsp), %rbp		/* pt_regs->rbp */
+ 	movq	EFLAGS(%rsp), %r11	/* pt_regs->flags (in r11) */
+@@ -343,7 +353,7 @@ SYM_CODE_END(entry_SYSCALL_compat)
+  * ebp  arg6
+  */
+ SYM_CODE_START(entry_INT80_compat)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 	/*
+ 	 * Interrupts are off on entry.
+@@ -414,6 +424,9 @@ SYM_CODE_START(entry_INT80_compat)
+ 
+ 	cld
+ 
++	IBRS_ENTER
++	UNTRAIN_RET
++
+ 	movq	%rsp, %rdi
+ 	call	do_int80_syscall_32
+ 	jmp	swapgs_restore_regs_and_return_to_usermode
+diff --git a/arch/x86/entry/vdso/Makefile b/arch/x86/entry/vdso/Makefile
+index 693f8b9031fb8..e893af5aa8f55 100644
+--- a/arch/x86/entry/vdso/Makefile
++++ b/arch/x86/entry/vdso/Makefile
+@@ -92,6 +92,7 @@ endif
+ endif
+ 
+ $(vobjs): KBUILD_CFLAGS := $(filter-out $(CC_FLAGS_LTO) $(GCC_PLUGINS_CFLAGS) $(RETPOLINE_CFLAGS),$(KBUILD_CFLAGS)) $(CFL)
++$(vobjs): KBUILD_AFLAGS += -DBUILD_VDSO
+ 
+ #
+ # vDSO code runs in userspace and -pg doesn't help with profiling anyway.
+diff --git a/arch/x86/entry/vsyscall/vsyscall_emu_64.S b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
+index 15e35159ebb68..ef2dd18272431 100644
+--- a/arch/x86/entry/vsyscall/vsyscall_emu_64.S
++++ b/arch/x86/entry/vsyscall/vsyscall_emu_64.S
+@@ -19,17 +19,20 @@ __vsyscall_page:
+ 
+ 	mov $__NR_gettimeofday, %rax
+ 	syscall
+-	RET
++	ret
++	int3
+ 
+ 	.balign 1024, 0xcc
+ 	mov $__NR_time, %rax
+ 	syscall
+-	RET
++	ret
++	int3
+ 
+ 	.balign 1024, 0xcc
+ 	mov $__NR_getcpu, %rax
+ 	syscall
+-	RET
++	ret
++	int3
+ 
+ 	.balign 4096, 0xcc
+ 
+diff --git a/arch/x86/include/asm/alternative.h b/arch/x86/include/asm/alternative.h
+index 9b10c8c76087a..9542c582d546b 100644
+--- a/arch/x86/include/asm/alternative.h
++++ b/arch/x86/include/asm/alternative.h
+@@ -76,6 +76,7 @@ extern int alternatives_patched;
+ extern void alternative_instructions(void);
+ extern void apply_alternatives(struct alt_instr *start, struct alt_instr *end);
+ extern void apply_retpolines(s32 *start, s32 *end);
++extern void apply_returns(s32 *start, s32 *end);
+ extern void apply_ibt_endbr(s32 *start, s32 *end);
+ 
+ struct module;
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index e17de69faa543..5d09ded0c491f 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -203,8 +203,8 @@
+ #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+-#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+-#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
++#define X86_FEATURE_KERNEL_IBRS		( 7*32+12) /* "" Set/clear IBRS on kernel entry/exit */
++#define X86_FEATURE_RSB_VMEXIT		( 7*32+13) /* "" Fill RSB on VM-Exit */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
+@@ -295,6 +295,12 @@
+ #define X86_FEATURE_PER_THREAD_MBA	(11*32+ 7) /* "" Per-thread Memory Bandwidth Allocation */
+ #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
+ #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
++#define X86_FEATURE_ENTRY_IBPB		(11*32+10) /* "" Issue an IBPB on kernel entry */
++#define X86_FEATURE_RRSBA_CTRL		(11*32+11) /* "" RET prediction control */
++#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
++#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
++#define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
++#define X86_FEATURE_UNRET		(11*32+15) /* "" AMD BTB untrain return */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
+@@ -315,6 +321,7 @@
+ #define X86_FEATURE_VIRT_SSBD		(13*32+25) /* Virtualized Speculative Store Bypass Disable */
+ #define X86_FEATURE_AMD_SSB_NO		(13*32+26) /* "" Speculative Store Bypass is fixed in hardware. */
+ #define X86_FEATURE_CPPC		(13*32+27) /* Collaborative Processor Performance Control */
++#define X86_FEATURE_BTC_NO		(13*32+29) /* "" Not vulnerable to Branch Type Confusion */
+ 
+ /* Thermal and Power Management Leaf, CPUID level 0x00000006 (EAX), word 14 */
+ #define X86_FEATURE_DTHERM		(14*32+ 0) /* Digital Thermal Sensor */
+@@ -444,5 +451,6 @@
+ #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
+ #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
+ #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
++#define X86_BUG_RETBLEED		X86_BUG(26) /* CPU is affected by RETBleed */
+ 
+ #endif /* _ASM_X86_CPUFEATURES_H */
+diff --git a/arch/x86/include/asm/disabled-features.h b/arch/x86/include/asm/disabled-features.h
+index 1231d63f836d8..f7be189e97232 100644
+--- a/arch/x86/include/asm/disabled-features.h
++++ b/arch/x86/include/asm/disabled-features.h
+@@ -56,6 +56,25 @@
+ # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
+ #endif
+ 
++#ifdef CONFIG_RETPOLINE
++# define DISABLE_RETPOLINE	0
++#else
++# define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
++				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
++#endif
++
++#ifdef CONFIG_RETHUNK
++# define DISABLE_RETHUNK	0
++#else
++# define DISABLE_RETHUNK	(1 << (X86_FEATURE_RETHUNK & 31))
++#endif
++
++#ifdef CONFIG_CPU_UNRET_ENTRY
++# define DISABLE_UNRET		0
++#else
++# define DISABLE_UNRET		(1 << (X86_FEATURE_UNRET & 31))
++#endif
++
+ #ifdef CONFIG_INTEL_IOMMU_SVM
+ # define DISABLE_ENQCMD		0
+ #else
+@@ -82,7 +101,7 @@
+ #define DISABLED_MASK8	0
+ #define DISABLED_MASK9	(DISABLE_SMAP|DISABLE_SGX)
+ #define DISABLED_MASK10	0
+-#define DISABLED_MASK11	0
++#define DISABLED_MASK11	(DISABLE_RETPOLINE|DISABLE_RETHUNK|DISABLE_UNRET)
+ #define DISABLED_MASK12	0
+ #define DISABLED_MASK13	0
+ #define DISABLED_MASK14	0
+diff --git a/arch/x86/include/asm/linkage.h b/arch/x86/include/asm/linkage.h
+index 85865f1645bd3..73ca200498356 100644
+--- a/arch/x86/include/asm/linkage.h
++++ b/arch/x86/include/asm/linkage.h
+@@ -19,19 +19,27 @@
+ #define __ALIGN_STR	__stringify(__ALIGN)
+ #endif
+ 
++#if defined(CONFIG_RETHUNK) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
++#define RET	jmp __x86_return_thunk
++#else /* CONFIG_RETPOLINE */
+ #ifdef CONFIG_SLS
+ #define RET	ret; int3
+ #else
+ #define RET	ret
+ #endif
++#endif /* CONFIG_RETPOLINE */
+ 
+ #else /* __ASSEMBLY__ */
+ 
++#if defined(CONFIG_RETHUNK) && !defined(__DISABLE_EXPORTS) && !defined(BUILD_VDSO)
++#define ASM_RET	"jmp __x86_return_thunk\n\t"
++#else /* CONFIG_RETPOLINE */
+ #ifdef CONFIG_SLS
+ #define ASM_RET	"ret; int3\n\t"
+ #else
+ #define ASM_RET	"ret\n\t"
+ #endif
++#endif /* CONFIG_RETPOLINE */
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index 4425d6773183b..ad084326f24c2 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -51,6 +51,8 @@
+ #define SPEC_CTRL_STIBP			BIT(SPEC_CTRL_STIBP_SHIFT)	/* STIBP mask */
+ #define SPEC_CTRL_SSBD_SHIFT		2	   /* Speculative Store Bypass Disable bit */
+ #define SPEC_CTRL_SSBD			BIT(SPEC_CTRL_SSBD_SHIFT)	/* Speculative Store Bypass Disable */
++#define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
++#define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
+ 
+ #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
+ #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+@@ -91,6 +93,7 @@
+ #define MSR_IA32_ARCH_CAPABILITIES	0x0000010a
+ #define ARCH_CAP_RDCL_NO		BIT(0)	/* Not susceptible to Meltdown */
+ #define ARCH_CAP_IBRS_ALL		BIT(1)	/* Enhanced IBRS support */
++#define ARCH_CAP_RSBA			BIT(2)	/* RET may use alternative branch predictors */
+ #define ARCH_CAP_SKIP_VMENTRY_L1DFLUSH	BIT(3)	/* Skip L1D flush on vmentry */
+ #define ARCH_CAP_SSB_NO			BIT(4)	/*
+ 						 * Not susceptible to Speculative Store Bypass
+@@ -138,6 +141,13 @@
+ 						 * bit available to control VERW
+ 						 * behavior.
+ 						 */
++#define ARCH_CAP_RRSBA			BIT(19)	/*
++						 * Indicates RET may use predictors
++						 * other than the RSB. With eIBRS
++						 * enabled predictions in kernel mode
++						 * are restricted to targets in
++						 * kernel.
++						 */
+ 
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+@@ -552,6 +562,9 @@
+ /* Fam 17h MSRs */
+ #define MSR_F17H_IRPERF			0xc00000e9
+ 
++#define MSR_ZEN2_SPECTRAL_CHICKEN	0xc00110e3
++#define MSR_ZEN2_SPECTRAL_CHICKEN_BIT	BIT_ULL(1)
++
+ /* Fam 16h MSRs */
+ #define MSR_F16H_L2I_PERF_CTL		0xc0010230
+ #define MSR_F16H_L2I_PERF_CTR		0xc0010231
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index da251a5645b0e..10a3bfc1eb230 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -11,6 +11,7 @@
+ #include <asm/cpufeatures.h>
+ #include <asm/msr-index.h>
+ #include <asm/unwind_hints.h>
++#include <asm/percpu.h>
+ 
+ #define RETPOLINE_THUNK_SIZE	32
+ 
+@@ -75,6 +76,23 @@
+ 	.popsection
+ .endm
+ 
++/*
++ * (ab)use RETPOLINE_SAFE on RET to annotate away 'bare' RET instructions
++ * vs RETBleed validation.
++ */
++#define ANNOTATE_UNRET_SAFE ANNOTATE_RETPOLINE_SAFE
++
++/*
++ * Abuse ANNOTATE_RETPOLINE_SAFE on a NOP to indicate UNRET_END, should
++ * eventually turn into it's own annotation.
++ */
++.macro ANNOTATE_UNRET_END
++#ifdef CONFIG_DEBUG_ENTRY
++	ANNOTATE_RETPOLINE_SAFE
++	nop
++#endif
++.endm
++
+ /*
+  * JMP_NOSPEC and CALL_NOSPEC macros can be used instead of a simple
+  * indirect jmp/call which may be susceptible to the Spectre variant 2
+@@ -105,10 +123,34 @@
+   * monstrosity above, manually.
+   */
+ .macro FILL_RETURN_BUFFER reg:req nr:req ftr:req
+-#ifdef CONFIG_RETPOLINE
+ 	ALTERNATIVE "jmp .Lskip_rsb_\@", "", \ftr
+ 	__FILL_RETURN_BUFFER(\reg,\nr,%_ASM_SP)
+ .Lskip_rsb_\@:
++.endm
++
++#ifdef CONFIG_CPU_UNRET_ENTRY
++#define CALL_ZEN_UNTRAIN_RET	"call zen_untrain_ret"
++#else
++#define CALL_ZEN_UNTRAIN_RET	""
++#endif
++
++/*
++ * Mitigate RETBleed for AMD/Hygon Zen uarch. Requires KERNEL CR3 because the
++ * return thunk isn't mapped into the userspace tables (then again, AMD
++ * typically has NO_MELTDOWN).
++ *
++ * While zen_untrain_ret() doesn't clobber anything but requires stack,
++ * entry_ibpb() will clobber AX, CX, DX.
++ *
++ * As such, this must be placed after every *SWITCH_TO_KERNEL_CR3 at a point
++ * where we have a stack but before any RET instruction.
++ */
++.macro UNTRAIN_RET
++#if defined(CONFIG_CPU_UNRET_ENTRY) || defined(CONFIG_CPU_IBPB_ENTRY)
++	ANNOTATE_UNRET_END
++	ALTERNATIVE_2 "",						\
++	              CALL_ZEN_UNTRAIN_RET, X86_FEATURE_UNRET,		\
++		      "call entry_ibpb", X86_FEATURE_ENTRY_IBPB
+ #endif
+ .endm
+ 
+@@ -120,17 +162,20 @@
+ 	_ASM_PTR " 999b\n\t"					\
+ 	".popsection\n\t"
+ 
+-#ifdef CONFIG_RETPOLINE
+-
+ typedef u8 retpoline_thunk_t[RETPOLINE_THUNK_SIZE];
++extern retpoline_thunk_t __x86_indirect_thunk_array[];
++
++extern void __x86_return_thunk(void);
++extern void zen_untrain_ret(void);
++extern void entry_ibpb(void);
++
++#ifdef CONFIG_RETPOLINE
+ 
+ #define GEN(reg) \
+ 	extern retpoline_thunk_t __x86_indirect_thunk_ ## reg;
+ #include <asm/GEN-for-each-reg.h>
+ #undef GEN
+ 
+-extern retpoline_thunk_t __x86_indirect_thunk_array[];
+-
+ #ifdef CONFIG_X86_64
+ 
+ /*
+@@ -193,6 +238,7 @@ enum spectre_v2_mitigation {
+ 	SPECTRE_V2_EIBRS,
+ 	SPECTRE_V2_EIBRS_RETPOLINE,
+ 	SPECTRE_V2_EIBRS_LFENCE,
++	SPECTRE_V2_IBRS,
+ };
+ 
+ /* The indirect branch speculation control variants */
+@@ -235,6 +281,9 @@ static inline void indirect_branch_prediction_barrier(void)
+ 
+ /* The Intel SPEC CTRL MSR base value cache */
+ extern u64 x86_spec_ctrl_base;
++DECLARE_PER_CPU(u64, x86_spec_ctrl_current);
++extern void write_spec_ctrl_current(u64 val, bool force);
++extern u64 spec_ctrl_current(void);
+ 
+ /*
+  * With retpoline, we must use IBRS to restrict branch prediction
+@@ -244,18 +293,16 @@ extern u64 x86_spec_ctrl_base;
+  */
+ #define firmware_restrict_branch_speculation_start()			\
+ do {									\
+-	u64 val = x86_spec_ctrl_base | SPEC_CTRL_IBRS;			\
+-									\
+ 	preempt_disable();						\
+-	alternative_msr_write(MSR_IA32_SPEC_CTRL, val,			\
++	alternative_msr_write(MSR_IA32_SPEC_CTRL,			\
++			      spec_ctrl_current() | SPEC_CTRL_IBRS,	\
+ 			      X86_FEATURE_USE_IBRS_FW);			\
+ } while (0)
+ 
+ #define firmware_restrict_branch_speculation_end()			\
+ do {									\
+-	u64 val = x86_spec_ctrl_base;					\
+-									\
+-	alternative_msr_write(MSR_IA32_SPEC_CTRL, val,			\
++	alternative_msr_write(MSR_IA32_SPEC_CTRL,			\
++			      spec_ctrl_current(),			\
+ 			      X86_FEATURE_USE_IBRS_FW);			\
+ 	preempt_enable();						\
+ } while (0)
+diff --git a/arch/x86/include/asm/static_call.h b/arch/x86/include/asm/static_call.h
+index 2d8dacd026437..343b722ccaf21 100644
+--- a/arch/x86/include/asm/static_call.h
++++ b/arch/x86/include/asm/static_call.h
+@@ -21,6 +21,16 @@
+  * relative displacement across sections.
+  */
+ 
++/*
++ * The trampoline is 8 bytes and of the general form:
++ *
++ *   jmp.d32 \func
++ *   ud1 %esp, %ecx
++ *
++ * That trailing #UD provides both a speculation stop and serves as a unique
++ * 3 byte signature identifying static call trampolines. Also see tramp_ud[]
++ * and __static_call_fixup().
++ */
+ #define __ARCH_DEFINE_STATIC_CALL_TRAMP(name, insns)			\
+ 	asm(".pushsection .static_call.text, \"ax\"		\n"	\
+ 	    ".align 4						\n"	\
+@@ -28,7 +38,7 @@
+ 	    STATIC_CALL_TRAMP_STR(name) ":			\n"	\
+ 	    ANNOTATE_NOENDBR						\
+ 	    insns "						\n"	\
+-	    ".byte 0x53, 0x43, 0x54				\n"	\
++	    ".byte 0x0f, 0xb9, 0xcc				\n"	\
+ 	    ".type " STATIC_CALL_TRAMP_STR(name) ", @function	\n"	\
+ 	    ".size " STATIC_CALL_TRAMP_STR(name) ", . - " STATIC_CALL_TRAMP_STR(name) " \n" \
+ 	    ".popsection					\n")
+@@ -36,8 +46,13 @@
+ #define ARCH_DEFINE_STATIC_CALL_TRAMP(name, func)			\
+ 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, ".byte 0xe9; .long " #func " - (. + 4)")
+ 
++#ifdef CONFIG_RETHUNK
++#define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
++	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "jmp __x86_return_thunk")
++#else
+ #define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
+ 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "ret; int3; nop; nop; nop")
++#endif
+ 
+ #define ARCH_DEFINE_STATIC_CALL_RET0_TRAMP(name)			\
+ 	ARCH_DEFINE_STATIC_CALL_TRAMP(name, __static_call_return0)
+@@ -48,4 +63,6 @@
+ 	    ".long " STATIC_CALL_KEY_STR(name) " - .		\n"	\
+ 	    ".popsection					\n")
+ 
++extern bool __static_call_fixup(void *tramp, u8 op, void *dest);
++
+ #endif /* _ASM_STATIC_CALL_H */
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index 35317c5c551d9..47ecfff2c83da 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -13,7 +13,7 @@
+ #ifdef CONFIG_X86_64
+ asmlinkage __visible notrace struct pt_regs *sync_regs(struct pt_regs *eregs);
+ asmlinkage __visible notrace
+-struct bad_iret_stack *fixup_bad_iret(struct bad_iret_stack *s);
++struct pt_regs *fixup_bad_iret(struct pt_regs *bad_regs);
+ void __init trap_init(void);
+ asmlinkage __visible noinstr struct pt_regs *vc_switch_off_ist(struct pt_regs *eregs);
+ #endif
+diff --git a/arch/x86/include/asm/unwind_hints.h b/arch/x86/include/asm/unwind_hints.h
+index 8b33674288ea7..f66fbe6537dd7 100644
+--- a/arch/x86/include/asm/unwind_hints.h
++++ b/arch/x86/include/asm/unwind_hints.h
+@@ -8,7 +8,11 @@
+ #ifdef __ASSEMBLY__
+ 
+ .macro UNWIND_HINT_EMPTY
+-	UNWIND_HINT sp_reg=ORC_REG_UNDEFINED type=UNWIND_HINT_TYPE_CALL end=1
++	UNWIND_HINT type=UNWIND_HINT_TYPE_CALL end=1
++.endm
++
++.macro UNWIND_HINT_ENTRY
++	UNWIND_HINT type=UNWIND_HINT_TYPE_ENTRY end=1
+ .endm
+ 
+ .macro UNWIND_HINT_REGS base=%rsp offset=0 indirect=0 extra=1 partial=0
+@@ -52,6 +56,14 @@
+ 	UNWIND_HINT sp_reg=ORC_REG_SP sp_offset=8 type=UNWIND_HINT_TYPE_FUNC
+ .endm
+ 
++.macro UNWIND_HINT_SAVE
++	UNWIND_HINT type=UNWIND_HINT_TYPE_SAVE
++.endm
++
++.macro UNWIND_HINT_RESTORE
++	UNWIND_HINT type=UNWIND_HINT_TYPE_RESTORE
++.endm
++
+ #else
+ 
+ #define UNWIND_HINT_FUNC \
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index d374cb3cf024c..46427b785bc89 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -115,6 +115,7 @@ static void __init_or_module add_nops(void *insns, unsigned int len)
+ }
+ 
+ extern s32 __retpoline_sites[], __retpoline_sites_end[];
++extern s32 __return_sites[], __return_sites_end[];
+ extern s32 __ibt_endbr_seal[], __ibt_endbr_seal_end[];
+ extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
+ extern s32 __smp_locks[], __smp_locks_end[];
+@@ -507,9 +508,76 @@ void __init_or_module noinline apply_retpolines(s32 *start, s32 *end)
+ 	}
+ }
+ 
++#ifdef CONFIG_RETHUNK
++/*
++ * Rewrite the compiler generated return thunk tail-calls.
++ *
++ * For example, convert:
++ *
++ *   JMP __x86_return_thunk
++ *
++ * into:
++ *
++ *   RET
++ */
++static int patch_return(void *addr, struct insn *insn, u8 *bytes)
++{
++	int i = 0;
++
++	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
++		return -1;
++
++	bytes[i++] = RET_INSN_OPCODE;
++
++	for (; i < insn->length;)
++		bytes[i++] = INT3_INSN_OPCODE;
++
++	return i;
++}
++
++void __init_or_module noinline apply_returns(s32 *start, s32 *end)
++{
++	s32 *s;
++
++	for (s = start; s < end; s++) {
++		void *dest = NULL, *addr = (void *)s + *s;
++		struct insn insn;
++		int len, ret;
++		u8 bytes[16];
++		u8 op;
++
++		ret = insn_decode_kernel(&insn, addr);
++		if (WARN_ON_ONCE(ret < 0))
++			continue;
++
++		op = insn.opcode.bytes[0];
++		if (op == JMP32_INSN_OPCODE)
++			dest = addr + insn.length + insn.immediate.value;
++
++		if (__static_call_fixup(addr, op, dest) ||
++		    WARN_ON_ONCE(dest != &__x86_return_thunk))
++			continue;
++
++		DPRINTK("return thunk at: %pS (%px) len: %d to: %pS",
++			addr, addr, insn.length,
++			addr + insn.length + insn.immediate.value);
++
++		len = patch_return(addr, &insn, bytes);
++		if (len == insn.length) {
++			DUMP_BYTES(((u8*)addr),  len, "%px: orig: ", addr);
++			DUMP_BYTES(((u8*)bytes), len, "%px: repl: ", addr);
++			text_poke_early(addr, bytes, len);
++		}
++	}
++}
++#else
++void __init_or_module noinline apply_returns(s32 *start, s32 *end) { }
++#endif /* CONFIG_RETHUNK */
++
+ #else /* !RETPOLINES || !CONFIG_STACK_VALIDATION */
+ 
+ void __init_or_module noinline apply_retpolines(s32 *start, s32 *end) { }
++void __init_or_module noinline apply_returns(s32 *start, s32 *end) { }
+ 
+ #endif /* CONFIG_RETPOLINE && CONFIG_STACK_VALIDATION */
+ 
+@@ -860,6 +928,7 @@ void __init alternative_instructions(void)
+ 	 * those can rewrite the retpoline thunks.
+ 	 */
+ 	apply_retpolines(__retpoline_sites, __retpoline_sites_end);
++	apply_returns(__return_sites, __return_sites_end);
+ 
+ 	/*
+ 	 * Then patch alternatives, such that those paravirt calls that are in
+diff --git a/arch/x86/kernel/asm-offsets.c b/arch/x86/kernel/asm-offsets.c
+index 9fb0a2f8b62a2..6434ea9413485 100644
+--- a/arch/x86/kernel/asm-offsets.c
++++ b/arch/x86/kernel/asm-offsets.c
+@@ -18,6 +18,7 @@
+ #include <asm/bootparam.h>
+ #include <asm/suspend.h>
+ #include <asm/tlbflush.h>
++#include "../kvm/vmx/vmx.h"
+ 
+ #ifdef CONFIG_XEN
+ #include <xen/interface/xen.h>
+@@ -90,4 +91,9 @@ static void __used common(void)
+ 	OFFSET(TSS_sp0, tss_struct, x86_tss.sp0);
+ 	OFFSET(TSS_sp1, tss_struct, x86_tss.sp1);
+ 	OFFSET(TSS_sp2, tss_struct, x86_tss.sp2);
++
++	if (IS_ENABLED(CONFIG_KVM_INTEL)) {
++		BLANK();
++		OFFSET(VMX_spec_ctrl, vcpu_vmx, spec_ctrl);
++	}
+ }
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index 0c0b09796ced3..35d5288394cb8 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -862,6 +862,28 @@ static void init_amd_bd(struct cpuinfo_x86 *c)
+ 	clear_rdrand_cpuid_bit(c);
+ }
+ 
++void init_spectral_chicken(struct cpuinfo_x86 *c)
++{
++#ifdef CONFIG_CPU_UNRET_ENTRY
++	u64 value;
++
++	/*
++	 * On Zen2 we offer this chicken (bit) on the altar of Speculation.
++	 *
++	 * This suppresses speculation from the middle of a basic block, i.e. it
++	 * suppresses non-branch predictions.
++	 *
++	 * We use STIBP as a heuristic to filter out Zen2 from the rest of F17H
++	 */
++	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && cpu_has(c, X86_FEATURE_AMD_STIBP)) {
++		if (!rdmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, &value)) {
++			value |= MSR_ZEN2_SPECTRAL_CHICKEN_BIT;
++			wrmsrl_safe(MSR_ZEN2_SPECTRAL_CHICKEN, value);
++		}
++	}
++#endif
++}
++
+ static void init_amd_zn(struct cpuinfo_x86 *c)
+ {
+ 	set_cpu_cap(c, X86_FEATURE_ZEN);
+@@ -870,12 +892,21 @@ static void init_amd_zn(struct cpuinfo_x86 *c)
+ 	node_reclaim_distance = 32;
+ #endif
+ 
+-	/*
+-	 * Fix erratum 1076: CPB feature bit not being set in CPUID.
+-	 * Always set it, except when running under a hypervisor.
+-	 */
+-	if (!cpu_has(c, X86_FEATURE_HYPERVISOR) && !cpu_has(c, X86_FEATURE_CPB))
+-		set_cpu_cap(c, X86_FEATURE_CPB);
++	/* Fix up CPUID bits, but only if not virtualised. */
++	if (!cpu_has(c, X86_FEATURE_HYPERVISOR)) {
++
++		/* Erratum 1076: CPB feature bit not being set in CPUID. */
++		if (!cpu_has(c, X86_FEATURE_CPB))
++			set_cpu_cap(c, X86_FEATURE_CPB);
++
++		/*
++		 * Zen3 (Fam19 model < 0x10) parts are not susceptible to
++		 * Branch Type Confusion, but predate the allocation of the
++		 * BTC_NO bit.
++		 */
++		if (c->x86 == 0x19 && !cpu_has(c, X86_FEATURE_BTC_NO))
++			set_cpu_cap(c, X86_FEATURE_BTC_NO);
++	}
+ }
+ 
+ static void init_amd(struct cpuinfo_x86 *c)
+@@ -907,7 +938,8 @@ static void init_amd(struct cpuinfo_x86 *c)
+ 	case 0x12: init_amd_ln(c); break;
+ 	case 0x15: init_amd_bd(c); break;
+ 	case 0x16: init_amd_jg(c); break;
+-	case 0x17: fallthrough;
++	case 0x17: init_spectral_chicken(c);
++		   fallthrough;
+ 	case 0x19: init_amd_zn(c); break;
+ 	}
+ 
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index a8a9f64063315..0b64e894b3838 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -38,6 +38,8 @@
+ 
+ static void __init spectre_v1_select_mitigation(void);
+ static void __init spectre_v2_select_mitigation(void);
++static void __init retbleed_select_mitigation(void);
++static void __init spectre_v2_user_select_mitigation(void);
+ static void __init ssb_select_mitigation(void);
+ static void __init l1tf_select_mitigation(void);
+ static void __init mds_select_mitigation(void);
+@@ -48,16 +50,40 @@ static void __init mmio_select_mitigation(void);
+ static void __init srbds_select_mitigation(void);
+ static void __init l1d_flush_select_mitigation(void);
+ 
+-/* The base value of the SPEC_CTRL MSR that always has to be preserved. */
++/* The base value of the SPEC_CTRL MSR without task-specific bits set */
+ u64 x86_spec_ctrl_base;
+ EXPORT_SYMBOL_GPL(x86_spec_ctrl_base);
++
++/* The current value of the SPEC_CTRL MSR with task-specific bits set */
++DEFINE_PER_CPU(u64, x86_spec_ctrl_current);
++EXPORT_SYMBOL_GPL(x86_spec_ctrl_current);
++
+ static DEFINE_MUTEX(spec_ctrl_mutex);
+ 
+ /*
+- * The vendor and possibly platform specific bits which can be modified in
+- * x86_spec_ctrl_base.
++ * Keep track of the SPEC_CTRL MSR value for the current task, which may differ
++ * from x86_spec_ctrl_base due to STIBP/SSB in __speculation_ctrl_update().
+  */
+-static u64 __ro_after_init x86_spec_ctrl_mask = SPEC_CTRL_IBRS;
++void write_spec_ctrl_current(u64 val, bool force)
++{
++	if (this_cpu_read(x86_spec_ctrl_current) == val)
++		return;
++
++	this_cpu_write(x86_spec_ctrl_current, val);
++
++	/*
++	 * When KERNEL_IBRS this MSR is written on return-to-user, unless
++	 * forced the update can be delayed until that time.
++	 */
++	if (force || !cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS))
++		wrmsrl(MSR_IA32_SPEC_CTRL, val);
++}
++
++u64 spec_ctrl_current(void)
++{
++	return this_cpu_read(x86_spec_ctrl_current);
++}
++EXPORT_SYMBOL_GPL(spec_ctrl_current);
+ 
+ /*
+  * AMD specific MSR info for Speculative Store Bypass control.
+@@ -114,13 +140,21 @@ void __init check_bugs(void)
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+ 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+ 
+-	/* Allow STIBP in MSR_SPEC_CTRL if supported */
+-	if (boot_cpu_has(X86_FEATURE_STIBP))
+-		x86_spec_ctrl_mask |= SPEC_CTRL_STIBP;
+-
+ 	/* Select the proper CPU mitigations before patching alternatives: */
+ 	spectre_v1_select_mitigation();
+ 	spectre_v2_select_mitigation();
++	/*
++	 * retbleed_select_mitigation() relies on the state set by
++	 * spectre_v2_select_mitigation(); specifically it wants to know about
++	 * spectre_v2=ibrs.
++	 */
++	retbleed_select_mitigation();
++	/*
++	 * spectre_v2_user_select_mitigation() relies on the state set by
++	 * retbleed_select_mitigation(); specifically the STIBP selection is
++	 * forced for UNRET.
++	 */
++	spectre_v2_user_select_mitigation();
+ 	ssb_select_mitigation();
+ 	l1tf_select_mitigation();
+ 	md_clear_select_mitigation();
+@@ -161,31 +195,17 @@ void __init check_bugs(void)
+ #endif
+ }
+ 
++/*
++ * NOTE: This function is *only* called for SVM.  VMX spec_ctrl handling is
++ * done in vmenter.S.
++ */
+ void
+ x86_virt_spec_ctrl(u64 guest_spec_ctrl, u64 guest_virt_spec_ctrl, bool setguest)
+ {
+-	u64 msrval, guestval, hostval = x86_spec_ctrl_base;
++	u64 msrval, guestval = guest_spec_ctrl, hostval = spec_ctrl_current();
+ 	struct thread_info *ti = current_thread_info();
+ 
+-	/* Is MSR_SPEC_CTRL implemented ? */
+ 	if (static_cpu_has(X86_FEATURE_MSR_SPEC_CTRL)) {
+-		/*
+-		 * Restrict guest_spec_ctrl to supported values. Clear the
+-		 * modifiable bits in the host base value and or the
+-		 * modifiable bits from the guest value.
+-		 */
+-		guestval = hostval & ~x86_spec_ctrl_mask;
+-		guestval |= guest_spec_ctrl & x86_spec_ctrl_mask;
+-
+-		/* SSBD controlled in MSR_SPEC_CTRL */
+-		if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+-		    static_cpu_has(X86_FEATURE_AMD_SSBD))
+-			hostval |= ssbd_tif_to_spec_ctrl(ti->flags);
+-
+-		/* Conditional STIBP enabled? */
+-		if (static_branch_unlikely(&switch_to_cond_stibp))
+-			hostval |= stibp_tif_to_spec_ctrl(ti->flags);
+-
+ 		if (hostval != guestval) {
+ 			msrval = setguest ? guestval : hostval;
+ 			wrmsrl(MSR_IA32_SPEC_CTRL, msrval);
+@@ -745,12 +765,180 @@ static int __init nospectre_v1_cmdline(char *str)
+ }
+ early_param("nospectre_v1", nospectre_v1_cmdline);
+ 
+-#undef pr_fmt
+-#define pr_fmt(fmt)     "Spectre V2 : " fmt
+-
+ static enum spectre_v2_mitigation spectre_v2_enabled __ro_after_init =
+ 	SPECTRE_V2_NONE;
+ 
++#undef pr_fmt
++#define pr_fmt(fmt)     "RETBleed: " fmt
++
++enum retbleed_mitigation {
++	RETBLEED_MITIGATION_NONE,
++	RETBLEED_MITIGATION_UNRET,
++	RETBLEED_MITIGATION_IBPB,
++	RETBLEED_MITIGATION_IBRS,
++	RETBLEED_MITIGATION_EIBRS,
++};
++
++enum retbleed_mitigation_cmd {
++	RETBLEED_CMD_OFF,
++	RETBLEED_CMD_AUTO,
++	RETBLEED_CMD_UNRET,
++	RETBLEED_CMD_IBPB,
++};
++
++const char * const retbleed_strings[] = {
++	[RETBLEED_MITIGATION_NONE]	= "Vulnerable",
++	[RETBLEED_MITIGATION_UNRET]	= "Mitigation: untrained return thunk",
++	[RETBLEED_MITIGATION_IBPB]	= "Mitigation: IBPB",
++	[RETBLEED_MITIGATION_IBRS]	= "Mitigation: IBRS",
++	[RETBLEED_MITIGATION_EIBRS]	= "Mitigation: Enhanced IBRS",
++};
++
++static enum retbleed_mitigation retbleed_mitigation __ro_after_init =
++	RETBLEED_MITIGATION_NONE;
++static enum retbleed_mitigation_cmd retbleed_cmd __ro_after_init =
++	RETBLEED_CMD_AUTO;
++
++static int __ro_after_init retbleed_nosmt = false;
++
++static int __init retbleed_parse_cmdline(char *str)
++{
++	if (!str)
++		return -EINVAL;
++
++	while (str) {
++		char *next = strchr(str, ',');
++		if (next) {
++			*next = 0;
++			next++;
++		}
++
++		if (!strcmp(str, "off")) {
++			retbleed_cmd = RETBLEED_CMD_OFF;
++		} else if (!strcmp(str, "auto")) {
++			retbleed_cmd = RETBLEED_CMD_AUTO;
++		} else if (!strcmp(str, "unret")) {
++			retbleed_cmd = RETBLEED_CMD_UNRET;
++		} else if (!strcmp(str, "ibpb")) {
++			retbleed_cmd = RETBLEED_CMD_IBPB;
++		} else if (!strcmp(str, "nosmt")) {
++			retbleed_nosmt = true;
++		} else {
++			pr_err("Ignoring unknown retbleed option (%s).", str);
++		}
++
++		str = next;
++	}
++
++	return 0;
++}
++early_param("retbleed", retbleed_parse_cmdline);
++
++#define RETBLEED_UNTRAIN_MSG "WARNING: BTB untrained return thunk mitigation is only effective on AMD/Hygon!\n"
++#define RETBLEED_INTEL_MSG "WARNING: Spectre v2 mitigation leaves CPU vulnerable to RETBleed attacks, data leaks possible!\n"
++
++static void __init retbleed_select_mitigation(void)
++{
++	bool mitigate_smt = false;
++
++	if (!boot_cpu_has_bug(X86_BUG_RETBLEED) || cpu_mitigations_off())
++		return;
++
++	switch (retbleed_cmd) {
++	case RETBLEED_CMD_OFF:
++		return;
++
++	case RETBLEED_CMD_UNRET:
++		if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY)) {
++			retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
++		} else {
++			pr_err("WARNING: kernel not compiled with CPU_UNRET_ENTRY.\n");
++			goto do_cmd_auto;
++		}
++		break;
++
++	case RETBLEED_CMD_IBPB:
++		if (!boot_cpu_has(X86_FEATURE_IBPB)) {
++			pr_err("WARNING: CPU does not support IBPB.\n");
++			goto do_cmd_auto;
++		} else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY)) {
++			retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
++		} else {
++			pr_err("WARNING: kernel not compiled with CPU_IBPB_ENTRY.\n");
++			goto do_cmd_auto;
++		}
++		break;
++
++do_cmd_auto:
++	case RETBLEED_CMD_AUTO:
++	default:
++		if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
++		    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON) {
++			if (IS_ENABLED(CONFIG_CPU_UNRET_ENTRY))
++				retbleed_mitigation = RETBLEED_MITIGATION_UNRET;
++			else if (IS_ENABLED(CONFIG_CPU_IBPB_ENTRY) && boot_cpu_has(X86_FEATURE_IBPB))
++				retbleed_mitigation = RETBLEED_MITIGATION_IBPB;
++		}
++
++		/*
++		 * The Intel mitigation (IBRS or eIBRS) was already selected in
++		 * spectre_v2_select_mitigation().  'retbleed_mitigation' will
++		 * be set accordingly below.
++		 */
++
++		break;
++	}
++
++	switch (retbleed_mitigation) {
++	case RETBLEED_MITIGATION_UNRET:
++		setup_force_cpu_cap(X86_FEATURE_RETHUNK);
++		setup_force_cpu_cap(X86_FEATURE_UNRET);
++
++		if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
++		    boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
++			pr_err(RETBLEED_UNTRAIN_MSG);
++
++		mitigate_smt = true;
++		break;
++
++	case RETBLEED_MITIGATION_IBPB:
++		setup_force_cpu_cap(X86_FEATURE_ENTRY_IBPB);
++		mitigate_smt = true;
++		break;
++
++	default:
++		break;
++	}
++
++	if (mitigate_smt && !boot_cpu_has(X86_FEATURE_STIBP) &&
++	    (retbleed_nosmt || cpu_mitigations_auto_nosmt()))
++		cpu_smt_disable(false);
++
++	/*
++	 * Let IBRS trump all on Intel without affecting the effects of the
++	 * retbleed= cmdline option.
++	 */
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
++		switch (spectre_v2_enabled) {
++		case SPECTRE_V2_IBRS:
++			retbleed_mitigation = RETBLEED_MITIGATION_IBRS;
++			break;
++		case SPECTRE_V2_EIBRS:
++		case SPECTRE_V2_EIBRS_RETPOLINE:
++		case SPECTRE_V2_EIBRS_LFENCE:
++			retbleed_mitigation = RETBLEED_MITIGATION_EIBRS;
++			break;
++		default:
++			pr_err(RETBLEED_INTEL_MSG);
++		}
++	}
++
++	pr_info("%s\n", retbleed_strings[retbleed_mitigation]);
++}
++
++#undef pr_fmt
++#define pr_fmt(fmt)     "Spectre V2 : " fmt
++
+ static enum spectre_v2_user_mitigation spectre_v2_user_stibp __ro_after_init =
+ 	SPECTRE_V2_USER_NONE;
+ static enum spectre_v2_user_mitigation spectre_v2_user_ibpb __ro_after_init =
+@@ -821,6 +1009,7 @@ enum spectre_v2_mitigation_cmd {
+ 	SPECTRE_V2_CMD_EIBRS,
+ 	SPECTRE_V2_CMD_EIBRS_RETPOLINE,
+ 	SPECTRE_V2_CMD_EIBRS_LFENCE,
++	SPECTRE_V2_CMD_IBRS,
+ };
+ 
+ enum spectre_v2_user_cmd {
+@@ -861,13 +1050,15 @@ static void __init spec_v2_user_print_cond(const char *reason, bool secure)
+ 		pr_info("spectre_v2_user=%s forced on command line.\n", reason);
+ }
+ 
++static __ro_after_init enum spectre_v2_mitigation_cmd spectre_v2_cmd;
++
+ static enum spectre_v2_user_cmd __init
+-spectre_v2_parse_user_cmdline(enum spectre_v2_mitigation_cmd v2_cmd)
++spectre_v2_parse_user_cmdline(void)
+ {
+ 	char arg[20];
+ 	int ret, i;
+ 
+-	switch (v2_cmd) {
++	switch (spectre_v2_cmd) {
+ 	case SPECTRE_V2_CMD_NONE:
+ 		return SPECTRE_V2_USER_CMD_NONE;
+ 	case SPECTRE_V2_CMD_FORCE:
+@@ -893,15 +1084,16 @@ spectre_v2_parse_user_cmdline(enum spectre_v2_mitigation_cmd v2_cmd)
+ 	return SPECTRE_V2_USER_CMD_AUTO;
+ }
+ 
+-static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
++static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
+ {
+-	return (mode == SPECTRE_V2_EIBRS ||
+-		mode == SPECTRE_V2_EIBRS_RETPOLINE ||
+-		mode == SPECTRE_V2_EIBRS_LFENCE);
++	return mode == SPECTRE_V2_IBRS ||
++	       mode == SPECTRE_V2_EIBRS ||
++	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
++	       mode == SPECTRE_V2_EIBRS_LFENCE;
+ }
+ 
+ static void __init
+-spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
++spectre_v2_user_select_mitigation(void)
+ {
+ 	enum spectre_v2_user_mitigation mode = SPECTRE_V2_USER_NONE;
+ 	bool smt_possible = IS_ENABLED(CONFIG_SMP);
+@@ -914,7 +1106,7 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+ 	    cpu_smt_control == CPU_SMT_NOT_SUPPORTED)
+ 		smt_possible = false;
+ 
+-	cmd = spectre_v2_parse_user_cmdline(v2_cmd);
++	cmd = spectre_v2_parse_user_cmdline();
+ 	switch (cmd) {
+ 	case SPECTRE_V2_USER_CMD_NONE:
+ 		goto set_mode;
+@@ -962,12 +1154,12 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+ 	}
+ 
+ 	/*
+-	 * If no STIBP, enhanced IBRS is enabled or SMT impossible, STIBP is not
+-	 * required.
++	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
++	 * STIBP is not required.
+ 	 */
+ 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+ 	    !smt_possible ||
+-	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
++	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
+ 		return;
+ 
+ 	/*
+@@ -979,6 +1171,13 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+ 	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
+ 		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
+ 
++	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
++		if (mode != SPECTRE_V2_USER_STRICT &&
++		    mode != SPECTRE_V2_USER_STRICT_PREFERRED)
++			pr_info("Selecting STIBP always-on mode to complement retbleed mitigation\n");
++		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
++	}
++
+ 	spectre_v2_user_stibp = mode;
+ 
+ set_mode:
+@@ -992,6 +1191,7 @@ static const char * const spectre_v2_strings[] = {
+ 	[SPECTRE_V2_EIBRS]			= "Mitigation: Enhanced IBRS",
+ 	[SPECTRE_V2_EIBRS_LFENCE]		= "Mitigation: Enhanced IBRS + LFENCE",
+ 	[SPECTRE_V2_EIBRS_RETPOLINE]		= "Mitigation: Enhanced IBRS + Retpolines",
++	[SPECTRE_V2_IBRS]			= "Mitigation: IBRS",
+ };
+ 
+ static const struct {
+@@ -1009,6 +1209,7 @@ static const struct {
+ 	{ "eibrs,lfence",	SPECTRE_V2_CMD_EIBRS_LFENCE,	  false },
+ 	{ "eibrs,retpoline",	SPECTRE_V2_CMD_EIBRS_RETPOLINE,	  false },
+ 	{ "auto",		SPECTRE_V2_CMD_AUTO,		  false },
++	{ "ibrs",		SPECTRE_V2_CMD_IBRS,              false },
+ };
+ 
+ static void __init spec_v2_print_cond(const char *reason, bool secure)
+@@ -1071,6 +1272,30 @@ static enum spectre_v2_mitigation_cmd __init spectre_v2_parse_cmdline(void)
+ 		return SPECTRE_V2_CMD_AUTO;
+ 	}
+ 
++	if (cmd == SPECTRE_V2_CMD_IBRS && !IS_ENABLED(CONFIG_CPU_IBRS_ENTRY)) {
++		pr_err("%s selected but not compiled in. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
++	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_data.x86_vendor != X86_VENDOR_INTEL) {
++		pr_err("%s selected but not Intel CPU. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
++	if (cmd == SPECTRE_V2_CMD_IBRS && !boot_cpu_has(X86_FEATURE_IBRS)) {
++		pr_err("%s selected but CPU doesn't have IBRS. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
++	if (cmd == SPECTRE_V2_CMD_IBRS && boot_cpu_has(X86_FEATURE_XENPV)) {
++		pr_err("%s selected but running as XenPV guest. Switching to AUTO select\n",
++		       mitigation_options[i].option);
++		return SPECTRE_V2_CMD_AUTO;
++	}
++
+ 	spec_v2_print_cond(mitigation_options[i].option,
+ 			   mitigation_options[i].secure);
+ 	return cmd;
+@@ -1086,6 +1311,22 @@ static enum spectre_v2_mitigation __init spectre_v2_select_retpoline(void)
+ 	return SPECTRE_V2_RETPOLINE;
+ }
+ 
++/* Disable in-kernel use of non-RSB RET predictors */
++static void __init spec_ctrl_disable_kernel_rrsba(void)
++{
++	u64 ia32_cap;
++
++	if (!boot_cpu_has(X86_FEATURE_RRSBA_CTRL))
++		return;
++
++	ia32_cap = x86_read_arch_cap_msr();
++
++	if (ia32_cap & ARCH_CAP_RRSBA) {
++		x86_spec_ctrl_base |= SPEC_CTRL_RRSBA_DIS_S;
++		write_spec_ctrl_current(x86_spec_ctrl_base, true);
++	}
++}
++
+ static void __init spectre_v2_select_mitigation(void)
+ {
+ 	enum spectre_v2_mitigation_cmd cmd = spectre_v2_parse_cmdline();
+@@ -1110,6 +1351,15 @@ static void __init spectre_v2_select_mitigation(void)
+ 			break;
+ 		}
+ 
++		if (IS_ENABLED(CONFIG_CPU_IBRS_ENTRY) &&
++		    boot_cpu_has_bug(X86_BUG_RETBLEED) &&
++		    retbleed_cmd != RETBLEED_CMD_OFF &&
++		    boot_cpu_has(X86_FEATURE_IBRS) &&
++		    boot_cpu_data.x86_vendor == X86_VENDOR_INTEL) {
++			mode = SPECTRE_V2_IBRS;
++			break;
++		}
++
+ 		mode = spectre_v2_select_retpoline();
+ 		break;
+ 
+@@ -1126,6 +1376,10 @@ static void __init spectre_v2_select_mitigation(void)
+ 		mode = spectre_v2_select_retpoline();
+ 		break;
+ 
++	case SPECTRE_V2_CMD_IBRS:
++		mode = SPECTRE_V2_IBRS;
++		break;
++
+ 	case SPECTRE_V2_CMD_EIBRS:
+ 		mode = SPECTRE_V2_EIBRS;
+ 		break;
+@@ -1142,10 +1396,9 @@ static void __init spectre_v2_select_mitigation(void)
+ 	if (mode == SPECTRE_V2_EIBRS && unprivileged_ebpf_enabled())
+ 		pr_err(SPECTRE_V2_EIBRS_EBPF_MSG);
+ 
+-	if (spectre_v2_in_eibrs_mode(mode)) {
+-		/* Force it so VMEXIT will restore correctly */
++	if (spectre_v2_in_ibrs_mode(mode)) {
+ 		x86_spec_ctrl_base |= SPEC_CTRL_IBRS;
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 	}
+ 
+ 	switch (mode) {
+@@ -1153,6 +1406,10 @@ static void __init spectre_v2_select_mitigation(void)
+ 	case SPECTRE_V2_EIBRS:
+ 		break;
+ 
++	case SPECTRE_V2_IBRS:
++		setup_force_cpu_cap(X86_FEATURE_KERNEL_IBRS);
++		break;
++
+ 	case SPECTRE_V2_LFENCE:
+ 	case SPECTRE_V2_EIBRS_LFENCE:
+ 		setup_force_cpu_cap(X86_FEATURE_RETPOLINE_LFENCE);
+@@ -1164,43 +1421,107 @@ static void __init spectre_v2_select_mitigation(void)
+ 		break;
+ 	}
+ 
++	/*
++	 * Disable alternate RSB predictions in kernel when indirect CALLs and
++	 * JMPs gets protection against BHI and Intramode-BTI, but RET
++	 * prediction from a non-RSB predictor is still a risk.
++	 */
++	if (mode == SPECTRE_V2_EIBRS_LFENCE ||
++	    mode == SPECTRE_V2_EIBRS_RETPOLINE ||
++	    mode == SPECTRE_V2_RETPOLINE)
++		spec_ctrl_disable_kernel_rrsba();
++
+ 	spectre_v2_enabled = mode;
+ 	pr_info("%s\n", spectre_v2_strings[mode]);
+ 
+ 	/*
+-	 * If spectre v2 protection has been enabled, unconditionally fill
+-	 * RSB during a context switch; this protects against two independent
+-	 * issues:
++	 * If Spectre v2 protection has been enabled, fill the RSB during a
++	 * context switch.  In general there are two types of RSB attacks
++	 * across context switches, for which the CALLs/RETs may be unbalanced.
+ 	 *
+-	 *	- RSB underflow (and switch to BTB) on Skylake+
+-	 *	- SpectreRSB variant of spectre v2 on X86_BUG_SPECTRE_V2 CPUs
++	 * 1) RSB underflow
++	 *
++	 *    Some Intel parts have "bottomless RSB".  When the RSB is empty,
++	 *    speculated return targets may come from the branch predictor,
++	 *    which could have a user-poisoned BTB or BHB entry.
++	 *
++	 *    AMD has it even worse: *all* returns are speculated from the BTB,
++	 *    regardless of the state of the RSB.
++	 *
++	 *    When IBRS or eIBRS is enabled, the "user -> kernel" attack
++	 *    scenario is mitigated by the IBRS branch prediction isolation
++	 *    properties, so the RSB buffer filling wouldn't be necessary to
++	 *    protect against this type of attack.
++	 *
++	 *    The "user -> user" attack scenario is mitigated by RSB filling.
++	 *
++	 * 2) Poisoned RSB entry
++	 *
++	 *    If the 'next' in-kernel return stack is shorter than 'prev',
++	 *    'next' could be tricked into speculating with a user-poisoned RSB
++	 *    entry.
++	 *
++	 *    The "user -> kernel" attack scenario is mitigated by SMEP and
++	 *    eIBRS.
++	 *
++	 *    The "user -> user" scenario, also known as SpectreBHB, requires
++	 *    RSB clearing.
++	 *
++	 * So to mitigate all cases, unconditionally fill RSB on context
++	 * switches.
++	 *
++	 * FIXME: Is this pointless for retbleed-affected AMD?
+ 	 */
+ 	setup_force_cpu_cap(X86_FEATURE_RSB_CTXSW);
+ 	pr_info("Spectre v2 / SpectreRSB mitigation: Filling RSB on context switch\n");
+ 
+ 	/*
+-	 * Retpoline means the kernel is safe because it has no indirect
+-	 * branches. Enhanced IBRS protects firmware too, so, enable restricted
+-	 * speculation around firmware calls only when Enhanced IBRS isn't
+-	 * supported.
++	 * Similar to context switches, there are two types of RSB attacks
++	 * after vmexit:
++	 *
++	 * 1) RSB underflow
++	 *
++	 * 2) Poisoned RSB entry
++	 *
++	 * When retpoline is enabled, both are mitigated by filling/clearing
++	 * the RSB.
++	 *
++	 * When IBRS is enabled, while #1 would be mitigated by the IBRS branch
++	 * prediction isolation protections, RSB still needs to be cleared
++	 * because of #2.  Note that SMEP provides no protection here, unlike
++	 * user-space-poisoned RSB entries.
++	 *
++	 * eIBRS, on the other hand, has RSB-poisoning protections, so it
++	 * doesn't need RSB clearing after vmexit.
++	 */
++	if (boot_cpu_has(X86_FEATURE_RETPOLINE) ||
++	    boot_cpu_has(X86_FEATURE_KERNEL_IBRS))
++		setup_force_cpu_cap(X86_FEATURE_RSB_VMEXIT);
++
++	/*
++	 * Retpoline protects the kernel, but doesn't protect firmware.  IBRS
++	 * and Enhanced IBRS protect firmware too, so enable IBRS around
++	 * firmware calls only when IBRS / Enhanced IBRS aren't otherwise
++	 * enabled.
+ 	 *
+ 	 * Use "mode" to check Enhanced IBRS instead of boot_cpu_has(), because
+ 	 * the user might select retpoline on the kernel command line and if
+ 	 * the CPU supports Enhanced IBRS, kernel might un-intentionally not
+ 	 * enable IBRS around firmware calls.
+ 	 */
+-	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_eibrs_mode(mode)) {
++	if (boot_cpu_has(X86_FEATURE_IBRS) && !spectre_v2_in_ibrs_mode(mode)) {
+ 		setup_force_cpu_cap(X86_FEATURE_USE_IBRS_FW);
+ 		pr_info("Enabling Restricted Speculation for firmware calls\n");
+ 	}
+ 
+ 	/* Set up IBPB and STIBP depending on the general spectre V2 command */
+-	spectre_v2_user_select_mitigation(cmd);
++	spectre_v2_cmd = cmd;
+ }
+ 
+ static void update_stibp_msr(void * __unused)
+ {
+-	wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++	u64 val = spec_ctrl_current() | (x86_spec_ctrl_base & SPEC_CTRL_STIBP);
++	write_spec_ctrl_current(val, true);
+ }
+ 
+ /* Update x86_spec_ctrl_base in case SMT state changed. */
+@@ -1416,16 +1737,6 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
+ 		break;
+ 	}
+ 
+-	/*
+-	 * If SSBD is controlled by the SPEC_CTRL MSR, then set the proper
+-	 * bit in the mask to allow guests to use the mitigation even in the
+-	 * case where the host does not enable it.
+-	 */
+-	if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+-	    static_cpu_has(X86_FEATURE_AMD_SSBD)) {
+-		x86_spec_ctrl_mask |= SPEC_CTRL_SSBD;
+-	}
+-
+ 	/*
+ 	 * We have three CPU feature flags that are in play here:
+ 	 *  - X86_BUG_SPEC_STORE_BYPASS - CPU is susceptible.
+@@ -1443,7 +1754,7 @@ static enum ssb_mitigation __init __ssb_select_mitigation(void)
+ 			x86_amd_ssb_disable();
+ 		} else {
+ 			x86_spec_ctrl_base |= SPEC_CTRL_SSBD;
+-			wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++			write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 		}
+ 	}
+ 
+@@ -1694,7 +2005,7 @@ int arch_prctl_spec_ctrl_get(struct task_struct *task, unsigned long which)
+ void x86_spec_ctrl_setup_ap(void)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
+-		wrmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
++		write_spec_ctrl_current(x86_spec_ctrl_base, true);
+ 
+ 	if (ssb_mode == SPEC_STORE_BYPASS_DISABLE)
+ 		x86_amd_ssb_disable();
+@@ -1931,7 +2242,7 @@ static ssize_t mmio_stale_data_show_state(char *buf)
+ 
+ static char *stibp_state(void)
+ {
+-	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
++	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
+ 		return "";
+ 
+ 	switch (spectre_v2_user_stibp) {
+@@ -1987,6 +2298,24 @@ static ssize_t srbds_show_state(char *buf)
+ 	return sprintf(buf, "%s\n", srbds_strings[srbds_mitigation]);
+ }
+ 
++static ssize_t retbleed_show_state(char *buf)
++{
++	if (retbleed_mitigation == RETBLEED_MITIGATION_UNRET) {
++	    if (boot_cpu_data.x86_vendor != X86_VENDOR_AMD &&
++		boot_cpu_data.x86_vendor != X86_VENDOR_HYGON)
++		    return sprintf(buf, "Vulnerable: untrained return thunk on non-Zen uarch\n");
++
++	    return sprintf(buf, "%s; SMT %s\n",
++			   retbleed_strings[retbleed_mitigation],
++			   !sched_smt_active() ? "disabled" :
++			   spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
++			   spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ?
++			   "enabled with STIBP protection" : "vulnerable");
++	}
++
++	return sprintf(buf, "%s\n", retbleed_strings[retbleed_mitigation]);
++}
++
+ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr,
+ 			       char *buf, unsigned int bug)
+ {
+@@ -2032,6 +2361,9 @@ static ssize_t cpu_show_common(struct device *dev, struct device_attribute *attr
+ 	case X86_BUG_MMIO_STALE_DATA:
+ 		return mmio_stale_data_show_state(buf);
+ 
++	case X86_BUG_RETBLEED:
++		return retbleed_show_state(buf);
++
+ 	default:
+ 		break;
+ 	}
+@@ -2088,4 +2420,9 @@ ssize_t cpu_show_mmio_stale_data(struct device *dev, struct device_attribute *at
+ {
+ 	return cpu_show_common(dev, attr, buf, X86_BUG_MMIO_STALE_DATA);
+ }
++
++ssize_t cpu_show_retbleed(struct device *dev, struct device_attribute *attr, char *buf)
++{
++	return cpu_show_common(dev, attr, buf, X86_BUG_RETBLEED);
++}
+ #endif
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index af5d0c188f7b8..1f43ddf2ffc36 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1231,48 +1231,60 @@ static const __initconst struct x86_cpu_id cpu_vuln_whitelist[] = {
+ 	{}
+ };
+ 
++#define VULNBL(vendor, family, model, blacklist)	\
++	X86_MATCH_VENDOR_FAM_MODEL(vendor, family, model, blacklist)
++
+ #define VULNBL_INTEL_STEPPINGS(model, steppings, issues)		   \
+ 	X86_MATCH_VENDOR_FAM_MODEL_STEPPINGS_FEATURE(INTEL, 6,		   \
+ 					    INTEL_FAM6_##model, steppings, \
+ 					    X86_FEATURE_ANY, issues)
+ 
++#define VULNBL_AMD(family, blacklist)		\
++	VULNBL(AMD, family, X86_MODEL_ANY, blacklist)
++
++#define VULNBL_HYGON(family, blacklist)		\
++	VULNBL(HYGON, family, X86_MODEL_ANY, blacklist)
++
+ #define SRBDS		BIT(0)
+ /* CPU is affected by X86_BUG_MMIO_STALE_DATA */
+ #define MMIO		BIT(1)
+ /* CPU is affected by Shared Buffers Data Sampling (SBDS), a variant of X86_BUG_MMIO_STALE_DATA */
+ #define MMIO_SBDS	BIT(2)
++/* CPU is affected by RETbleed, speculating where you would not expect it */
++#define RETBLEED	BIT(3)
+ 
+ static const struct x86_cpu_id cpu_vuln_blacklist[] __initconst = {
+ 	VULNBL_INTEL_STEPPINGS(IVYBRIDGE,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL,		X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL_L,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(HASWELL_G,	X86_STEPPING_ANY,		SRBDS),
+-	VULNBL_INTEL_STEPPINGS(HASWELL_X,	BIT(2) | BIT(4),		MMIO),
+-	VULNBL_INTEL_STEPPINGS(BROADWELL_D,	X86_STEPPINGS(0x3, 0x5),	MMIO),
++	VULNBL_INTEL_STEPPINGS(HASWELL_X,	X86_STEPPING_ANY,		MMIO),
++	VULNBL_INTEL_STEPPINGS(BROADWELL_D,	X86_STEPPING_ANY,		MMIO),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL_G,	X86_STEPPING_ANY,		SRBDS),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL_X,	X86_STEPPING_ANY,		MMIO),
+ 	VULNBL_INTEL_STEPPINGS(BROADWELL,	X86_STEPPING_ANY,		SRBDS),
+-	VULNBL_INTEL_STEPPINGS(SKYLAKE_L,	X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO),
+-	VULNBL_INTEL_STEPPINGS(SKYLAKE_L,	X86_STEPPING_ANY,		SRBDS),
+-	VULNBL_INTEL_STEPPINGS(SKYLAKE_X,	BIT(3) | BIT(4) | BIT(6) |
+-						BIT(7) | BIT(0xB),              MMIO),
+-	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPINGS(0x3, 0x3),	SRBDS | MMIO),
+-	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPING_ANY,		SRBDS),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPINGS(0x9, 0xC),	SRBDS | MMIO),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPINGS(0x0, 0x8),	SRBDS),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPINGS(0x9, 0xD),	SRBDS | MMIO),
+-	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPINGS(0x0, 0x8),	SRBDS),
+-	VULNBL_INTEL_STEPPINGS(ICELAKE_L,	X86_STEPPINGS(0x5, 0x5),	MMIO | MMIO_SBDS),
+-	VULNBL_INTEL_STEPPINGS(ICELAKE_D,	X86_STEPPINGS(0x1, 0x1),	MMIO),
+-	VULNBL_INTEL_STEPPINGS(ICELAKE_X,	X86_STEPPINGS(0x4, 0x6),	MMIO),
+-	VULNBL_INTEL_STEPPINGS(COMETLAKE,	BIT(2) | BIT(3) | BIT(5),	MMIO | MMIO_SBDS),
+-	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS),
+-	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x0, 0x0),	MMIO),
+-	VULNBL_INTEL_STEPPINGS(LAKEFIELD,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS),
+-	VULNBL_INTEL_STEPPINGS(ROCKETLAKE,	X86_STEPPINGS(0x1, 0x1),	MMIO),
+-	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT,	X86_STEPPINGS(0x1, 0x1),	MMIO | MMIO_SBDS),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_L,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE_X,	X86_STEPPING_ANY,		MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(SKYLAKE,		X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE_L,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(KABYLAKE,	X86_STEPPING_ANY,		SRBDS | MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(CANNONLAKE_L,	X86_STEPPING_ANY,		RETBLEED),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_L,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_D,	X86_STEPPING_ANY,		MMIO),
++	VULNBL_INTEL_STEPPINGS(ICELAKE_X,	X86_STEPPING_ANY,		MMIO),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPINGS(0x0, 0x0),	MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(COMETLAKE_L,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(LAKEFIELD,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(ROCKETLAKE,	X86_STEPPING_ANY,		MMIO | RETBLEED),
++	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS),
+ 	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_D,	X86_STEPPING_ANY,		MMIO),
+-	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_L,	X86_STEPPINGS(0x0, 0x0),	MMIO | MMIO_SBDS),
++	VULNBL_INTEL_STEPPINGS(ATOM_TREMONT_L,	X86_STEPPING_ANY,		MMIO | MMIO_SBDS),
++
++	VULNBL_AMD(0x15, RETBLEED),
++	VULNBL_AMD(0x16, RETBLEED),
++	VULNBL_AMD(0x17, RETBLEED),
++	VULNBL_HYGON(0x18, RETBLEED),
+ 	{}
+ };
+ 
+@@ -1374,6 +1386,11 @@ static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
+ 	    !arch_cap_mmio_immune(ia32_cap))
+ 		setup_force_cpu_bug(X86_BUG_MMIO_STALE_DATA);
+ 
++	if (!cpu_has(c, X86_FEATURE_BTC_NO)) {
++		if (cpu_matches(cpu_vuln_blacklist, RETBLEED) || (ia32_cap & ARCH_CAP_RSBA))
++			setup_force_cpu_bug(X86_BUG_RETBLEED);
++	}
++
+ 	if (cpu_matches(cpu_vuln_whitelist, NO_MELTDOWN))
+ 		return;
+ 
+diff --git a/arch/x86/kernel/cpu/cpu.h b/arch/x86/kernel/cpu/cpu.h
+index 2a8e584fc9913..7c9b5893c30ab 100644
+--- a/arch/x86/kernel/cpu/cpu.h
++++ b/arch/x86/kernel/cpu/cpu.h
+@@ -61,6 +61,8 @@ static inline void tsx_init(void) { }
+ static inline void tsx_ap_init(void) { }
+ #endif /* CONFIG_CPU_SUP_INTEL */
+ 
++extern void init_spectral_chicken(struct cpuinfo_x86 *c);
++
+ extern void get_cpu_cap(struct cpuinfo_x86 *c);
+ extern void get_cpu_address_sizes(struct cpuinfo_x86 *c);
+ extern void cpu_detect_cache_sizes(struct cpuinfo_x86 *c);
+diff --git a/arch/x86/kernel/cpu/hygon.c b/arch/x86/kernel/cpu/hygon.c
+index 3fcdda4c1e114..21fd425088fe5 100644
+--- a/arch/x86/kernel/cpu/hygon.c
++++ b/arch/x86/kernel/cpu/hygon.c
+@@ -302,6 +302,12 @@ static void init_hygon(struct cpuinfo_x86 *c)
+ 	/* get apicid instead of initial apic id from cpuid */
+ 	c->apicid = hard_smp_processor_id();
+ 
++	/*
++	 * XXX someone from Hygon needs to confirm this DTRT
++	 *
++	init_spectral_chicken(c);
++	 */
++
+ 	set_cpu_cap(c, X86_FEATURE_ZEN);
+ 	set_cpu_cap(c, X86_FEATURE_CPB);
+ 
+diff --git a/arch/x86/kernel/cpu/scattered.c b/arch/x86/kernel/cpu/scattered.c
+index 4143b1e4c5c6d..fcfb03f5f89b3 100644
+--- a/arch/x86/kernel/cpu/scattered.c
++++ b/arch/x86/kernel/cpu/scattered.c
+@@ -27,6 +27,7 @@ static const struct cpuid_bit cpuid_bits[] = {
+ 	{ X86_FEATURE_APERFMPERF,       CPUID_ECX,  0, 0x00000006, 0 },
+ 	{ X86_FEATURE_EPB,		CPUID_ECX,  3, 0x00000006, 0 },
+ 	{ X86_FEATURE_INTEL_PPIN,	CPUID_EBX,  0, 0x00000007, 1 },
++	{ X86_FEATURE_RRSBA_CTRL,	CPUID_EDX,  2, 0x00000007, 2 },
+ 	{ X86_FEATURE_CQM_LLC,		CPUID_EDX,  1, 0x0000000f, 0 },
+ 	{ X86_FEATURE_CQM_OCCUP_LLC,	CPUID_EDX,  0, 0x0000000f, 1 },
+ 	{ X86_FEATURE_CQM_MBM_TOTAL,	CPUID_EDX,  1, 0x0000000f, 1 },
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index 1e31c7d21597b..6892ca67d9c6d 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -303,7 +303,7 @@ union ftrace_op_code_union {
+ 	} __attribute__((packed));
+ };
+ 
+-#define RET_SIZE		1 + IS_ENABLED(CONFIG_SLS)
++#define RET_SIZE		(IS_ENABLED(CONFIG_RETPOLINE) ? 5 : 1 + IS_ENABLED(CONFIG_SLS))
+ 
+ static unsigned long
+ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+@@ -359,7 +359,10 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 		goto fail;
+ 
+ 	ip = trampoline + size;
+-	memcpy(ip, retq, RET_SIZE);
++	if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
++		__text_gen_insn(ip, JMP32_INSN_OPCODE, ip, &__x86_return_thunk, JMP32_INSN_SIZE);
++	else
++		memcpy(ip, retq, sizeof(retq));
+ 
+ 	/* No need to test direct calls on created trampolines */
+ 	if (ops->flags & FTRACE_OPS_FL_SAVE_REGS) {
+diff --git a/arch/x86/kernel/head_32.S b/arch/x86/kernel/head_32.S
+index eb8656bac99b6..9b7acc9c7874c 100644
+--- a/arch/x86/kernel/head_32.S
++++ b/arch/x86/kernel/head_32.S
+@@ -23,6 +23,7 @@
+ #include <asm/cpufeatures.h>
+ #include <asm/percpu.h>
+ #include <asm/nops.h>
++#include <asm/nospec-branch.h>
+ #include <asm/bootparam.h>
+ #include <asm/export.h>
+ #include <asm/pgtable_32.h>
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index b8e3019547a5d..3178fd81f93fc 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -334,6 +334,8 @@ SYM_CODE_START_NOALIGN(vc_boot_ghcb)
+ 	UNWIND_HINT_IRET_REGS offset=8
+ 	ENDBR
+ 
++	ANNOTATE_UNRET_END
++
+ 	/* Build pt_regs */
+ 	PUSH_AND_CLEAR_REGS
+ 
+@@ -393,6 +395,7 @@ SYM_CODE_END(early_idt_handler_array)
+ 
+ SYM_CODE_START_LOCAL(early_idt_handler_common)
+ 	UNWIND_HINT_IRET_REGS offset=16
++	ANNOTATE_UNRET_END
+ 	/*
+ 	 * The stack is the hardware frame, an error code or zero, and the
+ 	 * vector number.
+@@ -442,6 +445,8 @@ SYM_CODE_START_NOALIGN(vc_no_ghcb)
+ 	UNWIND_HINT_IRET_REGS offset=8
+ 	ENDBR
+ 
++	ANNOTATE_UNRET_END
++
+ 	/* Build pt_regs */
+ 	PUSH_AND_CLEAR_REGS
+ 
+diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
+index b98ffcf4d250f..67828d9733890 100644
+--- a/arch/x86/kernel/module.c
++++ b/arch/x86/kernel/module.c
+@@ -253,7 +253,7 @@ int module_finalize(const Elf_Ehdr *hdr,
+ {
+ 	const Elf_Shdr *s, *text = NULL, *alt = NULL, *locks = NULL,
+ 		*para = NULL, *orc = NULL, *orc_ip = NULL,
+-		*retpolines = NULL, *ibt_endbr = NULL;
++		*retpolines = NULL, *returns = NULL, *ibt_endbr = NULL;
+ 	char *secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
+ 
+ 	for (s = sechdrs; s < sechdrs + hdr->e_shnum; s++) {
+@@ -271,6 +271,8 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 			orc_ip = s;
+ 		if (!strcmp(".retpoline_sites", secstrings + s->sh_name))
+ 			retpolines = s;
++		if (!strcmp(".return_sites", secstrings + s->sh_name))
++			returns = s;
+ 		if (!strcmp(".ibt_endbr_seal", secstrings + s->sh_name))
+ 			ibt_endbr = s;
+ 	}
+@@ -287,6 +289,10 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 		void *rseg = (void *)retpolines->sh_addr;
+ 		apply_retpolines(rseg, rseg + retpolines->sh_size);
+ 	}
++	if (returns) {
++		void *rseg = (void *)returns->sh_addr;
++		apply_returns(rseg, rseg + returns->sh_size);
++	}
+ 	if (alt) {
+ 		/* patch .altinstructions */
+ 		void *aseg = (void *)alt->sh_addr;
+diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+index b370767f5b191..622dc3673c37f 100644
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -600,7 +600,7 @@ static __always_inline void __speculation_ctrl_update(unsigned long tifp,
+ 	}
+ 
+ 	if (updmsr)
+-		wrmsrl(MSR_IA32_SPEC_CTRL, msr);
++		write_spec_ctrl_current(msr, false);
+ }
+ 
+ static unsigned long speculation_ctrl_update_tif(struct task_struct *tsk)
+diff --git a/arch/x86/kernel/relocate_kernel_32.S b/arch/x86/kernel/relocate_kernel_32.S
+index fcc8a7699103a..c7c4b1917336d 100644
+--- a/arch/x86/kernel/relocate_kernel_32.S
++++ b/arch/x86/kernel/relocate_kernel_32.S
+@@ -7,10 +7,12 @@
+ #include <linux/linkage.h>
+ #include <asm/page_types.h>
+ #include <asm/kexec.h>
++#include <asm/nospec-branch.h>
+ #include <asm/processor-flags.h>
+ 
+ /*
+- * Must be relocatable PIC code callable as a C function
++ * Must be relocatable PIC code callable as a C function, in particular
++ * there must be a plain RET and not jump to return thunk.
+  */
+ 
+ #define PTR(x) (x << 2)
+@@ -91,7 +93,9 @@ SYM_CODE_START_NOALIGN(relocate_kernel)
+ 	movl    %edi, %eax
+ 	addl    $(identity_mapped - relocate_kernel), %eax
+ 	pushl   %eax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(relocate_kernel)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+@@ -159,12 +163,15 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+ 	xorl    %edx, %edx
+ 	xorl    %esi, %esi
+ 	xorl    %ebp, %ebp
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ 1:
+ 	popl	%edx
+ 	movl	CP_PA_SWAP_PAGE(%edi), %esp
+ 	addl	$PAGE_SIZE, %esp
+ 2:
++	ANNOTATE_RETPOLINE_SAFE
+ 	call	*%edx
+ 
+ 	/* get the re-entry point of the peer system */
+@@ -190,7 +197,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+ 	movl	%edi, %eax
+ 	addl	$(virtual_mapped - relocate_kernel), %eax
+ 	pushl	%eax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(identity_mapped)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+@@ -208,7 +217,9 @@ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+ 	popl	%edi
+ 	popl	%esi
+ 	popl	%ebx
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(virtual_mapped)
+ 
+ 	/* Do the copies */
+@@ -271,7 +282,9 @@ SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
+ 	popl	%edi
+ 	popl	%ebx
+ 	popl	%ebp
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(swap_pages)
+ 
+ 	.globl kexec_control_code_size
+diff --git a/arch/x86/kernel/relocate_kernel_64.S b/arch/x86/kernel/relocate_kernel_64.S
+index c1d8626c53b66..4809c0dc4eb0c 100644
+--- a/arch/x86/kernel/relocate_kernel_64.S
++++ b/arch/x86/kernel/relocate_kernel_64.S
+@@ -13,7 +13,8 @@
+ #include <asm/unwind_hints.h>
+ 
+ /*
+- * Must be relocatable PIC code callable as a C function
++ * Must be relocatable PIC code callable as a C function, in particular
++ * there must be a plain RET and not jump to return thunk.
+  */
+ 
+ #define PTR(x) (x << 3)
+@@ -105,7 +106,9 @@ SYM_CODE_START_NOALIGN(relocate_kernel)
+ 	/* jump to identity mapped page */
+ 	addq	$(identity_mapped - relocate_kernel), %r8
+ 	pushq	%r8
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(relocate_kernel)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+@@ -200,7 +203,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+ 	xorl	%r14d, %r14d
+ 	xorl	%r15d, %r15d
+ 
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ 
+ 1:
+ 	popq	%rdx
+@@ -219,7 +224,9 @@ SYM_CODE_START_LOCAL_NOALIGN(identity_mapped)
+ 	call	swap_pages
+ 	movq	$virtual_mapped, %rax
+ 	pushq	%rax
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(identity_mapped)
+ 
+ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+@@ -241,7 +248,9 @@ SYM_CODE_START_LOCAL_NOALIGN(virtual_mapped)
+ 	popq	%r12
+ 	popq	%rbp
+ 	popq	%rbx
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(virtual_mapped)
+ 
+ 	/* Do the copies */
+@@ -298,7 +307,9 @@ SYM_CODE_START_LOCAL_NOALIGN(swap_pages)
+ 	lea	PAGE_SIZE(%rax), %rsi
+ 	jmp	0b
+ 3:
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_CODE_END(swap_pages)
+ 
+ 	.globl kexec_control_code_size
+diff --git a/arch/x86/kernel/static_call.c b/arch/x86/kernel/static_call.c
+index aa72cefdd5be6..aaaba85d6d7ff 100644
+--- a/arch/x86/kernel/static_call.c
++++ b/arch/x86/kernel/static_call.c
+@@ -11,6 +11,13 @@ enum insn_type {
+ 	RET = 3,  /* tramp / site cond-tail-call */
+ };
+ 
++/*
++ * ud1 %esp, %ecx - a 3 byte #UD that is unique to trampolines, chosen such
++ * that there is no false-positive trampoline identification while also being a
++ * speculation stop.
++ */
++static const u8 tramp_ud[] = { 0x0f, 0xb9, 0xcc };
++
+ /*
+  * cs cs cs xorl %eax, %eax - a single 5 byte instruction that clears %[er]ax
+  */
+@@ -18,7 +25,8 @@ static const u8 xor5rax[] = { 0x2e, 0x2e, 0x2e, 0x31, 0xc0 };
+ 
+ static const u8 retinsn[] = { RET_INSN_OPCODE, 0xcc, 0xcc, 0xcc, 0xcc };
+ 
+-static void __ref __static_call_transform(void *insn, enum insn_type type, void *func)
++static void __ref __static_call_transform(void *insn, enum insn_type type,
++					  void *func, bool modinit)
+ {
+ 	const void *emulate = NULL;
+ 	int size = CALL_INSN_SIZE;
+@@ -43,14 +51,17 @@ static void __ref __static_call_transform(void *insn, enum insn_type type, void
+ 		break;
+ 
+ 	case RET:
+-		code = &retinsn;
++		if (cpu_feature_enabled(X86_FEATURE_RETHUNK))
++			code = text_gen_insn(JMP32_INSN_OPCODE, insn, &__x86_return_thunk);
++		else
++			code = &retinsn;
+ 		break;
+ 	}
+ 
+ 	if (memcmp(insn, code, size) == 0)
+ 		return;
+ 
+-	if (unlikely(system_state == SYSTEM_BOOTING))
++	if (system_state == SYSTEM_BOOTING || modinit)
+ 		return text_poke_early(insn, code, size);
+ 
+ 	text_poke_bp(insn, code, size, emulate);
+@@ -60,7 +71,7 @@ static void __static_call_validate(void *insn, bool tail, bool tramp)
+ {
+ 	u8 opcode = *(u8 *)insn;
+ 
+-	if (tramp && memcmp(insn+5, "SCT", 3)) {
++	if (tramp && memcmp(insn+5, tramp_ud, 3)) {
+ 		pr_err("trampoline signature fail");
+ 		BUG();
+ 	}
+@@ -104,14 +115,42 @@ void arch_static_call_transform(void *site, void *tramp, void *func, bool tail)
+ 
+ 	if (tramp) {
+ 		__static_call_validate(tramp, true, true);
+-		__static_call_transform(tramp, __sc_insn(!func, true), func);
++		__static_call_transform(tramp, __sc_insn(!func, true), func, false);
+ 	}
+ 
+ 	if (IS_ENABLED(CONFIG_HAVE_STATIC_CALL_INLINE) && site) {
+ 		__static_call_validate(site, tail, false);
+-		__static_call_transform(site, __sc_insn(!func, tail), func);
++		__static_call_transform(site, __sc_insn(!func, tail), func, false);
+ 	}
+ 
+ 	mutex_unlock(&text_mutex);
+ }
+ EXPORT_SYMBOL_GPL(arch_static_call_transform);
++
++#ifdef CONFIG_RETHUNK
++/*
++ * This is called by apply_returns() to fix up static call trampolines,
++ * specifically ARCH_DEFINE_STATIC_CALL_NULL_TRAMP which is recorded as
++ * having a return trampoline.
++ *
++ * The problem is that static_call() is available before determining
++ * X86_FEATURE_RETHUNK and, by implication, running alternatives.
++ *
++ * This means that __static_call_transform() above can have overwritten the
++ * return trampoline and we now need to fix things up to be consistent.
++ */
++bool __static_call_fixup(void *tramp, u8 op, void *dest)
++{
++	if (memcmp(tramp+5, tramp_ud, 3)) {
++		/* Not a trampoline site, not our problem. */
++		return false;
++	}
++
++	mutex_lock(&text_mutex);
++	if (op == RET_INSN_OPCODE || dest == &__x86_return_thunk)
++		__static_call_transform(tramp, RET, NULL, true);
++	mutex_unlock(&text_mutex);
++
++	return true;
++}
++#endif
+diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
+index 1563fb9950059..4167215333fd8 100644
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -892,14 +892,10 @@ sync:
+ }
+ #endif
+ 
+-struct bad_iret_stack {
+-	void *error_entry_ret;
+-	struct pt_regs regs;
+-};
+-
+-asmlinkage __visible noinstr
+-struct bad_iret_stack *fixup_bad_iret(struct bad_iret_stack *s)
++asmlinkage __visible noinstr struct pt_regs *fixup_bad_iret(struct pt_regs *bad_regs)
+ {
++	struct pt_regs tmp, *new_stack;
++
+ 	/*
+ 	 * This is called from entry_64.S early in handling a fault
+ 	 * caused by a bad iret to user mode.  To handle the fault
+@@ -908,19 +904,18 @@ struct bad_iret_stack *fixup_bad_iret(struct bad_iret_stack *s)
+ 	 * just below the IRET frame) and we want to pretend that the
+ 	 * exception came from the IRET target.
+ 	 */
+-	struct bad_iret_stack tmp, *new_stack =
+-		(struct bad_iret_stack *)__this_cpu_read(cpu_tss_rw.x86_tss.sp0) - 1;
++	new_stack = (struct pt_regs *)__this_cpu_read(cpu_tss_rw.x86_tss.sp0) - 1;
+ 
+ 	/* Copy the IRET target to the temporary storage. */
+-	__memcpy(&tmp.regs.ip, (void *)s->regs.sp, 5*8);
++	__memcpy(&tmp.ip, (void *)bad_regs->sp, 5*8);
+ 
+ 	/* Copy the remainder of the stack from the current stack. */
+-	__memcpy(&tmp, s, offsetof(struct bad_iret_stack, regs.ip));
++	__memcpy(&tmp, bad_regs, offsetof(struct pt_regs, ip));
+ 
+ 	/* Update the entry stack */
+ 	__memcpy(new_stack, &tmp, sizeof(tmp));
+ 
+-	BUG_ON(!user_mode(&new_stack->regs));
++	BUG_ON(!user_mode(new_stack));
+ 	return new_stack;
+ }
+ #endif
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 7fda7f27e7620..071faf2c8a77c 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -141,7 +141,7 @@ SECTIONS
+ 
+ #ifdef CONFIG_RETPOLINE
+ 		__indirect_thunk_start = .;
+-		*(.text.__x86.indirect_thunk)
++		*(.text.__x86.*)
+ 		__indirect_thunk_end = .;
+ #endif
+ 	} :text =0xcccc
+@@ -283,6 +283,13 @@ SECTIONS
+ 		*(.retpoline_sites)
+ 		__retpoline_sites_end = .;
+ 	}
++
++	. = ALIGN(8);
++	.return_sites : AT(ADDR(.return_sites) - LOAD_OFFSET) {
++		__return_sites = .;
++		*(.return_sites)
++		__return_sites_end = .;
++	}
+ #endif
+ 
+ #ifdef CONFIG_X86_KERNEL_IBT
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 89b11e7dca8aa..f8382abe22ff8 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -189,9 +189,6 @@
+ #define X8(x...) X4(x), X4(x)
+ #define X16(x...) X8(x), X8(x)
+ 
+-#define NR_FASTOP (ilog2(sizeof(ulong)) + 1)
+-#define FASTOP_SIZE (8 * (1 + HAS_KERNEL_IBT))
+-
+ struct opcode {
+ 	u64 flags;
+ 	u8 intercept;
+@@ -306,9 +303,15 @@ static void invalidate_registers(struct x86_emulate_ctxt *ctxt)
+  * Moreover, they are all exactly FASTOP_SIZE bytes long, so functions for
+  * different operand sizes can be reached by calculation, rather than a jump
+  * table (which would be bigger than the code).
++ *
++ * The 16 byte alignment, considering 5 bytes for the RET thunk, 3 for ENDBR
++ * and 1 for the straight line speculation INT3, leaves 7 bytes for the
++ * body of the function.  Currently none is larger than 4.
+  */
+ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+ 
++#define FASTOP_SIZE	16
++
+ #define __FOP_FUNC(name) \
+ 	".align " __stringify(FASTOP_SIZE) " \n\t" \
+ 	".type " name ", @function \n\t" \
+@@ -325,13 +328,15 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+ #define FOP_RET(name) \
+ 	__FOP_RET(#name)
+ 
+-#define FOP_START(op) \
++#define __FOP_START(op, align) \
+ 	extern void em_##op(struct fastop *fake); \
+ 	asm(".pushsection .text, \"ax\" \n\t" \
+ 	    ".global em_" #op " \n\t" \
+-	    ".align " __stringify(FASTOP_SIZE) " \n\t" \
++	    ".align " __stringify(align) " \n\t" \
+ 	    "em_" #op ":\n\t"
+ 
++#define FOP_START(op) __FOP_START(op, FASTOP_SIZE)
++
+ #define FOP_END \
+ 	    ".popsection")
+ 
+@@ -435,17 +440,12 @@ static int fastop(struct x86_emulate_ctxt *ctxt, fastop_t fop);
+ /*
+  * Depending on .config the SETcc functions look like:
+  *
+- * ENDBR       [4 bytes; CONFIG_X86_KERNEL_IBT]
+- * SETcc %al   [3 bytes]
+- * RET         [1 byte]
+- * INT3        [1 byte; CONFIG_SLS]
+- *
+- * Which gives possible sizes 4, 5, 8 or 9.  When rounded up to the
+- * next power-of-two alignment they become 4, 8 or 16 resp.
++ * ENDBR			[4 bytes; CONFIG_X86_KERNEL_IBT]
++ * SETcc %al			[3 bytes]
++ * RET | JMP __x86_return_thunk	[1,5 bytes; CONFIG_RETHUNK]
++ * INT3				[1 byte; CONFIG_SLS]
+  */
+-#define SETCC_LENGTH	(ENDBR_INSN_SIZE + 4 + IS_ENABLED(CONFIG_SLS))
+-#define SETCC_ALIGN	(4 << IS_ENABLED(CONFIG_SLS) << HAS_KERNEL_IBT)
+-static_assert(SETCC_LENGTH <= SETCC_ALIGN);
++#define SETCC_ALIGN	16
+ 
+ #define FOP_SETCC(op) \
+ 	".align " __stringify(SETCC_ALIGN) " \n\t" \
+@@ -453,9 +453,10 @@ static_assert(SETCC_LENGTH <= SETCC_ALIGN);
+ 	#op ": \n\t" \
+ 	ASM_ENDBR \
+ 	#op " %al \n\t" \
+-	__FOP_RET(#op)
++	__FOP_RET(#op) \
++	".skip " __stringify(SETCC_ALIGN) " - (.-" #op "), 0xcc \n\t"
+ 
+-FOP_START(setcc)
++__FOP_START(setcc, SETCC_ALIGN)
+ FOP_SETCC(seto)
+ FOP_SETCC(setno)
+ FOP_SETCC(setc)
+diff --git a/arch/x86/kvm/svm/vmenter.S b/arch/x86/kvm/svm/vmenter.S
+index dfaeb47fcf2a7..723f8534986c3 100644
+--- a/arch/x86/kvm/svm/vmenter.S
++++ b/arch/x86/kvm/svm/vmenter.S
+@@ -110,6 +110,15 @@ SYM_FUNC_START(__svm_vcpu_run)
+ 	mov %r15, VCPU_R15(%_ASM_AX)
+ #endif
+ 
++	/*
++	 * Mitigate RETBleed for AMD/Hygon Zen uarch. RET should be
++	 * untrained as soon as we exit the VM and are back to the
++	 * kernel. This should be done before re-enabling interrupts
++	 * because interrupt handlers won't sanitize 'ret' if the return is
++	 * from the kernel.
++	 */
++	UNTRAIN_RET
++
+ 	/*
+ 	 * Clear all general purpose registers except RSP and RAX to prevent
+ 	 * speculative use of the guest's values, even those that are reloaded
+@@ -190,6 +199,15 @@ SYM_FUNC_START(__svm_sev_es_vcpu_run)
+ 	FILL_RETURN_BUFFER %_ASM_AX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
+ #endif
+ 
++	/*
++	 * Mitigate RETBleed for AMD/Hygon Zen uarch. RET should be
++	 * untrained as soon as we exit the VM and are back to the
++	 * kernel. This should be done before re-enabling interrupts
++	 * because interrupt handlers won't sanitize RET if the return is
++	 * from the kernel.
++	 */
++	UNTRAIN_RET
++
+ 	pop %_ASM_BX
+ 
+ #ifdef CONFIG_X86_64
+diff --git a/arch/x86/kvm/vmx/capabilities.h b/arch/x86/kvm/vmx/capabilities.h
+index 3f430e2183753..c0e24826a86f7 100644
+--- a/arch/x86/kvm/vmx/capabilities.h
++++ b/arch/x86/kvm/vmx/capabilities.h
+@@ -4,8 +4,8 @@
+ 
+ #include <asm/vmx.h>
+ 
+-#include "lapic.h"
+-#include "x86.h"
++#include "../lapic.h"
++#include "../x86.h"
+ 
+ extern bool __read_mostly enable_vpid;
+ extern bool __read_mostly flexpriority_enabled;
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index ee7df31883cd9..28ccf25c41248 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -3091,7 +3091,7 @@ static int nested_vmx_check_vmentry_hw(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ 	vm_fail = __vmx_vcpu_run(vmx, (unsigned long *)&vcpu->arch.regs,
+-				 vmx->loaded_vmcs->launched);
++				 __vmx_vcpu_run_flags(vmx));
+ 
+ 	if (vmx->msr_autoload.host.nr)
+ 		vmcs_write32(VM_EXIT_MSR_LOAD_COUNT, vmx->msr_autoload.host.nr);
+diff --git a/arch/x86/kvm/vmx/run_flags.h b/arch/x86/kvm/vmx/run_flags.h
+new file mode 100644
+index 0000000000000..edc3f16cc1896
+--- /dev/null
++++ b/arch/x86/kvm/vmx/run_flags.h
+@@ -0,0 +1,8 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __KVM_X86_VMX_RUN_FLAGS_H
++#define __KVM_X86_VMX_RUN_FLAGS_H
++
++#define VMX_RUN_VMRESUME	(1 << 0)
++#define VMX_RUN_SAVE_SPEC_CTRL	(1 << 1)
++
++#endif /* __KVM_X86_VMX_RUN_FLAGS_H */
+diff --git a/arch/x86/kvm/vmx/vmenter.S b/arch/x86/kvm/vmx/vmenter.S
+index 435c187927c48..4182c7ffc9091 100644
+--- a/arch/x86/kvm/vmx/vmenter.S
++++ b/arch/x86/kvm/vmx/vmenter.S
+@@ -1,10 +1,13 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #include <linux/linkage.h>
+ #include <asm/asm.h>
++#include <asm/asm-offsets.h>
+ #include <asm/bitsperlong.h>
+ #include <asm/kvm_vcpu_regs.h>
+ #include <asm/nospec-branch.h>
++#include <asm/percpu.h>
+ #include <asm/segment.h>
++#include "run_flags.h"
+ 
+ #define WORD_SIZE (BITS_PER_LONG / 8)
+ 
+@@ -30,73 +33,12 @@
+ 
+ .section .noinstr.text, "ax"
+ 
+-/**
+- * vmx_vmenter - VM-Enter the current loaded VMCS
+- *
+- * %RFLAGS.ZF:	!VMCS.LAUNCHED, i.e. controls VMLAUNCH vs. VMRESUME
+- *
+- * Returns:
+- *	%RFLAGS.CF is set on VM-Fail Invalid
+- *	%RFLAGS.ZF is set on VM-Fail Valid
+- *	%RFLAGS.{CF,ZF} are cleared on VM-Success, i.e. VM-Exit
+- *
+- * Note that VMRESUME/VMLAUNCH fall-through and return directly if
+- * they VM-Fail, whereas a successful VM-Enter + VM-Exit will jump
+- * to vmx_vmexit.
+- */
+-SYM_FUNC_START_LOCAL(vmx_vmenter)
+-	/* EFLAGS.ZF is set if VMCS.LAUNCHED == 0 */
+-	je 2f
+-
+-1:	vmresume
+-	RET
+-
+-2:	vmlaunch
+-	RET
+-
+-3:	cmpb $0, kvm_rebooting
+-	je 4f
+-	RET
+-4:	ud2
+-
+-	_ASM_EXTABLE(1b, 3b)
+-	_ASM_EXTABLE(2b, 3b)
+-
+-SYM_FUNC_END(vmx_vmenter)
+-
+-/**
+- * vmx_vmexit - Handle a VMX VM-Exit
+- *
+- * Returns:
+- *	%RFLAGS.{CF,ZF} are cleared on VM-Success, i.e. VM-Exit
+- *
+- * This is vmx_vmenter's partner in crime.  On a VM-Exit, control will jump
+- * here after hardware loads the host's state, i.e. this is the destination
+- * referred to by VMCS.HOST_RIP.
+- */
+-SYM_FUNC_START(vmx_vmexit)
+-#ifdef CONFIG_RETPOLINE
+-	ALTERNATIVE "jmp .Lvmexit_skip_rsb", "", X86_FEATURE_RETPOLINE
+-	/* Preserve guest's RAX, it's used to stuff the RSB. */
+-	push %_ASM_AX
+-
+-	/* IMPORTANT: Stuff the RSB immediately after VM-Exit, before RET! */
+-	FILL_RETURN_BUFFER %_ASM_AX, RSB_CLEAR_LOOPS, X86_FEATURE_RETPOLINE
+-
+-	/* Clear RFLAGS.CF and RFLAGS.ZF to preserve VM-Exit, i.e. !VM-Fail. */
+-	or $1, %_ASM_AX
+-
+-	pop %_ASM_AX
+-.Lvmexit_skip_rsb:
+-#endif
+-	RET
+-SYM_FUNC_END(vmx_vmexit)
+-
+ /**
+  * __vmx_vcpu_run - Run a vCPU via a transition to VMX guest mode
+- * @vmx:	struct vcpu_vmx * (forwarded to vmx_update_host_rsp)
++ * @vmx:	struct vcpu_vmx *
+  * @regs:	unsigned long * (to guest registers)
+- * @launched:	%true if the VMCS has been launched
++ * @flags:	VMX_RUN_VMRESUME:	use VMRESUME instead of VMLAUNCH
++ *		VMX_RUN_SAVE_SPEC_CTRL: save guest SPEC_CTRL into vmx->spec_ctrl
+  *
+  * Returns:
+  *	0 on VM-Exit, 1 on VM-Fail
+@@ -115,24 +57,56 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ #endif
+ 	push %_ASM_BX
+ 
++	/* Save @vmx for SPEC_CTRL handling */
++	push %_ASM_ARG1
++
++	/* Save @flags for SPEC_CTRL handling */
++	push %_ASM_ARG3
++
+ 	/*
+ 	 * Save @regs, _ASM_ARG2 may be modified by vmx_update_host_rsp() and
+ 	 * @regs is needed after VM-Exit to save the guest's register values.
+ 	 */
+ 	push %_ASM_ARG2
+ 
+-	/* Copy @launched to BL, _ASM_ARG3 is volatile. */
++	/* Copy @flags to BL, _ASM_ARG3 is volatile. */
+ 	mov %_ASM_ARG3B, %bl
+ 
+-	/* Adjust RSP to account for the CALL to vmx_vmenter(). */
+-	lea -WORD_SIZE(%_ASM_SP), %_ASM_ARG2
++	lea (%_ASM_SP), %_ASM_ARG2
+ 	call vmx_update_host_rsp
+ 
++	ALTERNATIVE "jmp .Lspec_ctrl_done", "", X86_FEATURE_MSR_SPEC_CTRL
++
++	/*
++	 * SPEC_CTRL handling: if the guest's SPEC_CTRL value differs from the
++	 * host's, write the MSR.
++	 *
++	 * IMPORTANT: To avoid RSB underflow attacks and any other nastiness,
++	 * there must not be any returns or indirect branches between this code
++	 * and vmentry.
++	 */
++	mov 2*WORD_SIZE(%_ASM_SP), %_ASM_DI
++	movl VMX_spec_ctrl(%_ASM_DI), %edi
++	movl PER_CPU_VAR(x86_spec_ctrl_current), %esi
++	cmp %edi, %esi
++	je .Lspec_ctrl_done
++	mov $MSR_IA32_SPEC_CTRL, %ecx
++	xor %edx, %edx
++	mov %edi, %eax
++	wrmsr
++
++.Lspec_ctrl_done:
++
++	/*
++	 * Since vmentry is serializing on affected CPUs, there's no need for
++	 * an LFENCE to stop speculation from skipping the wrmsr.
++	 */
++
+ 	/* Load @regs to RAX. */
+ 	mov (%_ASM_SP), %_ASM_AX
+ 
+ 	/* Check if vmlaunch or vmresume is needed */
+-	testb %bl, %bl
++	testb $VMX_RUN_VMRESUME, %bl
+ 
+ 	/* Load guest registers.  Don't clobber flags. */
+ 	mov VCPU_RCX(%_ASM_AX), %_ASM_CX
+@@ -154,11 +128,37 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	/* Load guest RAX.  This kills the @regs pointer! */
+ 	mov VCPU_RAX(%_ASM_AX), %_ASM_AX
+ 
+-	/* Enter guest mode */
+-	call vmx_vmenter
++	/* Check EFLAGS.ZF from 'testb' above */
++	jz .Lvmlaunch
++
++	/*
++	 * After a successful VMRESUME/VMLAUNCH, control flow "magically"
++	 * resumes below at 'vmx_vmexit' due to the VMCS HOST_RIP setting.
++	 * So this isn't a typical function and objtool needs to be told to
++	 * save the unwind state here and restore it below.
++	 */
++	UNWIND_HINT_SAVE
++
++/*
++ * If VMRESUME/VMLAUNCH and corresponding vmexit succeed, execution resumes at
++ * the 'vmx_vmexit' label below.
++ */
++.Lvmresume:
++	vmresume
++	jmp .Lvmfail
++
++.Lvmlaunch:
++	vmlaunch
++	jmp .Lvmfail
+ 
+-	/* Jump on VM-Fail. */
+-	jbe 2f
++	_ASM_EXTABLE(.Lvmresume, .Lfixup)
++	_ASM_EXTABLE(.Lvmlaunch, .Lfixup)
++
++SYM_INNER_LABEL(vmx_vmexit, SYM_L_GLOBAL)
++
++	/* Restore unwind state from before the VMRESUME/VMLAUNCH. */
++	UNWIND_HINT_RESTORE
++	ENDBR
+ 
+ 	/* Temporarily save guest's RAX. */
+ 	push %_ASM_AX
+@@ -185,21 +185,23 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	mov %r15, VCPU_R15(%_ASM_AX)
+ #endif
+ 
+-	/* Clear RAX to indicate VM-Exit (as opposed to VM-Fail). */
+-	xor %eax, %eax
++	/* Clear return value to indicate VM-Exit (as opposed to VM-Fail). */
++	xor %ebx, %ebx
+ 
++.Lclear_regs:
+ 	/*
+-	 * Clear all general purpose registers except RSP and RAX to prevent
++	 * Clear all general purpose registers except RSP and RBX to prevent
+ 	 * speculative use of the guest's values, even those that are reloaded
+ 	 * via the stack.  In theory, an L1 cache miss when restoring registers
+ 	 * could lead to speculative execution with the guest's values.
+ 	 * Zeroing XORs are dirt cheap, i.e. the extra paranoia is essentially
+ 	 * free.  RSP and RAX are exempt as RSP is restored by hardware during
+-	 * VM-Exit and RAX is explicitly loaded with 0 or 1 to return VM-Fail.
++	 * VM-Exit and RBX is explicitly loaded with 0 or 1 to hold the return
++	 * value.
+ 	 */
+-1:	xor %ecx, %ecx
++	xor %eax, %eax
++	xor %ecx, %ecx
+ 	xor %edx, %edx
+-	xor %ebx, %ebx
+ 	xor %ebp, %ebp
+ 	xor %esi, %esi
+ 	xor %edi, %edi
+@@ -216,8 +218,30 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 
+ 	/* "POP" @regs. */
+ 	add $WORD_SIZE, %_ASM_SP
+-	pop %_ASM_BX
+ 
++	/*
++	 * IMPORTANT: RSB filling and SPEC_CTRL handling must be done before
++	 * the first unbalanced RET after vmexit!
++	 *
++	 * For retpoline or IBRS, RSB filling is needed to prevent poisoned RSB
++	 * entries and (in some cases) RSB underflow.
++	 *
++	 * eIBRS has its own protection against poisoned RSB, so it doesn't
++	 * need the RSB filling sequence.  But it does need to be enabled
++	 * before the first unbalanced RET.
++         */
++
++	FILL_RETURN_BUFFER %_ASM_CX, RSB_CLEAR_LOOPS, X86_FEATURE_RSB_VMEXIT
++
++	pop %_ASM_ARG2	/* @flags */
++	pop %_ASM_ARG1	/* @vmx */
++
++	call vmx_spec_ctrl_restore_host
++
++	/* Put return value in AX */
++	mov %_ASM_BX, %_ASM_AX
++
++	pop %_ASM_BX
+ #ifdef CONFIG_X86_64
+ 	pop %r12
+ 	pop %r13
+@@ -230,9 +254,15 @@ SYM_FUNC_START(__vmx_vcpu_run)
+ 	pop %_ASM_BP
+ 	RET
+ 
+-	/* VM-Fail.  Out-of-line to avoid a taken Jcc after VM-Exit. */
+-2:	mov $1, %eax
+-	jmp 1b
++.Lfixup:
++	cmpb $0, kvm_rebooting
++	jne .Lvmfail
++	ud2
++.Lvmfail:
++	/* VM-Fail: set return value to 1 */
++	mov $1, %_ASM_BX
++	jmp .Lclear_regs
++
+ SYM_FUNC_END(__vmx_vcpu_run)
+ 
+ 
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 9646ae886b4b5..4b6a0268c78e3 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -383,9 +383,9 @@ static __always_inline void vmx_disable_fb_clear(struct vcpu_vmx *vmx)
+ 	if (!vmx->disable_fb_clear)
+ 		return;
+ 
+-	rdmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
++	msr = __rdmsr(MSR_IA32_MCU_OPT_CTRL);
+ 	msr |= FB_CLEAR_DIS;
+-	wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
++	native_wrmsrl(MSR_IA32_MCU_OPT_CTRL, msr);
+ 	/* Cache the MSR value to avoid reading it later */
+ 	vmx->msr_ia32_mcu_opt_ctrl = msr;
+ }
+@@ -396,7 +396,7 @@ static __always_inline void vmx_enable_fb_clear(struct vcpu_vmx *vmx)
+ 		return;
+ 
+ 	vmx->msr_ia32_mcu_opt_ctrl &= ~FB_CLEAR_DIS;
+-	wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
++	native_wrmsrl(MSR_IA32_MCU_OPT_CTRL, vmx->msr_ia32_mcu_opt_ctrl);
+ }
+ 
+ static void vmx_update_fb_clear_dis(struct kvm_vcpu *vcpu, struct vcpu_vmx *vmx)
+@@ -839,6 +839,24 @@ static bool msr_write_intercepted(struct vcpu_vmx *vmx, u32 msr)
+ 					 MSR_IA32_SPEC_CTRL);
+ }
+ 
++unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx)
++{
++	unsigned int flags = 0;
++
++	if (vmx->loaded_vmcs->launched)
++		flags |= VMX_RUN_VMRESUME;
++
++	/*
++	 * If writes to the SPEC_CTRL MSR aren't intercepted, the guest is free
++	 * to change it directly without causing a vmexit.  In that case read
++	 * it after vmexit and store it in vmx->spec_ctrl.
++	 */
++	if (unlikely(!msr_write_intercepted(vmx, MSR_IA32_SPEC_CTRL)))
++		flags |= VMX_RUN_SAVE_SPEC_CTRL;
++
++	return flags;
++}
++
+ static void clear_atomic_switch_msr_special(struct vcpu_vmx *vmx,
+ 		unsigned long entry, unsigned long exit)
+ {
+@@ -6814,6 +6832,31 @@ void noinstr vmx_update_host_rsp(struct vcpu_vmx *vmx, unsigned long host_rsp)
+ 	}
+ }
+ 
++void noinstr vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx,
++					unsigned int flags)
++{
++	u64 hostval = this_cpu_read(x86_spec_ctrl_current);
++
++	if (!cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL))
++		return;
++
++	if (flags & VMX_RUN_SAVE_SPEC_CTRL)
++		vmx->spec_ctrl = __rdmsr(MSR_IA32_SPEC_CTRL);
++
++	/*
++	 * If the guest/host SPEC_CTRL values differ, restore the host value.
++	 *
++	 * For legacy IBRS, the IBRS bit always needs to be written after
++	 * transitioning from a less privileged predictor mode, regardless of
++	 * whether the guest/host values differ.
++	 */
++	if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) ||
++	    vmx->spec_ctrl != hostval)
++		native_wrmsrl(MSR_IA32_SPEC_CTRL, hostval);
++
++	barrier_nospec();
++}
++
+ static fastpath_t vmx_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
+ {
+ 	switch (to_vmx(vcpu)->exit_reason.basic) {
+@@ -6827,7 +6870,8 @@ static fastpath_t vmx_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
+ }
+ 
+ static noinstr void vmx_vcpu_enter_exit(struct kvm_vcpu *vcpu,
+-					struct vcpu_vmx *vmx)
++					struct vcpu_vmx *vmx,
++					unsigned long flags)
+ {
+ 	guest_state_enter_irqoff();
+ 
+@@ -6846,7 +6890,7 @@ static noinstr void vmx_vcpu_enter_exit(struct kvm_vcpu *vcpu,
+ 		native_write_cr2(vcpu->arch.cr2);
+ 
+ 	vmx->fail = __vmx_vcpu_run(vmx, (unsigned long *)&vcpu->arch.regs,
+-				   vmx->loaded_vmcs->launched);
++				   flags);
+ 
+ 	vcpu->arch.cr2 = native_read_cr2();
+ 
+@@ -6945,36 +6989,8 @@ static fastpath_t vmx_vcpu_run(struct kvm_vcpu *vcpu)
+ 
+ 	kvm_wait_lapic_expire(vcpu);
+ 
+-	/*
+-	 * If this vCPU has touched SPEC_CTRL, restore the guest's value if
+-	 * it's non-zero. Since vmentry is serialising on affected CPUs, there
+-	 * is no need to worry about the conditional branch over the wrmsr
+-	 * being speculatively taken.
+-	 */
+-	x86_spec_ctrl_set_guest(vmx->spec_ctrl, 0);
+-
+ 	/* The actual VMENTER/EXIT is in the .noinstr.text section. */
+-	vmx_vcpu_enter_exit(vcpu, vmx);
+-
+-	/*
+-	 * We do not use IBRS in the kernel. If this vCPU has used the
+-	 * SPEC_CTRL MSR it may have left it on; save the value and
+-	 * turn it off. This is much more efficient than blindly adding
+-	 * it to the atomic save/restore list. Especially as the former
+-	 * (Saving guest MSRs on vmexit) doesn't even exist in KVM.
+-	 *
+-	 * For non-nested case:
+-	 * If the L01 MSR bitmap does not intercept the MSR, then we need to
+-	 * save it.
+-	 *
+-	 * For nested case:
+-	 * If the L02 MSR bitmap does not intercept the MSR, then we need to
+-	 * save it.
+-	 */
+-	if (unlikely(!msr_write_intercepted(vmx, MSR_IA32_SPEC_CTRL)))
+-		vmx->spec_ctrl = native_read_msr(MSR_IA32_SPEC_CTRL);
+-
+-	x86_spec_ctrl_restore_host(vmx->spec_ctrl, 0);
++	vmx_vcpu_enter_exit(vcpu, vmx, __vmx_vcpu_run_flags(vmx));
+ 
+ 	/* All fields are clean at this point */
+ 	if (static_branch_unlikely(&enable_evmcs)) {
+diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
+index 8d2342ede0c59..1e7f9453894b1 100644
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -8,11 +8,12 @@
+ #include <asm/intel_pt.h>
+ 
+ #include "capabilities.h"
+-#include "kvm_cache_regs.h"
++#include "../kvm_cache_regs.h"
+ #include "posted_intr.h"
+ #include "vmcs.h"
+ #include "vmx_ops.h"
+-#include "cpuid.h"
++#include "../cpuid.h"
++#include "run_flags.h"
+ 
+ #define MSR_TYPE_R	1
+ #define MSR_TYPE_W	2
+@@ -404,7 +405,10 @@ void vmx_set_virtual_apic_mode(struct kvm_vcpu *vcpu);
+ struct vmx_uret_msr *vmx_find_uret_msr(struct vcpu_vmx *vmx, u32 msr);
+ void pt_update_intercept_for_msr(struct kvm_vcpu *vcpu);
+ void vmx_update_host_rsp(struct vcpu_vmx *vmx, unsigned long host_rsp);
+-bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs, bool launched);
++void vmx_spec_ctrl_restore_host(struct vcpu_vmx *vmx, unsigned int flags);
++unsigned int __vmx_vcpu_run_flags(struct vcpu_vmx *vmx);
++bool __vmx_vcpu_run(struct vcpu_vmx *vmx, unsigned long *regs,
++		    unsigned int flags);
+ int vmx_find_loadstore_msr_slot(struct vmx_msrs *m, u32 msr);
+ void vmx_ept_load_pdptrs(struct kvm_vcpu *vcpu);
+ 
+diff --git a/arch/x86/kvm/vmx/vmx_ops.h b/arch/x86/kvm/vmx/vmx_ops.h
+index 5e7f412257801..5cfc49ddb1b44 100644
+--- a/arch/x86/kvm/vmx/vmx_ops.h
++++ b/arch/x86/kvm/vmx/vmx_ops.h
+@@ -8,7 +8,7 @@
+ 
+ #include "evmcs.h"
+ #include "vmcs.h"
+-#include "x86.h"
++#include "../x86.h"
+ 
+ asmlinkage void vmread_error(unsigned long field, bool fault);
+ __attribute__((regparm(0))) void vmread_error_trampoline(unsigned long field,
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 828f5cf1af459..53b6fdf30c99b 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -12533,9 +12533,9 @@ void kvm_arch_end_assignment(struct kvm *kvm)
+ }
+ EXPORT_SYMBOL_GPL(kvm_arch_end_assignment);
+ 
+-bool kvm_arch_has_assigned_device(struct kvm *kvm)
++bool noinstr kvm_arch_has_assigned_device(struct kvm *kvm)
+ {
+-	return atomic_read(&kvm->arch.assigned_device_count);
++	return arch_atomic_read(&kvm->arch.assigned_device_count);
+ }
+ EXPORT_SYMBOL_GPL(kvm_arch_has_assigned_device);
+ 
+diff --git a/arch/x86/lib/memmove_64.S b/arch/x86/lib/memmove_64.S
+index d83cba364e31d..724bbf83eb5b0 100644
+--- a/arch/x86/lib/memmove_64.S
++++ b/arch/x86/lib/memmove_64.S
+@@ -39,7 +39,7 @@ SYM_FUNC_START(__memmove)
+ 	/* FSRM implies ERMS => no length checks, do the copy directly */
+ .Lmemmove_begin_forward:
+ 	ALTERNATIVE "cmp $0x20, %rdx; jb 1f", "", X86_FEATURE_FSRM
+-	ALTERNATIVE "", __stringify(movq %rdx, %rcx; rep movsb; RET), X86_FEATURE_ERMS
++	ALTERNATIVE "", "jmp .Lmemmove_erms", X86_FEATURE_ERMS
+ 
+ 	/*
+ 	 * movsq instruction have many startup latency
+@@ -205,6 +205,11 @@ SYM_FUNC_START(__memmove)
+ 	movb %r11b, (%rdi)
+ 13:
+ 	RET
++
++.Lmemmove_erms:
++	movq %rdx, %rcx
++	rep movsb
++	RET
+ SYM_FUNC_END(__memmove)
+ EXPORT_SYMBOL(__memmove)
+ 
+diff --git a/arch/x86/lib/retpoline.S b/arch/x86/lib/retpoline.S
+index b2b2366885a2b..073289a55f849 100644
+--- a/arch/x86/lib/retpoline.S
++++ b/arch/x86/lib/retpoline.S
+@@ -33,9 +33,9 @@ SYM_INNER_LABEL(__x86_indirect_thunk_\reg, SYM_L_GLOBAL)
+ 	UNWIND_HINT_EMPTY
+ 	ANNOTATE_NOENDBR
+ 
+-	ALTERNATIVE_2 __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), \
+-		      __stringify(RETPOLINE \reg), X86_FEATURE_RETPOLINE, \
+-		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE
++	ALTERNATIVE_2 __stringify(RETPOLINE \reg), \
++		      __stringify(lfence; ANNOTATE_RETPOLINE_SAFE; jmp *%\reg; int3), X86_FEATURE_RETPOLINE_LFENCE, \
++		      __stringify(ANNOTATE_RETPOLINE_SAFE; jmp *%\reg), ALT_NOT(X86_FEATURE_RETPOLINE)
+ 
+ .endm
+ 
+@@ -67,3 +67,76 @@ SYM_CODE_END(__x86_indirect_thunk_array)
+ #define GEN(reg) EXPORT_THUNK(reg)
+ #include <asm/GEN-for-each-reg.h>
+ #undef GEN
++
++/*
++ * This function name is magical and is used by -mfunction-return=thunk-extern
++ * for the compiler to generate JMPs to it.
++ */
++#ifdef CONFIG_RETHUNK
++
++	.section .text.__x86.return_thunk
++
++/*
++ * Safety details here pertain to the AMD Zen{1,2} microarchitecture:
++ * 1) The RET at __x86_return_thunk must be on a 64 byte boundary, for
++ *    alignment within the BTB.
++ * 2) The instruction at zen_untrain_ret must contain, and not
++ *    end with, the 0xc3 byte of the RET.
++ * 3) STIBP must be enabled, or SMT disabled, to prevent the sibling thread
++ *    from re-poisioning the BTB prediction.
++ */
++	.align 64
++	.skip 63, 0xcc
++SYM_FUNC_START_NOALIGN(zen_untrain_ret);
++
++	/*
++	 * As executed from zen_untrain_ret, this is:
++	 *
++	 *   TEST $0xcc, %bl
++	 *   LFENCE
++	 *   JMP __x86_return_thunk
++	 *
++	 * Executing the TEST instruction has a side effect of evicting any BTB
++	 * prediction (potentially attacker controlled) attached to the RET, as
++	 * __x86_return_thunk + 1 isn't an instruction boundary at the moment.
++	 */
++	.byte	0xf6
++
++	/*
++	 * As executed from __x86_return_thunk, this is a plain RET.
++	 *
++	 * As part of the TEST above, RET is the ModRM byte, and INT3 the imm8.
++	 *
++	 * We subsequently jump backwards and architecturally execute the RET.
++	 * This creates a correct BTB prediction (type=ret), but in the
++	 * meantime we suffer Straight Line Speculation (because the type was
++	 * no branch) which is halted by the INT3.
++	 *
++	 * With SMT enabled and STIBP active, a sibling thread cannot poison
++	 * RET's prediction to a type of its choice, but can evict the
++	 * prediction due to competitive sharing. If the prediction is
++	 * evicted, __x86_return_thunk will suffer Straight Line Speculation
++	 * which will be contained safely by the INT3.
++	 */
++SYM_INNER_LABEL(__x86_return_thunk, SYM_L_GLOBAL)
++	ret
++	int3
++SYM_CODE_END(__x86_return_thunk)
++
++	/*
++	 * Ensure the TEST decoding / BTB invalidation is complete.
++	 */
++	lfence
++
++	/*
++	 * Jump back and execute the RET in the middle of the TEST instruction.
++	 * INT3 is for SLS protection.
++	 */
++	jmp __x86_return_thunk
++	int3
++SYM_FUNC_END(zen_untrain_ret)
++__EXPORT_THUNK(zen_untrain_ret)
++
++EXPORT_SYMBOL(__x86_return_thunk)
++
++#endif /* CONFIG_RETHUNK */
+diff --git a/arch/x86/mm/mem_encrypt_boot.S b/arch/x86/mm/mem_encrypt_boot.S
+index 3d1dba05fce4a..9de3d900bc927 100644
+--- a/arch/x86/mm/mem_encrypt_boot.S
++++ b/arch/x86/mm/mem_encrypt_boot.S
+@@ -65,7 +65,10 @@ SYM_FUNC_START(sme_encrypt_execute)
+ 	movq	%rbp, %rsp		/* Restore original stack pointer */
+ 	pop	%rbp
+ 
+-	RET
++	/* Offset to __x86_return_thunk would be wrong here */
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ SYM_FUNC_END(sme_encrypt_execute)
+ 
+ SYM_FUNC_START(__enc_copy)
+@@ -151,6 +154,9 @@ SYM_FUNC_START(__enc_copy)
+ 	pop	%r12
+ 	pop	%r15
+ 
+-	RET
++	/* Offset to __x86_return_thunk would be wrong here */
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ .L__enc_copy_end:
+ SYM_FUNC_END(__enc_copy)
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 4c71fa04e784c..2dab2816b3f7c 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -407,16 +407,30 @@ static void emit_indirect_jump(u8 **pprog, int reg, u8 *ip)
+ {
+ 	u8 *prog = *pprog;
+ 
+-#ifdef CONFIG_RETPOLINE
+ 	if (cpu_feature_enabled(X86_FEATURE_RETPOLINE_LFENCE)) {
+ 		EMIT_LFENCE();
+ 		EMIT2(0xFF, 0xE0 + reg);
+ 	} else if (cpu_feature_enabled(X86_FEATURE_RETPOLINE)) {
+ 		OPTIMIZER_HIDE_VAR(reg);
+ 		emit_jump(&prog, &__x86_indirect_thunk_array[reg], ip);
+-	} else
+-#endif
+-	EMIT2(0xFF, 0xE0 + reg);
++	} else {
++		EMIT2(0xFF, 0xE0 + reg);
++	}
++
++	*pprog = prog;
++}
++
++static void emit_return(u8 **pprog, u8 *ip)
++{
++	u8 *prog = *pprog;
++
++	if (cpu_feature_enabled(X86_FEATURE_RETHUNK)) {
++		emit_jump(&prog, &__x86_return_thunk, ip);
++	} else {
++		EMIT1(0xC3);		/* ret */
++		if (IS_ENABLED(CONFIG_SLS))
++			EMIT1(0xCC);	/* int3 */
++	}
+ 
+ 	*pprog = prog;
+ }
+@@ -1681,7 +1695,7 @@ emit_jmp:
+ 			ctx->cleanup_addr = proglen;
+ 			pop_callee_regs(&prog, callee_regs_used);
+ 			EMIT1(0xC9);         /* leave */
+-			EMIT1(0xC3);         /* ret */
++			emit_return(&prog, image + addrs[i - 1] + (prog - temp));
+ 			break;
+ 
+ 		default:
+@@ -2158,7 +2172,7 @@ int arch_prepare_bpf_trampoline(struct bpf_tramp_image *im, void *image, void *i
+ 	if (flags & BPF_TRAMP_F_SKIP_FRAME)
+ 		/* skip our return address and return to parent */
+ 		EMIT4(0x48, 0x83, 0xC4, 8); /* add rsp, 8 */
+-	EMIT1(0xC3); /* ret */
++	emit_return(&prog, prog);
+ 	/* Make sure the trampoline generation logic doesn't overflow */
+ 	if (WARN_ON_ONCE(prog > (u8 *)image_end - BPF_INSN_SAFETY)) {
+ 		ret = -EFAULT;
+diff --git a/arch/x86/platform/efi/efi_thunk_64.S b/arch/x86/platform/efi/efi_thunk_64.S
+index 854dd81804b73..bc740a7c438c9 100644
+--- a/arch/x86/platform/efi/efi_thunk_64.S
++++ b/arch/x86/platform/efi/efi_thunk_64.S
+@@ -23,6 +23,7 @@
+ #include <linux/objtool.h>
+ #include <asm/page_types.h>
+ #include <asm/segment.h>
++#include <asm/nospec-branch.h>
+ 
+ 	.text
+ 	.code64
+@@ -75,7 +76,9 @@ STACK_FRAME_NON_STANDARD __efi64_thunk
+ 1:	movq	0x20(%rsp), %rsp
+ 	pop	%rbx
+ 	pop	%rbp
+-	RET
++	ANNOTATE_UNRET_SAFE
++	ret
++	int3
+ 
+ 	.code32
+ 2:	pushl	$__KERNEL_CS
+diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
+index 81aa46f770c54..cfa99e8f054be 100644
+--- a/arch/x86/xen/setup.c
++++ b/arch/x86/xen/setup.c
+@@ -918,7 +918,7 @@ void xen_enable_sysenter(void)
+ 	if (!boot_cpu_has(sysenter_feature))
+ 		return;
+ 
+-	ret = register_callback(CALLBACKTYPE_sysenter, xen_sysenter_target);
++	ret = register_callback(CALLBACKTYPE_sysenter, xen_entry_SYSENTER_compat);
+ 	if(ret != 0)
+ 		setup_clear_cpu_cap(sysenter_feature);
+ }
+@@ -927,7 +927,7 @@ void xen_enable_syscall(void)
+ {
+ 	int ret;
+ 
+-	ret = register_callback(CALLBACKTYPE_syscall, xen_syscall_target);
++	ret = register_callback(CALLBACKTYPE_syscall, xen_entry_SYSCALL_64);
+ 	if (ret != 0) {
+ 		printk(KERN_ERR "Failed to set syscall callback: %d\n", ret);
+ 		/* Pretty fatal; 64-bit userspace has no other
+@@ -936,7 +936,7 @@ void xen_enable_syscall(void)
+ 
+ 	if (boot_cpu_has(X86_FEATURE_SYSCALL32)) {
+ 		ret = register_callback(CALLBACKTYPE_syscall32,
+-					xen_syscall32_target);
++					xen_entry_SYSCALL_compat);
+ 		if (ret != 0)
+ 			setup_clear_cpu_cap(X86_FEATURE_SYSCALL32);
+ 	}
+diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
+index caa9bc2fa1008..6b4fdf6b95422 100644
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -121,7 +121,7 @@ SYM_FUNC_END(xen_read_cr2_direct);
+ 
+ .macro xen_pv_trap name
+ SYM_CODE_START(xen_\name)
+-	UNWIND_HINT_EMPTY
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 	pop %rcx
+ 	pop %r11
+@@ -234,8 +234,8 @@ SYM_CODE_END(xenpv_restore_regs_and_return_to_usermode)
+  */
+ 
+ /* Normal 64-bit system call target */
+-SYM_CODE_START(xen_syscall_target)
+-	UNWIND_HINT_EMPTY
++SYM_CODE_START(xen_entry_SYSCALL_64)
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 	popq %rcx
+ 	popq %r11
+@@ -249,13 +249,13 @@ SYM_CODE_START(xen_syscall_target)
+ 	movq $__USER_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSCALL_64_after_hwframe
+-SYM_CODE_END(xen_syscall_target)
++SYM_CODE_END(xen_entry_SYSCALL_64)
+ 
+ #ifdef CONFIG_IA32_EMULATION
+ 
+ /* 32-bit compat syscall target */
+-SYM_CODE_START(xen_syscall32_target)
+-	UNWIND_HINT_EMPTY
++SYM_CODE_START(xen_entry_SYSCALL_compat)
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 	popq %rcx
+ 	popq %r11
+@@ -269,11 +269,11 @@ SYM_CODE_START(xen_syscall32_target)
+ 	movq $__USER32_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSCALL_compat_after_hwframe
+-SYM_CODE_END(xen_syscall32_target)
++SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ /* 32-bit compat sysenter target */
+-SYM_CODE_START(xen_sysenter_target)
+-	UNWIND_HINT_EMPTY
++SYM_CODE_START(xen_entry_SYSENTER_compat)
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 	/*
+ 	 * NB: Xen is polite and clears TF from EFLAGS for us.  This means
+@@ -291,19 +291,19 @@ SYM_CODE_START(xen_sysenter_target)
+ 	movq $__USER32_CS, 1*8(%rsp)
+ 
+ 	jmp entry_SYSENTER_compat_after_hwframe
+-SYM_CODE_END(xen_sysenter_target)
++SYM_CODE_END(xen_entry_SYSENTER_compat)
+ 
+ #else /* !CONFIG_IA32_EMULATION */
+ 
+-SYM_CODE_START(xen_syscall32_target)
+-SYM_CODE_START(xen_sysenter_target)
+-	UNWIND_HINT_EMPTY
++SYM_CODE_START(xen_entry_SYSCALL_compat)
++SYM_CODE_START(xen_entry_SYSENTER_compat)
++	UNWIND_HINT_ENTRY
+ 	ENDBR
+ 	lea 16(%rsp), %rsp	/* strip %rcx, %r11 */
+ 	mov $-ENOSYS, %rax
+ 	pushq $0
+ 	jmp hypercall_iret
+-SYM_CODE_END(xen_sysenter_target)
+-SYM_CODE_END(xen_syscall32_target)
++SYM_CODE_END(xen_entry_SYSENTER_compat)
++SYM_CODE_END(xen_entry_SYSCALL_compat)
+ 
+ #endif	/* CONFIG_IA32_EMULATION */
+diff --git a/arch/x86/xen/xen-head.S b/arch/x86/xen/xen-head.S
+index 13af6fe453e3f..ffaa62167f6e8 100644
+--- a/arch/x86/xen/xen-head.S
++++ b/arch/x86/xen/xen-head.S
+@@ -26,6 +26,7 @@ SYM_CODE_START(hypercall_page)
+ 	.rept (PAGE_SIZE / 32)
+ 		UNWIND_HINT_FUNC
+ 		ANNOTATE_NOENDBR
++		ANNOTATE_UNRET_SAFE
+ 		ret
+ 		/*
+ 		 * Xen will write the hypercall page, and sort out ENDBR.
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index fd0fec6e92f4c..9a8bb972193d8 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -10,10 +10,10 @@
+ /* These are code, but not functions.  Defined in entry.S */
+ extern const char xen_failsafe_callback[];
+ 
+-void xen_sysenter_target(void);
++void xen_entry_SYSENTER_compat(void);
+ #ifdef CONFIG_X86_64
+-void xen_syscall_target(void);
+-void xen_syscall32_target(void);
++void xen_entry_SYSCALL_64(void);
++void xen_entry_SYSCALL_compat(void);
+ #endif
+ 
+ extern void *xen_initial_gdt;
+diff --git a/drivers/base/cpu.c b/drivers/base/cpu.c
+index a97776ea9d990..4c98849577d4e 100644
+--- a/drivers/base/cpu.c
++++ b/drivers/base/cpu.c
+@@ -570,6 +570,12 @@ ssize_t __weak cpu_show_mmio_stale_data(struct device *dev,
+ 	return sysfs_emit(buf, "Not affected\n");
+ }
+ 
++ssize_t __weak cpu_show_retbleed(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "Not affected\n");
++}
++
+ static DEVICE_ATTR(meltdown, 0444, cpu_show_meltdown, NULL);
+ static DEVICE_ATTR(spectre_v1, 0444, cpu_show_spectre_v1, NULL);
+ static DEVICE_ATTR(spectre_v2, 0444, cpu_show_spectre_v2, NULL);
+@@ -580,6 +586,7 @@ static DEVICE_ATTR(tsx_async_abort, 0444, cpu_show_tsx_async_abort, NULL);
+ static DEVICE_ATTR(itlb_multihit, 0444, cpu_show_itlb_multihit, NULL);
+ static DEVICE_ATTR(srbds, 0444, cpu_show_srbds, NULL);
+ static DEVICE_ATTR(mmio_stale_data, 0444, cpu_show_mmio_stale_data, NULL);
++static DEVICE_ATTR(retbleed, 0444, cpu_show_retbleed, NULL);
+ 
+ static struct attribute *cpu_root_vulnerabilities_attrs[] = {
+ 	&dev_attr_meltdown.attr,
+@@ -592,6 +599,7 @@ static struct attribute *cpu_root_vulnerabilities_attrs[] = {
+ 	&dev_attr_itlb_multihit.attr,
+ 	&dev_attr_srbds.attr,
+ 	&dev_attr_mmio_stale_data.attr,
++	&dev_attr_retbleed.attr,
+ 	NULL
+ };
+ 
+diff --git a/drivers/idle/intel_idle.c b/drivers/idle/intel_idle.c
+index c5a019eab5ec9..b463d85bfb358 100644
+--- a/drivers/idle/intel_idle.c
++++ b/drivers/idle/intel_idle.c
+@@ -47,11 +47,13 @@
+ #include <linux/tick.h>
+ #include <trace/events/power.h>
+ #include <linux/sched.h>
++#include <linux/sched/smt.h>
+ #include <linux/notifier.h>
+ #include <linux/cpu.h>
+ #include <linux/moduleparam.h>
+ #include <asm/cpu_device_id.h>
+ #include <asm/intel-family.h>
++#include <asm/nospec-branch.h>
+ #include <asm/mwait.h>
+ #include <asm/msr.h>
+ 
+@@ -105,6 +107,12 @@ static unsigned int mwait_substates __initdata;
+  */
+ #define CPUIDLE_FLAG_ALWAYS_ENABLE	BIT(15)
+ 
++/*
++ * Disable IBRS across idle (when KERNEL_IBRS), is exclusive vs IRQ_ENABLE
++ * above.
++ */
++#define CPUIDLE_FLAG_IBRS		BIT(16)
++
+ /*
+  * MWAIT takes an 8-bit "hint" in EAX "suggesting"
+  * the C-state (top nibble) and sub-state (bottom nibble)
+@@ -159,6 +167,24 @@ static __cpuidle int intel_idle_irq(struct cpuidle_device *dev,
+ 	return ret;
+ }
+ 
++static __cpuidle int intel_idle_ibrs(struct cpuidle_device *dev,
++				     struct cpuidle_driver *drv, int index)
++{
++	bool smt_active = sched_smt_active();
++	u64 spec_ctrl = spec_ctrl_current();
++	int ret;
++
++	if (smt_active)
++		wrmsrl(MSR_IA32_SPEC_CTRL, 0);
++
++	ret = __intel_idle(dev, drv, index);
++
++	if (smt_active)
++		wrmsrl(MSR_IA32_SPEC_CTRL, spec_ctrl);
++
++	return ret;
++}
++
+ /**
+  * intel_idle_s2idle - Ask the processor to enter the given idle state.
+  * @dev: cpuidle device of the target CPU.
+@@ -680,7 +706,7 @@ static struct cpuidle_state skl_cstates[] __initdata = {
+ 	{
+ 		.name = "C6",
+ 		.desc = "MWAIT 0x20",
+-		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 85,
+ 		.target_residency = 200,
+ 		.enter = &intel_idle,
+@@ -688,7 +714,7 @@ static struct cpuidle_state skl_cstates[] __initdata = {
+ 	{
+ 		.name = "C7s",
+ 		.desc = "MWAIT 0x33",
+-		.flags = MWAIT2flg(0x33) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x33) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 124,
+ 		.target_residency = 800,
+ 		.enter = &intel_idle,
+@@ -696,7 +722,7 @@ static struct cpuidle_state skl_cstates[] __initdata = {
+ 	{
+ 		.name = "C8",
+ 		.desc = "MWAIT 0x40",
+-		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x40) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 200,
+ 		.target_residency = 800,
+ 		.enter = &intel_idle,
+@@ -704,7 +730,7 @@ static struct cpuidle_state skl_cstates[] __initdata = {
+ 	{
+ 		.name = "C9",
+ 		.desc = "MWAIT 0x50",
+-		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x50) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 480,
+ 		.target_residency = 5000,
+ 		.enter = &intel_idle,
+@@ -712,7 +738,7 @@ static struct cpuidle_state skl_cstates[] __initdata = {
+ 	{
+ 		.name = "C10",
+ 		.desc = "MWAIT 0x60",
+-		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x60) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 890,
+ 		.target_residency = 5000,
+ 		.enter = &intel_idle,
+@@ -741,7 +767,7 @@ static struct cpuidle_state skx_cstates[] __initdata = {
+ 	{
+ 		.name = "C6",
+ 		.desc = "MWAIT 0x20",
+-		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED,
++		.flags = MWAIT2flg(0x20) | CPUIDLE_FLAG_TLB_FLUSHED | CPUIDLE_FLAG_IBRS,
+ 		.exit_latency = 133,
+ 		.target_residency = 600,
+ 		.enter = &intel_idle,
+@@ -1686,6 +1712,12 @@ static void __init intel_idle_init_cstates_icpu(struct cpuidle_driver *drv)
+ 		if (cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE)
+ 			drv->states[drv->state_count].enter = intel_idle_irq;
+ 
++		if (cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS) &&
++		    cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IBRS) {
++			WARN_ON_ONCE(cpuidle_state_table[cstate].flags & CPUIDLE_FLAG_IRQ_ENABLE);
++			drv->states[drv->state_count].enter = intel_idle_ibrs;
++		}
++
+ 		if ((disabled_states_mask & BIT(drv->state_count)) ||
+ 		    ((icpu->use_acpi || force_use_acpi) &&
+ 		     intel_idle_off_by_default(mwait_hint) &&
+diff --git a/include/linux/cpu.h b/include/linux/cpu.h
+index 2c74773547444..314802f98b9da 100644
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -68,6 +68,8 @@ extern ssize_t cpu_show_srbds(struct device *dev, struct device_attribute *attr,
+ extern ssize_t cpu_show_mmio_stale_data(struct device *dev,
+ 					struct device_attribute *attr,
+ 					char *buf);
++extern ssize_t cpu_show_retbleed(struct device *dev,
++				 struct device_attribute *attr, char *buf);
+ 
+ extern __printf(4, 5)
+ struct device *cpu_device_create(struct device *parent, void *drvdata,
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 34eed5f85ed60..88d94cf515e13 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1511,7 +1511,7 @@ static inline void kvm_arch_end_assignment(struct kvm *kvm)
+ {
+ }
+ 
+-static inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
++static __always_inline bool kvm_arch_has_assigned_device(struct kvm *kvm)
+ {
+ 	return false;
+ }
+diff --git a/include/linux/objtool.h b/include/linux/objtool.h
+index c81ea2264ad8a..376110ead758e 100644
+--- a/include/linux/objtool.h
++++ b/include/linux/objtool.h
+@@ -32,11 +32,16 @@ struct unwind_hint {
+  *
+  * UNWIND_HINT_FUNC: Generate the unwind metadata of a callable function.
+  * Useful for code which doesn't have an ELF function annotation.
++ *
++ * UNWIND_HINT_ENTRY: machine entry without stack, SYSCALL/SYSENTER etc.
+  */
+ #define UNWIND_HINT_TYPE_CALL		0
+ #define UNWIND_HINT_TYPE_REGS		1
+ #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
+ #define UNWIND_HINT_TYPE_FUNC		3
++#define UNWIND_HINT_TYPE_ENTRY		4
++#define UNWIND_HINT_TYPE_SAVE		5
++#define UNWIND_HINT_TYPE_RESTORE	6
+ 
+ #ifdef CONFIG_STACK_VALIDATION
+ 
+@@ -122,7 +127,7 @@ struct unwind_hint {
+  * the debuginfo as necessary.  It will also warn if it sees any
+  * inconsistencies.
+  */
+-.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
++.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
+ .Lunwind_hint_ip_\@:
+ 	.pushsection .discard.unwind_hints
+ 		/* struct unwind_hint */
+@@ -175,7 +180,7 @@ struct unwind_hint {
+ #define ASM_REACHABLE
+ #else
+ #define ANNOTATE_INTRA_FUNCTION_CALL
+-.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
++.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
+ .endm
+ .macro STACK_FRAME_NON_STANDARD func:req
+ .endm
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index 33c1ed5815229..2a0521f77e5f0 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -233,6 +233,7 @@ objtool_args =								\
+ 	$(if $(CONFIG_FRAME_POINTER),, --no-fp)				\
+ 	$(if $(CONFIG_GCOV_KERNEL), --no-unreachable)			\
+ 	$(if $(CONFIG_RETPOLINE), --retpoline)				\
++	$(if $(CONFIG_RETHUNK), --rethunk)				\
+ 	$(if $(CONFIG_X86_SMAP), --uaccess)				\
+ 	$(if $(CONFIG_FTRACE_MCOUNT_USE_OBJTOOL), --mcount)		\
+ 	$(if $(CONFIG_SLS), --sls)
+diff --git a/scripts/link-vmlinux.sh b/scripts/link-vmlinux.sh
+index 9361a1ef02c99..d4d028595fb4b 100755
+--- a/scripts/link-vmlinux.sh
++++ b/scripts/link-vmlinux.sh
+@@ -130,6 +130,9 @@ objtool_link()
+ 
+ 	if is_enabled CONFIG_VMLINUX_VALIDATION; then
+ 		objtoolopt="${objtoolopt} --noinstr"
++		if is_enabled CONFIG_CPU_UNRET_ENTRY; then
++			objtoolopt="${objtoolopt} --unret"
++		fi
+ 	fi
+ 
+ 	if [ -n "${objtoolopt}" ]; then
+diff --git a/security/Kconfig b/security/Kconfig
+index 9b2c4925585a3..34e2d7edd0857 100644
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -54,17 +54,6 @@ config SECURITY_NETWORK
+ 	  implement socket and networking access controls.
+ 	  If you are unsure how to answer this question, answer N.
+ 
+-config PAGE_TABLE_ISOLATION
+-	bool "Remove the kernel mapping in user mode"
+-	default y
+-	depends on (X86_64 || X86_PAE) && !UML
+-	help
+-	  This feature reduces the number of hardware side channels by
+-	  ensuring that the majority of kernel addresses are not mapped
+-	  into userspace.
+-
+-	  See Documentation/x86/pti.rst for more details.
+-
+ config SECURITY_INFINIBAND
+ 	bool "Infiniband Security Hooks"
+ 	depends on SECURITY && INFINIBAND
+diff --git a/tools/arch/x86/include/asm/cpufeatures.h b/tools/arch/x86/include/asm/cpufeatures.h
+index e17de69faa543..5d09ded0c491f 100644
+--- a/tools/arch/x86/include/asm/cpufeatures.h
++++ b/tools/arch/x86/include/asm/cpufeatures.h
+@@ -203,8 +203,8 @@
+ #define X86_FEATURE_PROC_FEEDBACK	( 7*32+ 9) /* AMD ProcFeedbackInterface */
+ /* FREE!                                ( 7*32+10) */
+ #define X86_FEATURE_PTI			( 7*32+11) /* Kernel Page Table Isolation enabled */
+-#define X86_FEATURE_RETPOLINE		( 7*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
+-#define X86_FEATURE_RETPOLINE_LFENCE	( 7*32+13) /* "" Use LFENCE for Spectre variant 2 */
++#define X86_FEATURE_KERNEL_IBRS		( 7*32+12) /* "" Set/clear IBRS on kernel entry/exit */
++#define X86_FEATURE_RSB_VMEXIT		( 7*32+13) /* "" Fill RSB on VM-Exit */
+ #define X86_FEATURE_INTEL_PPIN		( 7*32+14) /* Intel Processor Inventory Number */
+ #define X86_FEATURE_CDP_L2		( 7*32+15) /* Code and Data Prioritization L2 */
+ #define X86_FEATURE_MSR_SPEC_CTRL	( 7*32+16) /* "" MSR SPEC_CTRL is implemented */
+@@ -295,6 +295,12 @@
+ #define X86_FEATURE_PER_THREAD_MBA	(11*32+ 7) /* "" Per-thread Memory Bandwidth Allocation */
+ #define X86_FEATURE_SGX1		(11*32+ 8) /* "" Basic SGX */
+ #define X86_FEATURE_SGX2		(11*32+ 9) /* "" SGX Enclave Dynamic Memory Management (EDMM) */
++#define X86_FEATURE_ENTRY_IBPB		(11*32+10) /* "" Issue an IBPB on kernel entry */
++#define X86_FEATURE_RRSBA_CTRL		(11*32+11) /* "" RET prediction control */
++#define X86_FEATURE_RETPOLINE		(11*32+12) /* "" Generic Retpoline mitigation for Spectre variant 2 */
++#define X86_FEATURE_RETPOLINE_LFENCE	(11*32+13) /* "" Use LFENCE for Spectre variant 2 */
++#define X86_FEATURE_RETHUNK		(11*32+14) /* "" Use REturn THUNK */
++#define X86_FEATURE_UNRET		(11*32+15) /* "" AMD BTB untrain return */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
+ #define X86_FEATURE_AVX_VNNI		(12*32+ 4) /* AVX VNNI instructions */
+@@ -315,6 +321,7 @@
+ #define X86_FEATURE_VIRT_SSBD		(13*32+25) /* Virtualized Speculative Store Bypass Disable */
+ #define X86_FEATURE_AMD_SSB_NO		(13*32+26) /* "" Speculative Store Bypass is fixed in hardware. */
+ #define X86_FEATURE_CPPC		(13*32+27) /* Collaborative Processor Performance Control */
++#define X86_FEATURE_BTC_NO		(13*32+29) /* "" Not vulnerable to Branch Type Confusion */
+ 
+ /* Thermal and Power Management Leaf, CPUID level 0x00000006 (EAX), word 14 */
+ #define X86_FEATURE_DTHERM		(14*32+ 0) /* Digital Thermal Sensor */
+@@ -444,5 +451,6 @@
+ #define X86_BUG_ITLB_MULTIHIT		X86_BUG(23) /* CPU may incur MCE during certain page attribute changes */
+ #define X86_BUG_SRBDS			X86_BUG(24) /* CPU may leak RNG bits if not mitigated */
+ #define X86_BUG_MMIO_STALE_DATA		X86_BUG(25) /* CPU is affected by Processor MMIO Stale Data vulnerabilities */
++#define X86_BUG_RETBLEED		X86_BUG(26) /* CPU is affected by RETBleed */
+ 
+ #endif /* _ASM_X86_CPUFEATURES_H */
+diff --git a/tools/arch/x86/include/asm/disabled-features.h b/tools/arch/x86/include/asm/disabled-features.h
+index 1231d63f836d8..f7be189e97232 100644
+--- a/tools/arch/x86/include/asm/disabled-features.h
++++ b/tools/arch/x86/include/asm/disabled-features.h
+@@ -56,6 +56,25 @@
+ # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
+ #endif
+ 
++#ifdef CONFIG_RETPOLINE
++# define DISABLE_RETPOLINE	0
++#else
++# define DISABLE_RETPOLINE	((1 << (X86_FEATURE_RETPOLINE & 31)) | \
++				 (1 << (X86_FEATURE_RETPOLINE_LFENCE & 31)))
++#endif
++
++#ifdef CONFIG_RETHUNK
++# define DISABLE_RETHUNK	0
++#else
++# define DISABLE_RETHUNK	(1 << (X86_FEATURE_RETHUNK & 31))
++#endif
++
++#ifdef CONFIG_CPU_UNRET_ENTRY
++# define DISABLE_UNRET		0
++#else
++# define DISABLE_UNRET		(1 << (X86_FEATURE_UNRET & 31))
++#endif
++
+ #ifdef CONFIG_INTEL_IOMMU_SVM
+ # define DISABLE_ENQCMD		0
+ #else
+@@ -82,7 +101,7 @@
+ #define DISABLED_MASK8	0
+ #define DISABLED_MASK9	(DISABLE_SMAP|DISABLE_SGX)
+ #define DISABLED_MASK10	0
+-#define DISABLED_MASK11	0
++#define DISABLED_MASK11	(DISABLE_RETPOLINE|DISABLE_RETHUNK|DISABLE_UNRET)
+ #define DISABLED_MASK12	0
+ #define DISABLED_MASK13	0
+ #define DISABLED_MASK14	0
+diff --git a/tools/arch/x86/include/asm/msr-index.h b/tools/arch/x86/include/asm/msr-index.h
+index 4425d6773183b..ad084326f24c2 100644
+--- a/tools/arch/x86/include/asm/msr-index.h
++++ b/tools/arch/x86/include/asm/msr-index.h
+@@ -51,6 +51,8 @@
+ #define SPEC_CTRL_STIBP			BIT(SPEC_CTRL_STIBP_SHIFT)	/* STIBP mask */
+ #define SPEC_CTRL_SSBD_SHIFT		2	   /* Speculative Store Bypass Disable bit */
+ #define SPEC_CTRL_SSBD			BIT(SPEC_CTRL_SSBD_SHIFT)	/* Speculative Store Bypass Disable */
++#define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
++#define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
+ 
+ #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
+ #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+@@ -91,6 +93,7 @@
+ #define MSR_IA32_ARCH_CAPABILITIES	0x0000010a
+ #define ARCH_CAP_RDCL_NO		BIT(0)	/* Not susceptible to Meltdown */
+ #define ARCH_CAP_IBRS_ALL		BIT(1)	/* Enhanced IBRS support */
++#define ARCH_CAP_RSBA			BIT(2)	/* RET may use alternative branch predictors */
+ #define ARCH_CAP_SKIP_VMENTRY_L1DFLUSH	BIT(3)	/* Skip L1D flush on vmentry */
+ #define ARCH_CAP_SSB_NO			BIT(4)	/*
+ 						 * Not susceptible to Speculative Store Bypass
+@@ -138,6 +141,13 @@
+ 						 * bit available to control VERW
+ 						 * behavior.
+ 						 */
++#define ARCH_CAP_RRSBA			BIT(19)	/*
++						 * Indicates RET may use predictors
++						 * other than the RSB. With eIBRS
++						 * enabled predictions in kernel mode
++						 * are restricted to targets in
++						 * kernel.
++						 */
+ 
+ #define MSR_IA32_FLUSH_CMD		0x0000010b
+ #define L1D_FLUSH			BIT(0)	/*
+@@ -552,6 +562,9 @@
+ /* Fam 17h MSRs */
+ #define MSR_F17H_IRPERF			0xc00000e9
+ 
++#define MSR_ZEN2_SPECTRAL_CHICKEN	0xc00110e3
++#define MSR_ZEN2_SPECTRAL_CHICKEN_BIT	BIT_ULL(1)
++
+ /* Fam 16h MSRs */
+ #define MSR_F16H_L2I_PERF_CTL		0xc0010230
+ #define MSR_F16H_L2I_PERF_CTR		0xc0010231
+diff --git a/tools/include/linux/objtool.h b/tools/include/linux/objtool.h
+index c81ea2264ad8a..376110ead758e 100644
+--- a/tools/include/linux/objtool.h
++++ b/tools/include/linux/objtool.h
+@@ -32,11 +32,16 @@ struct unwind_hint {
+  *
+  * UNWIND_HINT_FUNC: Generate the unwind metadata of a callable function.
+  * Useful for code which doesn't have an ELF function annotation.
++ *
++ * UNWIND_HINT_ENTRY: machine entry without stack, SYSCALL/SYSENTER etc.
+  */
+ #define UNWIND_HINT_TYPE_CALL		0
+ #define UNWIND_HINT_TYPE_REGS		1
+ #define UNWIND_HINT_TYPE_REGS_PARTIAL	2
+ #define UNWIND_HINT_TYPE_FUNC		3
++#define UNWIND_HINT_TYPE_ENTRY		4
++#define UNWIND_HINT_TYPE_SAVE		5
++#define UNWIND_HINT_TYPE_RESTORE	6
+ 
+ #ifdef CONFIG_STACK_VALIDATION
+ 
+@@ -122,7 +127,7 @@ struct unwind_hint {
+  * the debuginfo as necessary.  It will also warn if it sees any
+  * inconsistencies.
+  */
+-.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
++.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
+ .Lunwind_hint_ip_\@:
+ 	.pushsection .discard.unwind_hints
+ 		/* struct unwind_hint */
+@@ -175,7 +180,7 @@ struct unwind_hint {
+ #define ASM_REACHABLE
+ #else
+ #define ANNOTATE_INTRA_FUNCTION_CALL
+-.macro UNWIND_HINT sp_reg:req sp_offset=0 type:req end=0
++.macro UNWIND_HINT type:req sp_reg=0 sp_offset=0 end=0
+ .endm
+ .macro STACK_FRAME_NON_STANDARD func:req
+ .endm
+diff --git a/tools/objtool/arch/x86/decode.c b/tools/objtool/arch/x86/decode.c
+index 943cb41cddf7c..1ecf50bbd5544 100644
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -787,3 +787,8 @@ bool arch_is_retpoline(struct symbol *sym)
+ {
+ 	return !strncmp(sym->name, "__x86_indirect_", 15);
+ }
++
++bool arch_is_rethunk(struct symbol *sym)
++{
++	return !strcmp(sym->name, "__x86_return_thunk");
++}
+diff --git a/tools/objtool/builtin-check.c b/tools/objtool/builtin-check.c
+index fc6975ab8b06e..cd4bbc98f8c1f 100644
+--- a/tools/objtool/builtin-check.c
++++ b/tools/objtool/builtin-check.c
+@@ -21,7 +21,7 @@
+ 
+ bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
+      lto, vmlinux, mcount, noinstr, backup, sls, dryrun,
+-     ibt;
++     ibt, unret, rethunk;
+ 
+ static const char * const check_usage[] = {
+ 	"objtool check [<options>] file.o",
+@@ -37,6 +37,8 @@ const struct option check_options[] = {
+ 	OPT_BOOLEAN('f', "no-fp", &no_fp, "Skip frame pointer validation"),
+ 	OPT_BOOLEAN('u', "no-unreachable", &no_unreachable, "Skip 'unreachable instruction' warnings"),
+ 	OPT_BOOLEAN('r', "retpoline", &retpoline, "Validate retpoline assumptions"),
++	OPT_BOOLEAN(0,   "rethunk", &rethunk, "validate and annotate rethunk usage"),
++	OPT_BOOLEAN(0,   "unret", &unret, "validate entry unret placement"),
+ 	OPT_BOOLEAN('m', "module", &module, "Indicates the object will be part of a kernel module"),
+ 	OPT_BOOLEAN('b', "backtrace", &backtrace, "unwind on error"),
+ 	OPT_BOOLEAN('a', "uaccess", &uaccess, "enable uaccess checking"),
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index f66e4ac0af948..57b7a68d3b66a 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -374,7 +374,8 @@ static int decode_instructions(struct objtool_file *file)
+ 			sec->text = true;
+ 
+ 		if (!strcmp(sec->name, ".noinstr.text") ||
+-		    !strcmp(sec->name, ".entry.text"))
++		    !strcmp(sec->name, ".entry.text") ||
++		    !strncmp(sec->name, ".text.__x86.", 12))
+ 			sec->noinstr = true;
+ 
+ 		for (offset = 0; offset < sec->sh.sh_size; offset += insn->len) {
+@@ -747,6 +748,52 @@ static int create_retpoline_sites_sections(struct objtool_file *file)
+ 	return 0;
+ }
+ 
++static int create_return_sites_sections(struct objtool_file *file)
++{
++	struct instruction *insn;
++	struct section *sec;
++	int idx;
++
++	sec = find_section_by_name(file->elf, ".return_sites");
++	if (sec) {
++		WARN("file already has .return_sites, skipping");
++		return 0;
++	}
++
++	idx = 0;
++	list_for_each_entry(insn, &file->return_thunk_list, call_node)
++		idx++;
++
++	if (!idx)
++		return 0;
++
++	sec = elf_create_section(file->elf, ".return_sites", 0,
++				 sizeof(int), idx);
++	if (!sec) {
++		WARN("elf_create_section: .return_sites");
++		return -1;
++	}
++
++	idx = 0;
++	list_for_each_entry(insn, &file->return_thunk_list, call_node) {
++
++		int *site = (int *)sec->data->d_buf + idx;
++		*site = 0;
++
++		if (elf_add_reloc_to_insn(file->elf, sec,
++					  idx * sizeof(int),
++					  R_X86_64_PC32,
++					  insn->sec, insn->offset)) {
++			WARN("elf_add_reloc_to_insn: .return_sites");
++			return -1;
++		}
++
++		idx++;
++	}
++
++	return 0;
++}
++
+ static int create_ibt_endbr_seal_sections(struct objtool_file *file)
+ {
+ 	struct instruction *insn;
+@@ -1081,6 +1128,11 @@ __weak bool arch_is_retpoline(struct symbol *sym)
+ 	return false;
+ }
+ 
++__weak bool arch_is_rethunk(struct symbol *sym)
++{
++	return false;
++}
++
+ #define NEGATIVE_RELOC	((void *)-1L)
+ 
+ static struct reloc *insn_reloc(struct objtool_file *file, struct instruction *insn)
+@@ -1248,6 +1300,20 @@ static void add_retpoline_call(struct objtool_file *file, struct instruction *in
+ 	annotate_call_site(file, insn, false);
+ }
+ 
++static void add_return_call(struct objtool_file *file, struct instruction *insn, bool add)
++{
++	/*
++	 * Return thunk tail calls are really just returns in disguise,
++	 * so convert them accordingly.
++	 */
++	insn->type = INSN_RETURN;
++	insn->retpoline_safe = true;
++
++	/* Skip the non-text sections, specially .discard ones */
++	if (add && insn->sec->text)
++		list_add_tail(&insn->call_node, &file->return_thunk_list);
++}
++
+ static bool same_function(struct instruction *insn1, struct instruction *insn2)
+ {
+ 	return insn1->func->pfunc == insn2->func->pfunc;
+@@ -1300,6 +1366,9 @@ static int add_jump_destinations(struct objtool_file *file)
+ 		} else if (reloc->sym->retpoline_thunk) {
+ 			add_retpoline_call(file, insn);
+ 			continue;
++		} else if (reloc->sym->return_thunk) {
++			add_return_call(file, insn, true);
++			continue;
+ 		} else if (insn->func) {
+ 			/*
+ 			 * External sibling call or internal sibling call with
+@@ -1318,6 +1387,21 @@ static int add_jump_destinations(struct objtool_file *file)
+ 
+ 		jump_dest = find_insn(file, dest_sec, dest_off);
+ 		if (!jump_dest) {
++			struct symbol *sym = find_symbol_by_offset(dest_sec, dest_off);
++
++			/*
++			 * This is a special case for zen_untrain_ret().
++			 * It jumps to __x86_return_thunk(), but objtool
++			 * can't find the thunk's starting RET
++			 * instruction, because the RET is also in the
++			 * middle of another instruction.  Objtool only
++			 * knows about the outer instruction.
++			 */
++			if (sym && sym->return_thunk) {
++				add_return_call(file, insn, false);
++				continue;
++			}
++
+ 			WARN_FUNC("can't find jump dest instruction at %s+0x%lx",
+ 				  insn->sec, insn->offset, dest_sec->name,
+ 				  dest_off);
+@@ -1947,16 +2031,35 @@ static int read_unwind_hints(struct objtool_file *file)
+ 
+ 		insn->hint = true;
+ 
+-		if (ibt && hint->type == UNWIND_HINT_TYPE_REGS_PARTIAL) {
++		if (hint->type == UNWIND_HINT_TYPE_SAVE) {
++			insn->hint = false;
++			insn->save = true;
++			continue;
++		}
++
++		if (hint->type == UNWIND_HINT_TYPE_RESTORE) {
++			insn->restore = true;
++			continue;
++		}
++
++		if (hint->type == UNWIND_HINT_TYPE_REGS_PARTIAL) {
+ 			struct symbol *sym = find_symbol_by_offset(insn->sec, insn->offset);
+ 
+-			if (sym && sym->bind == STB_GLOBAL &&
+-			    insn->type != INSN_ENDBR && !insn->noendbr) {
+-				WARN_FUNC("UNWIND_HINT_IRET_REGS without ENDBR",
+-					  insn->sec, insn->offset);
++			if (sym && sym->bind == STB_GLOBAL) {
++				if (ibt && insn->type != INSN_ENDBR && !insn->noendbr) {
++					WARN_FUNC("UNWIND_HINT_IRET_REGS without ENDBR",
++						  insn->sec, insn->offset);
++				}
++
++				insn->entry = 1;
+ 			}
+ 		}
+ 
++		if (hint->type == UNWIND_HINT_TYPE_ENTRY) {
++			hint->type = UNWIND_HINT_TYPE_CALL;
++			insn->entry = 1;
++		}
++
+ 		if (hint->type == UNWIND_HINT_TYPE_FUNC) {
+ 			insn->cfi = &func_cfi;
+ 			continue;
+@@ -2030,8 +2133,10 @@ static int read_retpoline_hints(struct objtool_file *file)
+ 		}
+ 
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+-		    insn->type != INSN_CALL_DYNAMIC) {
+-			WARN_FUNC("retpoline_safe hint not an indirect jump/call",
++		    insn->type != INSN_CALL_DYNAMIC &&
++		    insn->type != INSN_RETURN &&
++		    insn->type != INSN_NOP) {
++			WARN_FUNC("retpoline_safe hint not an indirect jump/call/ret/nop",
+ 				  insn->sec, insn->offset);
+ 			return -1;
+ 		}
+@@ -2182,6 +2287,9 @@ static int classify_symbols(struct objtool_file *file)
+ 			if (arch_is_retpoline(func))
+ 				func->retpoline_thunk = true;
+ 
++			if (arch_is_rethunk(func))
++				func->return_thunk = true;
++
+ 			if (!strcmp(func->name, "__fentry__"))
+ 				func->fentry = true;
+ 
+@@ -3324,8 +3432,8 @@ static int validate_branch(struct objtool_file *file, struct symbol *func,
+ 			return 1;
+ 		}
+ 
+-		visited = 1 << state.uaccess;
+-		if (insn->visited) {
++		visited = VISITED_BRANCH << state.uaccess;
++		if (insn->visited & VISITED_BRANCH_MASK) {
+ 			if (!insn->hint && !insn_cfi_match(insn, &state.cfi))
+ 				return 1;
+ 
+@@ -3339,6 +3447,35 @@ static int validate_branch(struct objtool_file *file, struct symbol *func,
+ 			state.instr += insn->instr;
+ 
+ 		if (insn->hint) {
++			if (insn->restore) {
++				struct instruction *save_insn, *i;
++
++				i = insn;
++				save_insn = NULL;
++
++				sym_for_each_insn_continue_reverse(file, func, i) {
++					if (i->save) {
++						save_insn = i;
++						break;
++					}
++				}
++
++				if (!save_insn) {
++					WARN_FUNC("no corresponding CFI save for CFI restore",
++						  sec, insn->offset);
++					return 1;
++				}
++
++				if (!save_insn->visited) {
++					WARN_FUNC("objtool isn't smart enough to handle this CFI save/restore combo",
++						  sec, insn->offset);
++					return 1;
++				}
++
++				insn->cfi = save_insn->cfi;
++				nr_cfi_reused++;
++			}
++
+ 			state.cfi = *insn->cfi;
+ 		} else {
+ 			/* XXX track if we actually changed state.cfi */
+@@ -3554,6 +3691,145 @@ static int validate_unwind_hints(struct objtool_file *file, struct section *sec)
+ 	return warnings;
+ }
+ 
++/*
++ * Validate rethunk entry constraint: must untrain RET before the first RET.
++ *
++ * Follow every branch (intra-function) and ensure ANNOTATE_UNRET_END comes
++ * before an actual RET instruction.
++ */
++static int validate_entry(struct objtool_file *file, struct instruction *insn)
++{
++	struct instruction *next, *dest;
++	int ret, warnings = 0;
++
++	for (;;) {
++		next = next_insn_to_validate(file, insn);
++
++		if (insn->visited & VISITED_ENTRY)
++			return 0;
++
++		insn->visited |= VISITED_ENTRY;
++
++		if (!insn->ignore_alts && !list_empty(&insn->alts)) {
++			struct alternative *alt;
++			bool skip_orig = false;
++
++			list_for_each_entry(alt, &insn->alts, list) {
++				if (alt->skip_orig)
++					skip_orig = true;
++
++				ret = validate_entry(file, alt->insn);
++				if (ret) {
++				        if (backtrace)
++						BT_FUNC("(alt)", insn);
++					return ret;
++				}
++			}
++
++			if (skip_orig)
++				return 0;
++		}
++
++		switch (insn->type) {
++
++		case INSN_CALL_DYNAMIC:
++		case INSN_JUMP_DYNAMIC:
++		case INSN_JUMP_DYNAMIC_CONDITIONAL:
++			WARN_FUNC("early indirect call", insn->sec, insn->offset);
++			return 1;
++
++		case INSN_JUMP_UNCONDITIONAL:
++		case INSN_JUMP_CONDITIONAL:
++			if (!is_sibling_call(insn)) {
++				if (!insn->jump_dest) {
++					WARN_FUNC("unresolved jump target after linking?!?",
++						  insn->sec, insn->offset);
++					return -1;
++				}
++				ret = validate_entry(file, insn->jump_dest);
++				if (ret) {
++					if (backtrace) {
++						BT_FUNC("(branch%s)", insn,
++							insn->type == INSN_JUMP_CONDITIONAL ? "-cond" : "");
++					}
++					return ret;
++				}
++
++				if (insn->type == INSN_JUMP_UNCONDITIONAL)
++					return 0;
++
++				break;
++			}
++
++			/* fallthrough */
++		case INSN_CALL:
++			dest = find_insn(file, insn->call_dest->sec,
++					 insn->call_dest->offset);
++			if (!dest) {
++				WARN("Unresolved function after linking!?: %s",
++				     insn->call_dest->name);
++				return -1;
++			}
++
++			ret = validate_entry(file, dest);
++			if (ret) {
++				if (backtrace)
++					BT_FUNC("(call)", insn);
++				return ret;
++			}
++			/*
++			 * If a call returns without error, it must have seen UNTRAIN_RET.
++			 * Therefore any non-error return is a success.
++			 */
++			return 0;
++
++		case INSN_RETURN:
++			WARN_FUNC("RET before UNTRAIN", insn->sec, insn->offset);
++			return 1;
++
++		case INSN_NOP:
++			if (insn->retpoline_safe)
++				return 0;
++			break;
++
++		default:
++			break;
++		}
++
++		if (!next) {
++			WARN_FUNC("teh end!", insn->sec, insn->offset);
++			return -1;
++		}
++		insn = next;
++	}
++
++	return warnings;
++}
++
++/*
++ * Validate that all branches starting at 'insn->entry' encounter UNRET_END
++ * before RET.
++ */
++static int validate_unret(struct objtool_file *file)
++{
++	struct instruction *insn;
++	int ret, warnings = 0;
++
++	for_each_insn(file, insn) {
++		if (!insn->entry)
++			continue;
++
++		ret = validate_entry(file, insn);
++		if (ret < 0) {
++			WARN_FUNC("Failed UNRET validation", insn->sec, insn->offset);
++			return ret;
++		}
++		warnings += ret;
++	}
++
++	return warnings;
++}
++
+ static int validate_retpoline(struct objtool_file *file)
+ {
+ 	struct instruction *insn;
+@@ -3561,7 +3837,8 @@ static int validate_retpoline(struct objtool_file *file)
+ 
+ 	for_each_insn(file, insn) {
+ 		if (insn->type != INSN_JUMP_DYNAMIC &&
+-		    insn->type != INSN_CALL_DYNAMIC)
++		    insn->type != INSN_CALL_DYNAMIC &&
++		    insn->type != INSN_RETURN)
+ 			continue;
+ 
+ 		if (insn->retpoline_safe)
+@@ -3576,9 +3853,17 @@ static int validate_retpoline(struct objtool_file *file)
+ 		if (!strcmp(insn->sec->name, ".init.text") && !module)
+ 			continue;
+ 
+-		WARN_FUNC("indirect %s found in RETPOLINE build",
+-			  insn->sec, insn->offset,
+-			  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
++		if (insn->type == INSN_RETURN) {
++			if (rethunk) {
++				WARN_FUNC("'naked' return found in RETHUNK build",
++					  insn->sec, insn->offset);
++			} else
++				continue;
++		} else {
++			WARN_FUNC("indirect %s found in RETPOLINE build",
++				  insn->sec, insn->offset,
++				  insn->type == INSN_JUMP_DYNAMIC ? "jump" : "call");
++		}
+ 
+ 		warnings++;
+ 	}
+@@ -3911,6 +4196,17 @@ int check(struct objtool_file *file)
+ 		goto out;
+ 	warnings += ret;
+ 
++	if (unret) {
++		/*
++		 * Must be after validate_branch() and friends, it plays
++		 * further games with insn->visited.
++		 */
++		ret = validate_unret(file);
++		if (ret < 0)
++			return ret;
++		warnings += ret;
++	}
++
+ 	if (ibt) {
+ 		ret = validate_ibt(file);
+ 		if (ret < 0)
+@@ -3937,6 +4233,13 @@ int check(struct objtool_file *file)
+ 		warnings += ret;
+ 	}
+ 
++	if (rethunk) {
++		ret = create_return_sites_sections(file);
++		if (ret < 0)
++			goto out;
++		warnings += ret;
++	}
++
+ 	if (mcount) {
+ 		ret = create_mcount_loc_sections(file);
+ 		if (ret < 0)
+diff --git a/tools/objtool/include/objtool/arch.h b/tools/objtool/include/objtool/arch.h
+index 9b19cc3041955..beb2f3aa94ffc 100644
+--- a/tools/objtool/include/objtool/arch.h
++++ b/tools/objtool/include/objtool/arch.h
+@@ -89,6 +89,7 @@ const char *arch_ret_insn(int len);
+ int arch_decode_hint_reg(u8 sp_reg, int *base);
+ 
+ bool arch_is_retpoline(struct symbol *sym);
++bool arch_is_rethunk(struct symbol *sym);
+ 
+ int arch_rewrite_retpolines(struct objtool_file *file);
+ 
+diff --git a/tools/objtool/include/objtool/builtin.h b/tools/objtool/include/objtool/builtin.h
+index c39dbfaef6dcb..b6bb605faf3f7 100644
+--- a/tools/objtool/include/objtool/builtin.h
++++ b/tools/objtool/include/objtool/builtin.h
+@@ -10,7 +10,7 @@
+ extern const struct option check_options[];
+ extern bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
+ 	    lto, vmlinux, mcount, noinstr, backup, sls, dryrun,
+-	    ibt;
++	    ibt, unret, rethunk;
+ 
+ extern int cmd_parse_options(int argc, const char **argv, const char * const usage[]);
+ 
+diff --git a/tools/objtool/include/objtool/check.h b/tools/objtool/include/objtool/check.h
+index f10d7374f388a..036129cebeeef 100644
+--- a/tools/objtool/include/objtool/check.h
++++ b/tools/objtool/include/objtool/check.h
+@@ -46,16 +46,19 @@ struct instruction {
+ 	enum insn_type type;
+ 	unsigned long immediate;
+ 
+-	u8 dead_end	: 1,
+-	   ignore	: 1,
+-	   ignore_alts	: 1,
+-	   hint		: 1,
+-	   retpoline_safe : 1,
+-	   noendbr	: 1;
+-		/* 2 bit hole */
++	u16 dead_end		: 1,
++	   ignore		: 1,
++	   ignore_alts		: 1,
++	   hint			: 1,
++	   save			: 1,
++	   restore		: 1,
++	   retpoline_safe	: 1,
++	   noendbr		: 1,
++	   entry		: 1;
++		/* 7 bit hole */
++
+ 	s8 instr;
+ 	u8 visited;
+-	/* u8 hole */
+ 
+ 	struct alt_group *alt_group;
+ 	struct symbol *call_dest;
+@@ -69,6 +72,11 @@ struct instruction {
+ 	struct cfi_state *cfi;
+ };
+ 
++#define VISITED_BRANCH		0x01
++#define VISITED_BRANCH_UACCESS	0x02
++#define VISITED_BRANCH_MASK	0x03
++#define VISITED_ENTRY		0x04
++
+ static inline bool is_static_jump(struct instruction *insn)
+ {
+ 	return insn->type == INSN_JUMP_CONDITIONAL ||
+diff --git a/tools/objtool/include/objtool/elf.h b/tools/objtool/include/objtool/elf.h
+index 82e57eb4b4c5d..94a618e2a79e3 100644
+--- a/tools/objtool/include/objtool/elf.h
++++ b/tools/objtool/include/objtool/elf.h
+@@ -57,6 +57,7 @@ struct symbol {
+ 	u8 uaccess_safe      : 1;
+ 	u8 static_call_tramp : 1;
+ 	u8 retpoline_thunk   : 1;
++	u8 return_thunk      : 1;
+ 	u8 fentry            : 1;
+ 	u8 profiling_func    : 1;
+ 	struct list_head pv_target;
+diff --git a/tools/objtool/include/objtool/objtool.h b/tools/objtool/include/objtool/objtool.h
+index a6e72d916807d..7f2d1b0953333 100644
+--- a/tools/objtool/include/objtool/objtool.h
++++ b/tools/objtool/include/objtool/objtool.h
+@@ -24,6 +24,7 @@ struct objtool_file {
+ 	struct list_head insn_list;
+ 	DECLARE_HASHTABLE(insn_hash, 20);
+ 	struct list_head retpoline_call_list;
++	struct list_head return_thunk_list;
+ 	struct list_head static_call_list;
+ 	struct list_head mcount_loc_list;
+ 	struct list_head endbr_list;
+diff --git a/tools/objtool/objtool.c b/tools/objtool/objtool.c
+index 843ff3c2f28e4..983687345d355 100644
+--- a/tools/objtool/objtool.c
++++ b/tools/objtool/objtool.c
+@@ -126,6 +126,7 @@ struct objtool_file *objtool_open_read(const char *_objname)
+ 	INIT_LIST_HEAD(&file.insn_list);
+ 	hash_init(file.insn_hash);
+ 	INIT_LIST_HEAD(&file.retpoline_call_list);
++	INIT_LIST_HEAD(&file.return_thunk_list);
+ 	INIT_LIST_HEAD(&file.static_call_list);
+ 	INIT_LIST_HEAD(&file.mcount_loc_list);
+ 	INIT_LIST_HEAD(&file.endbr_list);

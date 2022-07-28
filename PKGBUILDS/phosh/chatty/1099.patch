@@ -1,0 +1,26 @@
+From b9c9e8ec8145435534f4355f63057b4176db4feb Mon Sep 17 00:00:00 2001
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Sun, 3 Jul 2022 11:14:59 +0530
+Subject: [PATCH] tests: Use memory backend for gsettings
+
+Using memory as backend can help avoid random i/o issues
+when the gsettings is changed.
+---
+ tests/meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tests/meson.build b/tests/meson.build
+index 78069afb..4d46d99f 100644
+--- a/tests/meson.build
++++ b/tests/meson.build
+@@ -6,6 +6,7 @@ tests_inc = [
+ env = environment()
+ env.set('G_TEST_SRCDIR', meson.current_source_dir())
+ env.set('G_TEST_BUILDDIR', meson.current_build_dir())
++env.set('GSETTINGS_BACKEND', 'memory')
+ env.set('GSETTINGS_SCHEMA_DIR', join_paths(meson.build_root(), 'data'))
+ env.set('MALLOC_CHECK_', '2')
+ 
+-- 
+GitLab
+

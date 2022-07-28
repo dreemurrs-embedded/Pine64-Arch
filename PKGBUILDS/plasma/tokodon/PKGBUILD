@@ -2,7 +2,7 @@
 # Contributor: Dan Johansen <strit@manjaro.org>
 
 pkgname=tokodon
-pkgver=22.04
+pkgver=22.06
 pkgrel=1
 pkgdesc="Mastodon client for Plasma and Plasma Mobile"
 arch=('x86_64' 'aarch64')
@@ -13,7 +13,7 @@ depends=('qt5-base' 'qt5-quickcontrols2' 'qt5-multimedia' 'qt5-svg' 'qt5-websock
          'qqc2-desktop-style')
 makedepends=('cmake' 'extra-cmake-modules')
 source=("http://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('3217bacc48e43dbf63e744aba765ef81')
+md5sums=('0997ec74c7db49a92bd3f923248f4e97')
 
 prepare() {
   mkdir -p build

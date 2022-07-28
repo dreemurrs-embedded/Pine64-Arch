@@ -4,7 +4,7 @@
 
 pkgbase=modemmanager
 pkgname=(modemmanager libmm-glib)
-pkgver=1.18.6
+pkgver=1.18.10
 pkgrel=1
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
@@ -14,7 +14,7 @@ depends=(systemd libgudev polkit ppp libqmi libmbim
          mobile-broadband-provider-info)
 makedepends=(gtk-doc gobject-introspection vala meson git bash-completion)
 checkdepends=(python-gobject python-dbus)
-_commit=a7bcf2036b34d5043dbc33fee7d98bae5859c4d3  # tags/1.18.6
+_commit=1338749739e0c01bdbc6ddf92388a781806ec3ac  # tags/1.18.10^0
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
         'modemmanager-polkit.rules'
         '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
@@ -47,11 +47,6 @@ build() {
 
   arch-meson ModemManager build "${meson_options[@]}"
   meson compile -C build
-}
-
-check() {
-  # Tests don't work yet
-  : meson test -C build --print-errorlogs
 }
 
 _pick() {
