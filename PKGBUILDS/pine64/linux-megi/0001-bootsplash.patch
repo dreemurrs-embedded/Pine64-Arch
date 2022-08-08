@@ -2,21 +2,25 @@ diff --git a/MAINTAINERS b/MAINTAINERS
 index a74227ad082e..b5633b56391e 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -2705,6 +2705,14 @@ S:	Supported
- F:	drivers/net/bonding/
+@@ -3582,6 +3614,18 @@ F:	drivers/net/bonding/
+ F:	include/net/bond*
  F:	include/uapi/linux/if_bonding.h
  
 +BOOTSPLASH
 +M:	Max Staudt <mstaudt@suse.de>
 +L:	linux-fbdev@vger.kernel.org
 +S:	Maintained
++F:	Documentation/ABI/testing/sysfs-platform-bootsplash
++F:	Documentation/bootsplash.rst
 +F:	drivers/video/fbdev/core/bootsplash*.*
 +F:	drivers/video/fbdev/core/dummycon.c
 +F:	include/linux/bootsplash.h
++F:	include/uapi/linux/bootsplash_file.h
++F:	tools/bootsplash/*
 +
- BPF (Safe dynamic programs and tools)
- M:	Alexei Starovoitov <ast@kernel.org>
- M:	Daniel Borkmann <daniel@iogearbox.net>
+ BOSCH SENSORTEC BMA400 ACCELEROMETER IIO DRIVER
+ M:	Dan Robertson <dan@dlrobertson.com>
+ L:	linux-iio@vger.kernel.org
 diff --git a/drivers/video/console/Kconfig b/drivers/video/console/Kconfig
 index 7f1f1fbcef9e..f3ff976266fe 100644
 --- a/drivers/video/console/Kconfig
