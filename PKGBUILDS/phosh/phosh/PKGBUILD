@@ -7,9 +7,9 @@ arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh"
 license=('GPL')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell' 'upower' 'libpulse'
-         'gcr' 'feedbackd' 'libnm' 'phoc' 'callaudiod')
+         'gcr' 'feedbackd' 'libnm' 'phoc>=0.21.0' 'callaudiod')
 makedepends=('meson' 'ninja' 'git')
-_commit="5fe9aea775b9198eed25fb3b3bcd9827ae40a785" # tags/v0.20.0
+_commit="5fe9aea775b9198eed25fb3b3bcd9827ae40a785"  # tags/v0.20.0
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         'pam_phosh'
         'sm.puri.OSK0.desktop'
