@@ -6,14 +6,16 @@ pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phoc"
 license=('GPL')
-depends=('gobject-introspection' 'gnome-desktop' 'wlroots' 'libinput' 'seatd' 'mutter'
+depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'seatd' 'mutter'
          'xcb-util-errors' 'xcb-util-renderutil' 'xcb-util-wm' 'wayland-protocols'
          'libvulkan.so')
 makedepends=('git' 'meson' 'ninja' 'glslang' 'vulkan-headers')
 checkdepends=('xorg-server-xvfb')
 _commit="1a58a2363b686241647138a8822beac4f761f3fb"
+_commit_wlroots="06f3b6e91e17b8bdc76f3f40216c62e8ba5fe6d6"
 source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}"
-        'cursor-avoid-null-pointer-dereference.patch')
+                "wlroots-phoc::git+https://source.puri.sm/Librem5/wlroots.git#commit=${_commit_wlroots}"
+                'cursor-avoid-null-pointer-dereference.patch')
 
 pkgver() {
   cd $pkgname
@@ -56,4 +58,5 @@ package() {
 }
 
 sha256sums=('SKIP'
-            '8bb1c3a67f167afe974cb2682ae6e3273e606e8fa7deaba829cdda70d144294e')
+                          'SKIP'
+                          '8bb1c3a67f167afe974cb2682ae6e3273e606e8fa7deaba829cdda70d144294e')
