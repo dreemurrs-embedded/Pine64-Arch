@@ -11,8 +11,8 @@
 +static unsigned long softback_top, softback_end;
 +static int softback_lines;
  /* console mappings */
- static int first_fb_vc;
- static int last_fb_vc = MAX_NR_CONSOLES - 1;
+ static unsigned int first_fb_vc;
+ static unsigned int last_fb_vc = MAX_NR_CONSOLES - 1;
 @@ -163,6 +169,8 @@ static int margin_color;
  
  static const struct consw fb_con;
@@ -65,7 +65,7 @@
  			continue;
  		}
  		
-@@ -957,6 +983,31 @@ static const char *fbcon_startup(void)
+@@ -959,6 +985,31 @@ static const char *fbcon_startup(void)
  
  	set_blitting_type(vc, info);
  
@@ -97,7 +97,7 @@
  	/* Setup default font */
  	if (!p->fontdata && !vc->vc_font.data) {
  		if (!fontname[0] || !(font = find_font(fontname)))
-@@ -1127,6 +1178,9 @@ static void fbcon_init(struct vc_data *v
+@@ -1129,6 +1180,9 @@ static void fbcon_init(struct vc_data *v
  	if (logo)
  		fbcon_prepare_logo(vc, info, cols, rows, new_cols, new_rows);
  
@@ -107,7 +107,7 @@
  	if (ops->rotate_font && ops->rotate_font(info, vc)) {
  		ops->rotate = FB_ROTATE_UR;
  		set_blitting_type(vc, info);
-@@ -1150,6 +1204,9 @@ static void fbcon_release_all(void)
+@@ -1152,6 +1206,9 @@ static void fbcon_release_all(void)
  	struct fb_info *info;
  	int i, j, mapped;
  
@@ -117,7 +117,7 @@
  	fbcon_for_each_registered_fb(i) {
  		mapped = 0;
  		info = fbcon_registered_fb[i];
-@@ -1310,6 +1367,7 @@ static void fbcon_cursor(struct vc_data
+@@ -1312,6 +1369,7 @@ static void fbcon_cursor(struct vc_data
  {
  	struct fb_info *info = fbcon_info_from_console(vc->vc_num);
  	struct fbcon_ops *ops = info->fbcon_par;
@@ -125,7 +125,7 @@
   	int c = scr_readw((u16 *) vc->vc_pos);
  
  	ops->cur_blink_jiffies = msecs_to_jiffies(vc->vc_cur_blink_ms);
-@@ -1323,11 +1381,19 @@ static void fbcon_cursor(struct vc_data
+@@ -1325,11 +1383,19 @@ static void fbcon_cursor(struct vc_data
  		fbcon_add_cursor_work(info);
  
  	ops->cursor_flash = (mode == CM_ERASE) ? 0 : 1;
@@ -146,7 +146,7 @@
  		    get_color(vc, info, c, 0));
  }
  
-@@ -1397,6 +1463,8 @@ static void fbcon_set_disp(struct fb_inf
+@@ -1399,6 +1465,8 @@ static void fbcon_set_disp(struct fb_inf
  
  	if (con_is_visible(vc)) {
  		update_screen(vc);
@@ -155,7 +155,7 @@
  	}
  }
  
-@@ -1534,6 +1602,99 @@ static __inline__ void ypan_down_redraw(
+@@ -1536,6 +1604,99 @@ static __inline__ void ypan_down_redraw(
  	scrollback_current = 0;
  }
  
@@ -255,7 +255,7 @@
  static void fbcon_redraw_move(struct vc_data *vc, struct fbcon_display *p,
  			      int line, int count, int dy)
  {
-@@ -1738,6 +1899,31 @@ static void fbcon_bmove(struct vc_data *
+@@ -1740,6 +1901,31 @@ static void fbcon_bmove(struct vc_data *
  			p->vrows - p->yscroll);
  }
  
@@ -287,16 +287,16 @@
  static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
  		enum con_scroll dir, unsigned int count)
  {
-@@ -1760,6 +1946,8 @@ static bool fbcon_scroll(struct vc_data
+@@ -1762,6 +1948,8 @@ static bool fbcon_scroll(struct vc_data
  	case SM_UP:
  		if (count > vc->vc_rows)	/* Maximum realistic size */
  			count = vc->vc_rows;
 +		if (softback_top)
 +			fbcon_softback_note(vc, t, count);
- 		if (logo_shown >= 0)
- 			goto redraw_up;
  		switch (fb_scrollmode(p)) {
-@@ -2078,6 +2266,14 @@ static int fbcon_switch(struct vc_data *
+ 		case SCROLL_MOVE:
+ 			fbcon_redraw_blit(vc, info, p, t, b - t - count,
+@@ -2076,6 +2264,14 @@ static int fbcon_switch(struct vc_data *
  	info = fbcon_info_from_console(vc->vc_num);
  	ops = info->fbcon_par;
  
@@ -311,7 +311,7 @@
  	if (logo_shown >= 0) {
  		struct vc_data *conp2 = vc_cons[logo_shown].d;
  
-@@ -2409,6 +2605,9 @@ static int fbcon_do_set_font(struct vc_d
+@@ -2406,6 +2602,9 @@ static int fbcon_do_set_font(struct vc_d
  	int resize;
  	char *old_data = NULL;
  
@@ -321,7 +321,7 @@
  	resize = (w != vc->vc_font.width) || (h != vc->vc_font.height);
  	if (p->userfont)
  		old_data = vc->vc_font.data;
-@@ -2431,6 +2630,8 @@ static int fbcon_do_set_font(struct vc_d
+@@ -2428,6 +2627,8 @@ static int fbcon_do_set_font(struct vc_d
  		cols /= w;
  		rows /= h;
  		vc_resize(vc, cols, rows);
@@ -330,7 +330,7 @@
  	} else if (con_is_visible(vc)
  		   && vc->vc_mode == KD_TEXT) {
  		fbcon_clear_margins(vc, 0);
-@@ -2585,7 +2786,19 @@ static void fbcon_set_palette(struct vc_
+@@ -2582,7 +2783,19 @@ static void fbcon_set_palette(struct vc_
  
  static u16 *fbcon_screen_pos(const struct vc_data *vc, int offset)
  {
@@ -351,7 +351,7 @@
  }
  
  static unsigned long fbcon_getxy(struct vc_data *vc, unsigned long pos,
-@@ -2599,7 +2812,22 @@ static unsigned long fbcon_getxy(struct
+@@ -2596,7 +2809,22 @@ static unsigned long fbcon_getxy(struct
  
  		x = offset % vc->vc_cols;
  		y = offset / vc->vc_cols;
@@ -374,7 +374,7 @@
  	} else {
  		/* Should not happen */
  		x = y = 0;
-@@ -2627,11 +2855,106 @@ static void fbcon_invert_region(struct v
+@@ -2624,11 +2852,106 @@ static void fbcon_invert_region(struct v
  			a = ((a) & 0x88ff) | (((a) & 0x7000) >> 4) |
  			    (((a) & 0x0700) << 4);
  		scr_writew(a, p++);
@@ -481,7 +481,7 @@
  	return 0;
  }
  
-@@ -2695,6 +3018,8 @@ static void fbcon_modechanged(struct fb_
+@@ -2692,6 +3015,8 @@ static void fbcon_modechanged(struct fb_
  
  		fbcon_set_palette(vc, color_table);
  		update_screen(vc);
@@ -490,7 +490,7 @@
  	}
  }
  
-@@ -3157,6 +3482,7 @@ static const struct consw fb_con = {
+@@ -3154,6 +3479,7 @@ static const struct consw fb_con = {
  	.con_font_get 		= fbcon_get_font,
  	.con_font_default	= fbcon_set_def_font,
  	.con_set_palette 	= fbcon_set_palette,
