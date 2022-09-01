@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.21.0
+pkgver=0.21.1
 pkgrel=1
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -11,7 +11,7 @@ depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'seatd' 'mutter'
          'libvulkan.so')
 makedepends=('git' 'meson' 'ninja' 'glslang' 'vulkan-headers')
 checkdepends=('xorg-server-xvfb')
-_commit="1a58a2363b686241647138a8822beac4f761f3fb"
+_commit="0bcb87984fc08f7417baf9aa25a1707126620a6e"
 _commit_wlroots="06f3b6e91e17b8bdc76f3f40216c62e8ba5fe6d6"
 source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}"
         "wlroots-phoc::git+https://source.puri.sm/Librem5/wlroots.git#commit=${_commit_wlroots}")
