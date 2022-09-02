@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.20.0
-pkgrel=2
+pkgver=0.21.0
+pkgrel=1
 pkgdesc="The Librem5 Shell"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -9,7 +9,7 @@ license=('GPL')
 depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell' 'upower' 'libpulse'
          'gcr' 'feedbackd' 'libnm' 'phoc' 'callaudiod')
 makedepends=('meson' 'ninja' 'git')
-_commit="5fe9aea775b9198eed25fb3b3bcd9827ae40a785"  # tags/v0.20.0
+_commit="7993b28d1cf58356fc9f0246bdf8e66fe91071ed"  # tags/v0.21.0
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         'fix-animations-crash.patch'
         'pam_phosh'
