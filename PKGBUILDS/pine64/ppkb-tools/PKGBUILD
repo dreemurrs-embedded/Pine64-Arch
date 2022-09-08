@@ -1,13 +1,13 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=ppkb-tools
-pkgver=1.0+30+g9116325
+pkgver=1.2
 pkgrel=1
 pkgdesc="Utilities for FOSS PinePhone keyboard firmware"
 url="https://megous.com/git/pinephone-keyboard"
 arch=(x86_64 armv7h aarch64)
 license=('GPL')
 makedepends=('git' 'php')
-_commit="91163251e6a5857c348912a4823c77fc29965328"
+_commit="693cf5ae861182e814b86d8b24df1b77b2512cd0"
 source=("pinephone-keyboard::git+https://megous.com/git/pinephone-keyboard#commit=$_commit"
         'ppkb-i2c-inputd.service'
         'ppkb-usb-inputd.service')
