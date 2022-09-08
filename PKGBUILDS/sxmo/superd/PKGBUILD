@@ -2,7 +2,7 @@
 # Contributor: Clayton Craft <clayton@craftyguy.net>
 
 pkgname=superd
-pkgver=0.3.1
+pkgver=0.6.0
 pkgrel=1
 pkgdesc='lightweight user service supervising daemon'
 url='https://sr.ht/~craftyguy/superd'
@@ -26,4 +26,4 @@ package() {
 	cd "$pkgname-$pkgver"
 	make PREFIX='/usr' DESTDIR="$pkgdir" install
 }
-sha256sums=('1b3032a7b7bf8f75794e39d673fdc8adb7aecc665382bd5c30bb17f7dd5a8275')
+sha512sums=('53e04ea142c6657bba133744f514f067a772b0a0e3ea7abd55f75050a7684d8a83442fa083799e38399f78829aec844b49d0ba024f77d55d982d27b42d39963a')
