@@ -1,6 +1,6 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=svkbd
-pkgver=0.4
+pkgver=0.4.1
 pkgrel=1
 pkgdesc="Simple virtual keyboard for X, ships with an international mobile-optimised layout"
 url="https://tools.suckless.org/x/svkbd/"
@@ -19,4 +19,4 @@ package() {
   make PREFIX=/usr DESTDIR="$pkgdir" install
 }
 
-sha512sums=('93b92b92513a0844d6e14c1ddd8cf350ba8d1eddc60cd45e2f1bed0b8144323c193862f831c300f68b2707400ded3597f54e2348800e1bc553f45e64553d20f2')
+sha512sums=('3cbb4fe9d96457282f92e2d0fd12764a0b87c137de6bdc38eb800a80732b84504db216dd1fbfdd090456f6739a661dc5e35aed2fcc983960867d27be9b242887')
