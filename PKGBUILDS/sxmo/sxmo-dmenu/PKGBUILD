@@ -1,6 +1,6 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=sxmo-dmenu
-pkgver=5.0.11
+pkgver=5.0.14
 pkgrel=1
 pkgdesc="Dmenu fork for Sxmo UI; supports highlight, centering, volume-key navigation and more"
 url="https://git.sr.ht/~mil/sxmo-dmenu"
@@ -25,4 +25,4 @@ package() {
   make DESTDIR=$pkgdir PREFIX=/usr install
 }
 
-sha512sums=('a8b6d8abca885c34ad142b3c40509aa56cb450dddb62785a1f7066136686c56de9ba0890e80c11441c30245dff06206ae9c799bef3786f8bb549abafe30d7a54')
+sha512sums=('fbdcb275583431ff8cdc50e5b53db589a926f87d69bb7a71092e9c3d143954c677c1291e739e9c251cd613bb57399ff171a8636d88d5528574611e134305e57b')
