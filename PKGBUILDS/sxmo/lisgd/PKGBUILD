@@ -1,6 +1,6 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=lisgd
-pkgver=0.3.2
+pkgver=0.3.5
 pkgrel=1
 pkgdesc="simple libinput gesture daemon"
 url="http://git.sr.ht/~mil/lisgd"
@@ -19,4 +19,4 @@ package() {
   make PREFIX=/usr DESTDIR="$pkgdir" install
 }
 
-sha512sums=('8ac63ab31d86b6e88deee75481683baaf882ebb0ddb4098bd7a2a8da1816673a58e1e8dda7f84b411a5740f4b085fca516c699dc6fcd7e2bd11e200c39631021')
+sha512sums=('4ee89d754e42523f5682efb59eda905d951a6b4dda086f24e58f93acd702dc3f7ffbbc7535c04af16c74dea024b5ab93f98cb5978c2c764bcc405e8fe32e27cc')
