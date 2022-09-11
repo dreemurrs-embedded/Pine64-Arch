@@ -1,24 +1,27 @@
-#!/bin/bash
+#!/bin/env sh
 
-for ((i = 1; i < ($#+1); i++)); do
-    case "${!i}" in
-	--arch)
-		((++i))
-		PKG_ARCH="${!i}"
-        ;;
-	--repo)
-		((++i))
-		PKG_REPO="${!i}"
-        ;;
-	--pkg)
-		((++i))
-		PKG_NAME="${!i}"
-        ;;
-    esac
+i=1
+while [ $i -lt $(($#+1)) ];
+do
+        i=$((i+1))
+        case "$(eval "echo \"\$$i\"")" in
+        "--arch")
+                i=$((i+1))
+                PKG_ARCH="$(eval "echo \"\$$i\"")"
+                ;;
+        "--repo")
+                i=$((i+1))
+                PKG_REPO="$(eval "echo \"\$$i\"")"
+                ;;
+        "--pkg")
+                i=$((i+1))
+                PKG_NAME="$(eval "echo \"\$$i\"")"
+        esac
 done
+if [ "$PKG_REPO" ] && [ "$PKG_ARCH" ] && [ "$PKG_NAME" ];
 
-if [[ $PKG_REPO && $PKG_ARCH && $PKG_NAME ]]; then
-	guzuta build --arch $PKG_ARCH --chroot-dir ./chroot-$PKG_ARCH --repo-name $PKG_REPO --repo-dir ./repo/$PKG_REPO/$PKG_ARCH --srcdest ./sources --logdest ./logs PKGBUILDS/$PKG_REPO/$PKG_NAME
+then
+        guzuta build "--arch $PKG_ARCH --chroot-dir ./chroot-$PKG_ARCH --repo-name $PKG_REPO --repo-dir ./repo/$PKG_REPO/$PKG_ARCH --srcdest ./sources --logdest ./logs PKGBUILDS/$PKG_REPO/$PKG_NAME"
 else
-	echo "Invalid Command!"
+        printf "Invalid Command!\n"
 fi
