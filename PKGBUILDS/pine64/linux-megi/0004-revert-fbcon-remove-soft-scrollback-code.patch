@@ -321,10 +321,10 @@
  	resize = (w != vc->vc_font.width) || (h != vc->vc_font.height);
  	if (p->userfont)
  		old_data = vc->vc_font.data;
-@@ -2428,6 +2627,8 @@ static int fbcon_do_set_font(struct vc_d
- 		cols /= w;
- 		rows /= h;
- 		vc_resize(vc, cols, rows);
+@@ -2436,6 +2635,8 @@ static int fbcon_do_set_font(struct vc_d
+ 		ret = vc_resize(vc, cols, rows);
+ 		if (ret)
+ 			goto err_out;
 +		if (con_is_visible(vc) && softback_buf)
 +			fbcon_update_softback(vc);
  	} else if (con_is_visible(vc)
