@@ -7,7 +7,6 @@ run_hook() {
     export SDL_VIDEODRIVER=kmsdrm
 
     modprobe -a -q dm-crypt >/dev/null 2>&1
-    [ "${quiet}" = "y" ] && CSQUIET=">/dev/null"
 
     if [ -n "${cryptdevice}" ]; then
         DEPRECATED_CRYPT=0
@@ -58,7 +57,7 @@ EOF
         fi
     fi
 
-    IFS=,
+    OLDIFS="$IFS"; IFS=,
     if [ -n "${osk_kms}" ]; then
       for i in $osk_kms
       do
@@ -66,4 +65,6 @@ EOF
         rmmod -f "$i"
       done
     fi
+    IFS="$OLDIFS"
+    unset OLDIFS
 }
