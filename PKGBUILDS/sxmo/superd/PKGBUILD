@@ -2,7 +2,7 @@
 # Contributor: Clayton Craft <clayton@craftyguy.net>
 
 pkgname=superd
-pkgver=0.3.1
+pkgver=0.7
 pkgrel=1
 pkgdesc='lightweight user service supervising daemon'
 url='https://sr.ht/~craftyguy/superd'
@@ -12,9 +12,8 @@ makedepends=('go' 'scdoc')
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~craftyguy/superd/archive/$pkgver.tar.gz")
 
 build() {
-	cd "$pkgname-$pkgver"
 	unset LDFLAGS # passed as go linker flags and invalid
-	make PREFIX='/usr' VERSION='$pkgver'
+	make -C "$pkgname-$pkgver" PREFIX="/usr" VERSION="$pkgver"
 }
 
 check() {
@@ -23,7 +22,6 @@ check() {
 }
 
 package() {
-	cd "$pkgname-$pkgver"
-	make PREFIX='/usr' DESTDIR="$pkgdir" install
+	make -C "$pkgname-$pkgver" PREFIX='/usr' DESTDIR="$pkgdir" install
 }
-sha256sums=('1b3032a7b7bf8f75794e39d673fdc8adb7aecc665382bd5c30bb17f7dd5a8275')
+sha256sums=('7563647dd5303752237e1b8453c770dd83c908a239da73f48b11e2151109586b')
