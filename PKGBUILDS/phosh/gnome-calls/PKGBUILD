@@ -1,21 +1,26 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=gnome-calls
-pkgver=42.0
+pkgver=43.0
 pkgrel=1
 pkgdesc="Make and receive PSTN phone calls"
 url="https://gitlab.gnome.org/GNOME/calls"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
-         'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager' 'callaudiod' 'sofia-sip'
+depends=('cmocka' 'evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
+         'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager' 'callaudiod' 'libsecret' 'sofia-sip'
          'wayland-protocols')
-makedepends=('meson' 'ninja' 'vala' 'git')
+makedepends=('appstream' 'python-docutils' 'meson' 'ninja' 'vala' 'git')
+provides=("calls")
 replaces=('calls')
-_commit="818757d918b37a50727ac10976d9891070e70f22" # tags/42.0
-source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
+_commit="fcee1a3b6a03383974d67ca67701eba246a646ae" # tags/43.0
+source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit"
+        "git+https://gitlab.gnome.org/World/Phosh/libcall-ui.git")
 
 prepare() {
   cd calls
+  git submodule init
+  git submodule set-url subprojects/libcall-ui "$srcdir/libcall-ui"
+  git submodule update
 
   local src
   for src in "${source[@]}"; do
@@ -36,4 +41,5 @@ package() {
   DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('SKIP')
+md5sums=('SKIP'
+         'SKIP')
