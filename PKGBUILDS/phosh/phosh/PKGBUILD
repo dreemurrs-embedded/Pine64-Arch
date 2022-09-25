@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
 pkgver=0.21.0
-pkgrel=1
+pkgrel=2
 pkgdesc="A Wayland shell for GNOME on mobile devices."
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -10,6 +10,7 @@ depends=('gtk3' 'libhandy>=1.1.90' 'gnome-desktop' 'gnome-session' 'gnome-shell'
          'gcr' 'feedbackd' 'libnm' 'phoc' 'callaudiod' 'evolution-data-server')
 makedepends=('meson' 'ninja' 'git')
 _commit="4122630266abfd6623e169330da6e7d6bc01be7f"  # tags/v0.21.0
+_libcall_ui_commit="619dd91561ad470db3d0e0e263ebc35d787afd2e" # Update libcall-ui to always reset audio profile
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         'pam_phosh'
         'sm.puri.OSK0.desktop'
@@ -23,6 +24,10 @@ pkgver() {
 prepare() {
     cd phosh
     git submodule update --init
+
+    # change libcall-ui commit
+    cd subprojects/libcall-ui
+    git checkout 619dd91561ad470db3d0e0e263ebc35d787afd2e
 }
 
 build() {
