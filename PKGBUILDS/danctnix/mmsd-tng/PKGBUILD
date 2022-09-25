@@ -2,7 +2,7 @@
 # Contributer: Caleb Fontenot <foley2431 at gmail dot com>
 
 pkgname=mmsd-tng
-pkgver=1.11
+pkgver=1.12.1
 pkgrel=1
 pkgdesc="Multimedia Messaging Service Daemon - The Next Generation"
 url="https://gitlab.com/kop316/mmsd"
@@ -15,7 +15,7 @@ makedepends=("meson")
 install=mmsd-tng.install
 source=("$pkgname-$pkgver.tar.bz2::https://gitlab.com/kop316/mmsd/-/archive/$pkgver/mmsd-$pkgver.tar.bz2"
         "mmsd-tng.service")
-sha512sums=('12986041c4706b2f1a3a587cdbe32be9a8f0884b51d85c95111a2855d747c030446f850d3aac4b7c56289d7267bbe124bbc2cbbecf2d6ad5baaa1dd229dfec0b'
+sha512sums=('26dd4fe56a095e70f0469efa7441a4a920218c7a112c75774b6145fd03b774c9eab5191660436fb06798a39de63cb52c75e43e65deac2349bff0d1866aa1fa94'
             'df8ea75e7e1e66a65c96d7ba90fc97c09273af39df203000cb3b6f8795be9fc3991976ea4ab5e4a8b08de5238ce4eb32b869389e4e8a78d1d62343433308fb34')
 
 build() {
