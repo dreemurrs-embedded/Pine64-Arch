@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=gnome-calls
 pkgver=42.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Make and receive PSTN phone calls"
 url="https://gitlab.gnome.org/GNOME/calls"
 license=('GPL')
@@ -12,10 +12,17 @@ depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
 makedepends=('meson' 'ninja' 'vala' 'git')
 replaces=('calls')
 _commit="818757d918b37a50727ac10976d9891070e70f22" # tags/42.0
+_libcall_ui_commit="619dd91561ad470db3d0e0e263ebc35d787afd2e" # Update libcall-ui to always reset audio profile
 source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
 
 prepare() {
   cd calls
+  git submodule update --init
+
+  # change libcall-ui commit
+  cd subprojects/libcall-ui
+  git checkout 619dd91561ad470db3d0e0e263ebc35d787afd2e
+  cd ../..
 
   local src
   for src in "${source[@]}"; do
