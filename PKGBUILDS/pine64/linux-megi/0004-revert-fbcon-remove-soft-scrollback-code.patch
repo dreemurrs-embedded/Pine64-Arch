@@ -312,7 +312,7 @@
  		struct vc_data *conp2 = vc_cons[logo_shown].d;
  
 @@ -2406,6 +2602,9 @@ static int fbcon_do_set_font(struct vc_d
- 	int resize;
+ 	int resize, ret, old_userfont, old_width, old_height, old_charcount;
  	char *old_data = NULL;
  
 +	if (con_is_visible(vc) && softback_lines)
@@ -330,7 +330,7 @@
  	} else if (con_is_visible(vc)
  		   && vc->vc_mode == KD_TEXT) {
  		fbcon_clear_margins(vc, 0);
-@@ -2582,7 +2783,19 @@ static void fbcon_set_palette(struct vc_
+@@ -2605,7 +2806,19 @@ static void fbcon_set_palette(struct vc_
  
  static u16 *fbcon_screen_pos(const struct vc_data *vc, int offset)
  {
@@ -351,7 +351,7 @@
  }
  
  static unsigned long fbcon_getxy(struct vc_data *vc, unsigned long pos,
-@@ -2596,7 +2809,22 @@ static unsigned long fbcon_getxy(struct
+@@ -2619,7 +2832,22 @@ static unsigned long fbcon_getxy(struct
  
  		x = offset % vc->vc_cols;
  		y = offset / vc->vc_cols;
@@ -374,7 +374,7 @@
  	} else {
  		/* Should not happen */
  		x = y = 0;
-@@ -2624,11 +2852,106 @@ static void fbcon_invert_region(struct v
+@@ -2647,11 +2875,106 @@ static void fbcon_invert_region(struct v
  			a = ((a) & 0x88ff) | (((a) & 0x7000) >> 4) |
  			    (((a) & 0x0700) << 4);
  		scr_writew(a, p++);
@@ -481,7 +481,7 @@
  	return 0;
  }
  
-@@ -2692,6 +3015,8 @@ static void fbcon_modechanged(struct fb_
+@@ -2715,6 +3038,8 @@ static void fbcon_modechanged(struct fb_
  
  		fbcon_set_palette(vc, color_table);
  		update_screen(vc);
@@ -490,7 +490,7 @@
  	}
  }
  
-@@ -3154,6 +3479,7 @@ static const struct consw fb_con = {
+@@ -3177,6 +3502,7 @@ static const struct consw fb_con = {
  	.con_font_get 		= fbcon_get_font,
  	.con_font_default	= fbcon_set_def_font,
  	.con_set_palette 	= fbcon_set_palette,
