@@ -3,21 +3,15 @@
 
 pkgbase="f_scripts"
 pkgname=('f_audio' 'f_files' 'f_game' 'f_maps' 'f_networks' 'f_phone' 'f_rss' 'f_theme' 'f_timer' 'f_web' 'f_youtube')
-pkgver=0.4
+pkgver=0.5
 pkgrel=1
 pkgdesc="Framebufferphone prompt-driven scripts which are compatible with fbp"
 arch=('any')
 url="https://git.sr.ht/~mil/f_scripts"
 license=('GPL-3.0-or-later')
 depends=('oil')
-source=("https://git.sr.ht/~mil/f_scripts/archive/$pkgver.tar.gz"
-	"f_scripts.patch")
-sha256sums=('f2eea6a9717ef43d935a97bcf38f1699a42f833c8cce17e93c4f6fdd16634bfc'
-            'e51e861974a25cc1b7acd8821f91d0bd138422708ecc5963271b88c3e0132b80')
-
-prepare() {
-	patch --directory="f_scripts-$pkgver" --forward --strip=1 --input="${srcdir}/f_scripts.patch"
-}
+source=("https://git.sr.ht/~mil/f_scripts/archive/$pkgver.tar.gz")
+sha256sums=('5776180f9fd87bb4075c4e13a05186b97587559eaadb111daf5695119c88a64b')
 
 package_f_audio() {
 	pkgdesc="Adjust audio output devces and volume"
@@ -102,7 +96,7 @@ package_f_timer() {
 
 package_f_web() {
 	pkgdesc="Select a website and browse via w3m or netsurf"
-	depends=('linuxconsole' 'util-linux' 'bc')
+	depends=('w3m' 'netsurf-fb' 'linuxconsole' 'util-linux' 'bc')
 	provides=('f_web')
 
 	mkdir -p "$pkgdir/usr/bin"
