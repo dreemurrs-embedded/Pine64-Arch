@@ -3,11 +3,12 @@
 
 pkgname=anbox
 pkgver=0_git20211020
-pkgrel=1
+pkgrel=2
 arch=(x86_64 armv7h aarch64)
 url="http://anbox.io/"
 license=('GPL3')
-depends=('lxc' 'sdl2_image' 'protobuf' 'libsystemd' 'boost-libs')
+install="$pkgname.install"
+depends=('lxc' 'sdl2_image' 'protobuf' 'libsystemd' 'boost-libs' 'dbus' 'systemd')
 makedepends=('cmake' 'git' 'glm' 'lxc' 'sdl2_image' 'protobuf' 'properties-cpp' 'boost' 'python3' 'gtest')
 _commit="84f0268012cbe322ad858d76613f4182074510ac"
 _cpu_features_commit="b5c271c53759b2b15ff91df19bd0b32f2966e275"
