@@ -3,17 +3,17 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-settings
-pkgver=22.06
+pkgver=22.09
 pkgrel=1
 pkgdesc="Settings application for Mobile Devices running Plasma"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('accountsservice' 'plasma-framework' 'kdelibs4support' 'libkgapi' 'kdesignerplugin' 'kcmutils'
+depends=('accountsservice' 'plasma-framework' 'kdelibs4support' 'libkgapi' 'kdesignerplugin' 'kirigami2' 'kirigami-addons' 'kcmutils'
          'networkmanager-qt' 'modemmanager-qt')
 makedepends=('cmake' 'extra-cmake-modules' 'kdoctools' 'kinit')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('62c82c3aef4fd22487588fed191b749d')
+md5sums=('78badc3a91518ab7512579b0b5f2345b')
 
 prepare() {
   mkdir -p build
