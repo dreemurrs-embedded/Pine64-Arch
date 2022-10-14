@@ -3,7 +3,7 @@
 
 pkgname=plasma-mobile-settings
 pkgver=20221014
-pkgrel=1
+pkgrel=2
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
 license=('GPL')
@@ -27,7 +27,7 @@ source=('applications-blacklistrc'
     'kdewallet.salt')
 sha256sums=('e6f9737ffd2b0750defe36487a66cff27f44c751ddf6583db971bfbb04583d0a'
             '62e8771e2e068c3e6e9ca5dfc055bf73a141766611565d525236980fc0f4a415'
-            '9e655f572de7048f808afb5ff91142ca331cccc13b1d0539f0a6908e9faae409'
+            'dc625d0c9861f7e4dfb153e095cc18d30a86223c9dbcce25333f270dfa0e5466'
             'a8ba8eb604185b184e46d2bfd43df12f239295dd7bfe9e6711e0e0d238b40a3b'
             'bf14819bb36a95cbb465169ca3640d8a93f9a648881f9f52f6315a1ba40d273c'
             'fd5a89ce81197a912a9879aa5aa33daf68c8f80a4b70192fff89364ef9d18734'
