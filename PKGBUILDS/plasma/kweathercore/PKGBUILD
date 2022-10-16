@@ -2,20 +2,24 @@
 # Contributor: Gustavo Castro < gustawho [ at ] gmail [ dot ] com >
 
 pkgname=kweathercore
-pkgver=0.5
+pkgver=0.7
 pkgrel=1
 pkgdesc="Library to facilitate retrieval of weather information including forecasts and alerts"
 arch=(x86_64 i686 arm armv6h armv7h aarch64)
 url="https://invent.kde.org/libraries/kweathercore"
 license=(GPL3)
-depends=('ki18n' 'qt5-location')
+depends=('kholidays' 'ki18n' 'qt5-location')
 makedepends=('git' 'extra-cmake-modules' 'qt5-tools')
 source=("https://download.kde.org/stable/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz")
-sha256sums=('162c69f758f2e9b1c1ef2b8d0c54f3cee439b4171ef32632df410411d30d4d6f')
+sha256sums=('04dde83ae543163735776dc50edab3510247d4825432840a78fade9b237a79fd')
 
 build() {
   cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -B build -S $pkgname-$pkgver
   cmake --build build --config Release
+}
+
+check() {
+    ctest --test-dir build --output-on-failure
 }
 
 package() {
