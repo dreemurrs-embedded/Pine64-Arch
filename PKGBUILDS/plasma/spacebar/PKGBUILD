@@ -4,13 +4,15 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=spacebar
-pkgver=22.06
+pkgver=22.09
 pkgrel=1
 pkgdesc="SMS and messaging application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('kcontacts'
+depends=(
+    'c-ares'
+    'kcontacts'
     'knotifications'
     'kirigami2'
     'kpeople'
@@ -25,7 +27,7 @@ makedepends=('cmake'
     'extra-cmake-modules'
     'qcoro-qt5')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('367e63ba393cb4e9f49ae60f261fb65b')
+md5sums=('7eda987cd69e7696392b3c6f30e8187c')
 
 prepare() {
   mkdir -p build
