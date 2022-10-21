@@ -3,7 +3,7 @@
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
 pkgver=1.11.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -22,6 +22,7 @@ prepare() {
 
   patch -p1 < '../0001-Systemd-compatibility.patch'
   patch -p1 < '../0001-sxmo_hook_statusbar.sh-remove-to-fix-pango-markup.patch'
+  sed -i 's/gpio-key-power/gpio-keys/' scripts/deviceprofiles/sxmo_deviceprofile_pine64,pinephone-pro.sh
 }
 
 build() {
@@ -93,7 +94,7 @@ package_sxmo-utils() {
   chmod 750 "$pkgdir/etc/doas.d"
 
   # Fix sxmo internal version, it wasn't properly bumped upstream
-  echo "$pkgver" > "$pkgdir/usr/share/sxmo/version"
+  echo "$pkgver-$pkgrel" > "$pkgdir/usr/share/sxmo/version"
 
   # HACK: doas is built without --with-doas-confdir so install the sxmo config directly
   install -Dm640 "$pkgdir/etc/doas.d/sxmo.conf" "$pkgdir/etc/doas.conf"
