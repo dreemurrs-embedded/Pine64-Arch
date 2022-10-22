@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-megi
 _desc="Megous Kernel"
 pkgver=6.0.2
-pkgrel=2
+pkgrel=3
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -246,7 +246,7 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('96350c6ba5296abc8e2654fed68e0fde'
-         '1b28ace942999c099927e10f19a63e85'
+         'cb9f0d5ceddad51f2bf75501f0c99c2e'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
