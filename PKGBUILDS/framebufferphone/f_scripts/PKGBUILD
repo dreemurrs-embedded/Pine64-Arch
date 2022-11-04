@@ -1,21 +1,21 @@
-# Maintainer: Bobby Hamblin <hamblingreen at hotmail dot com>
-# Contributor: Miles Alan <m@milesalan.com>
+# Maintainer: Miles Alan <m@milesalan.com>
+# Contributor: Bobby Hamblin <hamblingreen@hotmail.com>
 
-pkgbase="f_scripts"
+pkgbase=f_scripts
 pkgname=('f_audio' 'f_files' 'f_game' 'f_maps' 'f_networks' 'f_phone' 'f_rss' 'f_theme' 'f_timer' 'f_web' 'f_youtube')
 pkgver=0.5
 pkgrel=1
 pkgdesc="Framebufferphone prompt-driven scripts which are compatible with fbp"
+url="http://git.sr.ht/~mil/f_scripts"
 arch=('any')
-url="https://git.sr.ht/~mil/f_scripts"
 license=('GPL-3.0-or-later')
 depends=('oil')
 source=("https://git.sr.ht/~mil/f_scripts/archive/$pkgver.tar.gz")
-sha256sums=('5776180f9fd87bb4075c4e13a05186b97587559eaadb111daf5695119c88a64b')
+sha256sums=('SKIP')
 
 package_f_audio() {
-	pkgdesc="Adjust audio output devces and volume"
-	depends=('alsa-utils')
+	pkgdesc="Adjust audio output devices and volume"
+	depends=(alsa-utils)
 	provides=('f_audio')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -24,7 +24,7 @@ package_f_audio() {
 
 package_f_files() {
 	pkgdesc="Browse files on your filesystem"
-	depends=('vim' 'mpv' 'fbida')
+	depends=(vim mpv fbida)
 	provides=('f_files')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -33,7 +33,7 @@ package_f_files() {
 
 package_f_game() {
 	pkgdesc="Play classic console games"
-	depends=('moon-buggy')
+	depends=(moon-buggy)
 	provides=('f_game')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -41,8 +41,8 @@ package_f_game() {
 }
 
 package_f_maps() {
-	pkgdesc="Browse OSM maps using mepo (via SDL directfb"
-	depends=('mepo' 'tslib' 'directfb' 'mesa' 'kbd' 'vis')
+	pkgdesc="Browse OSM maps using mepo (via SDL directfb)."
+	depends=(mepo tslib directfb mesa kbd vis)
 	provides=('f_maps')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -51,7 +51,7 @@ package_f_maps() {
 
 package_f_networks() {
 	pkgdesc="Allows managing gsm/wpa connections via underlying nmcli calls"
-	depends=('networkmanager' 'ntp')
+	depends=(networkmanager ntp)
 	provides=('f_networks')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -60,7 +60,7 @@ package_f_networks() {
 
 package_f_phone() {
 	pkgdesc="Manages phone calls / text messages using modemmanager"
-	depends=('polkit' 'modemmanager' 'linuxconsole' 'pinephone-call-audio' 'pn')
+	depends=(polkit modemmanager linuxconsole pinephone-call-audio pn)
 	provides=('f_phone')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -69,7 +69,7 @@ package_f_phone() {
 
 package_f_rss() {
 	pkgdesc="Fetches data from RSS via sfeed and allows you to view via sfeed_curses"
-	depends=('sfeed' 'w3m')
+	depends=(sfeed w3m)
 	provides=('f_rss')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -78,7 +78,7 @@ package_f_rss() {
 
 package_f_theme() {
 	pkgdesc="Change the framebuffer theme (font & colors)"
-	depends=('terminus-font' 'util-linux')
+	depends=(terminus-font util-linux)
 	provides=('f_theme')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -87,7 +87,7 @@ package_f_theme() {
 
 package_f_timer() {
 	pkgdesc="Set a countdown timer to be alerted"
-	depends=('linuxconsole' 'util-linux' 'bc')
+	depends=(linuxconsole util-linux bc)
 	provides=('f_timer')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -96,7 +96,7 @@ package_f_timer() {
 
 package_f_web() {
 	pkgdesc="Select a website and browse via w3m or netsurf"
-	depends=('w3m' 'netsurf-fb' 'linuxconsole' 'util-linux' 'bc')
+	depends=(w3m netsurf-fb util-linux bc)
 	provides=('f_web')
 
 	mkdir -p "$pkgdir/usr/bin"
@@ -104,10 +104,11 @@ package_f_web() {
 }
 
 package_f_youtube() {
-	pkgdesc="Listen or view youtube video via mpv"
-	depends=('codemadness-frontends' 'mpv' 'youtube-dl')
+	pkgdesc="Listen or view youtube videos via mpv"
+	depends=(codemadness-frontends mpv youtube-dl)
 	provides=('f_youtube')
 
 	mkdir -p "$pkgdir/usr/bin"
 	install "$srcdir/f_scripts-$pkgver/scripts/f_youtube" "$pkgdir/usr/bin/f_youtube"
 }
+
