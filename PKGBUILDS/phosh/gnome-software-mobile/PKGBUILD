@@ -5,20 +5,22 @@
 
 pkgname=gnome-software-mobile
 _pkgname=gnome-software
-pkgver=42.2
+pkgver=43.1
 pkgrel=1
 pkgdesc="GNOME Software Tools (w/ Purism patches)"
-url="https://gitlab.gnome.org/GNOME/gnome-software"
+url="https://wiki.gnome.org/Apps/Software/"
 arch=(x86_64 armv7h aarch64)
 license=(GPL2)
 makedepends=(appstream gsettings-desktop-schemas libpackagekit-glib flatpak
              fwupd docbook-xsl git gobject-introspection gtk-doc meson
-             valgrind gnome-online-accounts libxmlb malcontent gtk4 libadwaita
-             libsysprof-capture)
-_commit=09cafc9ef92587b3d3326d3fa751328c0a28dcf9  # tags/42.2^0
+             gnome-online-accounts libxmlb malcontent gtk4 libadwaita
+             libsysprof-capture libglib-testing libsoup3)
+_commit=e2bbfd3ad749755e15e1463d0e1cff6385ed52a7  # tags/43.1^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-software.git#commit=$_commit"
+        "git+https://gitlab.gnome.org/mwleeds/gnome-pwa-list.git"
         '0001-Revert-Launch-software-properties-gtk-in-place-of-the-sources-dialog.patch')
 sha256sums=('SKIP'
+            'SKIP'
             'd454459d5b749f06da05a5a05cc7dad4097cc2c68297e91ead3126f05b007036')
 
 pkgver() {
@@ -28,6 +30,10 @@ pkgver() {
 
 prepare() {
   cd $_pkgname
+
+  git submodule init
+  git submodule set-url subprojects/gnome-pwa-list "$srcdir/gnome-pwa-list"
+  git -c protocol.file.allow=always submodule update
 
   local src
   for src in "${source[@]}"; do
@@ -40,11 +46,7 @@ prepare() {
 }
 
 build() {
-  # Ensure static library is non-LTO compatible
-  CFLAGS+=" -ffat-lto-objects"
-
-  # Building with soup3 requires flatpak to be built with soup3
-  arch-meson $_pkgname build -D soup2=true
+  arch-meson $_pkgname build
   meson compile -C build
 }
 
@@ -57,7 +59,7 @@ package() {
   provides=(gnome-software gnome-software-packagekit-plugin)
   conflicts=(gnome-software gnome-software-packagekit-plugin)
   depends=(libxmlb gsettings-desktop-schemas libpackagekit-glib gtk4 libadwaita
-           gnome-online-accounts appstream libsysprof-capture
+           gnome-online-accounts appstream libsysprof-capture libsoup3
            archlinux-appstream-data packagekit)
   optdepends=('flatpak: Flatpak support plugin'
               'fwupd: fwupd support plugin'
