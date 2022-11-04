@@ -1,5 +1,4 @@
-# Maintainer: Bobby Hamblin <hamblingreen at hotmail dot com>
-# Contributor: Sebastian J. Bronner <waschtl@sbronner.com>
+# Maintainer: Sebastian J. Bronner <waschtl@sbronner.com>
 
 pkgname=libnsfb
 pkgver=0.2.2

@@ -1,6 +1,6 @@
-diff --unified --recursive --text moon-buggy-1.0.51.old/config.guess moon-buggy-1.0.51.new/config.guess
---- moon-buggy-1.0.51.old/config.guess	2006-02-25 15:29:12.000000000 +0000
-+++ moon-buggy-1.0.51.new/config.guess	2022-06-10 21:02:01.012336946 +0000
+diff --unified --text --recursive moon-buggy-1.0.51/config.guess moon-buggy-1.0.51.new/config.guess
+--- moon-buggy-1.0.51/config.guess	2006-02-25 07:29:12.000000000 -0800
++++ moon-buggy-1.0.51.new/config.guess	2022-06-20 17:39:11.397087519 -0700
 @@ -1,13 +1,14 @@
  #! /bin/sh
  # Attempt to guess a canonical system name.
@@ -2479,9 +2479,9 @@ diff --unified --recursive --text moon-buggy-1.0.51.old/config.guess moon-buggy-
  # time-stamp-start: "timestamp='"
  # time-stamp-format: "%:y-%02m-%02d"
  # time-stamp-end: "'"
-diff --unified --recursive --text moon-buggy-1.0.51.old/config.sub moon-buggy-1.0.51.new/config.sub
---- moon-buggy-1.0.51.old/config.sub	2006-02-25 15:29:12.000000000 +0000
-+++ moon-buggy-1.0.51.new/config.sub	2022-06-10 21:02:01.016336432 +0000
+diff --unified --text --recursive moon-buggy-1.0.51/config.sub moon-buggy-1.0.51.new/config.sub
+--- moon-buggy-1.0.51/config.sub	2006-02-25 07:29:12.000000000 -0800
++++ moon-buggy-1.0.51.new/config.sub	2022-06-20 17:39:53.103515408 -0700
 @@ -1,43 +1,42 @@
  #! /bin/sh
  # Configuration validation subroutine script.
