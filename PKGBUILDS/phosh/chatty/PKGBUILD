@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=chatty
 pkgver=0.6.7
-pkgrel=1
+pkgrel=2
 pkgdesc="Messaging client"
 url="https://source.puri.sm/Librem5/chatty"
 license=('GPL')
@@ -17,7 +17,10 @@ optdepends=('mmsd-tng: MMS support'
             'purple-telegram: Telegram chat protocol support')
 _commit="e8a1cbf339aeee55a3da2864c8880603fa940060" # tags/v0.6.7
 source=(git+https://source.puri.sm/Librem5/chatty.git#commit=${_commit}
-        '1099.patch')
+        '1099.patch'
+        'utils-update-for-GNOME-Desktop-43-thumbnail-API-changes.patch'
+        'Port-to-libsoup-3.0.patch'
+        'Force-HTTP1-libsoup3.patch')
 
 pkgver() {
     cd $pkgname
@@ -31,6 +34,11 @@ prepare() {
     # https://source.puri.sm/Librem5/chatty/-/merge_requests/1099
     # tests fail to run without this patch
     patch -p1 < ../1099.patch
+
+    # these are patches from mobian for 0.6.7 to work with GNOME 43.
+    patch -p1 < ../utils-update-for-GNOME-Desktop-43-thumbnail-API-changes.patch
+    patch -p1 < ../Port-to-libsoup-3.0.patch
+    patch -p1 < ../Force-HTTP1-libsoup3.patch
 }
 
 build() {
@@ -46,4 +54,7 @@ package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
 md5sums=('SKIP'
-         '6daff1aa3b8821583251b7b646ab07e6')
+         '6daff1aa3b8821583251b7b646ab07e6'
+         '9311e8cb739927006ca3a63398ec64e5'
+         '4915864a9593c2eb71f00646f32b3619'
+         '09d3d39cb2e0890a032b97d7efe8016e')

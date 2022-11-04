@@ -1,0 +1,27 @@
+From: https://source.puri.sm/mohammed.sadiq/libcmatrix/-/commit/c412209aa85ecb73c70114d0c68375bacdc6c5c1
+From: Evangelos Ribeiro Tzaras <devrtz@fortysixandtwo.eu>
+Date: Fri, 16 Sep 2022 18:20:24 +0200
+Subject: Force HTTP1
+
+This avoid some crashing in matrix codepaths
+
+---
+ src/chatty-application.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/chatty-application.c b/src/chatty-application.c
+index b8273dd..5d79e3c 100644
+--- a/src/chatty-application.c
++++ b/src/chatty-application.c
+@@ -328,6 +328,11 @@ chatty_application_startup (GApplication *application)
+ 
+   g_info ("%s %s, git version: %s", PACKAGE_NAME, PACKAGE_VERSION, GIT_VERSION);
+ 
++  /* Force soup to use HTTP1 as there are some crashes,
++   * from https://source.puri.sm/mohammed.sadiq/libcmatrix/-/commit/c412209aa85ecb73c70114d0c68375bacdc6c5c1
++   */
++  g_setenv ("SOUP_FORCE_HTTP1", "1", FALSE);
++
+   hdy_init ();
+ 
+   g_set_application_name (_("Chats"));
