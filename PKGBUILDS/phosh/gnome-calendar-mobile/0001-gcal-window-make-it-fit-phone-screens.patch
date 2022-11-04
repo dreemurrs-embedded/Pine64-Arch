@@ -1,0 +1,29 @@
+From: Arnaud Ferraris <aferraris@debian.org>
+Date: Sun, 11 Sep 2022 16:00:43 +0200
+Subject: [PATCH] gcal-window: make it fit phone screens
+
+---
+ src/gui/gcal-window.ui | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/gui/gcal-window.ui b/src/gui/gcal-window.ui
+index 0ef0400..5ca3b29 100644
+--- a/src/gui/gcal-window.ui
++++ b/src/gui/gcal-window.ui
+@@ -192,7 +192,7 @@
+                     <child type="title">
+                       <object class="AdwViewSwitcher" id="views_switcher">
+                         <property name="stack">views_stack</property>
+-                        <property name="policy">wide</property>
++                        <property name="policy">narrow</property>
+                       </object>
+                     </child>
+                     <child type="end">
+@@ -208,6 +208,7 @@
+                     <child>
+                       <object class="AdwViewStack" id="views_stack">
+                         <property name="hexpand">True</property>
++                        <property name="hhomogeneous">False</property>
+                         <property name="vexpand">True</property>
+                         <signal name="notify::visible-child" handler="view_changed" object="GcalWindow" swapped="no"/>
+                         <style>
