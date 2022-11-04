@@ -1,7 +1,7 @@
 # Maintainer: Aren Moynihan <aren@peacevolution.org>
 pkgname=vvmplayer
 pkgver=1.5
-pkgrel=1
+pkgrel=2
 pkgdesc="VVM Player is a front end GUI to display, play, and delete visual voicemails"
 url="https://gitlab.com/kop316/vvmplayer"
 arch=('x86_64' 'aarch64')
