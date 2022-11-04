@@ -4,7 +4,7 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=42.2
+pkgver=43.1
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
@@ -25,42 +25,38 @@ optdepends=('system-config-printer: Printer settings'
             'power-profiles-daemon: Power profiles support')
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=0bbcc3b8b30583908be7ec129b63bb40d8697b7b  # tags/42.2^0
+_commit=cdcdee471b7d452dd5449565af3b36fb95155e99  # tags/43.1^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
+        'pixmaps-dir.diff'
         # purism
-        0001-avatar-chooser-Adapt-to-work-on-librem5.patch
-        0002-datetime-Fix-timezone-selection-map.patch
-        0003-display-Request-a-smaller-size-for-arrangment-widget.patch
-        0005-power-show-brightness-slider-in-a-separate-row.patch
-        0006-sound-fix-test-dialog-on-small-screen.patch
-        Add-patches-to-check-if-phone.patch
-        network-connection-editor-Allow-dialog-to-resize.patch
-        0002-UserAccount-fix-window-resizing-issue.patch
-        # mobian
-        0004-power-add-more-suspend-timing-options.patch
-        resize-connection-editor.patch
-        # upstream
-        0001-common-Wrap-CcPermissionInfobar-labels-to-fit-in-nar.patch
-        0001-display-Wrap-Night-Light-GtkInfoBar-label-to-fit-in-.patch
-        0001-printers-Wrap-job-dialog-GtkInfoBar-label-to-fit-in-.patch
-        0001-removable-media-Wrap-GtkCheckButton-label-to-fit-nar.patch)
+        '0001-avatar-chooser-Adapt-to-work-on-librem5.patch'
+        '0002-datetime-Fix-timezone-selection-map.patch'
+        '0003-display-Request-a-smaller-size-for-arrangment-widget.patch'
+        '0005-power-show-brightness-slider-in-a-separate-row.patch'
+        '0006-sound-fix-test-dialog-on-small-screen.patch'
+        'Add-patches-to-check-if-phone.patch'
+        'network-connection-editor-Allow-dialog-to-resize.patch'
+        '0002-UserAccount-fix-window-resizing-issue.patch'
+        # Mobian patches
+        '0004-power-add-more-suspend-timing-options.patch'
+        'resize-connection-editor.patch'
+        # Patches from upstream MRs
+        '0001-removable-media-Wrap-GtkCheckButton-label-to-fit-nar.patch')
 sha256sums=('SKIP'
             'SKIP'
-            '1170038f625f00ac2443cd593be0da9adbb0a2a0977dc775ba81a19b31d6444d'
-            'c4571ada3ed0d37aca5072b87605b854f501c7f50b81530018ad6394ce9285f1'
-            '75cef56c6d81b702c9d0bfcc6c47c041e19d2dbf47f5d25129771e41eaedfe53'
-            'c7774bab64278759f0397996b04788bb5e3ad775c830c2efbd68b2a29f7cad04'
-            '3d22e83c95f59cab92320d412918639f4c4fc8830832c8becbfa381dbb34c9aa'
-            '30d9a86b2c3f0a3c41de57c0aed311023a70b3bc89be7547133ac646c20abf73'
-            '20a7b6df2932ef3ab4bfb2073d306fb04693fb81fc91f8ec98e4d565d6d78011'
-            '8708c8ba1df9b640f61d49ce28a3ea9610eba1ab290be5bf6b1136176db4a7ec'
-            '8fa599ef61a759dcebbb86db1b4c079532db1749c913b32a170bdeea28c43865'
-            '5c5110daef890b354845497522450f396c246053fab5bd8c1d80708f400b8fcb'
-            '36fbef62590ecaeffa56de996703acf6a58c4d47d2c97518db238852555ef393'
-            'c6096dc4d6a694ec66785bf96202bce88309d7e1cae7ef087c1ee55d4a1e7156'
-            '3a706ee02dbf5ec51cde8260b0d4dd6e51d0e0f3f34ff2434999e3a6ec19d9dc'
-            '9b0e092f5af3190c348eb5d72594f9345b7320d19e38b9c6e5f4c4f10ae67e27')
+            'd3d97995f9e4d5bed2e81b196c1e086777fc33dd6b6f6b08bcc931944569ea4a'
+            '062e53654e8662ed53743b4c652b7b41c5c2993a713337626c832d0af3eda015'
+            'a931eab101ac0e59b63df5bf21a797e05fec74399fdfe0ebb782e54bb3973a0b'
+            'e02d1f097a29cf4963a4922aa3621344dc9fd68744e63fd17648356cde9c1936'
+            'b02208d06a411e0e555ffa24613a654efebceeba48ae4d149e44dd1ea7fc77fc'
+            'f7e874201febbdf4831f6ed65870167ba13da3fa6bb9eb11b2e2daac1b7b91c3'
+            '09e36b0aa2c40d6b6f5be11fd9617223d5b142ff8b50db6fce0eeebc63007327'
+            '5eeff09fb4bed46f959961ff8114269c0d0ac7dc823b83c870f68299420e5a87'
+            '3b8e89665d5baa42fdc19921f1c299ddb012605669ac577c6e27a909a9eb3295'
+            '3fedcc618dad7b6adc3955477a3bba95079da66a20a5964d84cc38b6ebb9cdd7'
+            '42fd28f93d73950f5274688e70b0a37e6fbc3b2b1848d6156ca4ea5bf2f3811e'
+            '4542cff2d86a234395e0aae485fa045c3fd0f904d406a29b3fb50e78dfd639ee')
 
 pkgver() {
   cd ${_pkgname}
@@ -71,11 +67,11 @@ prepare() {
   cd ${_pkgname}
 
   # Install bare logos into pixmaps, not icons
-  sed -i "/install_dir/s/'icons'/'pixmaps'/" panels/info-overview/meson.build
+  git apply -3 ../pixmaps-dir.diff
 
   git submodule init subprojects/gvc
   git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
-  git submodule update
+  git -c protocol.file.allow=always submodule update
 
   local src
   for src in "${source[@]}"; do
@@ -97,7 +93,7 @@ build() {
 }
 
 check() {
-  meson test -C build --print-errorlogs
+  xvfb-run meson test -C build --print-errorlogs
 }
 
 package() {

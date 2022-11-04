@@ -7,11 +7,11 @@ Fixes https://source.puri.sm/Librem5/gnome-control-center/issues/85
  panels/power/cc-power-panel.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: gnome-control-center/panels/power/cc-power-panel.c
-===================================================================
---- gnome-control-center.orig/panels/power/cc-power-panel.c	2022-04-16 00:29:57.779000000 +0000
-+++ gnome-control-center/panels/power/cc-power-panel.c	2022-04-16 00:29:57.775000000 +0000
-@@ -1315,7 +1315,7 @@
+diff --git a/panels/power/cc-power-panel.c b/panels/power/cc-power-panel.c
+index 0a988b5..3b40d1d 100644
+--- a/panels/power/cc-power-panel.c
++++ b/panels/power/cc-power-panel.c
+@@ -1318,7 +1318,7 @@ setup_power_profiles (CcPowerPanel *self)
        self->power_profiles_row[profile] = row;
        gtk_widget_show (GTK_WIDGET (row));
        gtk_list_box_append (self->power_profile_listbox, GTK_WIDGET (row));

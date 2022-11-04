@@ -1,14 +1,128 @@
-Index: gnome-control-center/panels/network/connection-editor/connection-editor.ui
+From: Debian GNOME Maintainers
+ <pkg-gnome-maintainers@lists.alioth.debian.org>
+Date: Thu, 2 Jun 2022 14:36:35 +0200
+Subject: resize-connection-editor
+
 ===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/connection-editor.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/connection-editor.ui	2022-04-25 00:40:02.434000000 +0000
+---
+ .../connection-editor/8021x-security-page.ui       |  6 +--
+ .../connection-editor/ce-page-8021x-security.c     |  2 +-
+ panels/network/connection-editor/ce-page-ip4.c     |  4 +-
+ panels/network/connection-editor/ce-page-ip6.c     |  4 +-
+ .../network/connection-editor/ce-page-security.c   |  2 +-
+ .../network/connection-editor/connection-editor.ui |  4 +-
+ panels/network/connection-editor/details-page.ui   |  9 +++--
+ panels/network/connection-editor/ethernet-page.ui  | 37 +++++++++--------
+ panels/network/connection-editor/ip4-page.ui       | 42 ++++++++++----------
+ panels/network/connection-editor/ip6-page.ui       | 46 +++++++++++-----------
+ panels/network/connection-editor/security-page.ui  |  6 +--
+ panels/network/connection-editor/vpn-page.ui       |  8 ++--
+ panels/network/connection-editor/wifi-page.ui      |  6 +--
+ 13 files changed, 88 insertions(+), 88 deletions(-)
+
+diff --git a/panels/network/connection-editor/8021x-security-page.ui b/panels/network/connection-editor/8021x-security-page.ui
+index 5be96b3..f21bf5c 100644
+--- a/panels/network/connection-editor/8021x-security-page.ui
++++ b/panels/network/connection-editor/8021x-security-page.ui
+@@ -2,14 +2,14 @@
+ <interface>
+   <!-- interface-requires gtk+ 3.0 -->
+   <template class="CEPage8021xSecurity" parent="GtkGrid">
+-    <property name="margin_start">50</property>
+-    <property name="margin_end">50</property>
++    <property name="margin_start">12</property>
++    <property name="margin_end">12</property>
+     <property name="margin_top">12</property>
+     <property name="margin_bottom">12</property>
+     <property name="hexpand">True</property>
+     <property name="vexpand">True</property>
+     <property name="row_spacing">10</property>
+-    <property name="column_spacing">6</property>
++    <property name="column_spacing">2</property>
+     <child>
+       <object class="GtkLabel" id="security_label">
+         <property name="xalign">1</property>
+diff --git a/panels/network/connection-editor/ce-page-8021x-security.c b/panels/network/connection-editor/ce-page-8021x-security.c
+index 90732fa..0eca58f 100644
+--- a/panels/network/connection-editor/ce-page-8021x-security.c
++++ b/panels/network/connection-editor/ce-page-8021x-security.c
+@@ -69,7 +69,7 @@ finish_setup (CEPage8021xSecurity *self, gpointer unused, GError *error, gpointe
+ 	if (error)
+ 		return;
+ 
+-	self->group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
++	self->group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
+ 
+ 	self->security = ws_wpa_eap_new (self->connection);
+ 	if (!self->security) {
+diff --git a/panels/network/connection-editor/ce-page-ip4.c b/panels/network/connection-editor/ce-page-ip4.c
+index c3f0864..8ac9787 100644
+--- a/panels/network/connection-editor/ce-page-ip4.c
++++ b/panels/network/connection-editor/ce-page-ip4.c
+@@ -215,7 +215,7 @@ add_address_row (CEPageIP4   *self,
+         row = gtk_list_box_row_new ();
+         gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
+ 
+-        row_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
++        row_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+         gtk_widget_add_css_class (row_box, "linked");
+ 
+         widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET));
+@@ -357,7 +357,7 @@ add_route_row (CEPageIP4   *self,
+         row = gtk_list_box_row_new ();
+         gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
+ 
+-        row_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
++        row_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+         gtk_widget_add_css_class (row_box, "linked");
+ 
+         widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET));
+diff --git a/panels/network/connection-editor/ce-page-ip6.c b/panels/network/connection-editor/ce-page-ip6.c
+index 09b9eb6..400507b 100644
+--- a/panels/network/connection-editor/ce-page-ip6.c
++++ b/panels/network/connection-editor/ce-page-ip6.c
+@@ -196,7 +196,7 @@ add_address_row (CEPageIP6   *self,
+         row = gtk_list_box_row_new ();
+         gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
+ 
+-        row_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
++        row_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+         gtk_widget_add_css_class (row_box, "linked");
+ 
+         widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET6));
+@@ -330,7 +330,7 @@ add_route_row (CEPageIP6   *self,
+         row = gtk_list_box_row_new ();
+         gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
+ 
+-        row_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
++        row_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+         gtk_widget_add_css_class (row_box, "linked");
+ 
+         widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET6));
+diff --git a/panels/network/connection-editor/ce-page-security.c b/panels/network/connection-editor/ce-page-security.c
+index c7cd7d9..db0dd4e 100644
+--- a/panels/network/connection-editor/ce-page-security.c
++++ b/panels/network/connection-editor/ce-page-security.c
+@@ -238,7 +238,7 @@ finish_setup (CEPageSecurity *self)
+         sw = nm_connection_get_setting_wireless (self->connection);
+         g_assert (sw);
+ 
+-        self->group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
++        self->group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
+ 
+         dev_caps =   NM_WIFI_DEVICE_CAP_CIPHER_WEP40
+                    | NM_WIFI_DEVICE_CAP_CIPHER_WEP104
+diff --git a/panels/network/connection-editor/connection-editor.ui b/panels/network/connection-editor/connection-editor.ui
+index 9295cb5..b6541a3 100644
+--- a/panels/network/connection-editor/connection-editor.ui
++++ b/panels/network/connection-editor/connection-editor.ui
 @@ -4,7 +4,7 @@
    <template class="NetConnectionEditor" parent="GtkDialog">
      <property name="resizable">true</property>
      <property name="modal">True</property>
 -    <property name="default_width">500</property>
 +    <property name="default_width">320</property>
-     <property name="default_height">300</property>
+     <property name="default_height">600</property>
      <!-- This doesn't seem to work for a template, so it is also hardcoded. -->
      <property name="use_header_bar">1</property>
 @@ -55,7 +55,7 @@
@@ -20,10 +134,10 @@ Index: gnome-control-center/panels/network/connection-editor/connection-editor.u
                          <property name="valign">start</property>
                        </object>
                      </child>
-Index: gnome-control-center/panels/network/connection-editor/details-page.ui
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/details-page.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/details-page.ui	2022-04-25 00:40:02.434000000 +0000
+diff --git a/panels/network/connection-editor/details-page.ui b/panels/network/connection-editor/details-page.ui
+index c8e4595..a10b56f 100644
+--- a/panels/network/connection-editor/details-page.ui
++++ b/panels/network/connection-editor/details-page.ui
 @@ -2,12 +2,12 @@
  <interface>
    <!-- interface-requires gtk+ 3.0 -->
@@ -40,15 +154,15 @@ Index: gnome-control-center/panels/network/connection-editor/details-page.ui
      <child>
        <object class="GtkLabel" id="strength_heading_label">
          <property name="xalign">1</property>
-@@ -410,6 +410,7 @@
+@@ -412,6 +412,7 @@
                <object class="GtkLabel">
                  <property name="xalign">0</property>
                  <property name="label" translatable="yes">_Metered connection: has data limits or can incur charges</property>
 +                <property name="wrap">True</property>
                  <property name="hexpand">True</property>
                  <property name="use_underline">True</property>
-               </object>
-@@ -420,7 +421,7 @@
+                 <property name="mnemonic_widget">restrict_data_check</property>
+@@ -422,7 +423,7 @@
                  <property name="xalign">0</property>
                  <property name="label" translatable="yes">Software updates and other large downloads will not be started automatically.</property>
                  <property name="wrap">True</property>
@@ -57,347 +171,10 @@ Index: gnome-control-center/panels/network/connection-editor/details-page.ui
                  <style>
                    <class name="dim-label" />
                  </style>
-Index: gnome-control-center/panels/network/connection-editor/wifi-page.ui
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/wifi-page.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/wifi-page.ui	2022-04-25 00:40:02.434000000 +0000
-@@ -2,14 +2,14 @@
- <interface>
-   <!-- interface-requires gtk+ 3.0 -->
-   <template class="CEPageWifi" parent="GtkGrid">
--    <property name="margin_start">50</property>
--    <property name="margin_end">50</property>
-+    <property name="margin_start">10</property>
-+    <property name="margin_end">10</property>
-     <property name="margin_top">12</property>
-     <property name="margin_bottom">12</property>
-     <property name="hexpand">True</property>
-     <property name="vexpand">True</property>
-     <property name="row_spacing">10</property>
--    <property name="column_spacing">6</property>
-+    <property name="column_spacing">3</property>
-     <child>
-       <object class="GtkLabel">
-         <property name="xalign">1</property>
-Index: gnome-control-center/panels/network/connection-editor/ip4-page.ui
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/ip4-page.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ip4-page.ui	2022-04-25 00:44:59.902000000 +0000
-@@ -9,13 +9,13 @@
-           <object class="GtkViewport">
-             <child>
-               <object class="GtkGrid" id="main_box">
--                <property name="margin_start">24</property>
--                <property name="margin_end">24</property>
-+                <property name="margin_start">12</property>
-+                <property name="margin_end">12</property>
-                 <property name="margin_top">24</property>
-                 <property name="margin_bottom">24</property>
-                 <property name="orientation">vertical</property>
--                <property name="row-spacing">6</property>
--                <property name="column-spacing">6</property>
-+                <property name="row-spacing">2</property>
-+                <property name="column-spacing">2</property>
-                 <child>
-                   <object class="GtkLabel">
-                     <property name="label" translatable="yes">IPv_4 Method</property>
-@@ -35,8 +35,8 @@
-                   <object class="GtkCheckButton" id="automatic_radio">
-                     <property name="label" translatable="yes">Automatic (DHCP)</property>
-                     <layout>
--                      <property name="row">0</property>
--                      <property name="column">1</property>
-+                      <property name="row">1</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -45,8 +45,8 @@
-                     <property name="label" translatable="yes">Link-Local Only</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">0</property>
--                      <property name="column">2</property>
-+                      <property name="row">2</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -55,8 +55,8 @@
-                     <property name="label" translatable="yes">Manual</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">1</property>
--                      <property name="column">1</property>
-+                      <property name="row">3</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -65,8 +65,8 @@
-                     <property name="label" translatable="yes">Disable</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">1</property>
--                      <property name="column">2</property>
-+                      <property name="row">4</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -75,8 +75,8 @@
-                     <property name="label" translatable="yes">Shared to other computers</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">2</property>
--                      <property name="column">1</property>
-+                      <property name="row">5</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -85,9 +85,9 @@
-                     <property name="orientation">vertical</property>
-                     <property name="spacing">6</property>
-                     <layout>
--                      <property name="row">3</property>
-+                      <property name="row">6</property>
-                       <property name="column">0</property>
--                      <property name="column-span">3</property>
-+                      <property name="column-span">1</property>
-                     </layout>
-                     <child>
-                       <object class="GtkBox" id="address_box">
-@@ -105,7 +105,7 @@
-                         </child>
-                         <child>
-                           <object class="GtkBox">
--                            <property name="orientation">horizontal</property>
-+                            <property name="orientation">vertical</property>
-                             <child>
-                               <object class="GtkLabel">
-                                 <property name="hexpand">True</property>
-@@ -239,7 +239,7 @@
-                         <property name="orientation">vertical</property>
-                         <child>
-                           <object class="GtkBox">
--                            <property name="orientation">horizontal</property>
-+                            <property name="orientation">vertical</property>
-                             <child>
-                               <object class="GtkLabel" id="routes_address_label">
-                                 <property name="hexpand">True</property>
-@@ -315,19 +315,19 @@
-     </child>
-   </template>
-   <object class="GtkSizeGroup" id="routes_metric_sizegroup">
--    <property name="mode">horizontal</property>
-+    <property name="mode">vertical</property>
-     <widgets>
-       <widget name="routes_metric_label" />
-     </widgets>
-   </object>
-   <object class="GtkSizeGroup" id="routes_sizegroup">
--    <property name="mode">horizontal</property>
-+    <property name="mode">vertical</property>
-     <widgets>
-       <widget name="routes_stub_box" />
-     </widgets>
-   </object>
-   <object class="GtkSizeGroup" id="address_sizegroup">
--    <property name="mode">horizontal</property>
-+    <property name="mode">vertical</property>
-     <widgets>
-       <widget name="address_stub_box" />
-     </widgets>
-Index: gnome-control-center/panels/network/connection-editor/ip6-page.ui
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/ip6-page.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ip6-page.ui	2022-04-25 00:40:02.435000000 +0000
-@@ -9,13 +9,13 @@
-           <object class="GtkViewport">
-             <child>
-               <object class="GtkGrid" id="main_box">
--                <property name="margin_start">24</property>
--                <property name="margin_end">24</property>
-+                <property name="margin_start">12</property>
-+                <property name="margin_end">12</property>
-                 <property name="margin_top">24</property>
-                 <property name="margin_bottom">24</property>
-                 <property name="orientation">vertical</property>
--                <property name="row-spacing">6</property>
--                <property name="column-spacing">6</property>
-+                <property name="row-spacing">2</property>
-+                <property name="column-spacing">2</property>
-                 <child>
-                   <object class="GtkLabel">
-                     <property name="label" translatable="yes">IPv_6 Method</property>
-@@ -35,8 +35,8 @@
-                   <object class="GtkCheckButton" id="automatic_radio">
-                     <property name="label" translatable="yes">Automatic</property>
-                     <layout>
--                      <property name="row">0</property>
--                      <property name="column">1</property>
-+                      <property name="row">1</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -45,8 +45,8 @@
-                     <property name="label" translatable="yes">Automatic, DHCP only</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">0</property>
--                      <property name="column">2</property>
-+                      <property name="row">2</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -55,8 +55,8 @@
-                     <property name="label" translatable="yes">Link-Local Only</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">1</property>
--                      <property name="column">1</property>
-+                      <property name="row">3</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -65,8 +65,8 @@
-                     <property name="label" translatable="yes">Manual</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">1</property>
--                      <property name="column">2</property>
-+                      <property name="row">4</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -75,8 +75,8 @@
-                     <property name="label" translatable="yes">Disable</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">2</property>
--                      <property name="column">1</property>
-+                      <property name="row">5</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -85,8 +85,8 @@
-                     <property name="label" translatable="yes">Shared to other computers</property>
-                     <property name="group">automatic_radio</property>
-                     <layout>
--                      <property name="row">2</property>
--                      <property name="column">2</property>
-+                      <property name="row">6</property>
-+                      <property name="column">0</property>
-                     </layout>
-                   </object>
-                 </child>
-@@ -95,9 +95,9 @@
-                     <property name="orientation">vertical</property>
-                     <property name="spacing">6</property>
-                     <layout>
--                      <property name="row">3</property>
-+                      <property name="row">7</property>
-                       <property name="column">0</property>
--                      <property name="column-span">3</property>
-+                      <property name="column-span">1</property>
-                     </layout>
-                     <child>
-                       <object class="GtkBox" id="address_box">
-@@ -115,7 +115,7 @@
-                         </child>
-                         <child>
-                           <object class="GtkBox">
--                            <property name="orientation">horizontal</property>
-+                            <property name="orientation">vertical</property>
-                             <child>
-                               <object class="GtkLabel" id="address_address_label">
-                                 <property name="hexpand">True</property>
-@@ -248,7 +248,7 @@
-                         <property name="orientation">vertical</property>
-                         <child>
-                           <object class="GtkBox">
--                            <property name="orientation">horizontal</property>
-+                            <property name="orientation">vertical</property>
-                             <child>
-                               <object class="GtkLabel" id="routes_address_label">
-                                 <property name="hexpand">True</property>
-@@ -324,19 +324,19 @@
-     </child>
-   </template>
-   <object class="GtkSizeGroup" id="routes_metric_sizegroup">
--    <property name="mode">horizontal</property>
-+    <property name="mode">vertical </property>
-     <widgets>
-       <widget name="routes_metric_label" />
-     </widgets>
-   </object>
-   <object class="GtkSizeGroup" id="routes_sizegroup">
--    <property name="mode">horizontal</property>
-+    <property name="mode">vertical </property>
-     <widgets>
-       <widget name="routes_stub_box" />
-     </widgets>
-   </object>
-   <object class="GtkSizeGroup" id="address_sizegroup">
--    <property name="mode">horizontal</property>
-+    <property name="mode">vertical </property>
-     <widgets>
-       <widget name="address_stub_box" />
-     </widgets>
-Index: gnome-control-center/panels/network/connection-editor/ce-page-ip4.c
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/ce-page-ip4.c	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-page-ip4.c	2022-04-25 00:40:02.435000000 +0000
-@@ -208,7 +208,7 @@
-         row = gtk_list_box_row_new ();
-         gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
- 
--        row_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-+        row_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-         gtk_widget_add_css_class (row_box, "linked");
- 
-         widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET));
-@@ -341,7 +341,7 @@
-         row = gtk_list_box_row_new ();
-         gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
- 
--        row_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-+        row_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-         gtk_widget_add_css_class (row_box, "linked");
- 
-         widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET));
-Index: gnome-control-center/panels/network/connection-editor/ce-page-ip6.c
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/ce-page-ip6.c	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-page-ip6.c	2022-04-25 00:40:02.436000000 +0000
-@@ -189,7 +189,7 @@
-         row = gtk_list_box_row_new ();
-         gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
- 
--        row_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-+        row_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-         gtk_widget_add_css_class (row_box, "linked");
- 
-         widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET6));
-@@ -314,7 +314,7 @@
-         row = gtk_list_box_row_new ();
-         gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
- 
--        row_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-+        row_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-         gtk_widget_add_css_class (row_box, "linked");
- 
-         widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET6));
-Index: gnome-control-center/panels/network/connection-editor/ethernet-page.ui
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/ethernet-page.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ethernet-page.ui	2022-04-25 00:40:02.436000000 +0000
+diff --git a/panels/network/connection-editor/ethernet-page.ui b/panels/network/connection-editor/ethernet-page.ui
+index ad4f2cb..44b5fb0 100644
+--- a/panels/network/connection-editor/ethernet-page.ui
++++ b/panels/network/connection-editor/ethernet-page.ui
 @@ -7,17 +7,16 @@
      <property name="page_increment">10</property>
    </object>
@@ -503,58 +280,281 @@ Index: gnome-control-center/panels/network/connection-editor/ethernet-page.ui
          </layout>
        </object>
      </child>
-Index: gnome-control-center/panels/network/connection-editor/ce-page-8021x-security.c
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/ce-page-8021x-security.c	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-page-8021x-security.c	2022-04-25 00:40:02.436000000 +0000
-@@ -69,7 +69,7 @@
- 	if (error)
- 		return;
- 
--	self->group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-+	self->group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
- 
- 	self->security = ws_wpa_eap_new (self->connection);
- 	if (!self->security) {
-Index: gnome-control-center/panels/network/connection-editor/ce-page-security.c
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/ce-page-security.c	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/ce-page-security.c	2022-04-25 00:40:02.436000000 +0000
-@@ -238,7 +238,7 @@
-         sw = nm_connection_get_setting_wireless (self->connection);
-         g_assert (sw);
- 
--        self->group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
-+        self->group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
- 
-         dev_caps =   NM_WIFI_DEVICE_CAP_CIPHER_WEP40
-                    | NM_WIFI_DEVICE_CAP_CIPHER_WEP104
-Index: gnome-control-center/panels/network/connection-editor/8021x-security-page.ui
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/8021x-security-page.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/8021x-security-page.ui	2022-04-25 00:40:02.437000000 +0000
-@@ -2,14 +2,14 @@
- <interface>
-   <!-- interface-requires gtk+ 3.0 -->
-   <template class="CEPage8021xSecurity" parent="GtkGrid">
--    <property name="margin_start">50</property>
--    <property name="margin_end">50</property>
-+    <property name="margin_start">12</property>
-+    <property name="margin_end">12</property>
-     <property name="margin_top">12</property>
-     <property name="margin_bottom">12</property>
-     <property name="hexpand">True</property>
-     <property name="vexpand">True</property>
-     <property name="row_spacing">10</property>
--    <property name="column_spacing">6</property>
-+    <property name="column_spacing">2</property>
-     <child>
-       <object class="GtkLabel" id="security_label">
-         <property name="xalign">1</property>
-Index: gnome-control-center/panels/network/connection-editor/security-page.ui
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/security-page.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/security-page.ui	2022-04-25 00:40:02.437000000 +0000
+diff --git a/panels/network/connection-editor/ip4-page.ui b/panels/network/connection-editor/ip4-page.ui
+index a2210ea..b04fe20 100644
+--- a/panels/network/connection-editor/ip4-page.ui
++++ b/panels/network/connection-editor/ip4-page.ui
+@@ -9,13 +9,13 @@
+           <object class="GtkViewport">
+             <child>
+               <object class="GtkGrid" id="main_box">
+-                <property name="margin_start">24</property>
+-                <property name="margin_end">24</property>
++                <property name="margin_start">12</property>
++                <property name="margin_end">12</property>
+                 <property name="margin_top">24</property>
+                 <property name="margin_bottom">24</property>
+                 <property name="orientation">vertical</property>
+-                <property name="row-spacing">6</property>
+-                <property name="column-spacing">6</property>
++                <property name="row-spacing">2</property>
++                <property name="column-spacing">2</property>
+                 <child>
+                   <object class="GtkLabel">
+                     <property name="label" translatable="yes">IPv_4 Method</property>
+@@ -35,8 +35,8 @@
+                   <object class="GtkCheckButton" id="automatic_radio">
+                     <property name="label" translatable="yes">Automatic (DHCP)</property>
+                     <layout>
+-                      <property name="row">0</property>
+-                      <property name="column">1</property>
++                      <property name="row">1</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -45,8 +45,8 @@
+                     <property name="label" translatable="yes">Link-Local Only</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">0</property>
+-                      <property name="column">2</property>
++                      <property name="row">2</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -55,8 +55,8 @@
+                     <property name="label" translatable="yes">Manual</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">1</property>
+-                      <property name="column">1</property>
++                      <property name="row">3</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -65,8 +65,8 @@
+                     <property name="label" translatable="yes">Disable</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">1</property>
+-                      <property name="column">2</property>
++                      <property name="row">4</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -75,8 +75,8 @@
+                     <property name="label" translatable="yes">Shared to other computers</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">2</property>
+-                      <property name="column">1</property>
++                      <property name="row">5</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -85,9 +85,9 @@
+                     <property name="orientation">vertical</property>
+                     <property name="spacing">6</property>
+                     <layout>
+-                      <property name="row">3</property>
++                      <property name="row">6</property>
+                       <property name="column">0</property>
+-                      <property name="column-span">3</property>
++                      <property name="column-span">1</property>
+                     </layout>
+                     <child>
+                       <object class="GtkBox" id="address_box">
+@@ -105,7 +105,7 @@
+                         </child>
+                         <child>
+                           <object class="GtkBox">
+-                            <property name="orientation">horizontal</property>
++                            <property name="orientation">vertical</property>
+                             <child>
+                               <object class="GtkLabel" id="address_address_label">
+                                 <property name="hexpand">True</property>
+@@ -243,7 +243,7 @@
+                         <property name="orientation">vertical</property>
+                         <child>
+                           <object class="GtkBox">
+-                            <property name="orientation">horizontal</property>
++                            <property name="orientation">vertical</property>
+                             <child>
+                               <object class="GtkLabel" id="routes_address_label">
+                                 <property name="hexpand">True</property>
+@@ -319,19 +319,19 @@
+     </child>
+   </template>
+   <object class="GtkSizeGroup" id="routes_metric_sizegroup">
+-    <property name="mode">horizontal</property>
++    <property name="mode">vertical</property>
+     <widgets>
+       <widget name="routes_metric_label" />
+     </widgets>
+   </object>
+   <object class="GtkSizeGroup" id="routes_sizegroup">
+-    <property name="mode">horizontal</property>
++    <property name="mode">vertical</property>
+     <widgets>
+       <widget name="routes_stub_box" />
+     </widgets>
+   </object>
+   <object class="GtkSizeGroup" id="address_sizegroup">
+-    <property name="mode">horizontal</property>
++    <property name="mode">vertical</property>
+     <widgets>
+       <widget name="address_stub_box" />
+     </widgets>
+diff --git a/panels/network/connection-editor/ip6-page.ui b/panels/network/connection-editor/ip6-page.ui
+index c22fb0f..4ee25a7 100644
+--- a/panels/network/connection-editor/ip6-page.ui
++++ b/panels/network/connection-editor/ip6-page.ui
+@@ -9,13 +9,13 @@
+           <object class="GtkViewport">
+             <child>
+               <object class="GtkGrid" id="main_box">
+-                <property name="margin_start">24</property>
+-                <property name="margin_end">24</property>
++                <property name="margin_start">12</property>
++                <property name="margin_end">12</property>
+                 <property name="margin_top">24</property>
+                 <property name="margin_bottom">24</property>
+                 <property name="orientation">vertical</property>
+-                <property name="row-spacing">6</property>
+-                <property name="column-spacing">6</property>
++                <property name="row-spacing">2</property>
++                <property name="column-spacing">2</property>
+                 <child>
+                   <object class="GtkLabel">
+                     <property name="label" translatable="yes">IPv_6 Method</property>
+@@ -35,8 +35,8 @@
+                   <object class="GtkCheckButton" id="automatic_radio">
+                     <property name="label" translatable="yes">Automatic</property>
+                     <layout>
+-                      <property name="row">0</property>
+-                      <property name="column">1</property>
++                      <property name="row">1</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -45,8 +45,8 @@
+                     <property name="label" translatable="yes">Automatic, DHCP only</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">0</property>
+-                      <property name="column">2</property>
++                      <property name="row">2</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -55,8 +55,8 @@
+                     <property name="label" translatable="yes">Link-Local Only</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">1</property>
+-                      <property name="column">1</property>
++                      <property name="row">3</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -65,8 +65,8 @@
+                     <property name="label" translatable="yes">Manual</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">1</property>
+-                      <property name="column">2</property>
++                      <property name="row">4</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -75,8 +75,8 @@
+                     <property name="label" translatable="yes">Disable</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">2</property>
+-                      <property name="column">1</property>
++                      <property name="row">5</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -85,8 +85,8 @@
+                     <property name="label" translatable="yes">Shared to other computers</property>
+                     <property name="group">automatic_radio</property>
+                     <layout>
+-                      <property name="row">2</property>
+-                      <property name="column">2</property>
++                      <property name="row">6</property>
++                      <property name="column">0</property>
+                     </layout>
+                   </object>
+                 </child>
+@@ -95,9 +95,9 @@
+                     <property name="orientation">vertical</property>
+                     <property name="spacing">6</property>
+                     <layout>
+-                      <property name="row">3</property>
++                      <property name="row">7</property>
+                       <property name="column">0</property>
+-                      <property name="column-span">3</property>
++                      <property name="column-span">1</property>
+                     </layout>
+                     <child>
+                       <object class="GtkBox" id="address_box">
+@@ -115,7 +115,7 @@
+                         </child>
+                         <child>
+                           <object class="GtkBox">
+-                            <property name="orientation">horizontal</property>
++                            <property name="orientation">vertical</property>
+                             <child>
+                               <object class="GtkLabel" id="address_address_label">
+                                 <property name="hexpand">True</property>
+@@ -253,7 +253,7 @@
+                         <property name="orientation">vertical</property>
+                         <child>
+                           <object class="GtkBox">
+-                            <property name="orientation">horizontal</property>
++                            <property name="orientation">vertical</property>
+                             <child>
+                               <object class="GtkLabel" id="routes_address_label">
+                                 <property name="hexpand">True</property>
+@@ -329,19 +329,19 @@
+     </child>
+   </template>
+   <object class="GtkSizeGroup" id="routes_metric_sizegroup">
+-    <property name="mode">horizontal</property>
++    <property name="mode">vertical </property>
+     <widgets>
+       <widget name="routes_metric_label" />
+     </widgets>
+   </object>
+   <object class="GtkSizeGroup" id="routes_sizegroup">
+-    <property name="mode">horizontal</property>
++    <property name="mode">vertical </property>
+     <widgets>
+       <widget name="routes_stub_box" />
+     </widgets>
+   </object>
+   <object class="GtkSizeGroup" id="address_sizegroup">
+-    <property name="mode">horizontal</property>
++    <property name="mode">vertical </property>
+     <widgets>
+       <widget name="address_stub_box" />
+     </widgets>
+diff --git a/panels/network/connection-editor/security-page.ui b/panels/network/connection-editor/security-page.ui
+index 9a1c0de..d1b121b 100644
+--- a/panels/network/connection-editor/security-page.ui
++++ b/panels/network/connection-editor/security-page.ui
 @@ -2,14 +2,14 @@
  <interface>
    <!-- interface-requires gtk+ 3.0 -->
@@ -573,10 +573,10 @@ Index: gnome-control-center/panels/network/connection-editor/security-page.ui
      <child>
        <object class="GtkLabel" id="security_label">
          <property name="xalign">1</property>
-Index: gnome-control-center/panels/network/connection-editor/vpn-page.ui
-===================================================================
---- gnome-control-center.orig/panels/network/connection-editor/vpn-page.ui	2022-04-25 00:40:02.441000000 +0000
-+++ gnome-control-center/panels/network/connection-editor/vpn-page.ui	2022-04-25 00:40:02.437000000 +0000
+diff --git a/panels/network/connection-editor/vpn-page.ui b/panels/network/connection-editor/vpn-page.ui
+index 98f801b..531be29 100644
+--- a/panels/network/connection-editor/vpn-page.ui
++++ b/panels/network/connection-editor/vpn-page.ui
 @@ -2,15 +2,15 @@
  <interface>
    <!-- interface-requires gtk+ 3.0 -->
@@ -597,3 +597,25 @@ Index: gnome-control-center/panels/network/connection-editor/vpn-page.ui
          <child>
            <object class="GtkLabel">
              <property name="xalign">1</property>
+diff --git a/panels/network/connection-editor/wifi-page.ui b/panels/network/connection-editor/wifi-page.ui
+index 6662b8f..ca0f818 100644
+--- a/panels/network/connection-editor/wifi-page.ui
++++ b/panels/network/connection-editor/wifi-page.ui
+@@ -2,14 +2,14 @@
+ <interface>
+   <!-- interface-requires gtk+ 3.0 -->
+   <template class="CEPageWifi" parent="GtkGrid">
+-    <property name="margin_start">50</property>
+-    <property name="margin_end">50</property>
++    <property name="margin_start">10</property>
++    <property name="margin_end">10</property>
+     <property name="margin_top">12</property>
+     <property name="margin_bottom">12</property>
+     <property name="hexpand">True</property>
+     <property name="vexpand">True</property>
+     <property name="row_spacing">10</property>
+-    <property name="column_spacing">6</property>
++    <property name="column_spacing">3</property>
+     <child>
+       <object class="GtkLabel">
+         <property name="xalign">1</property>

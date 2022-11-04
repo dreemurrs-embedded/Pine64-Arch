@@ -1,5 +1,4 @@
-From f17198e875df1c5be83da5a578fb766a91cbb09b Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Pablo=20Correa=20G=C3=B3mez?= <ablocorrea@hotmail.com>
+From: =?utf-8?q?Pablo_Correa_G=C3=B3mez?= <ablocorrea@hotmail.com>
 Date: Mon, 14 Feb 2022 21:08:01 +0100
 Subject: [PATCH] removable-media: Wrap GtkCheckButton label to fit narrow
  displays
@@ -11,11 +10,11 @@ split the label into its own object.
 [1] https://gitlab.gnome.org/GNOME/gtk/-/issues/4698
 [2] https://gitlab.gnome.org/GNOME/gtk/-/merge_requests/4489
 ---
- .../cc-removable-media-panel.ui               | 23 ++++++++++++++-----
+ panels/removable-media/cc-removable-media-panel.ui | 23 ++++++++++++++++------
  1 file changed, 17 insertions(+), 6 deletions(-)
 
 diff --git a/panels/removable-media/cc-removable-media-panel.ui b/panels/removable-media/cc-removable-media-panel.ui
-index 899956ee9..1bb5efdbe 100644
+index 899956e..1bb5efd 100644
 --- a/panels/removable-media/cc-removable-media-panel.ui
 +++ b/panels/removable-media/cc-removable-media-panel.ui
 @@ -188,12 +188,23 @@
@@ -48,6 +47,3 @@ index 899956ee9..1bb5efdbe 100644
              </child>
            </object>
          </child>
--- 
-2.35.1
-

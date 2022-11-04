@@ -1,0 +1,13 @@
+diff --git i/panels/info-overview/meson.build w/panels/info-overview/meson.build
+index 45251ab26..4fe2f613e 100644
+--- i/panels/info-overview/meson.build
++++ w/panels/info-overview/meson.build
+@@ -70,7 +70,7 @@ executable(
+ 
+ install_data(
+   [ 'gnome-logo-text.svg', 'gnome-logo-text-dark.svg' ],
+-  install_dir: join_paths(control_center_datadir, 'icons')
++  install_dir: join_paths(control_center_datadir, 'pixmaps')
+ )
+ 
+ subdir('icons')

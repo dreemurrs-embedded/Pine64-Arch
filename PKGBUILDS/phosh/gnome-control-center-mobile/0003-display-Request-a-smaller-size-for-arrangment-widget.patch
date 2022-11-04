@@ -7,15 +7,15 @@ So that it fits smaller screens well
  panels/display/cc-display-panel.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: gnome-control-center/panels/display/cc-display-panel.c
-===================================================================
---- gnome-control-center.orig/panels/display/cc-display-panel.c	2022-04-04 10:03:01.504000000 +0000
-+++ gnome-control-center/panels/display/cc-display-panel.c	2022-04-04 10:03:54.920000000 +0000
-@@ -1078,7 +1078,7 @@
+diff --git a/panels/display/cc-display-panel.c b/panels/display/cc-display-panel.c
+index 6958e19..5c09d6e 100644
+--- a/panels/display/cc-display-panel.c
++++ b/panels/display/cc-display-panel.c
+@@ -1065,7 +1065,7 @@ cc_display_panel_init (CcDisplayPanel *self)
    gtk_widget_init_template (GTK_WIDGET (self));
  
    self->arrangement = cc_display_arrangement_new (NULL);
--  gtk_widget_set_size_request (GTK_WIDGET (self->arrangement), 400, 175);
+-  gtk_widget_set_size_request (GTK_WIDGET (self->arrangement), 375, 175);
 +  gtk_widget_set_size_request (GTK_WIDGET (self->arrangement), 320, 175);
    adw_bin_set_child (self->arrangement_bin, GTK_WIDGET (self->arrangement));
  

@@ -4,13 +4,13 @@ Subject: [PATCH 2/7] datetime: Fix timezone selection map
 
 So as to fit on small screen
 ---
- panels/datetime/cc-datetime-panel.ui | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ panels/datetime/cc-datetime-panel.ui | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Index: gnome-control-center/panels/datetime/cc-datetime-panel.ui
-===================================================================
---- gnome-control-center.orig/panels/datetime/cc-datetime-panel.ui	2022-04-04 10:01:08.288000000 +0000
-+++ gnome-control-center/panels/datetime/cc-datetime-panel.ui	2022-04-04 10:02:20.974000000 +0000
+diff --git a/panels/datetime/cc-datetime-panel.ui b/panels/datetime/cc-datetime-panel.ui
+index fa5a6c9..289eee3 100644
+--- a/panels/datetime/cc-datetime-panel.ui
++++ b/panels/datetime/cc-datetime-panel.ui
 @@ -111,7 +111,7 @@
    </object>
    <object class="GtkDialog" id="timezone_dialog">

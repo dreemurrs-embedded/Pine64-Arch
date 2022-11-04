@@ -7,10 +7,11 @@ Subject: [PATCH 1/8] Add patches to check if phone
  1 file changed, 22 insertions(+)
  create mode 100644 panels/common/pureos.h
 
-Index: gnome-control-center/panels/common/pureos.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ gnome-control-center/panels/common/pureos.h	2022-03-31 05:05:48.531000000 +0000
+diff --git a/panels/common/pureos.h b/panels/common/pureos.h
+new file mode 100644
+index 0000000..2e31d7e
+--- /dev/null
++++ b/panels/common/pureos.h
 @@ -0,0 +1,22 @@
 +#include <gtk/gtk.h>
 +
