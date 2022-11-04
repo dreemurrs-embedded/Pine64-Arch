@@ -9,7 +9,7 @@ This will be useful to make it adaptive.
  2 files changed, 50 insertions(+), 10 deletions(-)
 
 diff --git a/shell/ev-toolbar.c b/shell/ev-toolbar.c
-index 633102d..e18df20 100644
+index 71822f4..68534ce 100644
 --- a/shell/ev-toolbar.c
 +++ b/shell/ev-toolbar.c
 @@ -50,6 +50,8 @@ typedef struct {
@@ -65,22 +65,20 @@ index 633102d..e18df20 100644
  
          /* Action Menu */
          menu = G_MENU_MODEL (gtk_builder_get_object (builder, "action-menu"));
-@@ -250,7 +265,13 @@ ev_toolbar_constructed (GObject *object)
+@@ -250,13 +265,20 @@ ev_toolbar_constructed (GObject *object)
                            ev_toolbar);
  
          /* Zoom selector */
--        vbox = ev_zoom_action_new (ev_window_get_document_model (priv->window),
+-        vbox = ev_zoom_action_new (ev_window_get_document_model (priv->window));
 +	priv->zoom_revealer = gtk_revealer_new ();
 +	gtk_revealer_set_reveal_child (GTK_REVEALER (priv->zoom_revealer), TRUE);
 +	gtk_revealer_set_transition_type (GTK_REVEALER (priv->zoom_revealer),
 +	                                  GTK_REVEALER_TRANSITION_TYPE_SLIDE_LEFT);
 +        hdy_header_bar_pack_end (HDY_HEADER_BAR (ev_toolbar), priv->zoom_revealer);
 +
-+	vbox = ev_zoom_action_new (ev_window_get_document_model (priv->window),
-                                    G_MENU (gtk_builder_get_object (builder, "zoom-menu")));
++	vbox = ev_zoom_action_new (ev_window_get_document_model (priv->window));
          priv->zoom_action = vbox;
-         gtk_widget_set_tooltip_text (vbox, _("Select or set the zoom level of the document"));
-@@ -258,7 +279,8 @@ ev_toolbar_constructed (GObject *object)
+         atk_object_set_name (gtk_widget_get_accessible (vbox), _("Set zoom level"));
          g_signal_connect (vbox, "activated",
                            G_CALLBACK (zoom_selector_activated),
                            ev_toolbar);
@@ -90,7 +88,7 @@ index 633102d..e18df20 100644
  
          g_object_unref (builder);
  }
-@@ -363,19 +385,17 @@ ev_toolbar_set_mode (EvToolbar     *ev_toolbar,
+@@ -341,19 +363,17 @@ ev_toolbar_set_mode (EvToolbar     *ev_toolbar,
          case EV_TOOLBAR_MODE_FULLSCREEN:
                  gtk_widget_show (priv->sidebar_button);
                  gtk_widget_show (priv->action_menu_button);
@@ -114,7 +112,7 @@ index 633102d..e18df20 100644
                  gtk_widget_show (priv->open_button);
                  break;
          }
-@@ -406,3 +426,21 @@ ev_toolbar_set_sidebar_visible (EvToolbar *ev_toolbar,
+@@ -384,3 +404,21 @@ ev_toolbar_set_sidebar_visible (EvToolbar *ev_toolbar,
  
  	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->sidebar_button), visible);
  }
@@ -137,10 +135,10 @@ index 633102d..e18df20 100644
 +		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (priv->annots_button), FALSE);
 +}
 diff --git a/shell/ev-toolbar.h b/shell/ev-toolbar.h
-index 66414f9..7f53f46 100644
+index 19055e1..3cafb58 100644
 --- a/shell/ev-toolbar.h
 +++ b/shell/ev-toolbar.h
-@@ -60,5 +60,7 @@ EvToolbarMode ev_toolbar_get_mode           (EvToolbar     *ev_toolbar);
+@@ -59,5 +59,7 @@ EvToolbarMode ev_toolbar_get_mode           (EvToolbar     *ev_toolbar);
  
  void ev_toolbar_set_sidebar_visible (EvToolbar *ev_toolbar,
                                       gboolean   visible);

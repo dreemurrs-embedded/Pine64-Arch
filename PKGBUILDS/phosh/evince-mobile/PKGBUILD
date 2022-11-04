@@ -5,37 +5,33 @@
 
 _pkgname=evince
 pkgname=$_pkgname-mobile
-pkgver=42.3
+pkgver=43.1
 pkgrel=1
 pkgdesc="Document viewer (PDF, PostScript, XPS, djvu, dvi, tiff, cbr, cbz, cb7, cbt)"
 url="https://wiki.gnome.org/Apps/Evince"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('GPL')
-_commit=0ff17893679b05e7635e76e5c77384995b802f81  # tags/42.3^0
+_commit=47461d6dfbf2bb5d183f8db5dc43d205b68241e6  # tags/43.1^0
 source=("git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
         '0001-toolbar-Allow-to-toggle-the-sidebar-button.patch'
         '0002-toolbar-Allow-hiding-zoom-annotation-and-page-widgets.patch'
         '0003-properties-view-Reduce-the-label-width-chars.patch'
         '0004-window-Port-it-to-phones.patch')
 sha256sums=('SKIP'
-            '39cf66991132953400d6825d4aa671dabe37538ac543ddd5ccce73d6217927c2'
-            '70274e065c512593d6f82865e48090c2ec9440fbfbfcfb505fa0e99731de3f39'
-            '9573069449b6eeca2157fb55976bed217076427c23863870159ce83ef4727539'
-            'b81b9747537fb478e5bdb056062211d2ed2c5dd43b2afa75fc3ddae2667da6a0')
+            '1838583a3e91e402309ad57f94c04e8792e8716feb83bcef01715c56b5d50aee'
+            '4a3426cd9d5887644008d98df1f5cae266853d211711e119ca6017c7c10f1869'
+            'bb31c4e7dc302d66df70c5d6e3dc4cbfa0ccb5c11d669db0015dec21991d93a6'
+            '199c20375a81dba6bbadb5ef512527f575792d101aed5dbbb68206f2c5f5f538')
 provides=(libev{document,view}3.so $_pkgname $_pkgname-lib-docs)
 conflicts=($_pkgname)
 depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre dconf libsecret libsynctex
          gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy
          gvfs)
-makedepends=(libnautilus-extension texlive-bin gobject-introspection gi-docgen git meson
-             appstream-glib yelp-tools)
-optdepends=(
-  'texlive-bin: DVI support'
-)
+makedepends=(texlive-bin gobject-introspection gi-docgen git meson appstream-glib yelp-tools)
 
 pkgver() {
   cd $_pkgname
-  git describe --tags | sed 's/-/+/g'
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
