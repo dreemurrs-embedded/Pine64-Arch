@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
 pkgver=0.21.1
-pkgrel=1
+pkgrel=2
 pkgdesc="A compositor for phones based on wlroots"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phoc"
@@ -26,7 +26,7 @@ prepare() {
 
   git submodule init subprojects/wlroots
   git submodule set-url subprojects/wlroots "$srcdir/wlroots-phoc"
-  git submodule update
+  git submodule--helper update
 }
 
 build() {
