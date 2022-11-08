@@ -5,5 +5,8 @@ post_install() {
 
 	# Change power key behavior
 	sudo sed -i 's/#HandlePowerKey=poweroff/HandlePowerKey=ignore/g' /etc/systemd/logind.conf
+
+	# Change default shell to oilshell 
+	chsh -s /usr/bin/osh
 }
 
