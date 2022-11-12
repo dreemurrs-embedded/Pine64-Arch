@@ -1,29 +1,35 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=feedbackd
-pkgver=0.0.0+git20220520
+pkgver=0.0.1
 pkgrel=1
 pkgdesc="A daemon to provide haptic (and later more) feedback on events"
 url="https://source.puri.sm/Librem5/feedbackd"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('GPL')
 depends=('gobject-introspection' 'gsound' 'json-glib' 'libgudev')
-makedepends=('meson' 'vala')
+makedepends=('meson' 'vala' 'git')
+_commit="99c12e77d830ac8b0316c032bddd3ef082c66c72" # tags/v0.0.1
 _fbdthemes_commit="aeffda0232aaa1738a883b2f3089700217fd877c" # branch/master
-source=(https://source.puri.sm/Librem5/${pkgname}/-/archive/v${pkgver}/${pkgname}-v${pkgver}.tar.gz
-        https://source.puri.sm/Librem5/feedbackd-device-themes/-/archive/${_fbdthemes_commit}/feedbackd-device-themes-${_fbdthemes_commit}.tar.gz)
+source=("feedbackd::git+https://source.puri.sm/Librem5/feedbackd.git#commit=${_commit}"
+        "feedbackd-device-themes::git+https://source.puri.sm/Librem5/feedbackd-device-themes.git#commit=${_fbdthemes_commit}")
+
+pkgver() {
+  cd ${pkgname}
+  git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 prepare() {
-  cd feedbackd-device-themes-${_fbdthemes_commit}
+  cd feedbackd-device-themes
 }
 
 build() {
-  arch-meson ${pkgname}-v${pkgver} output
+  arch-meson ${pkgname} output
   ninja -C output
 }
 
 package() {
   DESTDIR="$pkgdir" ninja -C output install
-  install -Dm644 "$srcdir"/${pkgname}-v${pkgver}/debian/feedbackd.udev \
+  install -Dm644 "$srcdir"/${pkgname}/debian/feedbackd.udev \
     "$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
   sed -i 's/libexec/lib/g' "$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
 
@@ -32,9 +38,9 @@ package() {
   sed -i 's/-G feedbackd/-G video/g' "$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
 
   # It would make much more sense to bundle fbd device configuration with the pkg.
-  find ${srcdir}/feedbackd-device-themes-${_fbdthemes_commit}/data -name \*.json \
+  find ${srcdir}/feedbackd-device-themes/data -name \*.json \
     -exec cp {} ${pkgdir}/usr/share/feedbackd/themes \;
 }
 
-md5sums=('00c43c88de2c8980e478b625babdb450'
-         'b860623b5c3192e32c803307334075c2')
+md5sums=('SKIP'
+         'SKIP')
