@@ -1,10 +1,10 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 # Contributor: Ionut Biru <ibiru@archlinux.org>
-# Contributor: Jan Alexander Steffens (heftig) <jan.steffens@gmail.com>
+# Contributor: Jan Alexander Steffens (heftig) <jan.steffens@archlinux.org>
 
 pkgbase=modemmanager
 pkgname=(modemmanager libmm-glib)
-pkgver=1.18.10
+pkgver=1.20.0
 pkgrel=1
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
@@ -14,7 +14,8 @@ depends=(systemd libgudev polkit ppp libqmi libmbim
          mobile-broadband-provider-info)
 makedepends=(gtk-doc gobject-introspection vala meson git bash-completion)
 checkdepends=(python-gobject python-dbus)
-_commit=1338749739e0c01bdbc6ddf92388a781806ec3ac  # tags/1.18.10^0
+options=(debug)
+_commit=d4fcb2a57c978b2ef9d819d32c54c1695582e32b  # tags/1.20.0^0
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
         'modemmanager-polkit.rules'
         '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
