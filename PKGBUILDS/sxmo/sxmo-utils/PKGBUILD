@@ -1,9 +1,9 @@
 # Maintainer: Aren <aren@peacevolution.org>
-# Contibutor: dni <office@dnilabs.com>
+# Contributor: dni <office@dnilabs.com>
 
 pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
-pkgver=1.11.1
-pkgrel=2
+pkgver=1.12.0
+pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -12,17 +12,19 @@ makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
         '0001-Systemd-compatibility.patch'
-        '0001-sxmo_hook_statusbar.sh-remove-to-fix-pango-markup.patch'
         '00-sxmo.rules'
+        '10-sxmo.conf'
         'sxmo-setpermissions.service')
-backup=('etc/doas.conf')
+sha512sums=('4fb3102f2ca94d6a44eb830b4f29f3cca98854d6dc48b319ed136403366fe324232303f2ac3593425cea8037548c9bffb209a9824cdedbe3e655c2916d221dc1'
+            '73ad1b2273f28fb1366acac2287727996ae0747ae11137648ce5e4d766b7eb86f2cd2049f1dc4cdd66bc431ec868d2ef05c666072efffd1dc0b2fe960cba0e45'
+            'd705fc9611716a73c89da94bf3abc9292e9069bc994b0bd097159f4babd83d4693d5cc3e42336739ac46a8c6b4a0f39d077047202901dc5066df75e597450fa7'
+            'b69a09f98f8a5cad8164cd48c5f6a78f2ce0e9818fb77ccf2a3e243cd0f2023e438022b20aad9e6b5edd90e1bb862326db79dc423630682d4c43e897090d3da1'
+            '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd')
 
 prepare() {
   cd "$pkgname-$pkgver"
 
   patch -p1 < '../0001-Systemd-compatibility.patch'
-  patch -p1 < '../0001-sxmo_hook_statusbar.sh-remove-to-fix-pango-markup.patch'
-  sed -i 's/gpio-key-power/gpio-keys/' scripts/deviceprofiles/sxmo_deviceprofile_pine64,pinephone-pro.sh
 }
 
 build() {
@@ -32,13 +34,13 @@ build() {
 }
 
 package_sxmo-utils() {
+  backup=('etc/doas.conf')
   depends=(
     # Core cli dependencies
     'busybox'
     'callaudiod'
     'curl'
-    'doas'
-    'ffmpeg'
+    'opendoas'
     'gawk'
     'geoclue'
     'gojq'
@@ -51,7 +53,6 @@ package_sxmo-utils() {
     'networkmanager'
     'pn'
     'superd'
-    'v4l-utils'
     'vvmd'
     'xdg-user-dirs'
 
@@ -70,14 +71,14 @@ package_sxmo-utils() {
     'libnotify'
     'light'
     'lisgd'
-    'bemenu'
-    'mediainfo'
     'mpv'
     'nerd-fonts-fira-mono' # system font
     'nerd-fonts-terminus')
-  optdepends=('bonsai: better multikey script' # TODO: upload a pkgbuild to the aur
+  optdepends=('bemenu-ncurses: sxmo menus over ssh'
+              'bonsai: better multikey script'
               'clickclack: haptic feedback'
               'codemadness-frontends: Youtube & Reddit scripts'
+              'mediainfo: sound recorder'
               'pipewire-pulse: recommended sound server'
               'sfeed: Rss and atom feeds'
               'vim: The default editor'
@@ -85,16 +86,17 @@ package_sxmo-utils() {
 
   make -C "$pkgname-$pkgver" OPENRC=0 DESTDIR="$pkgdir" install-scripts
 
+  # Allow access to ModemManager and NetworkManager
   install -Dm644 -t "$pkgdir/usr/share/polkit-1/rules.d" "00-sxmo.rules"
+
+  # Prevent logind from handling the power button
+  install -Dm644 -t "$pkgdir/etc/systemd/logind.conf.d" "10-sxmo.conf"
 
   # Fixup mode to match polkit
   install -d -o root -g 102 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
 
   # fix directory permissions, TODO this should be done upstream
   chmod 750 "$pkgdir/etc/doas.d"
-
-  # Fix sxmo internal version, it wasn't properly bumped upstream
-  echo "$pkgver-$pkgrel" > "$pkgdir/usr/share/sxmo/version"
 
   # HACK: doas is built without --with-doas-confdir so install the sxmo config directly
   install -Dm640 "$pkgdir/etc/doas.d/sxmo.conf" "$pkgdir/etc/doas.conf"
@@ -112,7 +114,6 @@ package_sxmo-ui-sway-meta() {
            'foot'
            'grim'
            'mako'
-           'seatd'
            'slurp'
            'sway'
            'swaybg'
@@ -162,9 +163,3 @@ package_sxmo-ui-dwm-meta() {
 
   make -C "$pkgbase-$pkgver" DESTDIR="$pkgdir" install-dwm
 }
-
-sha512sums=('fcc59168b37d565fca5fd033bfa8663ae014b3b2adfd6cb5d33a9d8b9583477291d5fa466cdbab9ea2d45df29f60313b2032bb5d18fdf1c450d64c00b5b2db42'
-            'cd68928c83c1f1bed1fd8572a0c06ef111122ffbc969cf697b94067830106cef44183bf8ddd1296e51ef42ed60526a411979078bbb67b8b2a60db719f0c767cd'
-            'bbdd90ceabb558c871485205bb824f379dc4bc2a70e3fad5ca2d08d5a8b9ee03933818e65c8354c50f46362a1646d8e8d15b3cc2b8be8fb54b10581673cc0c4f'
-            'd705fc9611716a73c89da94bf3abc9292e9069bc994b0bd097159f4babd83d4693d5cc3e42336739ac46a8c6b4a0f39d077047202901dc5066df75e597450fa7'
-            '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd')
