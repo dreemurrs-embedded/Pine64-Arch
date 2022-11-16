@@ -1,6 +1,8 @@
-# Maintainer: dni <office@dnilabs.com>
+# Maintainer: Aren <aren@peacevolution.org>
+# Contributor: dni <office@dnilabs.com>
+
 pkgname=danctnix-sxmo-settings
-pkgver=20211117
+pkgver=20221116
 pkgrel=1
 pkgdesc="Configuration files for SXMO"
 url="https://sr.ht/~mil/Sxmo/"
@@ -8,19 +10,14 @@ arch=('any')
 license=('MIT')
 depends=('modemmanager' 'bluez' 'sxmo-utils' 'tinydm')
 install="$pkgname.install"
-source=('10-sxmo.conf'
-        'sxmo-qt-mobile-controls.sh')
+source=('sxmo-qt-mobile-controls.sh')
 
 pkgver() {
     date +%Y%m%d
 }
 
 package() {
-    mkdir -p "$pkgdir/etc/systemd/logind.conf.d"
-    cp -v 10-sxmo.conf "$pkgdir/etc/systemd/logind.conf.d"
-
     install -Dm755 -t "$pkgdir/etc/profile.d/" sxmo-qt-mobile-controls.sh
 }
 
-sha512sums=('b69a09f98f8a5cad8164cd48c5f6a78f2ce0e9818fb77ccf2a3e243cd0f2023e438022b20aad9e6b5edd90e1bb862326db79dc423630682d4c43e897090d3da1'
-            'bf8db527c49fa724e640a90269ba2648a2555f5867b2adbfbd88d1f685261f757339757c09ee08f590c76de4bd3d0c73a47dea9bd340644dd4707e76152cefd1')
+sha512sums=('bf8db527c49fa724e640a90269ba2648a2555f5867b2adbfbd88d1f685261f757339757c09ee08f590c76de4bd3d0c73a47dea9bd340644dd4707e76152cefd1')
