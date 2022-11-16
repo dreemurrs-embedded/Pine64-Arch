@@ -1,42 +1,67 @@
-From 5b9a42821ec246ae4f81e8f13465da2709a10a23 Mon Sep 17 00:00:00 2001
+From 22a789488701a08a1abc1e13a316290349749b6a Mon Sep 17 00:00:00 2001
 From: ArenM <aren@peacevolution.org>
 Date: Wed, 27 Apr 2022 23:57:38 -0400
 Subject: [PATCH sxmo-utils] Systemd compatibility
 
-* Arch enables pipewire, mmsd, and vvmd services by default. This
-  removes the superd config files for them to avoid issues.
+* When systemd is available it's preferable to use it for services that
+  ship a service file (pipewire, mmsd, and vvmd). This removes the
+  superd config files for them to avoid issues.
 
 * Change superctl to systemctl --user in mmsd & vvmd config scripts
-  since we're managing it with systemd.
-
-* Remove the callaudiod service, callaudiod is intended to be started
-  with dbus actcivation.
+  since we're managing them with systemd.
 ---
- configs/default_hooks/sxmo_hook_start.sh      | 21 ++-----------------
- configs/superd/services/callaudiod.service    |  9 --------
- configs/superd/services/mmsd.service          |  7 -------
- .../superd/services/pipewire-pulse.service    |  9 --------
- configs/superd/services/pipewire.service      |  8 -------
- configs/superd/services/vvmd.service          |  7 -------
- configs/superd/services/wireplumber.service   |  9 --------
- scripts/core/sxmo_mmsdconfig.sh               |  4 ++--
- scripts/core/sxmo_vvmdconfig.sh               |  4 ++--
- 9 files changed, 6 insertions(+), 72 deletions(-)
- delete mode 100644 configs/superd/services/callaudiod.service
+ configs/default_hooks/sxmo_hook_logout.sh      |  6 ------
+ configs/default_hooks/sxmo_hook_start.sh       | 16 +---------------
+ configs/superd/services/mmsd.service           |  7 -------
+ configs/superd/services/pipewire-pulse.service |  9 ---------
+ configs/superd/services/pipewire.service       |  8 --------
+ configs/superd/services/vvmd.service           |  7 -------
+ configs/superd/services/wireplumber.service    |  9 ---------
+ scripts/core/sxmo_mmsdconfig.sh                |  4 ++--
+ scripts/core/sxmo_vvmdconfig.sh                |  4 ++--
+ 9 files changed, 5 insertions(+), 65 deletions(-)
  delete mode 100644 configs/superd/services/mmsd.service
  delete mode 100644 configs/superd/services/pipewire-pulse.service
  delete mode 100644 configs/superd/services/pipewire.service
  delete mode 100644 configs/superd/services/vvmd.service
  delete mode 100644 configs/superd/services/wireplumber.service
 
+diff --git a/configs/default_hooks/sxmo_hook_logout.sh b/configs/default_hooks/sxmo_hook_logout.sh
+index b4b0bf3..4640bed 100755
+--- a/configs/default_hooks/sxmo_hook_logout.sh
++++ b/configs/default_hooks/sxmo_hook_logout.sh
+@@ -5,9 +5,3 @@
+ # "cool off" before we restart wm, but otherwise everything *should* die with the
+ # wm
+ superctl stop sxmo_soundmonitor
+-superctl stop wireplumber
+-superctl stop pipewire-pulse
+-superctl stop pipewire
+-
+-# give pipewire time
+-sleep 5s
 diff --git a/configs/default_hooks/sxmo_hook_start.sh b/configs/default_hooks/sxmo_hook_start.sh
-index 3565f71..26bb39a 100644
+index 94255f9..1a1ebbf 100755
 --- a/configs/default_hooks/sxmo_hook_start.sh
 +++ b/configs/default_hooks/sxmo_hook_start.sh
-@@ -48,14 +48,6 @@ case "$SXMO_WM" in
- 		;;
- esac
+@@ -20,11 +20,6 @@ while ! superctl status > /dev/null 2>&1; do
+ 	sleep 0.1
+ done
  
+-# Load our sound daemons
+-# pipewire-pulse will start pipewire
+-superctl start pipewire-pulse
+-superctl start wireplumber
+-
+ # mako/dunst are required for warnings.
+ # load some other little things here too.
+ case "$SXMO_WM" in
+@@ -82,16 +77,7 @@ superctl start sxmo_soundmonitor
+ #mpv --quiet --no-video ~/welcome.ogg &
+ 
+ # Set a background image: edit ~/.config/sxmo/sway or ~/.config/sxmo/xinit
+-
+-# mmsd and vvmd
 -if [ -f "${SXMO_MMS_BASE_DIR:-"$HOME"/.mms/modemmanager}/mms" ]; then
 -	superctl start mmsd
 -fi
@@ -45,44 +70,10 @@ index 3565f71..26bb39a 100644
 -	superctl start vvmd
 -fi
 -
- # Start the desktop widget (e.g. clock)
- superctl start sxmo_desktop_widget
++#
+ # add some warnings if things are not setup correctly
+ deviceprofile="$(command -v "sxmo_deviceprofile_$SXMO_DEVICE_NAME.sh")"
  
-@@ -76,17 +68,8 @@ superctl start sxmo_notificationmonitor
- # To setup initial lock state
- sxmo_hook_unlock.sh
- 
--superctl start pipewire
--superctl start pipewire-pulse
--superctl start wireplumber
--
--(
--	sleep 5 # let some time to pipewire
--	superctl start callaudiod
--
--	# Turn on the dbus-monitors for modem-related tasks
--	sxmo_daemons.sh start modem_monitor sxmo_modemmonitor.sh
--) &
-+# Turn on the dbus-monitors for modem-related tasks
-+sxmo_daemons.sh start modem_monitor sxmo_modemmonitor.sh
- 
- sxmo_migrate.sh state || sxmo_notify_user.sh --urgency=critical \
- 	"Config needs migration" "$? file(s) in your sxmo configuration are out of date and disabled - using defaults until you migrate (run sxmo_migrate.sh)"
-diff --git a/configs/superd/services/callaudiod.service b/configs/superd/services/callaudiod.service
-deleted file mode 100644
-index 2399ffd..0000000
---- a/configs/superd/services/callaudiod.service
-+++ /dev/null
-@@ -1,9 +0,0 @@
--[Unit]
--Description=call audio routing daemon
--After=pipewire-pulse
--
--[Service]
--Type=simple
--Restart=always
--ExecStart=/usr/bin/callaudiod
--ExecOnFailure=/usr/bin/sxmo_notify_user.sh "superd failed to start callaudiod"
 diff --git a/configs/superd/services/mmsd.service b/configs/superd/services/mmsd.service
 deleted file mode 100644
 index 7096ddb..0000000
@@ -154,7 +145,7 @@ index e1a0602..0000000
 -ExecStart=/usr/bin/wireplumber
 -ExecOnFailure=/usr/bin/sxmo_notify_user.sh "superd failed to start wireplumber"
 diff --git a/scripts/core/sxmo_mmsdconfig.sh b/scripts/core/sxmo_mmsdconfig.sh
-index 78d9378..586c389 100644
+index 78d9378..586c389 100755
 --- a/scripts/core/sxmo_mmsdconfig.sh
 +++ b/scripts/core/sxmo_mmsdconfig.sh
 @@ -75,10 +75,10 @@ newfile() {
@@ -171,7 +162,7 @@ index 78d9378..586c389 100644
  trap 'finish' EXIT
  
 diff --git a/scripts/core/sxmo_vvmdconfig.sh b/scripts/core/sxmo_vvmdconfig.sh
-index ab14e4e..0ef7e95 100644
+index ab14e4e..0ef7e95 100755
 --- a/scripts/core/sxmo_vvmdconfig.sh
 +++ b/scripts/core/sxmo_vvmdconfig.sh
 @@ -65,10 +65,10 @@ newfile() {
@@ -188,5 +179,5 @@ index ab14e4e..0ef7e95 100644
  trap 'finish' EXIT
  
 -- 
-2.37.3
+2.38.1
 
