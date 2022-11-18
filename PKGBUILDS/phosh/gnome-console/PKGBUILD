@@ -1,15 +1,15 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=gnome-console
-pkgver=42.2
+pkgver=43.0
 pkgrel=1
 pkgdesc="A simple user-friendly terminal emulator for the GNOME desktop."
 url="https://gitlab.gnome.org/GNOME/console"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('vte3' 'gtk3' 'glib2' 'libhandy' 'libgtop' 'sassc')
+depends=('vte4' 'gtk4' 'glib2' 'libadwaita' 'libgtop' 'sassc')
 makedepends=('git' 'meson' 'libnautilus-extension')
 replaces=('kgx')
-_commit="e33b965c64418841b13dcf7dd0a336c151e36d1c"  # tags/42.2
+_commit="cffddb1a7bbf8ad1b1616cc026909411e218db1a"  # tags/43.0
 source=("${pkgname}::git+https://gitlab.gnome.org/GNOME/console.git#commit=$_commit")
 
 pkgver() {
