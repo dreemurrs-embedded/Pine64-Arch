@@ -4,15 +4,16 @@
 
 # DANCTNIX: This patches Telegram Desktop so that it can be more adaptive on mobile.
 pkgname=telegram-desktop
-pkgver=4.2.4
-pkgrel=1
+pkgver=4.3.1
+pkgrel=2
 pkgdesc='Official Telegram Desktop client'
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://desktop.telegram.org/"
 license=('GPL3')
 depends=('hunspell' 'ffmpeg4.4' 'hicolor-icon-theme' 'lz4' 'minizip' 'openal' 'ttf-opensans'
-         'qt6-imageformats' 'qt6-svg' 'qt6-wayland' 'qt6-5compat' 'xxhash' 'glibmm'
-         'rnnoise' 'pipewire' 'libxtst' 'libxrandr' 'jemalloc' 'abseil-cpp' 'libdispatch')
+         'qt6-imageformats' 'qt6-svg' 'qt6-wayland' 'qt6-5compat' 'xxhash' 'glibmm-2.68'
+         'rnnoise' 'pipewire' 'libxtst' 'libxrandr' 'jemalloc' 'abseil-cpp' 'libdispatch'
+         'openssl-1.1')
 makedepends=('cmake' 'git' 'ninja' 'python' 'range-v3' 'tl-expected' 'microsoft-gsl' 'meson'
              'extra-cmake-modules' 'wayland-protocols' 'plasma-wayland-protocols' 'libtg_owt')
 optdepends=('webkit2gtk: embedded browser features'
@@ -20,7 +21,7 @@ optdepends=('webkit2gtk: embedded browser features'
 source=("https://github.com/telegramdesktop/tdesktop/releases/download/v${pkgver}/tdesktop-${pkgver}-full.tar.gz"
         'small-sizes.patch'
         'more-scale.patch')
-sha512sums=('c0b458e4f21855d1041f7343ffdd501890a7535d040b45a8bd565e545d5bc01a00703af65e14ae407bf53f81a6d28d3f7d6afa664eb5b8e5641b21bb8e669a3a'
+sha512sums=('365c16f4260827e3ad7e066f6ec96fc97a6f5874df376933f16de20c3488c24f52bc1aa3bd5df936f29a198e287dc8e706b259d57d7d7a9d6468c7edc7568514'
             '413a2bb5dc8ff582c97351ba35158f5926c157465c72545f488ea5d5dde1a048fc339dcb158c0e17cd5baa1d600b8ff7acdd86262254ddd18585559413871566'
             '452ebf8a8c2bf841521ebd304ad6c0212a2939f16ed9b278eb3b0327e608867d1ed86b4ef4e24ad18d3fcb40ce9e01fcdfe4e8c694ac4e5525176fef7974e781')
 
