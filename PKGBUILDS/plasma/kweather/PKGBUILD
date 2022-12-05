@@ -4,16 +4,16 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=kweather
-pkgver=22.09
+pkgver=22.11
 pkgrel=1
 pkgdesc="Simple Weather application for Mobile Devices running Plasma"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://invent.kde.org/plasma-mobile/kweather"
 license=('GPL-2.0-or-later')
-depends=('kconfig' 'kcoreaddons' 'ki18n' 'kirigami2' 'knotifications' 'plasma-framework' 'kquickcharts' 'qt5-charts' 'qt5-quickcontrols2' 'qt5-declarative' 'kweathercore')
+depends=('kconfig' 'kcoreaddons' 'ki18n' 'kirigami2' 'knotifications' 'plasma-framework' 'kquickcharts' 'qt5-charts' 'qt5-quickcontrols2' 'qt5-declarative' 'kweathercore' 'kirigami-addons')
 makedepends=('git' 'cmake' 'extra-cmake-modules' 'qt5-svg')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/kweather-$pkgver.tar.xz")
-md5sums=('d484759755419cf0fe3878bd35ced1ca')
+md5sums=('5607ea20600cabbd4b758f6ca2fabe52')
 
 prepare() {
     mkdir build
