@@ -4,13 +4,13 @@
 
 # DANCTNIX: This patches Telegram Desktop so that it can be more adaptive on mobile.
 pkgname=telegram-desktop
-pkgver=4.4.0
-pkgrel=1
+pkgver=4.4.1
+pkgrel=2
 pkgdesc='Official Telegram Desktop client'
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://desktop.telegram.org/"
 license=('GPL3')
-depends=('hunspell' 'ffmpeg4.4' 'hicolor-icon-theme' 'lz4' 'minizip' 'openal' 'ttf-opensans'
+depends=('hunspell' 'ffmpeg' 'hicolor-icon-theme' 'lz4' 'minizip' 'openal' 'ttf-opensans'
          'qt6-imageformats' 'qt6-svg' 'qt6-wayland' 'qt6-5compat' 'xxhash' 'glibmm-2.68'
          'rnnoise' 'pipewire' 'libxtst' 'libxrandr' 'jemalloc' 'abseil-cpp' 'libdispatch'
          'openssl-1.1' 'protobuf')
@@ -21,7 +21,7 @@ optdepends=('webkit2gtk: embedded browser features'
 source=("https://github.com/telegramdesktop/tdesktop/releases/download/v${pkgver}/tdesktop-${pkgver}-full.tar.gz"
         'small-sizes.patch'
         'more-scale.patch')
-sha512sums=('7c9f4422c3b1f588703dfec28fb9478d51db40f679ac62a3b49e219381a5f8803a08a1d3cded605f5a92b3e3b7cb27765d1c721c17226f1a1744c6732a128af0'
+sha512sums=('91038f0a615ef7ae1050cbfa614041a3d6a45fdbd26d120ef98cca3c31377612c3bb1e80f9aff58c4853a1726bf2cfb427f752a4f88a796f05b381516c981563'
             '413a2bb5dc8ff582c97351ba35158f5926c157465c72545f488ea5d5dde1a048fc339dcb158c0e17cd5baa1d600b8ff7acdd86262254ddd18585559413871566'
             '452ebf8a8c2bf841521ebd304ad6c0212a2939f16ed9b278eb3b0327e608867d1ed86b4ef4e24ad18d3fcb40ce9e01fcdfe4e8c694ac4e5525176fef7974e781')
 
@@ -43,7 +43,6 @@ prepare() {
 build() {
     cd tdesktop-$pkgver-full
 
-    export PKG_CONFIG_PATH='/usr/lib/ffmpeg4.4/pkgconfig'
     #Turns out we're allowed to use the official API key that telegram uses for their snap builds:
     # https://github.com/telegramdesktop/tdesktop/blob/8fab9167beb2407c1153930ed03a4badd0c2b59f/snap/snapcraft.yaml#L87-L88
     # Thanks @primeos!
