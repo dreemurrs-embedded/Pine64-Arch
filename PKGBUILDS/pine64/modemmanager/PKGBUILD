@@ -4,7 +4,7 @@
 
 pkgbase=modemmanager
 pkgname=(modemmanager libmm-glib)
-pkgver=1.20.0
+pkgver=1.20.2
 pkgrel=1
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
@@ -15,7 +15,7 @@ depends=(systemd libgudev polkit ppp libqmi libmbim
 makedepends=(gtk-doc gobject-introspection vala meson git bash-completion)
 checkdepends=(python-gobject python-dbus)
 options=(debug)
-_commit=d4fcb2a57c978b2ef9d819d32c54c1695582e32b  # tags/1.20.0^0
+_commit=638c2275df9700efe8fa33be1697fa99a906d929  # tags/1.20.2^0
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
         'modemmanager-polkit.rules'
         '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
