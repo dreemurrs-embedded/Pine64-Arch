@@ -1,0 +1,15 @@
+--- a/src/userChrome/browser.css	2023-01-02 08:04:31.703693847 +0700
++++ b/src/userChrome/browser.css	2023-01-02 08:05:56.008475101 +0700
+@@ -1,12 +1,7 @@
+ /* Copyright 2022 plata
+  * SPDX-License-Identifier: MPL-2.0 */
+ 
+-/* Move navigation bar to bottom */
+ @media (max-width: 700px) {
+-    #browser {
+-        -moz-box-ordinal-group: 0 !important;
+-    }
+-
+     /* Hide navigation bar in kiosk mode (to prevent bug #29). We can assume FF
+      * is in kiosk mode when fullscreen and max-width conditions are met,
+      * because at this max-width the fullscreen button is hidden

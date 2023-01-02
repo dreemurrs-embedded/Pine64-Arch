@@ -1,13 +1,19 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=mobile-config-firefox
-pkgver=3.1.0
+pkgver=3.2.0
 pkgrel=1
 pkgdesc="Mobile and privacy friendly configuration for Firefox"
 arch=(any)
 url="https://gitlab.com/postmarketOS/mobile-config-firefox"
 license=('GPL3')
 depends=(firefox)
-source=($pkgname-$pkgver.tar.gz::https://gitlab.com/postmarketOS/mobile-config-firefox/-/archive/$pkgver/$pkgname-$pkgver.tar.gz)
+source=($pkgname-$pkgver.tar.gz::https://gitlab.com/postmarketOS/mobile-config-firefox/-/archive/$pkgver/$pkgname-$pkgver.tar.gz
+        'dont-move-navigation-bar-to-bottom.patch')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  patch -p1 < ../dont-move-navigation-bar-to-bottom.patch
+}
 
 build() {
   cd "$pkgname-$pkgver"
@@ -18,4 +24,5 @@ package() {
   cd "$pkgname-$pkgver"
   make DESTDIR="$pkgdir" install
 }
-md5sums=('ffe91d3c4723c7fb63a56888d926332d')
+md5sums=('a5e31518ee34fe0bc6dc198d08a89b2c'
+         '9d801695fdaab05091eaaaf97736323c')
