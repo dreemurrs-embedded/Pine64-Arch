@@ -3,7 +3,7 @@
 
 pkgname=eg25-manager
 pkgver=0.4.6
-pkgrel=1
+pkgrel=2
 _commit=e7790f941c053837e596dccd92ba97051a2d4cc1
 pkgdesc="Daemon for managing the Quectel EG25 modem"
 arch=('aarch64')
@@ -11,8 +11,7 @@ url="https://gitlab.com/mobian1/devices/eg25-manager"
 license=('GPL3')
 depends=('libgudev' 'libgpiod' 'libusb' 'libmm-glib')
 makedepends=('meson' 'ninja' 'scdoc' 'git')
-optdepends=('modemmanager: for Phosh'
-            'ofono: for Lomiri or Plasma Mobile')
+optdepends=('modemmanager: for Phosh and Plasma Mobile')
 replaces=('danctnix-eg25-misc')
 source=(git+$url.git#commit=${_commit})
 sha256sums=('SKIP')
