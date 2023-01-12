@@ -4,8 +4,8 @@
 
 # DANCTNIX: This patches Telegram Desktop so that it can be more adaptive on mobile.
 pkgname=telegram-desktop
-pkgver=4.4.1
-pkgrel=2
+pkgver=4.5.3
+pkgrel=1
 pkgdesc='Official Telegram Desktop client'
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://desktop.telegram.org/"
@@ -21,7 +21,7 @@ optdepends=('webkit2gtk: embedded browser features'
 source=("https://github.com/telegramdesktop/tdesktop/releases/download/v${pkgver}/tdesktop-${pkgver}-full.tar.gz"
         'small-sizes.patch'
         'more-scale.patch')
-sha512sums=('91038f0a615ef7ae1050cbfa614041a3d6a45fdbd26d120ef98cca3c31377612c3bb1e80f9aff58c4853a1726bf2cfb427f752a4f88a796f05b381516c981563'
+sha512sums=('58a9c5d096e236090347388e1ed480527f841045a80771079dc0c3e35e12ce8ac11753987e87bb57870d9bd8488fc6a4734114648ecec7823d8544744b06c6b1'
             '413a2bb5dc8ff582c97351ba35158f5926c157465c72545f488ea5d5dde1a048fc339dcb158c0e17cd5baa1d600b8ff7acdd86262254ddd18585559413871566'
             '452ebf8a8c2bf841521ebd304ad6c0212a2939f16ed9b278eb3b0327e608867d1ed86b4ef4e24ad18d3fcb40ce9e01fcdfe4e8c694ac4e5525176fef7974e781')
 
