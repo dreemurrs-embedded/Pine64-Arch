@@ -1,52 +1,44 @@
-From b94ee51a5d818e55b3288d2fa3cbc27837981307 Mon Sep 17 00:00:00 2001
+From 4061bf81c366ccb309e2e597c5012ca246809b3a Mon Sep 17 00:00:00 2001
 From: Bobby The Builder <bob@najdan.com>
-Date: Mon, 29 Mar 2021 16:42:07 -0400
-Subject: [PATCH] expose DRAM clock speed
+Date: Thu, 12 Jan 2023 10:23:39 -0500
+Subject: [PATCH] common: expose DRAM clock speed
 
 ---
- common/board_f.c | 6 ++++--
- common/main.c    | 7 +++++++
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ common/board_f.c | 3 +++
+ common/main.c    | 6 ++++++
+ 2 files changed, 9 insertions(+)
 
 diff --git a/common/board_f.c b/common/board_f.c
-index 9f441c44f1..8e005337e6 100644
+index e6117a7ba5..1fcfd3da86 100644
 --- a/common/board_f.c
 +++ b/common/board_f.c
-@@ -226,12 +226,14 @@ static int show_dram_config(void)
- 		print_size(gd->bd->bi_dram[i].size, "\n");
- #endif
- 	}
--	debug("\nDRAM:  ");
-+	debug("\nDRAM Size:  ");
+@@ -251,6 +251,9 @@ static int show_dram_config(void)
+ 	debug("\nDRAM:  ");
  
- 	print_size(size, "");
- 	board_add_ram_info(0);
- 	putc('\n');
--
+ 	print_size(gd->ram_size, "");
 +#if defined(CONFIG_DRAM_CLK)
-+	printf("DRAM Clock: %d MHz\n", CONFIG_DRAM_CLK);
++	printf(" @ %d MHz", CONFIG_DRAM_CLK);
 +#endif
- 	return 0;
- }
- 
+ 	if (!sizes_near(gd->ram_size, size)) {
+ 		printf(" (effective ");
+ 		print_size(size, ")");
 diff --git a/common/main.c b/common/main.c
-index 4b3cd302c3..1dbb44060d 100644
+index 682f3359ea..877df4c858 100644
 --- a/common/main.c
 +++ b/common/main.c
-@@ -45,6 +45,13 @@ void main_loop(void)
+@@ -46,6 +46,12 @@ void main_loop(void)
  	if (IS_ENABLED(CONFIG_VERSION_VARIABLE))
  		env_set("ver", version_string);  /* set version variable */
  
 +#if defined(CONFIG_DRAM_CLK)
 +	char ram_clk_string[11];
 +	sprintf(ram_clk_string, "%d", CONFIG_DRAM_CLK);
-+	int ret = env_set("ram_freq", ram_clk_string);
-+	printf("Set ram_freq : %s\n", ram_clk_string);
++	env_set("ram_freq", ram_clk_string);
 +#endif
 +
  	cli_init();
  
  	if (IS_ENABLED(CONFIG_USE_PREBOOT))
 -- 
-2.30.2
+2.38.1
 
