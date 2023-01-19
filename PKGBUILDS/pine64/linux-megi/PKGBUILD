@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=6.0.10
+pkgver=6.1.7
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -15,13 +15,15 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="e191fb41a4fa9d8e8e3b2f4b0452c536222c087e"
+_commit="aa3e5fabfb690946cab52a6ea8de32c3a1fc75e8"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
         # Patches
+        # Sleep Mode
+        '0001-arm64-dts-allwinner-a64-h5-Add-CPU-idle-states.patch'
         # PinePhone Patches
         'dts-pinephone-drop-modem-power-node.patch'
         'dts-pinephone-pro-remove-modem-node.patch'
@@ -245,11 +247,12 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('101ff66b4cf2bba4b3166d2451f142fa'
-         'b8dcdf5e9dc64efe12ae2452b4e05fd8'
+md5sums=('d700d8a68f4f01ddb298e1008ee71fa7'
+         '29399e5670b600b8b0070cd499d64225'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
+         '081b35c2970e3fec444b32f941a26e1d'
          '10d200e0a964f24cdb744678a758e22b'
          'ed972b8da2887aef963e63268b055cd3'
          '7d80f76f1647afa00de320f5866484a1'
@@ -259,8 +262,8 @@ md5sums=('101ff66b4cf2bba4b3166d2451f142fa'
          '60e9d1ccba52bd2634fbe8034b110e36'
          'a31a435ab6cd8e7a47601159d665ce50'
          'fed6ae4ac4c3f56178fa4aca6c934d6f'
-         'c52849cc82994edbd8ec665a2a6048a3'
-         'b796ce863a8ce07d8e01623577fcf659'
+         'ee3fad8e3468bba539a42ee3ed2b488f'
+         '8878beda05ef17755a6228ab3250bbbc'
          'cd3d72f7f71192225f2126abe11800a9'
          'a6407dceae1838f5aa27450401a91be6'
          'cb78b1c11b917a4d31c4b1567183b76f'
