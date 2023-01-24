@@ -1,0 +1,73 @@
+# Maintainer: Chris Billington <cbillington@emulti.net>
+# Contributors: Dan Johansen <strit@manjaro.org>, Ladislav Nesnera
+
+pkgname=osmin
+pkgver=1.9.3
+pkgrel=1
+
+_commit=914491c391be2ed659071fbc3d15497178306b7a # 1.9.3
+
+pkgdesc="Satellite Navigator & Tracker On-Road/Off-Road for Mobile"
+arch=('x86_64' 'aarch64')
+url="https://github.com/janbar/osmin"
+license=('GPL-3.0')
+
+depends=(
+	'openmp'
+	'qt5-graphicaleffects'
+	'qt5-location'
+	'qt5-multimedia'
+	'qt5-quickcontrols2'
+	'qt5-sensors'
+	'qt5-svg'
+	'qt5-wayland'
+	'qt5-remoteobjects'
+	)
+
+makedepends=(
+	'clang'
+	'cmake'
+	'double-conversion'
+	'git'
+	'glib2'
+	'md4c'
+	'tslib'
+	'xcb-util-image'
+	'xcb-util-keysyms'
+	'xdg-utils'
+	)
+
+#source=("${pkgname}-${pkgver}.tar.gz::https://github.com/janbar/osmin/archive/refs/tags/$pkgver.tar.gz")
+
+source=( "git+https://github.com/janbar/osmin.git#commit=$_commit") # specific git commit
+
+#source=( "git+https://github.com/janbar/osmin.git") # git master
+
+sha256sums=('SKIP')
+
+prepare() {
+	cd "$srcdir/$pkgname"
+	git submodule init
+	git submodule update
+	mkdir -p build
+	}
+
+build() {
+
+	cd "$srcdir/$pkgname"
+
+	_cmakeoptions="
+         -DBUILD_DEVICE_MOBILE=ON
+         -DCMAKE_C_COMPILER=/usr/bin/clang
+         -DCMAKE_CXX_COMPILER=/usr/bin/clang++
+         -DCMAKE_INSTALL_PREFIX=/usr"
+
+	cmake -B build . $_cmakeoptions
+
+	cmake --build build/
+	}
+
+package() {
+	cd "$srcdir/$pkgname/build"
+	make DESTDIR="$pkgdir/" install
+	}
