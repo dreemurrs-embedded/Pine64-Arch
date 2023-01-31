@@ -16,3 +16,6 @@
 [submodule "PKGBUILDS/sxmo/wvkbd"]
 	path = PKGBUILDS/sxmo/wvkbd
 	url = https://aur.archlinux.org/wvkbd.git
+[submodule "PKGBUILDS/sxmo/pnc"]
+	path = PKGBUILDS/sxmo/pnc
+	url = https://aur.archlinux.org/pnc.git
