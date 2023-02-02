@@ -4,7 +4,7 @@
 pkgname=gnome-clocks-mobile
 _pkgname=gnome-clocks
 pkgver=41.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Clocks applications for GNOME"
 url="https://wiki.gnome.org/Apps/Clocks"
 arch=(x86_64 armv7h aarch64)
