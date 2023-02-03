@@ -1,183 +1,81 @@
-From 22a789488701a08a1abc1e13a316290349749b6a Mon Sep 17 00:00:00 2001
+From 2058cac12c8b42b7c18ef0ea8755c2243514a79b Mon Sep 17 00:00:00 2001
 From: ArenM <aren@peacevolution.org>
 Date: Wed, 27 Apr 2022 23:57:38 -0400
 Subject: [PATCH sxmo-utils] Systemd compatibility
 
-* When systemd is available it's preferable to use it for services that
-  ship a service file (pipewire, mmsd, and vvmd). This removes the
-  superd config files for them to avoid issues.
-
-* Change superctl to systemctl --user in mmsd & vvmd config scripts
-  since we're managing them with systemd.
+Sxmo's default configuration attempts to start services that systemd
+expects to manage.
 ---
- configs/default_hooks/sxmo_hook_logout.sh      |  6 ------
- configs/default_hooks/sxmo_hook_start.sh       | 16 +---------------
- configs/superd/services/mmsd.service           |  7 -------
- configs/superd/services/pipewire-pulse.service |  9 ---------
- configs/superd/services/pipewire.service       |  8 --------
- configs/superd/services/vvmd.service           |  7 -------
- configs/superd/services/wireplumber.service    |  9 ---------
- scripts/core/sxmo_mmsdconfig.sh                |  4 ++--
- scripts/core/sxmo_vvmdconfig.sh                |  4 ++--
- 9 files changed, 5 insertions(+), 65 deletions(-)
- delete mode 100644 configs/superd/services/mmsd.service
- delete mode 100644 configs/superd/services/pipewire-pulse.service
- delete mode 100644 configs/superd/services/pipewire.service
- delete mode 100644 configs/superd/services/vvmd.service
- delete mode 100644 configs/superd/services/wireplumber.service
+ configs/default_hooks/sxmo_hook_start.sh | 19 -------------------
+ scripts/core/sxmo_mmsdconfig.sh          |  3 +++
+ scripts/core/sxmo_vvmdconfig.sh          |  3 +++
+ 3 files changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/configs/default_hooks/sxmo_hook_logout.sh b/configs/default_hooks/sxmo_hook_logout.sh
-index b4b0bf3..4640bed 100755
---- a/configs/default_hooks/sxmo_hook_logout.sh
-+++ b/configs/default_hooks/sxmo_hook_logout.sh
-@@ -5,9 +5,3 @@
- # "cool off" before we restart wm, but otherwise everything *should* die with the
- # wm
- superctl stop sxmo_soundmonitor
--superctl stop wireplumber
--superctl stop pipewire-pulse
--superctl stop pipewire
--
--# give pipewire time
--sleep 5s
 diff --git a/configs/default_hooks/sxmo_hook_start.sh b/configs/default_hooks/sxmo_hook_start.sh
-index 94255f9..1a1ebbf 100755
+index d7256f3..ab1a6db 100755
 --- a/configs/default_hooks/sxmo_hook_start.sh
 +++ b/configs/default_hooks/sxmo_hook_start.sh
-@@ -20,11 +20,6 @@ while ! superctl status > /dev/null 2>&1; do
- 	sleep 0.1
+@@ -16,16 +16,6 @@ while ! superctl status > /dev/null 2>&1; do
+ 	sleep 0.5
  done
  
 -# Load our sound daemons
--# pipewire-pulse will start pipewire
--superctl start pipewire-pulse
--superctl start wireplumber
 -
- # mako/dunst are required for warnings.
- # load some other little things here too.
- case "$SXMO_WM" in
-@@ -82,16 +77,7 @@ superctl start sxmo_soundmonitor
- #mpv --quiet --no-video ~/welcome.ogg &
+-if [ "$(command -v pulseaudio)" ]; then
+-	superctl start pulseaudio
+-elif [ "$(command -v pipewire)" ]; then
+-	# pipewire-pulse will start pipewire
+-	superctl start pipewire-pulse
+-	superctl start wireplumber
+-fi
+-
+ # Periodically update some status bar components
+ sxmo_hook_statusbar.sh all
+ sxmo_daemons.sh start statusbar_periodics sxmo_run_aligned.sh 60 \
+@@ -84,15 +74,6 @@ superctl start sxmo_soundmonitor
  
  # Set a background image: edit ~/.config/sxmo/sway or ~/.config/sxmo/xinit
--
+ 
 -# mmsd and vvmd
 -if [ -f "${SXMO_MMS_BASE_DIR:-"$HOME"/.mms/modemmanager}/mms" ]; then
--	superctl start mmsd
+-	superctl start mmsd-tng
 -fi
 -
 -if [ -f "${SXMO_VVM_BASE_DIR:-"$HOME"/.vvm/modemmanager}/vvm" ]; then
 -	superctl start vvmd
 -fi
 -
-+#
  # add some warnings if things are not setup correctly
  deviceprofile="$(command -v "sxmo_deviceprofile_$SXMO_DEVICE_NAME.sh")"
  
-diff --git a/configs/superd/services/mmsd.service b/configs/superd/services/mmsd.service
-deleted file mode 100644
-index 7096ddb..0000000
---- a/configs/superd/services/mmsd.service
-+++ /dev/null
-@@ -1,7 +0,0 @@
--[Unit]
--Description=daemon for receiving and managing GSM MMS messages
--
--[Service]
--Type=simple
--Restart=always
--ExecStart=/usr/bin/mmsdtng
-diff --git a/configs/superd/services/pipewire-pulse.service b/configs/superd/services/pipewire-pulse.service
-deleted file mode 100644
-index 10d78a2..0000000
---- a/configs/superd/services/pipewire-pulse.service
-+++ /dev/null
-@@ -1,9 +0,0 @@
--[Unit]
--Description=low-level multimedia framework - capture and playback for both audio and video
--After=pipewire
--
--[Service]
--Type=simple
--Restart=always
--ExecStart=/usr/bin/pipewire -c pipewire-pulse.conf
--ExecOnFailure=/usr/bin/sxmo_notify_user.sh "superd failed to start pipewire-pulse"
-diff --git a/configs/superd/services/pipewire.service b/configs/superd/services/pipewire.service
-deleted file mode 100644
-index 707047e..0000000
---- a/configs/superd/services/pipewire.service
-+++ /dev/null
-@@ -1,8 +0,0 @@
--[Unit]
--Description=low-level multimedia framework - capture and playback for both audio and video
--
--[Service]
--Type=simple
--Restart=always
--ExecStart=/usr/bin/pipewire
--ExecOnFailure=/usr/bin/sxmo_notify_user.sh "superd failed to start pipewire"
-diff --git a/configs/superd/services/vvmd.service b/configs/superd/services/vvmd.service
-deleted file mode 100644
-index 33d01e1..0000000
---- a/configs/superd/services/vvmd.service
-+++ /dev/null
-@@ -1,7 +0,0 @@
--[Unit]
--Description=lower level daemon that retrieves Visual Voicemail
--
--[Service]
--Type=simple
--Restart=always
--ExecStart=/usr/bin/vvmd
-diff --git a/configs/superd/services/wireplumber.service b/configs/superd/services/wireplumber.service
-deleted file mode 100644
-index e1a0602..0000000
---- a/configs/superd/services/wireplumber.service
-+++ /dev/null
-@@ -1,9 +0,0 @@
--[Unit]
--Description=Session / policy manager implementation for PipeWire
--After=pipewire
--
--[Service]
--Type=simple
--Restart=always
--ExecStart=/usr/bin/wireplumber
--ExecOnFailure=/usr/bin/sxmo_notify_user.sh "superd failed to start wireplumber"
 diff --git a/scripts/core/sxmo_mmsdconfig.sh b/scripts/core/sxmo_mmsdconfig.sh
-index 78d9378..586c389 100755
+index 035ab93..36531e1 100755
 --- a/scripts/core/sxmo_mmsdconfig.sh
 +++ b/scripts/core/sxmo_mmsdconfig.sh
-@@ -75,10 +75,10 @@ newfile() {
+@@ -7,6 +7,9 @@
+ # shellcheck source=scripts/core/sxmo_common.sh
+ . "$(dirname "$0")/sxmo_common.sh"
  
- mkdir -p "$MMS_BASE_DIR"
++# on arch we manage mmsd with systemd instead of superd
++alias superctl='systemctl --user'
++
+ set -e
  
--superctl stop mmsd
-+systemctl --user stop mmsd-tng
- 
- finish() {
--	superctl start mmsd
-+	systemctl --user start mmsd-tng
- }
- trap 'finish' EXIT
- 
+ MMS_BASE_DIR="${SXMO_MMS_BASE_DIR:-"$HOME"/.mms/modemmanager}"
 diff --git a/scripts/core/sxmo_vvmdconfig.sh b/scripts/core/sxmo_vvmdconfig.sh
-index ab14e4e..0ef7e95 100755
+index ab14e4e..ae76ed0 100755
 --- a/scripts/core/sxmo_vvmdconfig.sh
 +++ b/scripts/core/sxmo_vvmdconfig.sh
-@@ -65,10 +65,10 @@ newfile() {
+@@ -9,6 +9,9 @@
  
- mkdir -p "$VVM_BASE_DIR"
+ set -e
  
--superctl stop vvmd
-+systemctl --user stop vvmd
- 
- finish() {
--	superctl start vvmd
-+	systemctl --user start vvmd
- }
- trap 'finish' EXIT
++# on arch we manage mmsd with systemd instead of superd
++alias superctl='systemctl --user'
++
+ VVM_BASE_DIR="${SXMO_VVM_BASE_DIR:-"$HOME"/.vvm/modemmanager}"
+ VVMCONFIG="$VVM_BASE_DIR/vvm"
  
 -- 
-2.38.1
+2.39.0
 
