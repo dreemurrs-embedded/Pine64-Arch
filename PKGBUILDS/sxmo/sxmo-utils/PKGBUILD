@@ -1,10 +1,10 @@
 # Maintainer: Aren <aren@peacevolution.org>
 # Contributor: dni <office@dnilabs.com>
 
-pkgname=('sxmo-utils' 'sxmo-ui-sway-meta' 'sxmo-ui-dwm-meta')
-pkgver=1.12.0
+pkgname=('sxmo-utils' 'sxmo-utils-sway' 'sxmo-utils-dwm')
+pkgver=1.13.0
 pkgrel=1
-pkgdesc="Utility scripts, programs, and configs that hold the Sxmo UI environment together"
+pkgdesc="Utility scripts, programs, and configs that hold the sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('AGPL3')
@@ -15,8 +15,8 @@ source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkg
         '00-sxmo.rules'
         '10-sxmo.conf'
         'sxmo-setpermissions.service')
-sha512sums=('4fb3102f2ca94d6a44eb830b4f29f3cca98854d6dc48b319ed136403366fe324232303f2ac3593425cea8037548c9bffb209a9824cdedbe3e655c2916d221dc1'
-            '73ad1b2273f28fb1366acac2287727996ae0747ae11137648ce5e4d766b7eb86f2cd2049f1dc4cdd66bc431ec868d2ef05c666072efffd1dc0b2fe960cba0e45'
+sha512sums=('a41d7ee2b71cee003aa7afb5d6f49253868d3e87794617b1831df43600a4807c519c3d82396b106058b0ce644fd4dd97492407398a7e2ded83e9b2bc59333254'
+            '74505731cc51a6d14d4e4ca081ec83cc0e190ee64ae2adf5b16983c255a5aca7b6e17fc040d5d7705695cdcf92ff0d8cd3764ebc71dfbd5e67a9b2055aec13fc'
             'd705fc9611716a73c89da94bf3abc9292e9069bc994b0bd097159f4babd83d4693d5cc3e42336739ac46a8c6b4a0f39d077047202901dc5066df75e597450fa7'
             'b69a09f98f8a5cad8164cd48c5f6a78f2ce0e9818fb77ccf2a3e243cd0f2023e438022b20aad9e6b5edd90e1bb862326db79dc423630682d4c43e897090d3da1'
             '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd')
@@ -36,14 +36,19 @@ build() {
 package_sxmo-utils() {
   backup=('etc/doas.conf')
   depends=(
-    # Core cli dependencies
-    'busybox'
-    'callaudiod'
+    # Shell utilities
+    'bc'
     'curl'
-    'opendoas'
     'gawk'
-    'geoclue'
     'gojq'
+    'less'
+    'net-tools' # netstat command
+    'pnc'
+
+    # Core dependcies
+    'callaudiod'
+    'opendoas'
+    'geoclue'
     'iio-utils'
     'inotify-tools'
     'mmsd-tng'
@@ -51,7 +56,6 @@ package_sxmo-utils() {
     'modemmanager'
     'ncurses' # for the weather script
     'networkmanager'
-    'pn'
     'superd'
     'vvmd'
     'xdg-user-dirs'
@@ -104,11 +108,12 @@ package_sxmo-utils() {
   install -Dm644 "$srcdir/sxmo-setpermissions.service" "$pkgdir/usr/lib/systemd/system/sxmo-setpermissions.service"
 }
 
-package_sxmo-ui-sway-meta() {
+package_sxmo-utils-sway() {
   pkgdesc="Packages required to use sway as a ui for sxmo"
   url="https://sr.ht/~mil/Sxmo/"
   arch=('any')
   provides=('sxmo-ui')
+  replaces=('sxmo-ui-sway-meta')
   install=
   depends=('bemenu-wayland'
            'foot'
@@ -129,11 +134,12 @@ package_sxmo-ui-sway-meta() {
   make -C "$pkgbase-$pkgver" DESTDIR="$pkgdir" install-sway
 }
 
-package_sxmo-ui-dwm-meta() {
+package_sxmo-utils-dwm() {
   pkgdesc="Packages required to use dwm as a ui for sxmo"
   url="https://sr.ht/~mil/Sxmo/"
   arch=('any')
   provides=('sxmo-ui')
+  replaces=('sxmo-ui-dwm-meta')
   install=
   depends=('autocutsel'
            'conky'
