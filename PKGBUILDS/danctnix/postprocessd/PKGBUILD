@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=postprocessd
 pkgver=0.2.1
-pkgrel=1
+pkgrel=2
 pkgdesc="A native postprocessing pipeline for Megapixels"
 url="https://git.sr.ht/~martijnbraam/postprocessd"
 license=('GPL')
