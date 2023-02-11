@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=6.1.7
+pkgver=6.1.9
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -15,7 +15,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="aa3e5fabfb690946cab52a6ea8de32c3a1fc75e8"
+_commit="5949875f180d03f5f1a99d983132a83bbed2bcfe"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -28,6 +28,8 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         'dts-pinephone-drop-modem-power-node.patch'
         'dts-pinephone-pro-remove-modem-node.patch'
         'dts-pinephone-pro-add-modem-ri.patch'
+        'Revert-usb-quirks-Add-USB_QUIRK_RESET-for-Quectel-EG25G-Modem.patch'
+        'usb-serial-option-add-reset-resume-callback-for-WWAN.patch'
         # PineTab Patches
         'pinetab-bluetooth.patch'
         'pinetab-accelerometer.patch'
@@ -247,8 +249,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('d700d8a68f4f01ddb298e1008ee71fa7'
-         '29399e5670b600b8b0070cd499d64225'
+md5sums=('46f0bf4b1d0c104afc7c4d3c734e5580'
+         '95db8385cc4d5c3bc753e955eb05b099'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
@@ -256,6 +258,8 @@ md5sums=('d700d8a68f4f01ddb298e1008ee71fa7'
          '10d200e0a964f24cdb744678a758e22b'
          'ed972b8da2887aef963e63268b055cd3'
          '7d80f76f1647afa00de320f5866484a1'
+         'c6a9502c9b68243cf1292600db31b766'
+         '9777300e413cf185e1f408404f5c206d'
          '85d8339bc3d5daf45aa579d578ef0255'
          'd0fd6bd627223d4c9fc001ffff9df401'
          '3182f25beb0b76e8abd2e9de8213351d'
