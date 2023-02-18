@@ -1,7 +1,7 @@
 # Maintainer: Bernhard Landauer <bernhard@manjaro.org>
 
 pkgname=qqc2-breeze-style
-pkgver=5.26.5
+pkgver=5.27.0
 pkgrel=1
 pkgdesc='Breeze inspired QQC2 Style'
 arch=(x86_64 aarch64)
@@ -11,7 +11,7 @@ depends=(kirigami2 kiconthemes)
 makedepends=(extra-cmake-modules git)
 replaces=("$pkgname-git")
 source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('b926c8e6b2ce43681bd36373b4fd509bcb1fd5570ee0cf10528897f0a8241bd2'
+sha256sums=('8710c406302639647b7207397704f9e339e1fd586008e049a54fe2bb9b015c91'
             'SKIP')
 validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr@jriddell.org>
               'E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
