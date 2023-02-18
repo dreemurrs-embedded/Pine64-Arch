@@ -3,7 +3,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=calindori
-pkgver=22.11
+pkgver=23.01.0
 pkgrel=1
 pkgdesc="Calendar application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
@@ -12,7 +12,7 @@ license=('GPL3')
 depends=('plasma-framework' 'kcalendarcore' 'kpeople')
 makedepends=('cmake' 'extra-cmake-modules' 'kdelibs4support' 'kdoctools')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('5ad3b30720ce47f93b1c33dbdc36757d')
+md5sums=('45f93b4f799974dc4bdd84124f5bd2e7')
 
 prepare() {
   mkdir -p build
