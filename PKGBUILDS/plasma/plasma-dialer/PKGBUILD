@@ -3,7 +3,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-dialer
-pkgver=22.11
+pkgver=23.01.0
 pkgrel=1
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
@@ -16,7 +16,7 @@ depends=('callaudiod' 'desktop-file-utils' 'kcontacts' 'kdbusaddons' 'kio' 'knot
 makedepends=('cmake' 'extra-cmake-modules' 'kdoctools' 'plasma-wayland-protocols')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-md5sums=('ea3d88fe4aaddfdb30102111d997ae1d')
+md5sums=('2c9795160dbe66c16510d02c0fb357d0')
 
 prepare() {
   mkdir -p build
