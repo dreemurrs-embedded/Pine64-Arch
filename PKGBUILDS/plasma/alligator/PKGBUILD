@@ -2,7 +2,7 @@
 # Contributor: Dan Johansen <strit@manjaro.org>
 
 pkgname=alligator
-pkgver=22.11
+pkgver=23.01.0
 pkgrel=1
 pkgdesc="RSS Feed Reader"
 arch=('x86_64' 'aarch64')
@@ -11,7 +11,7 @@ license=('GPL-3.0-or-later')
 depends=(kcoreaddons ki18n kconfig syndication kirigami2 kirigami-addons)
 makedepends=('cmake' 'extra-cmake-modules')
 source=("http://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('0a8d1ff370647223b1096f015d9c054a')
+md5sums=('55b8be35fd3e771fa77f848285d584f1')
 
 prepare() {
   mkdir -p build
