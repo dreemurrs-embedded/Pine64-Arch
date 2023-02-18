@@ -2,7 +2,7 @@
 # Contributor: Gustavo Castro < gustawho [ at ] gmail [ dot ] com >
 
 pkgname=koko
-pkgver=22.11
+pkgver=23.01.0
 pkgrel=1
 arch=(x86_64 i686 armv7h aarch64)
 pkgdesc="Image gallery application designed for desktop and touch devices"
@@ -13,7 +13,7 @@ depends=('kirigami2' 'kcoreaddons' 'kguiaddons' 'kconfig' 'kquickimageeditor' 'k
 makedepends=('extra-cmake-modules' 'qt5-svg' 'qt5-tools')
 checkdepends=('xorg-server-xvfb')
 source=("https://download.kde.org/stable/plasma-mobile/${pkgver}/${pkgname}-${pkgver}.tar.xz")
-md5sums=('629791e1209679125f6116043bb9baa5')
+md5sums=('7a7312a59e73e54de38a0f9774bd50cb')
 
 build() {
   cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -B build -S "${pkgname}-${pkgver}"
