@@ -2,7 +2,7 @@
 # Contributor: Bernhard Landauer <bernhard@manjaro.org>
 
 pkgname=kalk
-pkgver=22.11
+pkgver=23.01.0
 pkgrel=1
 pkgdesc="Cross-platfrom calculator built with the Kirigami framework"
 arch=('x86_64' 'aarch64')
@@ -11,7 +11,7 @@ license=('GPL3')
 depends=('ki18n' 'kconfig' 'kcoreaddons' 'knotifications' 'kirigami2' 'kunitconversion' 'kdbusaddons' 'plasma-framework' 'qt5-feedback')
 makedepends=('qt5-tools' 'extra-cmake-modules')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-sha512sums=('63cdd3482c6c56a26f5c4409d1ca4dc83225f312aada309fccb1adebcf4829191205c4aa9d65905063cf54624bda159c721cf89bd2e7cd10ee799ee763ec2bc7')
+sha512sums=('38dc507ef95258be5fbcbb408896265fed11a650b69b266354421f0f43ababe61b30d256edfabe0393dd7d283109db26bbcac0fefc8ede063879ac9b743e0033')
 
 prepare() {
   mkdir build
