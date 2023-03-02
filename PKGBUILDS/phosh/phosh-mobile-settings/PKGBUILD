@@ -1,14 +1,14 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh-mobile-settings
-pkgver=0.22.0
+pkgver=0.25.0
 pkgrel=1
 pkgdesc="A settings app for mobile specific things (mostly for Phosh)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/guidog/phosh-mobile-settings"
 license=('GPL')
-depends=('gtk4' 'libadwaita' 'lm_sensors' 'wayland')
+depends=('gtk4' 'libadwaita' 'lm_sensors' 'phosh' 'wayland')
 makedepends=('git' 'meson' 'ninja' 'wayland-protocols')
-_commit="810c3abaac23210c88f9da8a9d3cd00a4768f730"  # tags/v0.22.0
+_commit="8f95c3f4258ba2b4753049b8c9ecabe7b402cf4d"  # tags/v0.25.0
 source=("phosh-mobile-settings::git+https://gitlab.gnome.org/guidog/phosh-mobile-settings.git#commit=${_commit}")
 
 pkgver() {
