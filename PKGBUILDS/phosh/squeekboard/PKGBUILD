@@ -1,12 +1,12 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=squeekboard
-pkgver=1.20.0
-pkgrel=2
+pkgver=1.21.0
+pkgrel=1
 pkgdesc="An on-screen-keyboard input method for Wayland"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/squeekboard"
 license=('GPL')
-depends=('gtk3' 'gnome-desktop' 'feedbackd' 'wayland-protocols')
+depends=('feedbackd' 'gtk3' 'gnome-desktop' 'libbsd' 'wayland-protocols')
 makedepends=('rust' 'cargo' 'meson' 'ninja')
 source=(https://gitlab.gnome.org/World/Phosh/squeekboard/-/archive/v$pkgver/squeekboard-v$pkgver.tar.gz)
 
@@ -23,4 +23,4 @@ package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('27036314a4d7db44f420a3e109125865')
+md5sums=('edba083adcd4b7dfc1f7c0b736e01a9c')
