@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
 pkgver=0.25.1
-pkgrel=1
+pkgrel=2
 pkgdesc="A Wayland shell for GNOME on mobile devices."
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -49,4 +49,4 @@ package() {
 md5sums=('SKIP'
          '6d5a0d561f8362bf91f85c236a88395d'
          '30c7febb5cbbac40984fb50d66a88639'
-         '60c659ae0e643bb63f7fbc484a8d9666')
+         '8d95d47dba9aede4db4e643d59749093')
