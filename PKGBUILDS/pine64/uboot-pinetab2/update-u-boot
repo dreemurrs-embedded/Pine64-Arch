@@ -1,0 +1,118 @@
+#!/bin/sh
+# Script is based on:
+# https://gitlab.com/postmarketOS/pmaports/-/blob/master/temp/u-boot-pinephone/update-u-boot
+
+board=
+device=
+dryrun=
+skip_delay=
+
+get_boot_blockdev() {
+	# Find the blockdevice where /boot is mounted from
+	mount | sed -n -E 's:.*(/dev/mmcblk[0-9])p[0-9] on /boot .*:\1:p'
+}
+
+get_defaults() {
+	if [ -z "$board" -a -e /sys/firmware/devicetree/base/compatible ]; then
+		case "$(cat /sys/firmware/devicetree/base/compatible | tr -d '\000' 2>/dev/null)" in
+		pine64,pinephone*) board=pinephone ;;
+		pine64,pinetab*) board=pinetab ;;
+		esac
+	fi
+
+	if [ -z "$device" ]; then
+		case "$board" in
+		pinephone|pinetab) device=$(get_boot_blockdev) ;;
+		esac
+	fi
+}
+
+die() {
+	echo "ERROR: $@"
+	exit 1
+}
+
+usage() {
+	get_defaults
+
+	cat <<EOF
+usage: $0 [-n,--dry-run] [-b|--board <board-type>] [-d|--device <device>] [-s|--skip-delay]
+
+options:
+
+ -b,--board <board>       Specify the board type: pinephone, pinetab
+                          (current default: ${board:-none})
+
+ -d,--device <device>     Specify the device where to install u-boot
+                          (current default: ${device:-none})
+
+ -n,--dry-run             Print commands but don't execute them
+
+ -s,--skip-delay          Skip delay and flash the image immediately 
+
+EOF
+}
+
+[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ] && die "Chroot detected, exiting."
+
+while [ $# -gt 0 ]; do
+	opt="$1"
+	shift
+	case "$opt" in
+	-b|--board)
+		case "$1" in
+		pinephone) board="pinephone" ;;
+		pinetab) board="pinetab" ;;
+		*) usage; exit 1;;
+		esac
+		shift
+		;;
+	-d|--device)
+		device="$1"
+		shift
+		;;
+	-n|--dry-run)
+		dryrun="echo"
+		;;
+	-s|--skip-delay)
+		skip_delay="yes"
+		;;
+        --)
+                break
+                ;;
+        -*)
+                usage
+                exit 1
+                ;;
+        esac
+done
+
+get_defaults
+if [ -z "$board" -o -z "$device" ]; then
+	usage
+	exit 1
+fi
+
+if [ -z "$dryrun" ]; then
+	if [ -z "$skip_delay" ]; then
+		echo "Updating $board u-boot in $device in 3 seconds..."
+		sleep 3
+	else
+		echo "Updating $board u-boot in $device"
+	fi
+fi
+
+(
+set -e
+case "$board" in
+pinephone|pinetab)
+	[ -f /boot/idbloader.img ] || die "idbloader not found."
+	[ -f /boot/u-boot.itb ] || die "u-boot.itb not found."
+	$dryrun dd if=/boot/idbloader.img of=$device bs=512 seek=64
+	$dryrun dd if=/boot/u-boot.itb of=$device bs=512 seek=16384
+	;;
+esac
+$dryrun sync
+) || die "U-Boot installation in $device failed"
+
+[ -z "$dryrun" ] && echo "Completed successfully."
