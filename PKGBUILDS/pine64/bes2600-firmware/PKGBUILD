@@ -1,0 +1,15 @@
+pkgname=bes2600-firmware
+pkgver=20221201
+pkgrel=1
+pkgdesc="Firmware files for BES2600"
+makedepends=('git')
+arch=('any')
+license=('custom')
+options=(!strip)
+source=("https://cdn.discordapp.com/attachments/1043046331217887242/1066290032811458600/best2002_fw_sdio.tar.gz")
+md5sums=('c3e76913e23b508b0092a6298667c19c')
+
+package() {
+  mkdir -p ${pkgdir}/usr/lib/firmware
+  tar xvf ${srcdir}/best2002_fw_sdio.tar.gz -C ${pkgdir}/usr/lib/firmware
+}
