@@ -1,0 +1,21 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=device-pine64-pinetab2
+pkgver=0.1
+pkgrel=1
+pkgdesc="PineTab 2 device package"
+arch=(aarch64)
+url="https://github.com/dreemurrs-embedded/Pine64-Arch"
+license=('MIT')
+depends=(bes2600-firmware
+    linux-pinetab2
+    uboot-pinetab2)
+source=(machine-info
+    gsk-renderer-gl.sh)
+
+package() {
+    install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
+    install -Dm755 "$srcdir"/gsk-renderer-gl.sh -t "$pkgdir"/etc/profile.d/
+}
+
+md5sums=('bf6d4aa77990277b73ab139d1e8fea09'
+         'df623da01912f5ce89c178639fc22656')
