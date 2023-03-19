@@ -1,0 +1,41 @@
+{
+  "defaultGridUnitPx": 8,
+
+  "keyMargins": 0.25,
+
+  "fontSize": 2.5,
+  "fontBold": false,
+
+  "annotationFontSize": 10,
+  "annotationTopMargin": 0.35,
+  "annotationRightMargin": 0.65,
+
+  "magnifierHorizontalPadding": 1.8,
+  "magnifierVerticalPadding": 1,
+
+  "actionKeyPadding": 2,
+  "symbolShiftKeyFontSize": 2,
+  "smallFontSize": 1.5,
+
+  "popoverCellPadding": 2.2,
+  "popoverTopMargin": 10,
+  "popoverEdgeMargin": 2.2,
+  "popoverSquat": 3,
+
+  "top_margin": 1,
+  "bottom_margin": 0,
+  "row_margin":  0,
+  "rowMarginLandscape": 4,
+  "rowMarginPortrait": 7,
+
+  "emailLayoutUrlKeyPadding": 1.5,
+
+  "wordRibbonHeight": 4,
+  "wordRibbonFontSize": 14,
+
+  "keyboardHeightPortrait": 0.30,
+  "keyboardHeightLandscape": 0.39,
+
+  "flickMargin": 1.5,
+  "flickBorderWidth": 0.1
+}
