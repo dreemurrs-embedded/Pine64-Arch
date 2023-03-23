@@ -1,0 +1,8 @@
+post_install() {
+    # Suspend on the PineTab2 will freeze the entire device.
+    systemctl mask suspend.target
+}
+
+post_upgrade() {
+    post_install
+}

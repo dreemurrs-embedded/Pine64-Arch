@@ -1,21 +1,25 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab2
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 pkgdesc="PineTab 2 device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
+install="$pkgname.install"
 depends=(bes2600-firmware
     linux-pinetab2
     uboot-pinetab2)
 source=(machine-info
-    gsk-renderer-gl.sh)
+    gsk-renderer-gl.sh
+    pinetab-disable-powersave.conf)
 
 package() {
     install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
     install -Dm755 "$srcdir"/gsk-renderer-gl.sh -t "$pkgdir"/etc/profile.d/
+    install -Dm644 "$srcdir"/pinetab-disable-powersave.conf -t "$pkgdir"/etc/NetworkManager/conf.d/
 }
 
 md5sums=('bf6d4aa77990277b73ab139d1e8fea09'
-         'df623da01912f5ce89c178639fc22656')
+         'df623da01912f5ce89c178639fc22656'
+         'efd2fdbcef1d6d5ea5dd8256adb4fcaf')
