@@ -1,10 +1,14 @@
-From 2058cac12c8b42b7c18ef0ea8755c2243514a79b Mon Sep 17 00:00:00 2001
+From d26e08eedfabad5308085b066726ddc38637d40b Mon Sep 17 00:00:00 2001
 From: ArenM <aren@peacevolution.org>
 Date: Wed, 27 Apr 2022 23:57:38 -0400
-Subject: [PATCH sxmo-utils] Systemd compatibility
+Subject: [PATCH sxmo-utils] avoid conflicting with systemd services
 
-Sxmo's default configuration attempts to start services that systemd
-expects to manage.
+Arch enables pipewire, mmsd, and vvmd by default. If we start them with
+superd either it or systemd will think the services failed to start.
+
+If we want to manage these services (e.g. mmsdconfig & vvmdconfig) we
+need to know which service manager is being used, to do this we should
+allow systemd to manage the service because we can't easily disable it.
 ---
  configs/default_hooks/sxmo_hook_start.sh | 19 -------------------
  scripts/core/sxmo_mmsdconfig.sh          |  3 +++
@@ -12,7 +16,7 @@ expects to manage.
  3 files changed, 6 insertions(+), 19 deletions(-)
 
 diff --git a/configs/default_hooks/sxmo_hook_start.sh b/configs/default_hooks/sxmo_hook_start.sh
-index d7256f3..ab1a6db 100755
+index 194814d..60a4c64 100755
 --- a/configs/default_hooks/sxmo_hook_start.sh
 +++ b/configs/default_hooks/sxmo_hook_start.sh
 @@ -16,16 +16,6 @@ while ! superctl status > /dev/null 2>&1; do
@@ -32,9 +36,9 @@ index d7256f3..ab1a6db 100755
  # Periodically update some status bar components
  sxmo_hook_statusbar.sh all
  sxmo_daemons.sh start statusbar_periodics sxmo_run_aligned.sh 60 \
-@@ -84,15 +74,6 @@ superctl start sxmo_soundmonitor
- 
- # Set a background image: edit ~/.config/sxmo/sway or ~/.config/sxmo/xinit
+@@ -99,15 +89,6 @@ superctl start sxmo_soundmonitor
+ # Play a funky startup tune if you want (disabled by default)
+ #mpv --quiet --no-video ~/welcome.ogg &
  
 -# mmsd and vvmd
 -if [ -f "${SXMO_MMS_BASE_DIR:-"$HOME"/.mms/modemmanager}/mms" ]; then
@@ -77,5 +81,5 @@ index ab14e4e..ae76ed0 100755
  VVMCONFIG="$VVM_BASE_DIR/vvm"
  
 -- 
-2.39.0
+2.39.2
 
