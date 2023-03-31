@@ -2,7 +2,7 @@
 # Contributor: dni <office@dnilabs.com>
 
 pkgname=danctnix-sxmo-settings
-pkgver=20221116
+pkgver=20230330
 pkgrel=1
 pkgdesc="Configuration files for SXMO"
 url="https://sr.ht/~mil/Sxmo/"
@@ -10,7 +10,10 @@ arch=('any')
 license=('MIT')
 depends=('modemmanager' 'bluez' 'sxmo-utils' 'tinydm')
 install="$pkgname.install"
-source=('sxmo-qt-mobile-controls.sh')
+source=('sxmo-qt-mobile-controls.sh'
+        './sway-pinephone-keyboard.conf')
+sha512sums=('bf8db527c49fa724e640a90269ba2648a2555f5867b2adbfbd88d1f685261f757339757c09ee08f590c76de4bd3d0c73a47dea9bd340644dd4707e76152cefd1'
+            'bb11151e246d16e071761ebb35ca7f8b8cedbad8366e9bac6aed30554a795877cc9dccbe69ecca4b19b6f72bd87e613705f3ae4f2f40d2f9c2d09cc179999d59')
 
 pkgver() {
     date +%Y%m%d
@@ -18,6 +21,5 @@ pkgver() {
 
 package() {
     install -Dm755 -t "$pkgdir/etc/profile.d/" sxmo-qt-mobile-controls.sh
+    install -Dm644 -t "$pkgdir/etc/sway/config.d/" sway-pinephone-keyboard.conf
 }
-
-sha512sums=('bf8db527c49fa724e640a90269ba2648a2555f5867b2adbfbd88d1f685261f757339757c09ee08f590c76de4bd3d0c73a47dea9bd340644dd4707e76152cefd1')
