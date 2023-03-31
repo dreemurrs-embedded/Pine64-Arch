@@ -2,7 +2,7 @@
 # Contributor: dni <office@dnilabs.com>
 
 pkgname=('sxmo-utils' 'sxmo-utils-sway' 'sxmo-utils-dwm')
-pkgver=1.13.0
+pkgver=1.14.1
 pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
@@ -11,12 +11,12 @@ license=('AGPL3')
 makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox')
 install=sxmo-utils.install
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
-        '0001-Systemd-compatibility.patch'
+        '0001-avoid-conflicting-with-systemd-services.patch'
         '00-sxmo.rules'
         '10-sxmo.conf'
         'sxmo-setpermissions.service')
-sha512sums=('a41d7ee2b71cee003aa7afb5d6f49253868d3e87794617b1831df43600a4807c519c3d82396b106058b0ce644fd4dd97492407398a7e2ded83e9b2bc59333254'
-            '74505731cc51a6d14d4e4ca081ec83cc0e190ee64ae2adf5b16983c255a5aca7b6e17fc040d5d7705695cdcf92ff0d8cd3764ebc71dfbd5e67a9b2055aec13fc'
+sha512sums=('203114348d12b979b73836313e06f1f33b082520eaf907535a1b85a96a1b0900badd4540cb82a02ca88db6f800a5d761d6eca94eb41262005f3423c994137d6e'
+            '7b6de83f47968ad1d7942900165d15f81cbdfe2fc9d1c51c337efba56fb19f0edd3840582bf664f69a98d821c108b8b6674747a76e6ad51152668dd52a4410ca'
             'd705fc9611716a73c89da94bf3abc9292e9069bc994b0bd097159f4babd83d4693d5cc3e42336739ac46a8c6b4a0f39d077047202901dc5066df75e597450fa7'
             'b69a09f98f8a5cad8164cd48c5f6a78f2ce0e9818fb77ccf2a3e243cd0f2023e438022b20aad9e6b5edd90e1bb862326db79dc423630682d4c43e897090d3da1'
             '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd')
@@ -24,7 +24,7 @@ sha512sums=('a41d7ee2b71cee003aa7afb5d6f49253868d3e87794617b1831df43600a4807c519
 prepare() {
   cd "$pkgname-$pkgver"
 
-  patch -p1 < '../0001-Systemd-compatibility.patch'
+  patch -p1 < '../0001-avoid-conflicting-with-systemd-services.patch'
 }
 
 build() {
@@ -65,19 +65,17 @@ package_sxmo-utils() {
     'bluez'
     'bluez-utils'
     'libpulse'
-    'pamixer'
     'pulseaudio'
     'pulseaudio-alsa'
 
     # Core GUI dependencies
-    'sxmo-ui'
     'dunst'
     'libnotify'
     'light'
     'lisgd'
     'mpv'
-    'nerd-fonts-fira-mono' # system font
-    'nerd-fonts-terminus')
+    'sxmo-ui'
+    'ttf-dejavu-nerd')
   optdepends=('bemenu-ncurses: sxmo menus over ssh'
               'bonsai: better multikey script'
               'clickclack: haptic feedback'
@@ -102,6 +100,9 @@ package_sxmo-utils() {
   # fix directory permissions, TODO this should be done upstream
   chmod 750 "$pkgdir/etc/doas.d"
 
+  # set the sxmo version, releases have a chronic issue of not updating this
+  echo "$pkgver" > "$pkgdir/usr/share/sxmo/version"
+
   # HACK: doas is built without --with-doas-confdir so install the sxmo config directly
   install -Dm640 "$pkgdir/etc/doas.d/sxmo.conf" "$pkgdir/etc/doas.conf"
 
@@ -109,13 +110,14 @@ package_sxmo-utils() {
 }
 
 package_sxmo-utils-sway() {
-  pkgdesc="Packages required to use sway as a ui for sxmo"
+  pkgdesc="Use sway as the window manager with sxmo"
   url="https://sr.ht/~mil/Sxmo/"
   arch=('any')
   provides=('sxmo-ui')
   replaces=('sxmo-ui-sway-meta')
   install=
   depends=('bemenu-wayland'
+          'conky-wayland'
            'foot'
            'grim'
            'mako'
@@ -123,7 +125,6 @@ package_sxmo-utils-sway() {
            'sway'
            'swaybg'
            'swayidle'
-           'wayout'
            'wl-clipboard'
            'wob'
            'wtype'
@@ -144,9 +145,6 @@ package_sxmo-utils-dwm() {
   depends=('autocutsel'
            'conky'
            'feh'
-           'ttf-dejavu' # for conky
-           'otf-latin-modern' # for conky
-           'terminus-font' # dmenu & xcalc
            'svkbd'
            'sxiv'
            'sxmo-dmenu'
