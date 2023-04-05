@@ -2,7 +2,7 @@
 # Contributor: dni <office@dnilabs.com>
 
 pkgname=danctnix-sxmo-settings
-pkgver=20230330
+pkgver=20230405
 pkgrel=1
 pkgdesc="Configuration files for SXMO"
 url="https://sr.ht/~mil/Sxmo/"
