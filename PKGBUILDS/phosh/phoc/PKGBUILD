@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.25.2
+pkgver=0.26.0
 pkgrel=1
 pkgdesc="wlroots based Wayland compositor for mobile phones"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -11,7 +11,7 @@ depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'seatd' 'mutter'
          'libvulkan.so')
 makedepends=('git' 'meson' 'ninja' 'glslang' 'vulkan-headers')
 checkdepends=('xorg-server-xvfb')
-_commit="3aee71bf5197694ee6125d6f4d06c2afc4c2a4e2"  # tags/0.25.2
+_commit="28d718ac3c1323f591481de4f90e9888edf4da10"  # tags/0.26.0
 _commit_wlroots="06f3b6e91e17b8bdc76f3f40216c62e8ba5fe6d6"
 source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}"
         "wlroots-phoc::git+https://source.puri.sm/Librem5/wlroots.git#commit=${_commit_wlroots}")
