@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 6.2.9-1 Kernel Configuration
+# Linux/arm64 6.2.9-2 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 12.1.0"
 CONFIG_CC_IS_GCC=y
@@ -6279,7 +6279,12 @@ CONFIG_AUTOFS_FS=y
 CONFIG_FUSE_FS=m
 CONFIG_CUSE=m
 # CONFIG_VIRTIO_FS is not set
-# CONFIG_OVERLAY_FS is not set
+CONFIG_OVERLAY_FS=m
+CONFIG_OVERLAY_FS_REDIRECT_DIR=y
+# CONFIG_OVERLAY_FS_REDIRECT_ALWAYS_FOLLOW is not set
+CONFIG_OVERLAY_FS_INDEX=y
+CONFIG_OVERLAY_FS_XINO_AUTO=y
+CONFIG_OVERLAY_FS_METACOPY=y
 
 #
 # Caches
