@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=chatty
-pkgver=0.7.1
+pkgver=0.7.2
 pkgrel=1
 pkgdesc="Messaging client"
 url="https://source.puri.sm/Librem5/chatty"
@@ -15,7 +15,7 @@ optdepends=('mmsd-tng: MMS support'
             'libpurple-carbons: message carbons support'
             'libpurple-xmpp-http-upload: XMPP HTTP File Upload support'
             'purple-telegram: Telegram chat protocol support')
-_commit="c2436f3f4a02c72bbb32047e5eec72c613bea20b" # tags/v0.7.1
+_commit="d4228340a4de861a779e326cc71a143885161e29" # tags/v0.7.2
 source=(git+https://source.puri.sm/Librem5/chatty.git#commit=${_commit})
 
 pkgver() {
@@ -33,6 +33,7 @@ build() {
     ninja -C output
 }
 
+# FAIL: secure memory pool is not locked while in FIPS mode
 #check() {
 #    xvfb-run ninja -C output test
 #}
