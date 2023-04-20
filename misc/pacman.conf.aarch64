@@ -31,10 +31,10 @@ Architecture = aarch64
 # Misc options
 #UseSyslog
 #Color
-#TotalDownload
+#NoProgressBar
 CheckSpace
 #VerbosePkgLists
-ParallelDownloads = 10
+#ParallelDownloads = 5
 
 # By default, pacman accepts packages signed by keys that its local keyring
 # trusts (see pacman-key and its man page), as well as unsigned packages.
@@ -69,32 +69,28 @@ LocalFileSigLevel = Optional
 # repo name header and Include lines. You can add preferred servers immediately
 # after the header, and they will be used before the default mirrors.
 
-[pine64]
-Server = https://p64.arikawa-hi.me/pine64/aarch64/
-
-[plasma]
-Server = https://p64.arikawa-hi.me/plasma/aarch64/
-
-[phosh]
-Server = https://p64.arikawa-hi.me/phosh/aarch64/
+# DANCTNIX: Uncomment this if you want to be the first trying out new stuffs.
+# They might break your device.
+#[danctnix-testing]
+#Server = https://p64.arikawa-hi.me/$repo/$arch/
 
 [danctnix]
-Server = https://p64.arikawa-hi.me/danctnix/aarch64/
+Server = https://p64.arikawa-hi.me/$repo/$arch/
 
 [core]
-Server = http://mirror.archlinuxarm.org/aarch64/$repo
+Include = /etc/pacman.d/mirrorlist
 
 [extra]
-Server = http://mirror.archlinuxarm.org/aarch64/$repo
+Include = /etc/pacman.d/mirrorlist
 
 [community]
-Server = http://mirror.archlinuxarm.org/aarch64/$repo
+Include = /etc/pacman.d/mirrorlist
 
 [alarm]
-Server = http://mirror.archlinuxarm.org/aarch64/$repo
+Include = /etc/pacman.d/mirrorlist
 
 [aur]
-Server = http://mirror.archlinuxarm.org/aarch64/$repo
+Include = /etc/pacman.d/mirrorlist
 
 # An example of a custom package repository.  See the pacman manpage for
 # tips on creating your own repositories.
