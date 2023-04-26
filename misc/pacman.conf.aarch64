@@ -72,25 +72,25 @@ LocalFileSigLevel = Optional
 # DANCTNIX: Uncomment this if you want to be the first trying out new stuffs.
 # They might break your device.
 #[danctnix-testing]
-#Server = https://p64.arikawa-hi.me/armv7h/danctnix-testing/
+#Server = https://p64.arikawa-hi.me/aarch64/danctnix-testing/
 
 [danctnix]
-Server = https://p64.arikawa-hi.me/armv7h/danctnix/
+Server = https://p64.arikawa-hi.me/aarch64/danctnix/
 
 [core]
-Server = http://mirror.archlinuxarm.org/armv7h/core/
+Server = http://mirror.archlinuxarm.org/aarch64/core/
 
 [extra]
-Server = http://mirror.archlinuxarm.org/armv7h/extra/
+Server = http://mirror.archlinuxarm.org/aarch64/extra/
 
 [community]
-Server = http://mirror.archlinuxarm.org/armv7h/community/
+Server = http://mirror.archlinuxarm.org/aarch64/community/
 
 [alarm]
-Server = http://mirror.archlinuxarm.org/armv7h/alarm/
+Server = http://mirror.archlinuxarm.org/aarch64/alarm/
 
 [aur]
-Server = http://mirror.archlinuxarm.org/armv7h/aur/
+Server = http://mirror.archlinuxarm.org/aarch64/aur/
 
 # An example of a custom package repository.  See the pacman manpage for
 # tips on creating your own repositories.
