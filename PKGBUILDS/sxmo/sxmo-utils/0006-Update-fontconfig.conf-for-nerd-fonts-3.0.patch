@@ -1,0 +1,30 @@
+From 58241bb554237467f58e080378e3104ca5695584 Mon Sep 17 00:00:00 2001
+From: ArenM <aren@peacevolution.org>
+Date: Fri, 5 May 2023 19:28:22 -0400
+Subject: [PATCH sxmo-utils 6/6] Update fontconfig.conf for nerd fonts 3.0
+
+The way nerd-fonts fonts are named changed in 3.0, this adds the new
+name to fontconfig.conf and leaves the old one in place so it should be
+compatible with both 2.3.3 and 3.0.
+---
+ configs/appcfg/fontconfig.conf | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/configs/appcfg/fontconfig.conf b/configs/appcfg/fontconfig.conf
+index 08c318f..529bff6 100644
+--- a/configs/appcfg/fontconfig.conf
++++ b/configs/appcfg/fontconfig.conf
+@@ -3,6 +3,9 @@
+ <fontconfig>
+     <alias>
+         <family>Sxmo</family>
+-        <prefer><family>Dejavu Sans Mono Nerd Font</family></prefer>
++        <prefer>
++            <family>Dejavu Sans Mono Nerd Font</family>
++            <family>Dejavu SansM Nerd Font</family>
++        </prefer>
+     </alias>
+ </fontconfig>
+-- 
+2.40.0
+

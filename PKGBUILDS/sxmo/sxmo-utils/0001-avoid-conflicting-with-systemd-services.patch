@@ -1,7 +1,7 @@
-From d26e08eedfabad5308085b066726ddc38637d40b Mon Sep 17 00:00:00 2001
+From 8195a8a62ada6e9f538af893085bb4b186a24357 Mon Sep 17 00:00:00 2001
 From: ArenM <aren@peacevolution.org>
 Date: Wed, 27 Apr 2022 23:57:38 -0400
-Subject: [PATCH sxmo-utils] avoid conflicting with systemd services
+Subject: [PATCH sxmo-utils 1/6] avoid conflicting with systemd services
 
 Arch enables pipewire, mmsd, and vvmd by default. If we start them with
 superd either it or systemd will think the services failed to start.
@@ -81,5 +81,5 @@ index ab14e4e..ae76ed0 100755
  VVMCONFIG="$VVM_BASE_DIR/vvm"
  
 -- 
-2.39.2
+2.40.0
 
