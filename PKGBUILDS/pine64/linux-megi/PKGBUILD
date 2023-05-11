@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-megi
 _desc="Megous Kernel"
 pkgver=6.3.0
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
@@ -22,6 +22,7 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         '60-linux.hook'
         '90-linux.hook'
         # Patches
+        'CVE-2023-32233.patch'
         # Sleep Mode
         '0001-arm64-dts-allwinner-a64-h5-Add-CPU-idle-states.patch'
         # PinePhone Patches
@@ -254,6 +255,7 @@ md5sums=('2b69e072be711e4be2dada56632eb26f'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
+         'c465c2763962ae65ba3861cdeeedd176'
          '081b35c2970e3fec444b32f941a26e1d'
          '10d200e0a964f24cdb744678a758e22b'
          'ed972b8da2887aef963e63268b055cd3'
