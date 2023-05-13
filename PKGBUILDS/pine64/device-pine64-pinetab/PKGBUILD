@@ -1,21 +1,26 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab
 pkgver=0.2
-pkgrel=3
+pkgrel=4
 pkgdesc="PineTab device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
+install="$pkgname.install"
+backup=("boot/boot.txt")
 depends=(linux-megi
-	uboot-pinephone
 	rtl8723bt-firmware
 	ov5640-firmware
-	alsa-ucm-pinetab)
+	uboot-tools # we need this for mkscr
+	alsa-ucm-pinetab
+	uboot-pinephone)
 source=(pinetab-suspend-hook.sh
 	phoc.ini
 	machine-info
 	pulseaudio-pinetweaks.conf
-	gsk-renderer-gl.sh)
+	gsk-renderer-gl.sh
+	boot.txt
+	mkscr)
 
 package() {
 	# Current workaround for suspend
@@ -29,10 +34,15 @@ package() {
 	install -Dm644 "$srcdir"/pulseaudio-pinetweaks.conf "$pkgdir"/etc/pulse/daemon.conf.d/pinetweaks.conf
 
 	install -Dm755 "$srcdir"/gsk-renderer-gl.sh -t "$pkgdir"/etc/profile.d/
+
+	# u-boot startup script
+	install -Dm644 -t "${pkgdir}"/boot boot.txt mkscr
 }
 
 md5sums=('b0912b95d7d810a0f161d9bd79fc162b'
          'ecd8742a921d805e6756abc522da1dba'
          '340993065eb26f928700733369be2d9b'
          '1504e684e5a2aec439e0674cdfc9d3c1'
-         'df623da01912f5ce89c178639fc22656')
+         'df623da01912f5ce89c178639fc22656'
+         '57662f9c45c1432c2756149724422f6d'
+         '021623a04afd29ac3f368977140cfbfd')

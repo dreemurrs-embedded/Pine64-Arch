@@ -1,0 +1,50 @@
+gpio set 98 # Enable vibrator
+
+if test ${devnum} -eq 0; then
+	echo "Booting from SD"
+	setenv linux_mmcdev 0
+else
+	echo "Booting from eMMC"
+	setenv linux_mmcdev 2
+fi
+
+# If we have at least 2 partitions, then the 1st one is /boot, and / is #2
+if part size mmc ${devnum} 2 none; then
+	setenv rootpart 2
+else
+	setenv rootpart 1
+	setenv bootdir "/boot"
+fi
+
+setenv bootargs loglevel=4 console=${console} console=tty0 root=/dev/mmcblk${linux_mmcdev}p${rootpart} rw rootwait quiet bootsplash.bootfile=bootsplash-themes/danctnix/bootsplash
+
+echo "Loading kernel..."
+load mmc ${devnum}:1 ${ramdisk_addr_r} ${bootdir}/Image.gz
+
+echo "Uncompressing kernel..."
+unzip ${ramdisk_addr_r} ${kernel_addr_r}
+
+echo "Loading initramfs..."
+load mmc ${devnum}:1 ${ramdisk_addr_r} ${bootdir}/initramfs-linux.img
+setenv ramdisk_size ${filesize}
+
+echo "Loading dtb..."
+load mmc ${devnum}:1 ${fdt_addr_r} ${bootdir}/dtbs/${fdtfile}
+
+echo Resizing FDT
+fdt addr ${fdt_addr_r}
+fdt resize
+
+echo Adding FTD RAM clock
+fdt mknode / memory
+fdt set /memory ram_freq ${ram_freq}
+fdt list /memory
+
+echo Loading user script
+setenv user_scriptaddr 0x61dbc200
+load mmc ${devnum}:1 ${user_scriptaddr} ${bootdir}/user.scr
+if test $? -eq 0; then source ${user_scriptaddr}; else echo No user script found; fi
+
+echo "Booting..."
+gpio clear 98 # Disable vibrator
+booti ${kernel_addr_r} ${ramdisk_addr_r}:0x${ramdisk_size} ${fdt_addr_r}

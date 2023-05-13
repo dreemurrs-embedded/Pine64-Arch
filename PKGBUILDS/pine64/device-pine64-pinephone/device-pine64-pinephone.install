@@ -1,7 +1,10 @@
-post_install() {
+post_upgrade() {
+	echo "Generating U-Boot script"
+	mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d /boot/boot.txt /boot/boot.scr
+
 	systemctl enable eg25-manager
 }
 
-post_upgrade() {
-	systemctl enable eg25-manager
+post_install() {
+	post_upgrade
 }

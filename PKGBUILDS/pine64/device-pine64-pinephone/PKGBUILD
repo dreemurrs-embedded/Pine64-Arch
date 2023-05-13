@@ -1,19 +1,23 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephone
 pkgver=0.2
-pkgrel=4
+pkgrel=5
 pkgdesc="PinePhone device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
-depends=(danctnix-tweaks alsa-ucm-pinephone linux-megi uboot-pinephone rtl8723bt-firmware anx7688-firmware
-         ov5640-firmware eg25-manager)
+depends=(danctnix-tweaks alsa-ucm-pinephone linux-megi rtl8723bt-firmware anx7688-firmware
+         ov5640-firmware eg25-manager uboot-tools)
+optdepends=('uboot-pinephone: required if not using tow-boot')
 install="$pkgname.install"
+backup=("boot/boot.txt")
 source=(10-proximity.rules
         10-pinephone-brightness.rules
         pinephone-suspend-hook.sh
         machine-info
-        pulseaudio-pinetweaks.conf)
+        pulseaudio-pinetweaks.conf
+        boot.txt
+        mkscr)
 
 package() {
   # Kanged from Mobian, this is to make iio-sensor-proxy works with proximity sensor.
@@ -28,10 +32,15 @@ package() {
   install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
 
   install -Dm644 "$srcdir"/pulseaudio-pinetweaks.conf "$pkgdir"/etc/pulse/daemon.conf.d/pinetweaks.conf
+
+  # u-boot startup script
+  install -Dm644 -t "${pkgdir}"/boot boot.txt mkscr
 }
 
 md5sums=('b72ff096c022588f72c226283ac328bd'
          '3a478fece4381cf41fb795009bfe8cc3'
          'b0912b95d7d810a0f161d9bd79fc162b'
          'b53781dde1d7a9a44e5076f3be463570'
-         '1504e684e5a2aec439e0674cdfc9d3c1')
+         '1504e684e5a2aec439e0674cdfc9d3c1'
+         '69400a6dfe94221172b2a00f18b1a8bd'
+         '021623a04afd29ac3f368977140cfbfd')
