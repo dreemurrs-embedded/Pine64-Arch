@@ -3,7 +3,7 @@
 pkgname=python-gatt
 _module=gatt
 pkgver=0.2.6
-pkgrel=2
+pkgrel=3
 pkgdesc="Bluetooth GATT SDK for Python"
 url="https://github.com/getsenic/gatt-python"
 depends=('python')
