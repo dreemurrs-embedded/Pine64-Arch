@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=portfolio-file-manager
 pkgver=0.9.15
-pkgrel=1
+pkgrel=2
 pkgdesc="A minimalist file manager for those who want to use Linux mobile devices."
 url="https://github.com/tchx84/Portfolio"
 license=('GPL3')
