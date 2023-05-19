@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=siglo
 pkgver=0.9.6
-pkgrel=1
+pkgrel=2
 pkgdesc="GTK app to sync InfiniTime watch with PinePhone"
 arch=(any)
 url="https://github.com/alexr4535/siglo"
