@@ -1,17 +1,18 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=gnome-calls
-pkgver=43.3
+pkgver=44.1
 pkgrel=1
 pkgdesc="Make and receive PSTN phone calls"
 url="https://gitlab.gnome.org/GNOME/calls"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
-         'gom' 'gtk3' 'libhandy' 'libpeas' 'modemmanager' 'callaudiod' 'sofia-sip'
-         'wayland-protocols')
+depends=('callaudiod' 'evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
+         'gom' 'gst-plugins-bad' 'gst-plugins-good' 'gtk3' 'libhandy' 'libpeas'
+         'modemmanager' 'sofia-sip' 'wayland-protocols')
 makedepends=('meson' 'ninja' 'vala' 'git' 'python-docutils')
+checkdepends=('xorg-server-xvfb')
 replaces=('calls')
-_commit="e6d83159c40225f0af3b767b3c78e1710b555d33" # tags/v43.3
+_commit="4d07205edfbca86866a9e48a914bab280f3eedfd" # tags/v44.1
 source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
 
 pkgver() {
@@ -37,6 +38,11 @@ build() {
   arch-meson calls output
   ninja -C output
 }
+
+## SIP test hanging
+#check() {
+#  xvfb-run ninja -C output test
+#}
 
 package() {
   DESTDIR="$pkgdir" ninja -C output install
