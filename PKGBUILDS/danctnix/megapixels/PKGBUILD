@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=megapixels
-pkgver=1.6.0
-pkgrel=2
+pkgver=1.6.1
+pkgrel=1
 pkgdesc="A GTK4 camera application that knows how to deal with the media request API"
 url="https://gitlab.com/postmarketOS/megapixels"
 license=('GPL')
@@ -12,7 +12,7 @@ optdepends=('postprocessd: additional postprocess config')
 replaces=('pinhole' 'gnome-camera')
 source=("https://gitlab.com/postmarketOS/megapixels/-/archive/${pkgver}/megapixels-${pkgver}.tar.gz"
         '90-megapixels.rules')
-sha256sums=('5fe732313eebc5bcbcd27f67be69ae377eae001c78510c7b66eb401542cbfca1'
+sha256sums=('16320c0003b00d8875e02a303603bc97b4e1bbc1a46f1e5d1dda2679ae917a1d'
             'c9ff69c5963f6231ac6a7de5adc3e0327f47b501de9b084b49546bfb00e7fc58')
 
 build() {
