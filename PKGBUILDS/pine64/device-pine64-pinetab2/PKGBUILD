@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab2
-pkgver=0.1
-pkgrel=3
+pkgver=0.2
+pkgrel=1
 pkgdesc="PineTab 2 device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -12,9 +12,10 @@ depends=(bes2600-firmware
     uboot-pinetab2)
 source=(machine-info
     gsk-renderer-gl.sh
-    pinetab-disable-powersave.conf
     kscreen-b5350822fc24a835e633b5bf90f2b56d
-    kscreen-outputs-b5350822fc24a835e633b5bf90f2b56d)
+    kscreen-outputs-b5350822fc24a835e633b5bf90f2b56d
+    phoc.ini
+    pinetab-disable-powersave.conf)
 
 package() {
     install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
@@ -26,10 +27,14 @@ package() {
         "$pkgdir"/etc/skel/.local/share/kscreen/b5350822fc24a835e633b5bf90f2b56d
     install -Dm755 "$srcdir"/kscreen-outputs-b5350822fc24a835e633b5bf90f2b56d \
         "$pkgdir"/etc/skel/.local/share/kscreen/outputs/b5350822fc24a835e633b5bf90f2b56d
+
+    # 1x scaling for Phosh
+    install -Dm644 "$srcdir"/phoc.ini "$pkgdir"/etc/phosh/phoc.ini
 }
 
 md5sums=('bf6d4aa77990277b73ab139d1e8fea09'
          'df623da01912f5ce89c178639fc22656'
-         'efd2fdbcef1d6d5ea5dd8256adb4fcaf'
          'cd17d8d80b01d88f7ec2a948f3398dff'
-         '2818ea269586a19b26df60ef43ba8e98')
+         '2818ea269586a19b26df60ef43ba8e98'
+         'ecd8742a921d805e6756abc522da1dba'
+         'efd2fdbcef1d6d5ea5dd8256adb4fcaf')
