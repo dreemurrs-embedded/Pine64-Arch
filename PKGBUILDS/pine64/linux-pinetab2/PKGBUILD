@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pinetab2
 _desc="PineTab2 Kernel"
 pkgver=6.3.0
-pkgrel=4
+pkgrel=5
 arch=('aarch64')
 url="https://github.com/TuxThePenguin0/linux"
 license=('GPL2')
@@ -15,7 +15,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="e9acd1df352b33eb534b3cbfd8d7ef24b21d815a"
+_commit="0a9637638f5f64cf31291951de00638aa2ea6857"
 source=("linux-$_commit.tar.gz::https://github.com/TuxThePenguin0/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
@@ -217,7 +217,7 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('972ca28afd62ed8883931bda96f73274'
+md5sums=('76a380402cf66e1566edc44c3aa229d7'
          '89465e321ff2dc1bfa37fb455b9b6770'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
