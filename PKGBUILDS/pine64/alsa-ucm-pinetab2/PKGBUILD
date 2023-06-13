@@ -1,0 +1,25 @@
+# Maintainer: ScottFreeCode <scottfreecode@gmail.com>
+pkgname=alsa-ucm-pinetab2
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="UCM files for PineTab 2"
+arch=(any)
+url="https://github.com/dreemurrs-embedded/Pine64-Arch"
+license=('BSD')
+depends=('alsa-ucm-conf')
+source=(HiFi.conf PineTab2.conf)
+
+package() {
+    install -D -m644 "$srcdir"/PineTab2.conf \
+        "$pkgdir"/usr/share/alsa/ucm2/Pine64/PineTab2/PineTab2.conf
+    install -D -m644 "$srcdir"/HiFi.conf \
+        "$pkgdir"/usr/share/alsa/ucm2/Pine64/PineTab2/HiFi.conf
+    ln -s Pine64/PineTab2 "$pkgdir"/usr/share/alsa/ucm2/PineTab2
+
+    mkdir -p "$pkgdir"/usr/share/alsa/ucm2/conf.d/simple-card
+    ln -sf ../../Pine64/PineTab2/PineTab2.conf \
+        "$pkgdir"/usr/share/alsa/ucm2/conf.d/simple-card/PineTab2.conf
+}
+
+md5sums=('7f0be518e04abae6e06ccae4c817a1b5'
+         '868369d9231c284b50cbed788f80367a')
