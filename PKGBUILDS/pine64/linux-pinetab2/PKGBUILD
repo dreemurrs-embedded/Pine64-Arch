@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pinetab2
 _desc="PineTab2 Kernel"
 pkgver=6.3.0
-pkgrel=5
+pkgrel=6
 arch=('aarch64')
 url="https://github.com/TuxThePenguin0/linux"
 license=('GPL2')
@@ -15,9 +15,10 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' '
 options=('!strip')
 
 # Source
-_commit="0a9637638f5f64cf31291951de00638aa2ea6857"
+_commit="5fec347a193bfe8f07a8a3af7ab099db4c86c666"
 source=("linux-$_commit.tar.gz::https://github.com/TuxThePenguin0/linux/archive/${_commit}.tar.gz"
         'config'
+        'xfs-fix-livelock-in-delayed-allocation-at-enospc.patch'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook')
@@ -217,8 +218,9 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('76a380402cf66e1566edc44c3aa229d7'
-         '89465e321ff2dc1bfa37fb455b9b6770'
+md5sums=('ed33a94602b288685ef307bb0b780d9c'
+         '83afd84ee9c2a012dc36c65084394ef9'
+         'da0a360ce69b8d4def8f6a5b1151217b'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77')
