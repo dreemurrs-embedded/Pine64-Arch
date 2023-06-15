@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-pinetab2
 _desc="PineTab2 Kernel"
 pkgver=6.3.0
-pkgrel=6
+pkgrel=7
 arch=('aarch64')
 url="https://github.com/TuxThePenguin0/linux"
 license=('GPL2')
@@ -219,7 +219,7 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('ed33a94602b288685ef307bb0b780d9c'
-         '83afd84ee9c2a012dc36c65084394ef9'
+         '205bb2aedf72a39111470cfcbeedefdb'
          'da0a360ce69b8d4def8f6a5b1151217b'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
