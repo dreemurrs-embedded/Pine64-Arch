@@ -1,0 +1,15 @@
+flash_uboot() {
+  /usr/bin/update-u-boot -s
+}
+
+post_install() {
+  echo "Generating U-Boot script"
+  mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d /boot/boot.txt /boot/boot.scr
+}
+
+post_upgrade() {
+  echo "Re-generating U-Boot script"
+  mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d /boot/boot.txt /boot/boot.scr
+
+  flash_uboot
+}

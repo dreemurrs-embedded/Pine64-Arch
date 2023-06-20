@@ -1,0 +1,58 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+buildarch=8
+
+pkgname=uboot-pinetab2-mainline
+pkgver=2023.07_rc4
+pkgrel=1
+pkgdesc="U-Boot for PineTab 2 (Mainline)"
+arch=('aarch64')
+url='http://www.denx.de/wiki/U-Boot/WebHome'
+license=('GPL')
+depends=('uboot-tools')
+makedepends=('bc' 'git' 'python' 'python-pyelftools' 'python-setuptools' 'swig')
+provides=(uboot-pinetab2)
+conflicts=(uboot-pinetab2)
+install=${pkgname}.install
+backup=("boot/boot.txt")
+
+_commit_uboot="2e0e11b8e65c48a43270f4ec4a88b74c8a83e269"
+_commit_rkbin="1f2bd43aa12942849ec0f0e7ce26930865076bf3"
+
+source=("$pkgname::git+https://github.com/Kwiboo/u-boot-rockchip.git#commit=$_commit_uboot"
+        "rkbin::git+https://github.com/armbian/rkbin.git#commit=$_commit_rkbin"
+        'config'
+        'boot.txt'
+        'mkscr'
+        'update-u-boot')
+md5sums=('SKIP'
+         'SKIP'
+         '588c095d613023455242210692f7fbcc'
+         '5b3133455f7e1087569b44a14bb6e249'
+         '021623a04afd29ac3f368977140cfbfd'
+         'ec7c2005cb5cc9a23d1eb0e1bf089bf9')
+
+prepare() {
+  cd ${pkgname}
+  cp ${srcdir}/config .config
+}
+
+build() {
+  cd ${pkgname}
+
+  make EXTRAVERSION=-${pkgrel} \
+    BL31=../rkbin/rk35/rk3568_bl31_v1.33.elf \
+    ROCKCHIP_TPL=../rkbin/rk35/rk3566_ddr_1056MHz_v1.13.bin
+}
+
+package() {
+  cd ${pkgname}
+
+  mkdir -p "${pkgdir}/boot"
+
+  cp ./idbloader.img "${pkgdir}/boot/idbloader.img"
+  cp ./u-boot.itb "${pkgdir}/boot/u-boot.itb"
+
+  cp ../{boot.txt,mkscr} "${pkgdir}"/boot
+  mkdir -p "${pkgdir}"/usr/bin && cp ../update-u-boot "${pkgdir}"/usr/bin
+}
