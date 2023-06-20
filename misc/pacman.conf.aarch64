@@ -83,9 +83,6 @@ Server = http://mirror.archlinuxarm.org/aarch64/core/
 [extra]
 Server = http://mirror.archlinuxarm.org/aarch64/extra/
 
-[community]
-Server = http://mirror.archlinuxarm.org/aarch64/community/
-
 [alarm]
 Server = http://mirror.archlinuxarm.org/aarch64/alarm/
 
