@@ -72,10 +72,10 @@ LocalFileSigLevel = Optional
 # DANCTNIX: Uncomment this if you want to be the first trying out new stuffs.
 # They might break your device.
 #[danctnix-testing]
-#Server = https://p64.arikawa-hi.me/aarch64/danctnix-testing/
+#Server = https://p64.arikawa-hi.me/danctnix-testing/aarch64/
 
 [danctnix]
-Server = https://p64.arikawa-hi.me/aarch64/danctnix/
+Server = https://p64.arikawa-hi.me/danctnix/aarch64/
 
 [core]
 Server = http://mirror.archlinuxarm.org/aarch64/core/
