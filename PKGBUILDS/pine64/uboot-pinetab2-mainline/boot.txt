@@ -17,13 +17,13 @@ fi
 setenv bootargs loglevel=4 root=/dev/mmcblk${linux_mmcdev}p${rootpart} rw rootwait
 
 echo "Loading kernel..."
-load mmc ${devnum}:1 ${ramdisk_addr_r} ${bootdir}/Image.gz
+load mmc ${devnum}:1 ${ramdisk_addr_r} ${bootdir}/vmlinuz-linux-pinetab2
 
 echo "Uncompressing kernel..."
 unzip ${ramdisk_addr_r} ${kernel_addr_r}
 
 echo "Loading initramfs..."
-load mmc ${devnum}:1 ${ramdisk_addr_r} ${bootdir}/initramfs-linux.img
+load mmc ${devnum}:1 ${ramdisk_addr_r} ${bootdir}/initramfs-linux-pinetab2.img
 setenv ramdisk_size ${filesize}
 
 echo "Loading dtb..."
