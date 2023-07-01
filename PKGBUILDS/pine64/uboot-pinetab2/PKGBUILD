@@ -3,30 +3,30 @@
 buildarch=8
 
 pkgname=uboot-pinetab2
-pkgver=2017.09
-pkgrel=3
+pkgver=2023.07_rc4
+pkgrel=1
 pkgdesc="U-Boot for PineTab 2"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
 license=('GPL')
-provides=('uboot-tools') # our scripts wont work with older u-boot
-conflicts=('uboot-tools')
-makedepends=('git' 'bc' 'python' 'swig' 'dtc')
+depends=('uboot-tools')
+makedepends=('bc' 'git' 'python' 'python-pyelftools' 'python-setuptools' 'swig')
+replaces=(uboot-pinetab2-mainline)
 install=${pkgname}.install
 backup=("boot/boot.txt")
 
-_commit_uboot="216faafc18c91b23105ede8d43db5fd306516eea"
-_commit_rkbin="1f2bd43aa12942849ec0f0e7ce26930865076bf3"
+_commit_uboot="2e0e11b8e65c48a43270f4ec4a88b74c8a83e269"
+_commit_rkbin="d6ccfe401ca84a98ca3b85c12b9554a1a43a166c"
 
-source=("$pkgname::git+https://github.com/Danct12/u-boot.git#commit=$_commit_uboot"
-        "rkbin::git+https://github.com/armbian/rkbin.git#commit=$_commit_rkbin"
+source=("$pkgname::git+https://github.com/Kwiboo/u-boot-rockchip.git#commit=$_commit_uboot"
+        "rkbin::git+https://github.com/rockchip-linux/rkbin.git#commit=$_commit_rkbin"
         'config'
         'boot.txt'
         'mkscr'
         'update-u-boot')
 md5sums=('SKIP'
          'SKIP'
-         '7a226ec561c5d95ac23c66d176aea20e'
+         '588c095d613023455242210692f7fbcc'
          '635379a8a8063fe2ff147e54637fb2ed'
          '021623a04afd29ac3f368977140cfbfd'
          'ec7c2005cb5cc9a23d1eb0e1bf089bf9')
@@ -40,10 +40,8 @@ build() {
   cd ${pkgname}
 
   make EXTRAVERSION=-${pkgrel} \
-    BL31=../rkbin/rk35/rk3568_bl31_v1.33.elf spl/u-boot-spl.bin u-boot.dtb u-boot.itb
-
-  # uboot-tools
-  make tools-all
+    BL31=../rkbin/bin/rk35/rk3568_bl31_v1.42.elf \
+    ROCKCHIP_TPL=../rkbin/bin/rk35/rk3566_ddr_1056MHz_v1.16.bin
 }
 
 package() {
@@ -51,19 +49,9 @@ package() {
 
   mkdir -p "${pkgdir}/boot"
 
-  ./tools/mkimage -n rk3568 -T rksd -d \
-    ${srcdir}/rkbin/rk35/rk3566_ddr_1056MHz_v1.13.bin:spl/u-boot-spl.bin \
-    idbloader.img
-
   cp ./idbloader.img "${pkgdir}/boot/idbloader.img"
   cp ./u-boot.itb "${pkgdir}/boot/u-boot.itb"
 
   cp ../{boot.txt,mkscr} "${pkgdir}"/boot
   mkdir -p "${pkgdir}"/usr/bin && cp ../update-u-boot "${pkgdir}"/usr/bin
-
-  # uboot-tools
-  install -m 755 -d "$pkgdir"/usr/bin
-  install -m 755 -t "$pkgdir"/usr/bin/ tools/{mk{,env}image,env/fw_printenv,img2srec,dumpimage,netconsole,jtagconsole,ncb}
-  ln -s fw_printenv "$pkgdir"/usr/bin/fw_setenv
-  install -m 644 -Dt "$pkgdir"/usr/share/man/man1/ doc/mkimage.1
 }
