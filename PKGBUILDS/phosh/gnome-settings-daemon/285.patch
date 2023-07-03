@@ -1,0 +1,60 @@
+From 8c1631f88ddfa9a7c1b06d49dc2ec2d926fd541f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pablo=20Correa=20G=C3=B3mez?= <ablocorrea@hotmail.com>
+Date: Sat, 5 Feb 2022 18:51:34 +0100
+Subject: [PATCH] power: Show sleep warning conditional to new GSettings key
+
+Currently, GNOME settings daemon displays a notification warning
+the user before the sleeping the device. This is generally a very
+useful feature. However, with the adoption of new platforms in GNOME
+like phones and tablets, this can be a problem. In such devices,
+the desired behavior is to sleep as soon as possible and by default.
+Therefore, having a notification pop-up (which can potentially trigger
+some other haptic feedback like a LED) just because the device is
+doing what it is supposed to do (go to sleep) can be problematic.
+
+Since currently there is no reliable way for GNOME settings daemon
+to detect whether it is running in one of those devices, a new
+GSettings key to turn on and off the notification behaviour has been
+added. This way, distributions which mainly target these devices such
+as Mobian and postmarketOS can simply toggle a setting instead of
+carrying dowstream patches. That could also apply to device-specific images
+from other distributions that could also simply carry an override.
+
+Closes #656
+---
+ data/org.gnome.settings-daemon.plugins.power.gschema.xml.in | 5 +++++
+ plugins/power/gsd-power-manager.c                           | 3 ++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in b/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in
+index 04b287bd5..57910627b 100644
+--- a/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in
++++ b/data/org.gnome.settings-daemon.plugins.power.gschema.xml.in
+@@ -46,5 +46,10 @@
+       <summary>Enable power-saver profile when battery is low</summary>
+       <description>Automatically enable the "power-saver" profile using power-profiles-daemon if the battery is low.</description>
+     </key>
++    <key name="show-notification-sleep-warning" type="b">
++      <default>true</default>
++      <summary>Whether to show notification warning before taking sleeping action</summary>
++      <description>A notification will warn the user that the sleep action (suspend, hibernate or logout) will happen soon.</description>
++    </key>
+   </schema>
+ </schemalist>
+diff --git a/plugins/power/gsd-power-manager.c b/plugins/power/gsd-power-manager.c
+index 757986e3d..70ffedc9d 100644
+--- a/plugins/power/gsd-power-manager.c
++++ b/plugins/power/gsd-power-manager.c
+@@ -2501,7 +2501,8 @@ idle_triggered_idle_cb (GnomeIdleMonitor *monitor,
+         } else if (watch_id == manager->idle_sleep_id) {
+                 idle_set_mode_no_temp (manager, GSD_POWER_IDLE_MODE_SLEEP);
+         } else if (watch_id == manager->idle_sleep_warning_id) {
+-                show_sleep_warning (manager);
++                if (g_settings_get_boolean (manager->settings, "show-notification-sleep-warning"))
++                        show_sleep_warning (manager);
+ 
+                 if (manager->user_active_id < 1) {
+                     manager->user_active_id = gnome_idle_monitor_add_user_active_watch (manager->idle_monitor,
+-- 
+GitLab
+
