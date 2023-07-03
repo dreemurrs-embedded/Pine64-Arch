@@ -1,21 +1,21 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-ui-meta
 pkgver=0.2
-pkgrel=2
+pkgrel=3
 pkgdesc="Meta package for Phosh"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 depends=(
 	danctnix-phosh-settings
 	dconf
-	gtk3-mobile
+	gtk3
 	gnome-keyring
 	phoc
 	phosh
 	feedbackd
 	squeekboard
 	dnsmasq
-	gnome-control-center-mobile
+	gnome-control-center
 	sound-theme-librem5
 	iio-sensor-proxy
 	wys
