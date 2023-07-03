@@ -4,28 +4,63 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=43.1
+pkgver=43.6
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
-license=(GPL2)
+license=(GPL3)
 arch=(x86_64 armv7h aarch64)
-depends=(accountsservice cups-pk-helper gnome-bluetooth-3.0 gnome-desktop-4
-         gnome-online-accounts gnome-settings-daemon gsettings-desktop-schemas
-         gtk4 libgtop libnma-gtk4 sound-theme-freedesktop upower libpwquality
-         gnome-color-manager smbclient libmm-glib libgnomekbd libibus libgudev
-         bolt udisks2 libadwaita gsound colord-gtk4 gcr modemmanager)
-makedepends=(docbook-xsl git python meson)
-checkdepends=(python-dbusmock python-gobject xorg-server-xvfb)
-optdepends=('system-config-printer: Printer settings'
-            'gnome-user-share: WebDAV file sharing'
-            'gnome-remote-desktop: screen sharing'
-            'rygel: media sharing'
-            'openssh: remote login'
-            'power-profiles-daemon: Power profiles support')
+depends=(
+  accountsservice
+  bolt
+  colord-gtk4
+  cups-pk-helper
+  gcr
+  gnome-bluetooth-3.0
+  gnome-color-manager
+  gnome-desktop-4
+  gnome-online-accounts
+  gnome-settings-daemon
+  gsettings-desktop-schemas
+  gsound
+  gtk4
+  libadwaita
+  libgnomekbd
+  libgtop
+  libgudev
+  libibus
+  libmm-glib
+  libnma-gtk4
+  libpwquality
+  modemmanager
+  smbclient
+  sound-theme-freedesktop
+  udisks2
+  upower)
+makedepends=(
+  docbook-xsl
+  git
+  meson
+  python
+)
+checkdepends=(
+  python-dbusmock
+  python-gobject
+  xorg-server-xvfb
+)
+optdepends=(
+  'fwupd: device security panel'
+  'gnome-remote-desktop: screen sharing'
+  'gnome-user-share: WebDAV file sharing'
+  'networkmanager: network settings'
+  'openssh: remote login'
+  'power-profiles-daemon: power profiles'
+  'rygel: media sharing'
+  'system-config-printer: printer settings'
+)
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=cdcdee471b7d452dd5449565af3b36fb95155e99  # tags/43.1^0
+_commit=ed5660b0d18dcba23b484f98a535cfaf6e4dcc4e  # tags/43.6^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
         'pixmaps-dir.diff'
@@ -45,7 +80,7 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_co
         '0001-removable-media-Wrap-GtkCheckButton-label-to-fit-nar.patch')
 sha256sums=('SKIP'
             'SKIP'
-            'd3d97995f9e4d5bed2e81b196c1e086777fc33dd6b6f6b08bcc931944569ea4a'
+            '8695bc08c06026b7bfdd43941b4e07bb3ffbaa4e709be0b23ee138d24b6dbc8f'
             '062e53654e8662ed53743b4c652b7b41c5c2993a713337626c832d0af3eda015'
             'a931eab101ac0e59b63df5bf21a797e05fec74399fdfe0ebb782e54bb3973a0b'
             'e02d1f097a29cf4963a4922aa3621344dc9fd68744e63fd17648356cde9c1936'
@@ -93,7 +128,7 @@ build() {
 }
 
 check() {
-  xvfb-run meson test -C build --print-errorlogs
+  GTK_A11Y=none xvfb-run meson test -C build --print-errorlogs
 }
 
 package() {
