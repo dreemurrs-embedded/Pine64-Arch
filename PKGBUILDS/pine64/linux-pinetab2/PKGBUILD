@@ -2,7 +2,7 @@
 # Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-pinetab2
-pkgver=6.4.1.danctnix1
+pkgver=6.4.2.danctnix1
 pkgrel=1
 pkgdesc='PineTab2'
 _srctag=v${pkgver%.*}-${pkgver##*.}
@@ -38,7 +38,7 @@ validpgpkeys=(
   F09A933C0FE0331E558CA4E166CAB7EAA45DD781  # Danct12
 )
 b2sums=('SKIP'
-        '7a0155c06a3f558fa246d709af67ae1ecc90ac7a5b84430c08e139cfd665a94ea41affe1d177b695a31ea4ff96a76480191bdeacf0f24bd60a7d05724dfac4bc')
+        '57c3f52b7642a2842d682a7f2e8d793e02bca22b94d81146a4f01fd3215b8b93895e1107c24ef1f15e625f2aba947e215623fc1d689b7f9d6841f61aa8c60343')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
