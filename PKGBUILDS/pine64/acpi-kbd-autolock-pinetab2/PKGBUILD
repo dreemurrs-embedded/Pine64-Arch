@@ -1,0 +1,24 @@
+# Maintainer: ScottFreeCode <scottfreecode@gmail.com>
+pkgname=acpi-kbd-autolock-pinetab2
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Automatically turn off the hardware/case keyboard when it is flipped shut (or behind the tablet), for the PineTab 2"
+arch=(any)
+url="https://github.com/dreemurrs-embedded/Pine64-Arch"
+license=('BSD')
+depends=('acpid')
+source=(lid toggle-keyboard.sh)
+
+package() {
+    install -D -m644 "$srcdir"/lid \
+        "$pkgdir"/etc/acpi/events/lid
+    install -D -m755 "$srcdir"/toggle-keyboard.sh \
+        "$pkgdir"/etc/acpi/toggle-keyboard.sh
+}
+
+post_install() {
+    systemctl enable --now acpid
+}
+
+md5sums=('fdac6076a6c9cf9e3fad89302fc06cf9'
+         'c8862783b76c9addf604ba095c9814b4')
