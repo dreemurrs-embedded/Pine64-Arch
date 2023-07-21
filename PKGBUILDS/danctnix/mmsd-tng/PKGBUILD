@@ -3,14 +3,14 @@
 
 pkgname=mmsd-tng
 pkgver=2.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Multimedia Messaging Service Daemon - The Next Generation"
 url="https://gitlab.com/kop316/mmsd"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=("GPL2")
 provides=("mmsd")
 conflicts=("mmsd")
-depends=("c-ares" "mobile-broadband-provider-info" "libmm-glib" "libsoup3" "libphonenumber")
+depends=("c-ares" "dbus" "mobile-broadband-provider-info" "libmm-glib" "libsoup3" "libphonenumber")
 makedepends=("meson")
 install=mmsd-tng.install
 source=("$pkgname-$pkgver.tar.bz2::https://gitlab.com/kop316/mmsd/-/archive/$pkgver/mmsd-$pkgver.tar.bz2"
