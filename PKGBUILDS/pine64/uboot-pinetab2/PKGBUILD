@@ -3,7 +3,7 @@
 buildarch=8
 
 pkgname=uboot-pinetab2
-pkgver=2023.07_rc4
+pkgver=2023.07.02
 pkgrel=1
 pkgdesc="U-Boot for PineTab 2"
 arch=('aarch64')
@@ -15,7 +15,7 @@ replaces=(uboot-pinetab2-mainline)
 install=${pkgname}.install
 backup=("boot/boot.txt")
 
-_commit_uboot="2e0e11b8e65c48a43270f4ec4a88b74c8a83e269"
+_commit_uboot="c294612d38e5434f549a7f591212249ca190edd3"
 _commit_rkbin="d6ccfe401ca84a98ca3b85c12b9554a1a43a166c"
 
 source=("$pkgname::git+https://github.com/Kwiboo/u-boot-rockchip.git#commit=$_commit_uboot"
@@ -26,7 +26,7 @@ source=("$pkgname::git+https://github.com/Kwiboo/u-boot-rockchip.git#commit=$_co
         'update-u-boot')
 md5sums=('SKIP'
          'SKIP'
-         '588c095d613023455242210692f7fbcc'
+         '4d819966a69fb0fc75bcfb5ca0f5a785'
          '635379a8a8063fe2ff147e54637fb2ed'
          '021623a04afd29ac3f368977140cfbfd'
          'ec7c2005cb5cc9a23d1eb0e1bf089bf9')
