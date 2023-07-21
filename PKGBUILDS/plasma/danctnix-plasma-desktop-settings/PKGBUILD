@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 
 pkgname=danctnix-plasma-desktop-settings
-pkgver=20230319
+pkgver=20230721
 pkgrel=1
 arch=('any')
 url="https://danctnix.org"
@@ -15,15 +15,13 @@ source=('kwinrc'
         'plasmamobile.json'
         'settings.ini'
         'powerdevil.hook'
-        'sddm.conf.d-breeze.conf'
-        'sddm.conf.d-keyboard.conf')
+        'sddm.conf.d-danctnix.conf')
 sha256sums=('57ef45fb1065ca281786aca343f4a51584455c444e95f61f54c5545b1aa27eda'
             'fd5a89ce81197a912a9879aa5aa33daf68c8f80a4b70192fff89364ef9d18734'
             '42db6e099ab56aa4f6c01107fe83897a059bc371a389379cd3c260d4ab8fd2bc'
             'e3e671c730f7a4ed54011a1152a54e5ce11e6092850c379deb5641d88b5463bd'
             '42c4de4c9310904ada1c84e23a34e42fcf20f8318a5f798372468381965dbd18'
-            '0279facbfd7a3f2a41dda87e5876cb53c0b422092bcc37c910e8b76dc895cee2'
-            '05a48d57f2e39434c9d06c087559676e3604005eddd46bed1b2e00dec8b933b8')
+            '1b3bd51533da9fb9f04c20ff5143b64238dff0ccc5cd47e114b93eff3a0bb6d8')
 
 pkgver() {
     date +%Y%m%d
@@ -40,6 +38,5 @@ package() {
     install -Dm644 "${srcdir}/powerdevil.hook" "${pkgdir}/usr/share/libalpm/hooks/90-powerdevil.hook"
 
     # sddm login
-    install -Dm644 "${srcdir}/sddm.conf.d-breeze.conf" "${pkgdir}/etc/sddm.conf.d/breeze.conf"
-    install -Dm644 "${srcdir}/sddm.conf.d-keyboard.conf" "${pkgdir}/etc/sddm.conf.d/keyboard.conf"
+    install -Dm644 "${srcdir}/sddm.conf.d-danctnix.conf" "${pkgdir}/etc/sddm.conf.d/danctnix.conf"
 }
