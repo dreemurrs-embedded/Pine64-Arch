@@ -5,7 +5,7 @@
 
 pkgname=spacebar
 pkgver=23.01.0
-pkgrel=1
+pkgrel=2
 pkgdesc="SMS and messaging application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
