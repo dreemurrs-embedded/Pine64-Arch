@@ -2,13 +2,13 @@
 # Contributor: Bernhard Landauer <oberon@manjaro.org>
 
 pkgname=plasma-mobile-settings
-pkgver=20221014
-pkgrel=2
+pkgver=20230723
+pkgrel=1
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
 license=('GPL')
 pkgdesc='Settings files for Plasma Mobile'
-depends=('accountsservice' 'noto-fonts' 'breeze' 'breeze-gtk' 'pipewire' 'pipewire-media-session' 'hfd-service'
+depends=('accountsservice' 'noto-fonts' 'breeze' 'breeze-gtk' 'pipewire' 'pipewire-session-manager' 'hfd-service'
          'modemmanager' 'systemd')
 makedepends=('git')
 install=$pkgname.install
