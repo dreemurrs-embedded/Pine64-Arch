@@ -5,11 +5,8 @@ post_install() {
 
 	# Change power key behavior
 	sudo sed -i 's/#HandlePowerKey=poweroff/HandlePowerKey=ignore/g' /etc/systemd/logind.conf
-<<<<<<< HEAD
 
 	# Change default shell to oilshell 
 	chsh -s /usr/bin/osh
-=======
->>>>>>> b8ab865 (start fbp on install and fix default power key behavior)
 }
 

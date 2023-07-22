@@ -6,11 +6,11 @@ pkgver=0.5
 pkgrel=1
 pkgdesc="Framebuffer linux phone UI environment, supported best on the Pinephone"
 arch=('aarch64' 'x86_64')
-url="https://git.sr.ht/~mil/fbp"
+url="https://git.sr.ht/~hamblingreen/fbp"
 license=('GPL-3.0-or-later')
 makedepends=('zig>=0.9.1' 'freetype2' 'linux-headers')
 source=(
-"https://git.sr.ht/~mil/fbp/archive/$pkgver.tar.gz"
+"https://git.sr.ht/~hamblingreen/fbp/archive/$pkgver.tar.gz"
 "$pkgname.install"
 "$pkgname.service"
 "$pkgname.init"
@@ -34,11 +34,11 @@ package() {
 
 	#Load 'uinput' kernel module at boot
 	mkdir -p "$pkgdir/etc/modules-load.d/"
-	install "$srcdir/fbp.init" "$pkgdir/etc/modules-load.d/fbp.conf"
+	install "fbp.init" "$pkgdir/etc/modules-load.d/fbp.conf"
 
 	#Create systemd service to start fbp on boot
 	mkdir -p "$pkgdir/usr/lib/systemd/system/"
-	install "$srcdir/fbp.service" "$pkgdir/usr/lib/systemd/system/fbp.service"
+	install "fbp.service" "$pkgdir/usr/lib/systemd/system/fbp.service"
 
 	#Enable fbp service
 	install=fbp.install
