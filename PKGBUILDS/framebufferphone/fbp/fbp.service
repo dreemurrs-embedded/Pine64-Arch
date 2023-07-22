@@ -1,0 +1,8 @@
+[Unit]
+Description=Starts the fbp UI at boot
+
+[Service]
+ExecStart=/usr/sbin/fbp
+
+[Install]
+WantedBy=graphical.target

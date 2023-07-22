@@ -1,0 +1,14 @@
+diff --text --unified --recursive netsurf-3.10.new/Makefile netsurf-3.10/Makefile
+--- netsurf-3.10.new/Makefile	2022-11-08 18:48:32.543376785 +0000
++++ netsurf-3.10/Makefile	2022-11-08 18:49:09.651990933 +0000
+@@ -335,8 +335,8 @@
+ TOOLROOT := $(OBJROOT)/tools
+ 
+ # keep C flags from environment
+-CFLAGS_ENV := $(CFLAGS)
+-CXXFLAGS_ENV := $(CXXFLAGS)
++CFLAGS_ENV := $(CFLAGS) -fcommon 
++CXXFLAGS_ENV := $(CXXFLAGS) -fcommon 
+ 
+ # A macro that conditionaly adds flags to the build when a feature is enabled.
+ #

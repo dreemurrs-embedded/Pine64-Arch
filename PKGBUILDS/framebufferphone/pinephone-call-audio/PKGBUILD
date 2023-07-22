@@ -1,0 +1,24 @@
+# Maintainer: Robert Hamblin <hamblingreen at hotmail dot com>
+# Contributor: Miles Alan <m at milesalan dot com>
+
+pkgname=pinephone-call-audio
+pkgver=0.1
+pkgrel=1
+pkgdesc="Voice call audio routing setup tool for Pinephone"
+arch=('aarch64')
+url="https://xnux.eu/devices/feature/audio-pp.html"
+license=('GPL-2.0-or-later')
+makedepends=('linux-headers')
+source=("https://xff.cz/kernels/pinephone-call-audio-$pkgver.tar.gz")
+sha256sums=('7cd79f9d60d4d38fb8407bf07624ff004d69df7993422457ec38dfeec83f5ff9')
+
+build() {
+	cd "$pkgname-$pkgver"
+	gcc -o pinephone-call-audio call-audio.c
+}
+
+package() {
+	mkdir -p "$pkgdir/usr/bin/"
+	cd "$pkgname-$pkgver"
+	install pinephone-call-audio "$pkgdir/usr/bin/pinephone-call-audio"
+}

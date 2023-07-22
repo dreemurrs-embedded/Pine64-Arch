@@ -1,0 +1,45 @@
+# Maintainer: Bobby Hamblin <hamblingreen at hotmail dot com>
+# Contributor: Miles Alan <m@milesalan.com>
+
+pkgname=fbp
+pkgver=0.5
+pkgrel=1
+pkgdesc="Framebuffer linux phone UI environment, supported best on the Pinephone"
+arch=('aarch64' 'x86_64')
+url="https://git.sr.ht/~hamblingreen/fbp"
+license=('GPL-3.0-or-later')
+makedepends=('zig>=0.9.1' 'freetype2' 'linux-headers')
+source=(
+"https://git.sr.ht/~hamblingreen/fbp/archive/$pkgver.tar.gz"
+"$pkgname.install"
+"$pkgname.service"
+"$pkgname.init"
+)
+sha256sums=('88d34bcb573f5c925d14e3e1c058c35135f4d6e83970c7d4cbb385426e658a34'
+            '4804892d1c16c2a0bf012a4b3da86998707de0b840ffbf93988e6f95a3d2f41e'
+            '611974c529c60deab55c89c54603593292602cc79f5e7a3e7ab71ca6ea36d4af'
+            '102cb4f5ee49f92fbe71d1a5ce50eea55fb03979531d80093b147d838ec8c7ad')
+
+build() {
+	cd "$pkgname-$pkgver"
+	zig build
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+
+	#Install fbp binary
+	mkdir -p "$pkgdir/usr/bin"
+	install "zig-out/bin/fbp" "$pkgdir/usr/bin"
+
+	#Load 'uinput' kernel module at boot
+	mkdir -p "$pkgdir/etc/modules-load.d/"
+	install "fbp.init" "$pkgdir/etc/modules-load.d/fbp.conf"
+
+	#Create systemd service to start fbp on boot
+	mkdir -p "$pkgdir/usr/lib/systemd/system/"
+	install "fbp.service" "$pkgdir/usr/lib/systemd/system/fbp.service"
+
+	#Enable fbp service
+	install=fbp.install
+}

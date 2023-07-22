@@ -1,0 +1,12 @@
+post_install() {
+	# Start fbp and enable fbp on boot
+	sudo systemctl enable fbp
+	sudo systemctl start fbp
+
+	# Change power key behavior
+	sudo sed -i 's/#HandlePowerKey=poweroff/HandlePowerKey=ignore/g' /etc/systemd/logind.conf
+
+	# Change default shell to oilshell 
+	chsh -s /usr/bin/osh
+}
+
