@@ -13,3 +13,24 @@
 [submodule "PKGBUILDS/danctnix/python-gbinder"]
 	path = PKGBUILDS/danctnix/python-gbinder
 	url = https://aur.archlinux.org/python-gbinder.git
+[submodule "PKGBUILDS/framebufferphone/directfb"]
+	path = PKGBUILDS/framebufferphone/directfb
+	url = https://aur.archlinux.org/directfb.git
+[submodule "PKGBUILDS/framebufferphone/fluxcomp"]
+	path = PKGBUILDS/framebufferphone/fluxcomp
+	url = https://aur.archlinux.org/fluxcomp.git
+[submodule "PKGBUILDS/framebufferphone/libnsfb"]
+	path = PKGBUILDS/framebufferphone/libnsfb
+	url = https://aur.archlinux.org/libnsfb.git
+[submodule "PKGBUILDS/framebufferphone/moon-buggy"]
+	path = PKGBUILDS/framebufferphone/moon-buggy
+	url = https://aur.archlinux.org/moon-buggy.git
+[submodule "PKGBUILDS/framebufferphone/netsurf-fb"]
+	path = PKGBUILDS/framebufferphone/netsurf-fb
+	url = https://aur.archlinux.org/netsurf-fb.git
+[submodule "PKGBUILDS/framebufferphone/pinephone-call-audio"]
+	path = PKGBUILDS/framebufferphone/pinephone-call-audio
+	url = https://aur.archlinux.org/pinephone-call-audio.git
+[submodule "PKGBUILDS/framebufferphone/mepo"]
+	path = PKGBUILDS/framebufferphone/mepo
+	url = https://aur.archlinux.org/mepo.git
