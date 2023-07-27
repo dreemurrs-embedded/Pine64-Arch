@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinetab2
 pkgver=0.2
-pkgrel=2
+pkgrel=3
 pkgdesc="PineTab 2 device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
