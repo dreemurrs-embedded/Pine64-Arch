@@ -1,9 +1,10 @@
-# Maintainer: Brian Bidulock <bidulock@openss7.org>
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Brian Bidulock <bidulock@openss7.org>
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 # Contributor: Bjorn Lindeijer <bjorn lindeijer nl>
 pkgname=sofia-sip
-pkgver=1.13.14
+pkgver=1.13.16
 pkgrel=1
 pkgdesc="An open-source SIP User-Agent library"
 arch=('x86_64' 'i686' 'armv7h' 'aarch64')
@@ -11,7 +12,7 @@ url="http://sofia-sip.sourceforge.net"
 license=('LGPL')
 depends=('glib2' 'openssl' 'gawk')
 source=($pkgname-$pkgver.tar.gz::https://github.com/freeswitch/$pkgname/archive/refs/tags/v$pkgver.tar.gz)
-md5sums=('402ac91af9880f7c9e97b2263894a7ee')
+md5sums=('777358bd504a76517a9d510c7aa78204')
 
 prepare() {
   cd $pkgname-$pkgver
