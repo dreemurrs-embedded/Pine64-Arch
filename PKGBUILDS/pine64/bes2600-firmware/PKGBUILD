@@ -1,15 +1,21 @@
 pkgname=bes2600-firmware
-pkgver=20221201
+pkgver=20230704.r0.g48d97e9
 pkgrel=1
 pkgdesc="Firmware files for BES2600"
 makedepends=('git')
 arch=('any')
 license=('custom')
 options=(!strip)
-source=("https://cdn.discordapp.com/attachments/1043046331217887242/1066290032811458600/best2002_fw_sdio.tar.gz")
-md5sums=('c3e76913e23b508b0092a6298667c19c')
+_commit="48d97e9d99fbd4db9c3109e05f71d583f4fb9b34" # 20230704
+source=(git+https://gitlab.com/pine64-org/bes2600-firmware.git)
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$pkgname"
+  git describe --long --tags --abbrev=7 | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
 
 package() {
-  mkdir -p ${pkgdir}/usr/lib/firmware
-  tar xvf ${srcdir}/best2002_fw_sdio.tar.gz -C ${pkgdir}/usr/lib/firmware
+  mkdir -p ${pkgdir}/usr/lib/
+  cp -r ${pkgname}/firmware ${pkgdir}/usr/lib
 }
