@@ -1,13 +1,10 @@
 #!/bin/sh
 
-# If Wayland plugin for Qt is installed, launch Qt apps in Wayland.
-if [ -f "/usr/lib/qt/plugins/wayland-shell-integration/libxdg-shell.so" ]; then
-  export QT_QPA_PLATFORM=wayland
+# Sometimes users may have multiple UI installed and they may choose to run a non-Wayland environment,
+# so let's only set these when the session type is Wayland.
+
+if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+    export MOZ_ENABLE_WAYLAND=1
+    export QT_QPA_PLATFORM=wayland
+    export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
 fi
-
-# Use GLES in GDK
-export GDK_GL=gles
-
-# Most pure GTK3 apps use wayland by default, but some,
-# like Firefox, need the backend to be explicitely selected.
-export MOZ_ENABLE_WAYLAND=1
