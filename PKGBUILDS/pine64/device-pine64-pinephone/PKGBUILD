@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=device-pine64-pinephone
 pkgver=0.2
-pkgrel=5
+pkgrel=6
 pkgdesc="PinePhone device package"
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
@@ -11,8 +11,9 @@ depends=(danctnix-tweaks linux-megi uboot-pinephone rtl8723bt-firmware anx7688-f
 install="$pkgname.install"
 source=(10-proximity.rules
         10-pinephone-brightness.rules
-        pinephone-suspend-hook.sh
+        12_mobile-pinephone.gschema.override
         machine-info
+        pinephone-suspend-hook.sh
         pulseaudio-pinetweaks.conf)
 
 package() {
@@ -21,6 +22,9 @@ package() {
 
   # Calibrate minimum brightness
   install -Dm644 "$srcdir"/10-pinephone-brightness.rules "$pkgdir"/usr/lib/udev/rules.d/10-pinephone-brightness.rules
+
+  # Custom settings for PinePhone
+  install -Dm644 -t "$pkgdir/usr/share/glib-2.0/schemas" "$srcdir/12_mobile-pinephone.gschema.override"
 
   # Current workaround for suspend
   install -Dm755 "$srcdir"/pinephone-suspend-hook.sh "$pkgdir"/usr/lib/systemd/system-sleep/pinephone-suspend-hook.sh
@@ -32,6 +36,7 @@ package() {
 
 md5sums=('b72ff096c022588f72c226283ac328bd'
          '3a478fece4381cf41fb795009bfe8cc3'
-         'b0912b95d7d810a0f161d9bd79fc162b'
+         '64752ddac7886945f8c5ad0d9cb09749'
          'b53781dde1d7a9a44e5076f3be463570'
+         'b0912b95d7d810a0f161d9bd79fc162b'
          '1504e684e5a2aec439e0674cdfc9d3c1')
