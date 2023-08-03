@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
 pkgver=0.29.0
-pkgrel=1
+pkgrel=2
 pkgdesc="A Wayland shell for GNOME on mobile devices."
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh"
@@ -14,7 +14,6 @@ _commit="fbda52d8c11c02e79151387aa8b608170bc7a013" # tags/v0.29.0
 _libcall_ui_commit="6798b38d4d66d069751151b3e9a202c6de8d7f3c" # tags/v0.1.0
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         'pam_phosh'
-        'sm.puri.OSK0.desktop'
         'phosh.service')
 
 pkgver() {
@@ -39,11 +38,10 @@ package() {
         "$pkgdir"/usr/lib/systemd/system/phosh.service
     install -Dm644 "$srcdir"/pam_phosh \
         "$pkgdir"/etc/pam.d/phosh
-    install -Dm644 "$srcdir"/sm.puri.OSK0.desktop \
-        "$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
+    mkdir -p "$pkgdir"/usr/share/applications
+    ln -s sm.puri.Squeekboard.desktop "$pkgdir"/usr/share/applications/sm.puri.OSK0.desktop
 }
 
 md5sums=('SKIP'
          '6d5a0d561f8362bf91f85c236a88395d'
-         '30c7febb5cbbac40984fb50d66a88639'
          '8d95d47dba9aede4db4e643d59749093')
