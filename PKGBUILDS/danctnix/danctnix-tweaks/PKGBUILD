@@ -2,22 +2,30 @@
 
 pkgname=danctnix-tweaks
 pkgver=0.3
-pkgrel=3
+pkgrel=4
 pkgdesc="Tweaks made to DanctNIX Mobile."
 arch=(any)
 url="https://danctnix.org"
 license=('MIT')
 install=$pkgname.install
 source=(00-journal-size.conf
+        danctnix.sh
         packagekit-rm-lock.service)
 
 package() {
   mkdir -p "$pkgdir"
+
+  # Limit log size to 64 MB
   install -Dm644 00-journal-size.conf $pkgdir/etc/systemd/journald.conf.d/00-journal-size.conf
 
+  # XDG override
+  install -Dm755 -t "$pkgdir/etc/profile.d" "$srcdir/danctnix.sh"
+
+  # Fix PackageKit's lock issue, is this still needed?
   install -Dm644 "$srcdir/packagekit-rm-lock.service" "$pkgdir/usr/lib/systemd/system/packagekit-rm-lock.service"
   mkdir -p "$pkgdir/usr/lib/systemd/system/system-update.target.wants"
   ln -s ../packagekit-rm-lock.service "$pkgdir/usr/lib/systemd/system/system-update.target.wants/packagekit-rm-lock.service"
 }
 md5sums=('3b3ccac2ebb5ada20d81f758c1591a19'
+         '4e060d406b742a03336224389c2e648a'
          '002308e4f5d9c10fade7eec8cfcde1b0')

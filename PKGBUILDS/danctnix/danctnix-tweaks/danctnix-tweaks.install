@@ -6,6 +6,6 @@ post_upgrade() {
 
     /usr/bin/rm -rf /etc/pacman.d/gnupg
     /usr/bin/pacman-key --init
-    /usr/bin/pacman-key --populate archlinuxarm
+    /usr/bin/pacman-key --populate archlinuxarm danctnix
   fi
 }
