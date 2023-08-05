@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.29.0
+pkgver=0.30.0
 pkgrel=1
 pkgdesc="wlroots based Wayland compositor for mobile phones"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -10,26 +10,17 @@ depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'libglvnd' 'seatd' '
          'xcb-util-errors' 'xcb-util-renderutil' 'xcb-util-wm' 'wayland-protocols' 'libvulkan.so')
 makedepends=('git' 'meson' 'ninja' 'glslang' 'vulkan-headers')
 checkdepends=('xorg-server-xvfb')
-_commit="e2848b26104200e2f7fff3d29f8eb7365313f474"  # tags/0.29.0
-_commit_wlroots="06f3b6e91e17b8bdc76f3f40216c62e8ba5fe6d6"
-source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}"
-        "wlroots-phoc::git+https://source.puri.sm/Librem5/wlroots.git#commit=${_commit_wlroots}")
+_commit="0b14b8837a37977b3252ce957802469491f58ee2"  # tags/0.30.0
+source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}")
 
 pkgver() {
   cd $pkgname
   git describe --tags | sed 's/^v//;s/-/+/g'
 }
 
-prepare() {
-  cd $pkgname
-
-  git submodule init subprojects/wlroots
-  git submodule set-url subprojects/wlroots "$srcdir/wlroots-phoc"
-  git submodule--helper update
-}
-
 build() {
   local meson_options=(
+    --wrap-mode default
     -D embed-wlroots=enabled
     --default-library=static
   )
@@ -38,13 +29,13 @@ build() {
   meson compile -C build
 }
 
-# XWayland check error
+# tests are failing
 #check() {
-#  xvfb-run -s -noreset meson test -C build --print-errorlogs
+#  xvfb-run ninja -C build test
 #}
 
 package() {
-  meson install -C build --destdir "$pkgdir"
+  DESTDIR="$pkgdir" ninja install -C build
 
   # Install scale-to-fit helper
   install -Dm755 "$pkgname"/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
@@ -54,5 +45,4 @@ package() {
   rm -r "$pkgdir"/usr/include
 }
 
-sha256sums=('SKIP'
-            'SKIP')
+sha256sums=('SKIP')
