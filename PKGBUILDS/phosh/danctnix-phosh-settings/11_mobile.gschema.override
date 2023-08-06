@@ -13,6 +13,9 @@ theme-name='librem5'
 [org.gnome.settings-daemon.peripherals.touchscreen]
 orientation-lock=true
 
+[org.gnome.settings-daemon.plugins.power]
+show-notification-sleep-warning=false
+
 [org.gnome.settings-daemon.plugins.wwan]
 unlock-sim=true
 
