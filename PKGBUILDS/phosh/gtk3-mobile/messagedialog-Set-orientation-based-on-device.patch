@@ -91,7 +91,7 @@ index e70c820..e3a6659 100644
  
    settings = gtk_widget_get_settings (GTK_WIDGET (dialog));
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index b685ada..1baff7c 100644
+index e40e429..b6609f9 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
 @@ -3987,10 +3987,13 @@ messagedialog { // Message Dialog styling

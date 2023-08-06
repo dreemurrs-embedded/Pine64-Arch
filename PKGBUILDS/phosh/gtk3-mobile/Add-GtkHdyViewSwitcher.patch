@@ -4,54 +4,18 @@ Subject: Add GtkHdyViewSwitcher
 
 This is imported from HdyViewSwitcher from libhandy 1.0.1.
 ---
- gtk/Makefile.am                 |   4 +
- gtk/gtk-mkenums-headers.mak     |   3 +-
  gtk/gtkprivate.h                |   1 +
  gtk/hdy-css-private.h           |  25 ++
  gtk/hdy-css.c                   |  74 ++++
- gtk/hdy-view-switcher-private.h |  43 ++
- gtk/hdy-view-switcher.c         | 733 ++++++++++++++++++++++++++++++++
+ gtk/hdy-view-switcher-private.h |  43 +++
+ gtk/hdy-view-switcher.c         | 733 ++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build                 |   4 +
- 8 files changed, 886 insertions(+), 1 deletion(-)
+ 6 files changed, 880 insertions(+)
  create mode 100644 gtk/hdy-css-private.h
  create mode 100644 gtk/hdy-css.c
  create mode 100644 gtk/hdy-view-switcher-private.h
  create mode 100644 gtk/hdy-view-switcher.c
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 0e76672..9ea96eb 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -373,7 +373,9 @@ gtk_private_h_sources =		\
- 	gtkwindowprivate.h	\
- 	gtktreemenu.h		\
- 	gdkpixbufutilsprivate.h \
-+	hdy-css-private.h	\
- 	hdy-view-switcher-button-private.h	\
-+	hdy-view-switcher-private.h	\
- 	open-type-layout.h	\
- 	language-names.h	\
- 	script-names.h
-@@ -749,6 +751,8 @@ gtk_base_c_sources = 		\
- 	gtkwin32draw.c		\
- 	gtkwin32theme.c		\
- 	gdkpixbufutils.c	\
-+	hdy-css.c	\
-+	hdy-view-switcher.c	\
- 	hdy-view-switcher-button.c	\
- 	language-names.c	\
- 	script-names.c
-diff --git a/gtk/gtk-mkenums-headers.mak b/gtk/gtk-mkenums-headers.mak
-index 86c38f9..63df675 100644
---- a/gtk/gtk-mkenums-headers.mak
-+++ b/gtk/gtk-mkenums-headers.mak
-@@ -233,4 +233,5 @@ GTK_PUB_HDRS = 		\
- 
- GTK_PRIVATE_TYPE_HDRS =	\
- 	gtkcsstypesprivate.h	\
--	gtktexthandleprivate.h
-+	gtktexthandleprivate.h	\
-+	hdy-view-switcher-private.h
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
 index dcab28d..473bb99 100644
 --- a/gtk/gtkprivate.h
@@ -964,7 +928,7 @@ index 0000000..2664b3e
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STACK]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 8585ac3..9a6e303 100644
+index 38b810c..1054e29 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -383,7 +383,9 @@ gtk_sources = files(

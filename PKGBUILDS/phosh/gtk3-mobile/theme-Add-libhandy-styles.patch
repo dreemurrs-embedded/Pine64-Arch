@@ -28,10 +28,10 @@ index 32dd762..79ef3ca 100644
 +$flap_border: rgba(0, 0, 0, if($variant == 'light', 0.05, 0.2));
 +$flap_outline: rgba(255, 255, 255, if($variant == 'light', 0.2, 0.05));
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index 57c9890..3b970c1 100644
+index dc02b49..19b6f38 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
-@@ -4853,3 +4853,190 @@ popover.emoji-completion contents row box {
+@@ -4855,3 +4855,190 @@ popover.emoji-completion contents row box {
  popover.emoji-completion .emoji:hover {
    background: $popover_hover_color;
  }

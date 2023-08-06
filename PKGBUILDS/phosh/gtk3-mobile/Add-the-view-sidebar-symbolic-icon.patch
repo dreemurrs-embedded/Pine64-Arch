@@ -4,27 +4,13 @@ Subject: Add the view-sidebar-symbolic icon
 
 This will be used to reveal/conceal the file chooser sidebar.
 ---
- gtk/Makefile.am                                    |  2 +-
  gtk/gen-gtk-gresources-xml.py                      |  6 ++
  .../scalable/actions/view-sidebar-symbolic.svg     | 78 ++++++++++++++++++++++
- 3 files changed, 85 insertions(+), 1 deletion(-)
+ 2 files changed, 84 insertions(+)
  create mode 100644 gtk/icons/scalable/actions/view-sidebar-symbolic.svg
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 59d25d1..c6279a5 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -1375,7 +1375,7 @@ gtk.gresource.xml: Makefile.am inspector/Makefile.inc
- 	  done; \
- 	done; \
- 	for s in scalable; do \
--	  for c in status; do \
-+	  for c in actions status; do \
- 	    for f in $(srcdir)/icons/$$s/$$c/*.svg; do \
- 	      test "$$f" = "$(srcdir)/icons/$$s/$$c/*.svg" && continue; \
- 	      n=`basename $$f`; \
 diff --git a/gtk/gen-gtk-gresources-xml.py b/gtk/gen-gtk-gresources-xml.py
-index 6c61000..4830889 100644
+index 91cbaa3..4816205 100644
 --- a/gtk/gen-gtk-gresources-xml.py
 +++ b/gtk/gen-gtk-gresources-xml.py
 @@ -71,6 +71,12 @@ for s in ['16x16', '22x22', '24x24', '32x32', '48x48']:

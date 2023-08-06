@@ -1,0 +1,46 @@
+From: =?utf-8?q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 10 Mar 2023 12:25:13 +0100
+Subject: gdk/wayland: Track last touch serial on seat
+
+Since the touch data is released on touch up
+_gdk_wayland_seat_get_last_implicit_grab_serial will return 0 serial
+most of the time for touch only devices. This breaks xdg activation as
+the compositor will reject tokens that have a 0 serial set via
+xdg_activation_token_v1_set_serial.
+
+Avoid that by tracking touch serials on the seat itself too.
+---
+ gdk/wayland/gdkdevice-wayland.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/gdk/wayland/gdkdevice-wayland.c b/gdk/wayland/gdkdevice-wayland.c
+index 9dc86a3..9570e82 100644
+--- a/gdk/wayland/gdkdevice-wayland.c
++++ b/gdk/wayland/gdkdevice-wayland.c
+@@ -212,6 +212,7 @@ struct _GdkWaylandSeat
+   GdkKeymap *keymap;
+ 
+   GHashTable *touches;
++  guint32 last_touch_down_serial;
+   GList *tablets;
+   GList *tablet_tools;
+   GList *tablet_pads;
+@@ -2514,7 +2515,7 @@ touch_handle_down (void              *data,
+   touch = gdk_wayland_seat_add_touch (seat, id, wl_surface);
+   touch->x = wl_fixed_to_double (x);
+   touch->y = wl_fixed_to_double (y);
+-  touch->touch_down_serial = serial;
++  seat->last_touch_down_serial = touch->touch_down_serial = serial;
+ 
+   event = _create_touch_event (seat, touch, GDK_TOUCH_BEGIN, time);
+ 
+@@ -5398,6 +5399,9 @@ _gdk_wayland_seat_get_last_implicit_grab_serial (GdkSeat           *seat,
+         }
+     }
+ 
++  if (wayland_seat->last_touch_down_serial > serial)
++    serial = wayland_seat->last_touch_down_serial;
++
+   return serial;
+ }
+ 

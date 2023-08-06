@@ -7,10 +7,10 @@ Subject: gtkprivate: Add an API to check if phone
  1 file changed, 34 insertions(+)
 
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
-index 91d63e2..1066b97 100644
+index aca24fd..635b247 100644
 --- a/gtk/gtkprivate.h
 +++ b/gtk/gtkprivate.h
-@@ -125,6 +125,40 @@ guint gtk_get_display_debug_flags (GdkDisplay *display);
+@@ -127,6 +127,40 @@ GBytes *get_emoji_data (void);
  
  #endif /* G_ENABLE_DEBUG */
  

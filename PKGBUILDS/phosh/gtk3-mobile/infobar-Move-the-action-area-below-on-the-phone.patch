@@ -12,7 +12,7 @@ and will have to use the is-phone setting.
  2 files changed, 59 insertions(+), 9 deletions(-)
 
 diff --git a/gtk/gtkinfobar.c b/gtk/gtkinfobar.c
-index 8cb6e51..2d5bd5c 100644
+index 8eb89ff..c6777c9 100644
 --- a/gtk/gtkinfobar.c
 +++ b/gtk/gtkinfobar.c
 @@ -141,6 +141,7 @@ enum

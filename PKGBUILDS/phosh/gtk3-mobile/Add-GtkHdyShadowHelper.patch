@@ -4,34 +4,13 @@ Subject: Add GtkHdyShadowHelper
 
 This is imported from HdyShadowHelper from libhandy 1.0.2.
 ---
- gtk/Makefile.am                 |   2 +
  gtk/hdy-shadow-helper-private.h |  37 ++++
  gtk/hdy-shadow-helper.c         | 453 ++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build                 |   2 +
- 4 files changed, 494 insertions(+)
+ 3 files changed, 492 insertions(+)
  create mode 100644 gtk/hdy-shadow-helper-private.h
  create mode 100644 gtk/hdy-shadow-helper.c
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 99f6a5c..dbf079b 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -605,6 +605,7 @@ gtk_private_h_sources =		\
- 	hdy-animation-private.h	\
- 	hdy-cairo-private.h	\
- 	hdy-css-private.h	\
-+	hdy-shadow-helper-private.h	\
- 	hdy-squeezer-private.h	\
- 	hdy-view-switcher-bar-private.h	\
- 	hdy-view-switcher-button-private.h	\
-@@ -988,6 +989,7 @@ gtk_base_c_sources = 		\
- 	hdy-animation.c	\
- 	hdy-css.c	\
- 	hdy-squeezer.c	\
-+	hdy-shadow-helper.c	\
- 	hdy-view-switcher.c	\
- 	hdy-view-switcher-bar.c	\
- 	hdy-view-switcher-button.c	\
 diff --git a/gtk/hdy-shadow-helper-private.h b/gtk/hdy-shadow-helper-private.h
 new file mode 100644
 index 0000000..1b34ddb
@@ -535,7 +514,7 @@ index 0000000..69583c4
 +  cairo_restore (cr);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 22dfdd0..6b6e874 100644
+index 4b3e871..ae3dc94 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -385,6 +385,7 @@ gtk_sources = files(

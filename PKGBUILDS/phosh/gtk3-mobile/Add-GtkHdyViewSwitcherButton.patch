@@ -4,46 +4,15 @@ Subject: Add GtkHdyViewSwitcherButton
 
 This is imported from HdyViewSwitcherButton from libhandy 1.0.0.
 ---
- gtk/Makefile.am                        |   5 +-
  gtk/hdy-view-switcher-button-private.h |  51 ++++
  gtk/hdy-view-switcher-button.c         | 544 +++++++++++++++++++++++++++++++++
  gtk/meson.build                        |   2 +
  gtk/ui/hdy-view-switcher-button.ui     | 105 +++++++
- 5 files changed, 706 insertions(+), 1 deletion(-)
+ 4 files changed, 702 insertions(+)
  create mode 100644 gtk/hdy-view-switcher-button-private.h
  create mode 100644 gtk/hdy-view-switcher-button.c
  create mode 100644 gtk/ui/hdy-view-switcher-button.ui
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 289e72c..e2a459d 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -600,6 +600,7 @@ gtk_private_h_sources =		\
- 	gtkwindowprivate.h	\
- 	gtktreemenu.h		\
- 	gdkpixbufutilsprivate.h \
-+	hdy-view-switcher-button-private.h	\
- 	open-type-layout.h	\
- 	language-names.h	\
- 	script-names.h
-@@ -975,6 +976,7 @@ gtk_base_c_sources = 		\
- 	gtkwin32draw.c		\
- 	gtkwin32theme.c		\
- 	gdkpixbufutils.c	\
-+	hdy-view-switcher-button.c	\
- 	language-names.c	\
- 	script-names.c
- 
-@@ -1234,7 +1236,8 @@ templates =				\
- 	ui/gtkstatusbar.ui		\
- 	ui/gtktooltipwindow.ui		\
- 	ui/gtkvolumebutton.ui		\
--	ui/gtksidebarrow.ui
-+	ui/gtksidebarrow.ui		\
-+	ui/hdy-view-switcher-button.ui
- 
- #
- # rules to generate built sources
 diff --git a/gtk/hdy-view-switcher-button-private.h b/gtk/hdy-view-switcher-button-private.h
 new file mode 100644
 index 0000000..a37add6
@@ -652,7 +621,7 @@ index 0000000..875ca7d
 +    *v_nat_width += border.left + border.right;
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 43a6e2b..40be825 100644
+index 4b7a453..38b810c 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -383,6 +383,7 @@ gtk_sources = files(

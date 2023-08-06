@@ -12,10 +12,10 @@ Make sure it moves to the bottom on narrow sizes.
  5 files changed, 13 insertions(+)
 
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index 3b970c1..b685ada 100644
+index 19b6f38..e40e429 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
-@@ -4866,6 +4866,11 @@ viewswitcher {
+@@ -4868,6 +4868,11 @@ viewswitcher {
      padding: 0;
    }
  

@@ -4,34 +4,13 @@ Subject: Add GtkHdyClamp
 
 This is imported from HdyLeaflet from libhandy 1.0.0.
 ---
- gtk/Makefile.am         |   2 +
  gtk/hdy-clamp-private.h |  31 +++
  gtk/hdy-clamp.c         | 566 ++++++++++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build         |   2 +
- 4 files changed, 601 insertions(+)
+ 3 files changed, 599 insertions(+)
  create mode 100644 gtk/hdy-clamp-private.h
  create mode 100644 gtk/hdy-clamp.c
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 0a523ba..b0fc9b0 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -607,6 +607,7 @@ gtk_private_h_sources =		\
- 	gdkpixbufutilsprivate.h \
- 	hdy-animation-private.h	\
- 	hdy-cairo-private.h	\
-+	hdy-clamp-private.h	\
- 	hdy-css-private.h	\
- 	hdy-navigation-direction-private.h	\
- 	hdy-shadow-helper-private.h	\
-@@ -993,6 +994,7 @@ gtk_base_c_sources = 		\
- 	gtkwin32theme.c		\
- 	gdkpixbufutils.c	\
- 	hdy-animation.c	\
-+	hdy-clamp.c	\
- 	hdy-css.c	\
- 	hdy-navigation-direction.c	\
- 	hdy-squeezer.c	\
 diff --git a/gtk/hdy-clamp-private.h b/gtk/hdy-clamp-private.h
 new file mode 100644
 index 0000000..b41278f
@@ -642,7 +621,7 @@ index 0000000..8b287dc
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_TIGHTENING_THRESHOLD]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 7e4659e..b6251f2 100644
+index ae63ff0..c66ad0c 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -384,6 +384,7 @@ gtk_sources = files(
