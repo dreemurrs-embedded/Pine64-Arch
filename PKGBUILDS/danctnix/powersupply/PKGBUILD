@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=powersupply
-pkgver=0.8.0
-pkgrel=2
+pkgver=0.9.0
+pkgrel=1
 pkgdesc="GTK3 tool for displaying battery and power info"
 url="https://gitlab.com/MartijnBraam/powersupply"
 arch=(any)
@@ -19,4 +19,4 @@ package() {
     meson install -C build --destdir "$pkgdir"
 }
 
-md5sums=('9f7e008c882aaca45d1b1066dc5f28a8')
+md5sums=('cc728b5b56513ee16e8c407ca31aba7a')
