@@ -1,17 +1,18 @@
-# Maintainer: Bernhard Landauer <bernhard@manjaro.org>
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Bernhard Landauer <bernhard@manjaro.org>
 
 pkgname=qqc2-breeze-style
-pkgver=5.27.6
+pkgver=5.27.7
 pkgrel=1
 pkgdesc='Breeze inspired QQC2 Style'
-arch=(x86_64 aarch64)
+arch=(x86_64 armv7h aarch64)
 url='https://community.kde.org/Frameworks'
 license=(LGPL)
 depends=(kirigami2 kiconthemes)
 makedepends=(extra-cmake-modules git)
 replaces=("$pkgname-git")
 source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('f2eb7d2ef59960dd154b3cd31c3bf156b5c86065161e9e75e65b780fe9671d0a'
+sha256sums=('04b4f54a175f9725d2f0f8f795a97ed09ab2fa07432171bb4c4bf288a4955932'
             'SKIP')
 validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr@jriddell.org>
               'E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
@@ -19,21 +20,12 @@ validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr
               'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
               '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
-prepare() {
-  mv $pkgname-$pkgver $pkgname
-  mkdir -p build
-}
-
 build() {
-  cd build
-  cmake ../$pkgname \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
+  cmake -B build -S $pkgname-$pkgver \
     -DBUILD_TESTING=OFF
-  make
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }
