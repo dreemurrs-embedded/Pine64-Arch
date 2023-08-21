@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
 pkgver=0.30.0
-pkgrel=1
+pkgrel=2
 pkgdesc="wlroots based Wayland compositor for mobile phones"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phoc"
@@ -29,10 +29,9 @@ build() {
   meson compile -C build
 }
 
-# tests are failing
-#check() {
-#  xvfb-run ninja -C build test
-#}
+check() {
+  WLR_RENDERER=pixman xvfb-run ninja -C build test
+}
 
 package() {
   DESTDIR="$pkgdir" ninja install -C build
