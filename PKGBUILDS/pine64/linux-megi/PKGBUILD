@@ -1,26 +1,27 @@
-# Contributor: Danct12 <danct12@disroot.org>
 # Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Danct12 <danct12@disroot.org>
 
 buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=6.4.1
+pkgver=6.4.10
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
 license=('GPL2')
-makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'uboot-tools' 'dtc'
-             'python3')
+makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'dtc' 'python3' 'cpio')
 options=('!strip')
 
 # Source
-_commit="fe4a247a24727ebff33bade52cde52e9cfe4d7cb"
+_commit="f20f06733b1e754257d4af89477f7e1092622bf7"
 source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commit}.tar.gz"
         'config'
         'linux.preset'
         '60-linux.hook'
         '90-linux.hook'
+        # Arch Linux upstream patches
+        'ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch'
         # Sleep Mode
         '0001-arm64-dts-allwinner-a64-h5-Add-CPU-idle-states.patch'
         # PinePhone Patches
@@ -33,23 +34,7 @@ source=("linux-$_commit.tar.gz::https://github.com/megous/linux/archive/${_commi
         'pinetab-bluetooth.patch'
         'pinetab-accelerometer.patch'
         '0002-dts-add-pinetab-dev-old-display-panel.patch'
-        'dts-pinetab-make-audio-routing-consistent-with-pinephone.patch'
-        # Bootsplash
-        '0002-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch'
-        '0003-revert-fbcon-remove-no-op-fbcon_set_origin.patch'
-        '0004-revert-fbcon-remove-soft-scrollback-code.patch'
-        '0001-bootsplash.patch'
-        '0002-bootsplash.patch'
-        '0003-bootsplash.patch'
-        '0004-bootsplash.patch'
-        '0005-bootsplash.patch'
-        '0006-bootsplash.patch'
-        '0007-bootsplash.patch'
-        '0008-bootsplash.patch'
-        '0009-bootsplash.patch'
-        '0010-bootsplash.patch'
-        '0011-bootsplash.patch'
-        '0012-bootsplash.patch')
+        'dts-pinetab-make-audio-routing-consistent-with-pinephone.patch')
 
 prepare() {
   cd linux-$_commit
@@ -101,7 +86,7 @@ build() {
 
   # build!
   unset LDFLAGS
-  make ${MAKEFLAGS} Image Image.gz modules
+  make ${MAKEFLAGS} Image.gz modules
   # Generate device tree blobs with symbols to support applying device tree overlays in U-Boot
   make ${MAKEFLAGS} DTC_FLAGS="-@" dtbs
 }
@@ -126,9 +111,18 @@ _package() {
   _basekernel=${_basekernel%.*}
 
   mkdir -p "${pkgdir}"/{boot,usr/lib/modules}
-  make INSTALL_MOD_PATH="${pkgdir}/usr" INSTALL_MOD_STRIP=1 modules_install
+  ZSTD_CLEVEL=19 make INSTALL_MOD_PATH="${pkgdir}/usr" INSTALL_MOD_STRIP=1 modules_install
   make INSTALL_DTBS_PATH="${pkgdir}/boot/dtbs" dtbs_install
-  cp arch/$KARCH/boot/Image{,.gz} "${pkgdir}/boot"
+  cp arch/$KARCH/boot/Image.gz "${pkgdir}/boot"
+
+  # Removing unnecessary device tree
+  for dtb in "$pkgdir"/boot/dtbs/*/*; do
+    [[ $dtb = */sun50i-a64-pinephone* ]] && continue
+    [[ $dtb = */sun50i-a64-pinetab* ]] && continue
+    [[ $dtb = */rk3399-pinephone-pro* ]] && continue
+    echo "Removing $(basename "$dtb")"
+    rm "$dtb"
+  done
 
   # make room for external modules
   local _extramodules="extramodules-${_basekernel}${_kernelname}"
@@ -199,9 +193,6 @@ _package-headers() {
   install -Dt "${_builddir}/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
   install -Dt "${_builddir}/drivers/media/tuners" -m644 drivers/media/tuners/*.h
 
-  # add xfs and shmem for aufs building
-  mkdir -p "${_builddir}"/{fs/xfs,mm}
-
   echo "Installing KConfig files..."
   find . -name Kconfig\* -exec install -Dm644 {} "${_builddir}/{}" \;
 
@@ -248,11 +239,12 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('f2eaa521ceba559e3b61c18ed77a56ca'
-         '1802dba1ecb214149c68be77c35d1a42'
+md5sums=('98f200da9886620feaa2117fc8ea398d'
+         '8a18fc15bb7a495d6b6e7b6736df9f52'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
+         '3082a3e0a00e5fbbea9d8ac4fdd5578e'
          '081b35c2970e3fec444b32f941a26e1d'
          '10d200e0a964f24cdb744678a758e22b'
          'ed972b8da2887aef963e63268b055cd3'
@@ -262,19 +254,4 @@ md5sums=('f2eaa521ceba559e3b61c18ed77a56ca'
          '85d8339bc3d5daf45aa579d578ef0255'
          'd0fd6bd627223d4c9fc001ffff9df401'
          '3182f25beb0b76e8abd2e9de8213351d'
-         '60e9d1ccba52bd2634fbe8034b110e36'
-         'a31a435ab6cd8e7a47601159d665ce50'
-         'fed6ae4ac4c3f56178fa4aca6c934d6f'
-         'ee3fad8e3468bba539a42ee3ed2b488f'
-         '8878beda05ef17755a6228ab3250bbbc'
-         'cd3d72f7f71192225f2126abe11800a9'
-         'a6407dceae1838f5aa27450401a91be6'
-         'cb78b1c11b917a4d31c4b1567183b76f'
-         '3efea575da7f02ba94789d3b6b81e11f'
-         '2529ad13791b259d80c9d5d702187a65'
-         'cb296d7788098cf478c46c0d21376719'
-         '50255aac36e002afa477e4527a0550af'
-         '6b6def41b404422dc04b39e2f1adffc8'
-         '1ec393108026b407944905373e261c71'
-         'd6b7e4e43e42128cf950251e0d0aee23'
-         '935254d6c66995f5e5f7d3a89566aa7a')
+         '60e9d1ccba52bd2634fbe8034b110e36')
