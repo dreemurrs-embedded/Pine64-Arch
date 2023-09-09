@@ -15,7 +15,7 @@ depends=(
 	feedbackd
 	squeekboard
 	dnsmasq
-	gnome-control-center
+	gnome-control-center-mobile
 	sound-theme-librem5
 	iio-sensor-proxy
 	wys
