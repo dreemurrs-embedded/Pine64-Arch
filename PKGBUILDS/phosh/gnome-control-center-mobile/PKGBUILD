@@ -4,7 +4,7 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=43.6
+pkgver=44.4
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
@@ -19,6 +19,7 @@ depends=(
   gnome-bluetooth-3.0
   gnome-color-manager
   gnome-desktop-4
+  gnome-shell
   gnome-online-accounts
   gnome-settings-daemon
   gsettings-desktop-schemas
@@ -29,6 +30,7 @@ depends=(
   libgtop
   libgudev
   libibus
+  libmalcontent
   libmm-glib
   libnma-gtk4
   libpwquality
@@ -52,6 +54,7 @@ optdepends=(
   'fwupd: device security panel'
   'gnome-remote-desktop: screen sharing'
   'gnome-user-share: WebDAV file sharing'
+  'malcontent: application permission control'
   'networkmanager: network settings'
   'openssh: remote login'
   'power-profiles-daemon: power profiles'
@@ -60,7 +63,7 @@ optdepends=(
 )
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=ed5660b0d18dcba23b484f98a535cfaf6e4dcc4e  # tags/43.6^0
+_commit=abc71ea659f7c3efece766edb0365c78cc4b3df5  # tags/44.4^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
         "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
         'pixmaps-dir.diff'
