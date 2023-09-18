@@ -16,7 +16,7 @@ else
 	setenv bootdir "/boot"
 fi
 
-setenv bootargs loglevel=4 console=${console} console=tty0 root=/dev/mmcblk${linux_mmcdev}p${rootpart} rw rootwait quiet bootsplash.bootfile=bootsplash-themes/danctnix/bootsplash
+setenv bootargs loglevel=4 console=${console} console=tty0 cryptdevice=/dev/mmcblk${linux_mmcdev}p${rootpart}:root root=/dev/mapper/root rw rootwait quiet bootsplash.bootfile=bootsplash-themes/danctnix/bootsplash
 
 echo "Loading kernel..."
 load mmc ${mmc_bootdev}:1 ${ramdisk_addr_r} ${bootdir}/Image.gz
