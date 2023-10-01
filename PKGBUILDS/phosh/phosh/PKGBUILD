@@ -13,6 +13,7 @@ checkdepends=('xorg-server-xvfb')
 install="$pkgname.install"
 _commit="691d08e675ddbd9eea4ebd400f780374ea3f4094" # tags/v0.31.1
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
+        'osk-button-remove-margins.patch'
         'pam_phosh'
         'phosh.service')
 
@@ -24,6 +25,8 @@ pkgver() {
 prepare() {
     cd phosh
     git submodule update --init
+
+    patch -p1 < ../osk-button-remove-margins.patch
 }
 
 build() {
@@ -47,5 +50,6 @@ package() {
 }
 
 md5sums=('SKIP'
+         'cf968e048f074d9d3b4854751363bad7'
          '6d5a0d561f8362bf91f85c236a88395d'
          '8d95d47dba9aede4db4e643d59749093')

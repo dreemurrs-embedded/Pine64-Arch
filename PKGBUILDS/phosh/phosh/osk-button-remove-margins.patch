@@ -1,0 +1,25 @@
+Index: phosh-v0.14.1/src/stylesheet/common.css
+===================================================================
+--- phosh-v0.14.1.orig/src/stylesheet/common.css
++++ phosh-v0.14.1/src/stylesheet/common.css
+@@ -32,7 +32,7 @@ phosh-top-panel .indicators {
+   border-radius: 50%;
+   min-width: 0;
+   min-height: 0;
+-  padding: 6px;
++  padding: 11px;
+ }
+ 
+ /*
+Index: phosh-v0.14.1/src/ui/home.ui
+===================================================================
+--- phosh-v0.14.1.orig/src/ui/home.ui
++++ phosh-v0.14.1/src/ui/home.ui
+@@ -51,7 +51,6 @@
+                     <property name="can_focus">True</property>
+                     <property name="halign">end</property>
+                     <property name="valign">center</property>
+-                    <property name="margin-end">6</property>
+                     <property name="receives_default">True</property>
+                     <signal name="clicked" handler="osk_clicked_cb" swapped="true"/>
+                     <style>
