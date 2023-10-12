@@ -1,0 +1,40 @@
+From: Arnaud Ferraris <aferraris@debian.org>
+Date: Thu, 21 Sep 2023 12:51:33 +0200
+Subject: gcal-event-popover: draw on top of event widget
+
+Phone displays aren't wide enough to have the popover on a side, which
+makes editing events practically impossible on those devices. Ideally,
+the popover position would depend on the state of the main window
+(collapsed or not), but always drawing it on top is enough for now as a
+quick hack
+
+Forwarded: not-needed, too mobile-specific to be accepted upstream
+---
+ src/gui/gcal-event-popover.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/src/gui/gcal-event-popover.c b/src/gui/gcal-event-popover.c
+index 7cbe1ca..a5d5bb7 100644
+--- a/src/gui/gcal-event-popover.c
++++ b/src/gui/gcal-event-popover.c
+@@ -710,10 +710,16 @@ gcal_event_popover_init (GcalEventPopover *self)
+ {
+   gtk_widget_init_template (GTK_WIDGET (self));
+ 
+-  if (gtk_widget_get_direction (GTK_WIDGET (self)) == GTK_TEXT_DIR_RTL)
+-    gtk_popover_set_position (GTK_POPOVER (self), GTK_POS_LEFT);
+-  else
+-    gtk_popover_set_position (GTK_POPOVER (self), GTK_POS_RIGHT);
++  // if (gtk_widget_get_direction (GTK_WIDGET (self)) == GTK_TEXT_DIR_RTL)
++  //   gtk_popover_set_position (GTK_POPOVER (self), GTK_POS_LEFT);
++  // else
++  //   gtk_popover_set_position (GTK_POPOVER (self), GTK_POS_RIGHT);
++
++  /*
++   * Mobile displays aren't wide enough to have the popover on a side,
++   * so let's always draw it on top of the event widget for now
++   */
++  gtk_popover_set_position (GTK_POPOVER (self), GTK_POS_TOP);
+ }
+ 
+ GtkWidget*

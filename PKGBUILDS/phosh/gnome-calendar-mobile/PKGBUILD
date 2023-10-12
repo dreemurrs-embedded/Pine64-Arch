@@ -4,21 +4,28 @@
 
 pkgname=gnome-calendar-mobile
 _pkgname=gnome-calendar
-pkgver=44.1
+pkgver=45.0
 pkgrel=1
 pkgdesc="Simple and beautiful calendar application designed to perfectly fit the GNOME desktop"
 url="https://wiki.gnome.org/Apps/Calendar"
 arch=(x86_64 armv7h aarch64)
 license=(GPL)
 depends=(
+  dconf
   evolution-data-server
   geoclue
   geocode-glib-2
+  glib2
+  graphene
   gsettings-desktop-schemas
+  gtk4
+  hicolor-icon-theme
   libadwaita
   libedataserverui4
   libgweather-4
+  libical
   libsoup3
+  pango
 )
 makedepends=(
   git
@@ -27,11 +34,11 @@ makedepends=(
 optdepends=('gnome-control-center: Manage online accounts')
 provides=('gnome-calendar')
 conflicts=('gnome-calendar')
-_commit=0d0ef588ad192094c63b73d768a8a01d091d61a7  # tags/44.1^0
+_commit=619d95c3367691b16b80b69e70dcaa48f3bf1033  # tags/45.0^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-calendar.git#commit=$_commit"
-        '0001-gcal-window-make-it-fit-phone-screens.patch')
+        '0001-gcal-event-popover-draw-on-top-of-event-widget.patch')
 sha256sums=('SKIP'
-            '77490904cebe070e9ca5d102d86f51fcbcc5d2d5041e62e22d8400d1676627b6')
+            '976490a7b9912df87d8e8607cb787100b628583f0a099596e0757e44b2d4ff7e')
 
 pkgver() {
   cd $_pkgname
