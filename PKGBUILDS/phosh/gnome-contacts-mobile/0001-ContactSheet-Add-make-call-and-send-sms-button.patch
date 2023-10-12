@@ -12,11 +12,11 @@ The buttons are hidden when no handler is available.
  2 files changed, 33 insertions(+)
 
 diff --git a/src/contacts-contact-sheet.vala b/src/contacts-contact-sheet.vala
-index 19f1201..83c6a66 100644
+index e662ee0..c93370d 100644
 --- a/src/contacts-contact-sheet.vala
 +++ b/src/contacts-contact-sheet.vala
-@@ -239,6 +239,21 @@ public class Contacts.ContactSheet : Gtk.Widget {
-       var row = new ContactSheetRow (chunk.property_name,
+@@ -245,6 +245,21 @@ public class Contacts.ContactSheet : Gtk.Widget {
+       var row = new ContactSheetRow (chunk,
                                       phone.raw_number,
                                       phone.get_phone_type ().display_name);
 +
@@ -38,7 +38,7 @@ index 19f1201..83c6a66 100644
      }
  
 diff --git a/src/contacts-utils.vala b/src/contacts-utils.vala
-index fbbb1f8..9531e94 100644
+index a457a2e..2e6aeef 100644
 --- a/src/contacts-utils.vala
 +++ b/src/contacts-utils.vala
 @@ -19,6 +19,24 @@ using Folks;

@@ -4,22 +4,44 @@
 
 pkgname=gnome-contacts-mobile
 _pkgname=gnome-contacts
-pkgver=44.0
+pkgver=45.0
 pkgrel=1
 pkgdesc="Contacts Manager for GNOME - Forked for Purism patches"
 url="https://wiki.gnome.org/Apps/Contacts"
 arch=(x86_64 armv7h aarch64)
 license=(GPL2)
-depends=(gtk4 folks gnome-online-accounts libgee libadwaita libportal-gtk4
-         evolution-data-server qrencode)
-makedepends=(vala gobject-introspection git meson appstream-glib)
+depends=(
+  cairo
+  dconf
+  evolution-data-server
+  folks
+  gdk-pixbuf2
+  glib2
+  gnome-online-accounts
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  libgee
+  libgoa
+  libportal
+  libportal-gtk4
+  pango
+  qrencode
+)
+makedepends=(
+  appstream-glib
+  git
+  gobject-introspection
+  meson
+  vala
+)
 provides=(gnome-contacts)
 conflicts=(gnome-contacts)
-_commit=7de4264212aac05f8acec29ba54adac90ae8ed39  # tags/44.0^0
+_commit=f100e20eb51fac292b763aca06f7d963a2d1b9f3  # tags/45.0^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-contacts.git#commit=$_commit"
         '0001-ContactSheet-Add-make-call-and-send-sms-button.patch')
-sha256sums=('SKIP'
-            '30b1123c00025d67e73cdded705c740860dde5e55e4e88f580f3b57a8f37069c')
+b2sums=('SKIP'
+        'fa242d8e587486496502cafbb565423752c7f3d49c15bc364a26f64bb81ddbe070f900fa68c8c24d863a894123416ecef7b9b9902d2acbe077523a036d3ccf5c')
 
 pkgver() {
   cd $_pkgname
