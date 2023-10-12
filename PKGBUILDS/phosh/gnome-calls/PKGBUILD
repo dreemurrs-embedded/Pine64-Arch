@@ -1,23 +1,43 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=gnome-calls
-pkgver=44.2
+pkgver=45.0
 pkgrel=1
 pkgdesc="Make and receive PSTN phone calls"
 url="https://gitlab.gnome.org/GNOME/calls"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('callaudiod' 'evolution-data-server' 'feedbackd' 'folks' 'gobject-introspection'
-         'gom' 'gst-plugins-bad' 'gst-plugins-good' 'gtk3' 'libhandy' 'libpeas'
-         'modemmanager' 'sofia-sip' 'wayland-protocols')
-makedepends=('meson' 'ninja' 'vala' 'git' 'python-docutils')
+depends=(
+  'callaudiod'
+  'evolution-data-server'
+  'feedbackd'
+  'folks'
+  'gobject-introspection'
+  'gom'
+  'gst-plugins-bad'
+  'gst-plugins-good'
+  'gtk3'
+  'libhandy'
+  'libpeas'
+  'modemmanager'
+  'sofia-sip'
+  'wayland-protocols'
+  )
+makedepends=(
+  'git'
+  'meson'
+  'ninja'
+  'python-docutils'
+  'vala'
+  )
 checkdepends=('xorg-server-xvfb')
 replaces=('calls')
-_commit="91e5cad939f6753bc232c8990be295b068473949" # tags/v44.2
+_commit="936d36287324163b958c6ea0c4297c7a607ee18c" # tags/v45.0
 source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
+sha256sums=('SKIP')
 
 pkgver() {
-    cd calls
-    git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+  cd calls
+  git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 prepare() {
@@ -47,5 +67,3 @@ build() {
 package() {
   DESTDIR="$pkgdir" ninja -C output install
 }
-
-md5sums=('SKIP')
