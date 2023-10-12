@@ -8,10 +8,10 @@ This allows the window to fit phones.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/properties/ev-properties-view.c b/properties/ev-properties-view.c
-index e01d93d..ed4599d 100644
+index 04aa656..972027a 100644
 --- a/properties/ev-properties-view.c
 +++ b/properties/ev-properties-view.c
-@@ -211,7 +211,7 @@ set_property (EvPropertiesView *properties,
+@@ -208,7 +208,7 @@ set_property (EvPropertiesView *properties,
  
  		g_object_set (G_OBJECT (value_label),
  			      "xalign", 0.0,
