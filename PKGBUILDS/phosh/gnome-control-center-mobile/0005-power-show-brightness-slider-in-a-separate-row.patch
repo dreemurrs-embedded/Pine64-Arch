@@ -8,12 +8,12 @@ Fixes https://source.puri.sm/Librem5/gnome-control-center/issues/85
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/panels/power/cc-power-panel.c b/panels/power/cc-power-panel.c
-index 0a988b5..3b40d1d 100644
+index 26e3837..7537360 100644
 --- a/panels/power/cc-power-panel.c
 +++ b/panels/power/cc-power-panel.c
-@@ -1318,7 +1318,7 @@ setup_power_profiles (CcPowerPanel *self)
+@@ -1326,7 +1326,7 @@ setup_power_profiles (CcPowerPanel *self)
+                                0);
        self->power_profiles_row[profile] = row;
-       gtk_widget_show (GTK_WIDGET (row));
        gtk_list_box_append (self->power_profile_listbox, GTK_WIDGET (row));
 -      gtk_size_group_add_widget (self->row_sizegroup, GTK_WIDGET (row));
 +      /* gtk_size_group_add_widget (self->row_sizegroup, GTK_WIDGET (row)); */

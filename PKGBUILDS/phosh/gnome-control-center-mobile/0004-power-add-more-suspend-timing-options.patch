@@ -7,7 +7,7 @@ Subject: [PATCH 4/4] power: add more suspend timing options
  1 file changed, 8 insertions(+)
 
 diff --git a/panels/power/cc-power-panel.ui b/panels/power/cc-power-panel.ui
-index 44c515b..f9d304e 100644
+index 56f77ca..86ba6e4 100644
 --- a/panels/power/cc-power-panel.ui
 +++ b/panels/power/cc-power-panel.ui
 @@ -8,6 +8,14 @@

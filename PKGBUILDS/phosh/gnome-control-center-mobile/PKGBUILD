@@ -4,7 +4,7 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=43.6
+pkgver=45.0+r41+g454955aad
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
@@ -13,30 +13,54 @@ arch=(x86_64 armv7h aarch64)
 depends=(
   accountsservice
   bolt
+  cairo
   colord-gtk4
   cups-pk-helper
+  dconf
+  fontconfig
   gcr
+  gdk-pixbuf2
+  glib2
   gnome-bluetooth-3.0
   gnome-color-manager
   gnome-desktop-4
   gnome-online-accounts
   gnome-settings-daemon
+  gnutls
   gsettings-desktop-schemas
   gsound
+  gtk3
   gtk4
+  hicolor-icon-theme
+  krb5
   libadwaita
+  libcolord
+  libcups
+  libepoxy
   libgnomekbd
+  libgoa
   libgtop
   libgudev
   libibus
   libmm-glib
+  libnm
   libnma-gtk4
+  libpulse
   libpwquality
+  libsecret
+  libwacom
+  libx11
+  libxi
+  libxml2
   modemmanager
+  pango
+  polkit
   smbclient
   sound-theme-freedesktop
+  tecla
   udisks2
-  upower)
+  upower
+)
 makedepends=(
   docbook-xsl
   git
@@ -51,6 +75,12 @@ checkdepends=(
 optdepends=(
   'fwupd: device security panel'
   'gnome-remote-desktop: screen sharing'
+
+  # Cannot be a depend because when gnome-shell checkdepends on
+  # gnome-control-center depends on gnome-shell depends on libmutter-12.so, it
+  # makes building gnome-shell against libmutter-13.so impossible
+  'gnome-shell: multitasking panel'
+
   'gnome-user-share: WebDAV file sharing'
   'networkmanager: network settings'
   'openssh: remote login'
@@ -60,38 +90,29 @@ optdepends=(
 )
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=ed5660b0d18dcba23b484f98a535cfaf6e4dcc4e  # tags/43.6^0
-source=("git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
-        "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
-        'pixmaps-dir.diff'
-        # purism
-        '0001-avatar-chooser-Adapt-to-work-on-librem5.patch'
-        '0002-datetime-Fix-timezone-selection-map.patch'
-        '0003-display-Request-a-smaller-size-for-arrangment-widget.patch'
-        '0005-power-show-brightness-slider-in-a-separate-row.patch'
-        '0006-sound-fix-test-dialog-on-small-screen.patch'
-        'Add-patches-to-check-if-phone.patch'
-        'network-connection-editor-Allow-dialog-to-resize.patch'
-        '0002-UserAccount-fix-window-resizing-issue.patch'
-        # Mobian patches
-        '0004-power-add-more-suspend-timing-options.patch'
-        'resize-connection-editor.patch'
-        # Patches from upstream MRs
-        '0001-removable-media-Wrap-GtkCheckButton-label-to-fit-nar.patch')
+_commit=454955aada03e4674751d662ad13d26c80484c6f  # gnome-45
+source=(
+  "git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
+  "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
+  'pixmaps-dir.diff'
+  # purism
+  '0001-avatar-chooser-Adapt-to-work-on-librem5.patch'
+  '0005-power-show-brightness-slider-in-a-separate-row.patch'
+  'Add-patches-to-check-if-phone.patch'
+  'network-connection-editor-Allow-dialog-to-resize.patch'
+  # mobian
+  '0004-power-add-more-suspend-timing-options.patch'
+  'resize-connection-editor.patch'
+)
 sha256sums=('SKIP'
             'SKIP'
             '8695bc08c06026b7bfdd43941b4e07bb3ffbaa4e709be0b23ee138d24b6dbc8f'
             '062e53654e8662ed53743b4c652b7b41c5c2993a713337626c832d0af3eda015'
-            'a931eab101ac0e59b63df5bf21a797e05fec74399fdfe0ebb782e54bb3973a0b'
-            'e02d1f097a29cf4963a4922aa3621344dc9fd68744e63fd17648356cde9c1936'
-            'b02208d06a411e0e555ffa24613a654efebceeba48ae4d149e44dd1ea7fc77fc'
-            'f7e874201febbdf4831f6ed65870167ba13da3fa6bb9eb11b2e2daac1b7b91c3'
+            'e51f740175e82d6a399080dfb514b95923dc9b1230b447df2a47c1f7e24ef3e9'
             '09e36b0aa2c40d6b6f5be11fd9617223d5b142ff8b50db6fce0eeebc63007327'
-            '5eeff09fb4bed46f959961ff8114269c0d0ac7dc823b83c870f68299420e5a87'
-            '3b8e89665d5baa42fdc19921f1c299ddb012605669ac577c6e27a909a9eb3295'
-            '3fedcc618dad7b6adc3955477a3bba95079da66a20a5964d84cc38b6ebb9cdd7'
-            '42fd28f93d73950f5274688e70b0a37e6fbc3b2b1848d6156ca4ea5bf2f3811e'
-            '4542cff2d86a234395e0aae485fa045c3fd0f904d406a29b3fb50e78dfd639ee')
+            '644b076297beba48a1d2752121c4c0cca143b12ae5e737d1b4e2ee2fb8abb5f7'
+            '36696693a2fa7ba74ec6d5b94d97f5dbafbec14b16af3d832395a55d382f0a1f'
+            '6bef98e21e0ab11e24ddcdab94771e22c37978b34ba3d0c3029822e5594aaf93')
 
 pkgver() {
   cd ${_pkgname}
@@ -128,7 +149,8 @@ build() {
 }
 
 check() {
-  GTK_A11Y=none xvfb-run meson test -C build --print-errorlogs
+  GTK_A11Y=none dbus-run-session xvfb-run -s '-nolisten local +iglx -noreset' \
+    meson test -C build --print-errorlogs
 }
 
 package() {

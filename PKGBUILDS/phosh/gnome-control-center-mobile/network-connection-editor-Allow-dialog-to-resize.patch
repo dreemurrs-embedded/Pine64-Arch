@@ -9,7 +9,7 @@ Subject: network-connection-editor-Allow-dialog-to-resize
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/panels/network/connection-editor/connection-editor.ui b/panels/network/connection-editor/connection-editor.ui
-index 18031e8..9295cb5 100644
+index 2bff4d0..703ad58 100644
 --- a/panels/network/connection-editor/connection-editor.ui
 +++ b/panels/network/connection-editor/connection-editor.ui
 @@ -2,7 +2,7 @@
@@ -17,7 +17,7 @@ index 18031e8..9295cb5 100644
    <!-- interface-requires gtk+ 3.0 -->
    <template class="NetConnectionEditor" parent="GtkDialog">
 -    <property name="resizable">False</property>
-+    <property name="resizable">true</property>
++    <property name="resizable">True</property>
      <property name="modal">True</property>
      <property name="default_width">500</property>
      <property name="default_height">600</property>

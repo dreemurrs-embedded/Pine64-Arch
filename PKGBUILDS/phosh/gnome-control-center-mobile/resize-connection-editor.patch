@@ -43,23 +43,23 @@ index 5be96b3..f21bf5c 100644
        <object class="GtkLabel" id="security_label">
          <property name="xalign">1</property>
 diff --git a/panels/network/connection-editor/ce-page-8021x-security.c b/panels/network/connection-editor/ce-page-8021x-security.c
-index 90732fa..0eca58f 100644
+index 3b82350..8269916 100644
 --- a/panels/network/connection-editor/ce-page-8021x-security.c
 +++ b/panels/network/connection-editor/ce-page-8021x-security.c
-@@ -69,7 +69,7 @@ finish_setup (CEPage8021xSecurity *self, gpointer unused, GError *error, gpointe
+@@ -68,7 +68,7 @@ finish_setup (CEPage8021xSecurity *self, gpointer unused, GError *error, gpointe
  	if (error)
  		return;
  
 -	self->group = gtk_size_group_new (GTK_SIZE_GROUP_HORIZONTAL);
 +	self->group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
  
- 	self->security = ws_wpa_eap_new (self->connection);
+ 	self->security = nma_ws_802_1x_new (self->connection, FALSE, FALSE);
  	if (!self->security) {
 diff --git a/panels/network/connection-editor/ce-page-ip4.c b/panels/network/connection-editor/ce-page-ip4.c
-index c3f0864..8ac9787 100644
+index a58d648..f1f4acf 100644
 --- a/panels/network/connection-editor/ce-page-ip4.c
 +++ b/panels/network/connection-editor/ce-page-ip4.c
-@@ -215,7 +215,7 @@ add_address_row (CEPageIP4   *self,
+@@ -214,7 +214,7 @@ add_address_row (CEPageIP4   *self,
          row = gtk_list_box_row_new ();
          gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
  
@@ -68,7 +68,7 @@ index c3f0864..8ac9787 100644
          gtk_widget_add_css_class (row_box, "linked");
  
          widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET));
-@@ -357,7 +357,7 @@ add_route_row (CEPageIP4   *self,
+@@ -356,7 +356,7 @@ add_route_row (CEPageIP4   *self,
          row = gtk_list_box_row_new ();
          gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
  
@@ -78,10 +78,10 @@ index c3f0864..8ac9787 100644
  
          widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET));
 diff --git a/panels/network/connection-editor/ce-page-ip6.c b/panels/network/connection-editor/ce-page-ip6.c
-index 09b9eb6..400507b 100644
+index 2711b4c..641c74c 100644
 --- a/panels/network/connection-editor/ce-page-ip6.c
 +++ b/panels/network/connection-editor/ce-page-ip6.c
-@@ -196,7 +196,7 @@ add_address_row (CEPageIP6   *self,
+@@ -193,7 +193,7 @@ add_address_row (CEPageIP6   *self,
          row = gtk_list_box_row_new ();
          gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
  
@@ -90,7 +90,7 @@ index 09b9eb6..400507b 100644
          gtk_widget_add_css_class (row_box, "linked");
  
          widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET6));
-@@ -330,7 +330,7 @@ add_route_row (CEPageIP6   *self,
+@@ -327,7 +327,7 @@ add_route_row (CEPageIP6   *self,
          row = gtk_list_box_row_new ();
          gtk_list_box_row_set_activatable (GTK_LIST_BOX_ROW (row), FALSE);
  
@@ -100,10 +100,10 @@ index 09b9eb6..400507b 100644
  
          widget = GTK_WIDGET (ce_ip_address_entry_new (AF_INET6));
 diff --git a/panels/network/connection-editor/ce-page-security.c b/panels/network/connection-editor/ce-page-security.c
-index c7cd7d9..db0dd4e 100644
+index ae6fbd4..127dbea 100644
 --- a/panels/network/connection-editor/ce-page-security.c
 +++ b/panels/network/connection-editor/ce-page-security.c
-@@ -238,7 +238,7 @@ finish_setup (CEPageSecurity *self)
+@@ -235,7 +235,7 @@ finish_setup (CEPageSecurity *self)
          sw = nm_connection_get_setting_wireless (self->connection);
          g_assert (sw);
  
@@ -113,29 +113,29 @@ index c7cd7d9..db0dd4e 100644
          dev_caps =   NM_WIFI_DEVICE_CAP_CIPHER_WEP40
                     | NM_WIFI_DEVICE_CAP_CIPHER_WEP104
 diff --git a/panels/network/connection-editor/connection-editor.ui b/panels/network/connection-editor/connection-editor.ui
-index 9295cb5..b6541a3 100644
+index 703ad58..e2d4ab6 100644
 --- a/panels/network/connection-editor/connection-editor.ui
 +++ b/panels/network/connection-editor/connection-editor.ui
 @@ -4,7 +4,7 @@
    <template class="NetConnectionEditor" parent="GtkDialog">
-     <property name="resizable">true</property>
+     <property name="resizable">True</property>
      <property name="modal">True</property>
 -    <property name="default_width">500</property>
 +    <property name="default_width">320</property>
      <property name="default_height">600</property>
      <!-- This doesn't seem to work for a template, so it is also hardcoded. -->
      <property name="use_header_bar">1</property>
-@@ -55,7 +55,7 @@
-                       <object class="AdwBin" id="add_connection_frame">
-                         <property name="hexpand">True</property>
-                         <property name="vexpand">True</property>
--                        <property name="width_request">300</property>
-+                        <property name="width_request">200</property>
-                         <property name="valign">start</property>
-                       </object>
-                     </child>
+@@ -57,7 +57,7 @@
+                           <object class="AdwBin" id="add_connection_frame">
+                             <property name="hexpand">True</property>
+                             <property name="vexpand">True</property>
+-                            <property name="width_request">300</property>
++                            <property name="width_request">200</property>
+                             <property name="valign">start</property>
+                           </object>
+                         </child>
 diff --git a/panels/network/connection-editor/details-page.ui b/panels/network/connection-editor/details-page.ui
-index c8e4595..a10b56f 100644
+index c370284..9400375 100644
 --- a/panels/network/connection-editor/details-page.ui
 +++ b/panels/network/connection-editor/details-page.ui
 @@ -2,12 +2,12 @@
@@ -154,7 +154,7 @@ index c8e4595..a10b56f 100644
      <child>
        <object class="GtkLabel" id="strength_heading_label">
          <property name="xalign">1</property>
-@@ -412,6 +412,7 @@
+@@ -408,6 +408,7 @@
                <object class="GtkLabel">
                  <property name="xalign">0</property>
                  <property name="label" translatable="yes">_Metered connection: has data limits or can incur charges</property>
@@ -162,7 +162,7 @@ index c8e4595..a10b56f 100644
                  <property name="hexpand">True</property>
                  <property name="use_underline">True</property>
                  <property name="mnemonic_widget">restrict_data_check</property>
-@@ -422,7 +423,7 @@
+@@ -418,7 +419,7 @@
                  <property name="xalign">0</property>
                  <property name="label" translatable="yes">Software updates and other large downloads will not be started automatically.</property>
                  <property name="wrap">True</property>
@@ -172,7 +172,7 @@ index c8e4595..a10b56f 100644
                    <class name="dim-label" />
                  </style>
 diff --git a/panels/network/connection-editor/ethernet-page.ui b/panels/network/connection-editor/ethernet-page.ui
-index ad4f2cb..44b5fb0 100644
+index e35a18a..f669767 100644
 --- a/panels/network/connection-editor/ethernet-page.ui
 +++ b/panels/network/connection-editor/ethernet-page.ui
 @@ -7,17 +7,16 @@
@@ -281,7 +281,7 @@ index ad4f2cb..44b5fb0 100644
        </object>
      </child>
 diff --git a/panels/network/connection-editor/ip4-page.ui b/panels/network/connection-editor/ip4-page.ui
-index a2210ea..b04fe20 100644
+index c03b644..8b8871d 100644
 --- a/panels/network/connection-editor/ip4-page.ui
 +++ b/panels/network/connection-editor/ip4-page.ui
 @@ -9,13 +9,13 @@
@@ -302,9 +302,9 @@ index a2210ea..b04fe20 100644
                  <child>
                    <object class="GtkLabel">
                      <property name="label" translatable="yes">IPv_4 Method</property>
-@@ -35,8 +35,8 @@
-                   <object class="GtkCheckButton" id="automatic_radio">
-                     <property name="label" translatable="yes">Automatic (DHCP)</property>
+@@ -37,8 +37,8 @@
+                     <property name="action-name">ip4page.ip4method</property>
+                     <property name="action-target">'automatic'</property>
                      <layout>
 -                      <property name="row">0</property>
 -                      <property name="column">1</property>
@@ -313,9 +313,9 @@ index a2210ea..b04fe20 100644
                      </layout>
                    </object>
                  </child>
-@@ -45,8 +45,8 @@
-                     <property name="label" translatable="yes">Link-Local Only</property>
-                     <property name="group">automatic_radio</property>
+@@ -48,8 +48,8 @@
+                     <property name="action-name">ip4page.ip4method</property>
+                     <property name="action-target">'local'</property>
                      <layout>
 -                      <property name="row">0</property>
 -                      <property name="column">2</property>
@@ -324,9 +324,9 @@ index a2210ea..b04fe20 100644
                      </layout>
                    </object>
                  </child>
-@@ -55,8 +55,8 @@
-                     <property name="label" translatable="yes">Manual</property>
-                     <property name="group">automatic_radio</property>
+@@ -59,8 +59,8 @@
+                     <property name="action-name">ip4page.ip4method</property>
+                     <property name="action-target">'manual'</property>
                      <layout>
 -                      <property name="row">1</property>
 -                      <property name="column">1</property>
@@ -335,9 +335,9 @@ index a2210ea..b04fe20 100644
                      </layout>
                    </object>
                  </child>
-@@ -65,8 +65,8 @@
-                     <property name="label" translatable="yes">Disable</property>
-                     <property name="group">automatic_radio</property>
+@@ -70,8 +70,8 @@
+                     <property name="action-name">ip4page.ip4method</property>
+                     <property name="action-target">'disabled'</property>
                      <layout>
 -                      <property name="row">1</property>
 -                      <property name="column">2</property>
@@ -346,9 +346,9 @@ index a2210ea..b04fe20 100644
                      </layout>
                    </object>
                  </child>
-@@ -75,8 +75,8 @@
-                     <property name="label" translatable="yes">Shared to other computers</property>
-                     <property name="group">automatic_radio</property>
+@@ -81,8 +81,8 @@
+                     <property name="action-name">ip4page.ip4method</property>
+                     <property name="action-target">'shared'</property>
                      <layout>
 -                      <property name="row">2</property>
 -                      <property name="column">1</property>
@@ -357,7 +357,7 @@ index a2210ea..b04fe20 100644
                      </layout>
                    </object>
                  </child>
-@@ -85,9 +85,9 @@
+@@ -91,9 +91,9 @@
                      <property name="orientation">vertical</property>
                      <property name="spacing">6</property>
                      <layout>
@@ -369,7 +369,7 @@ index a2210ea..b04fe20 100644
                      </layout>
                      <child>
                        <object class="GtkBox" id="address_box">
-@@ -105,7 +105,7 @@
+@@ -111,7 +111,7 @@
                          </child>
                          <child>
                            <object class="GtkBox">
@@ -378,7 +378,7 @@ index a2210ea..b04fe20 100644
                              <child>
                                <object class="GtkLabel" id="address_address_label">
                                  <property name="hexpand">True</property>
-@@ -243,7 +243,7 @@
+@@ -249,7 +249,7 @@
                          <property name="orientation">vertical</property>
                          <child>
                            <object class="GtkBox">
@@ -387,7 +387,7 @@ index a2210ea..b04fe20 100644
                              <child>
                                <object class="GtkLabel" id="routes_address_label">
                                  <property name="hexpand">True</property>
-@@ -319,19 +319,19 @@
+@@ -325,19 +325,19 @@
      </child>
    </template>
    <object class="GtkSizeGroup" id="routes_metric_sizegroup">
@@ -411,7 +411,7 @@ index a2210ea..b04fe20 100644
        <widget name="address_stub_box" />
      </widgets>
 diff --git a/panels/network/connection-editor/ip6-page.ui b/panels/network/connection-editor/ip6-page.ui
-index c22fb0f..4ee25a7 100644
+index c4817ce..192c4e4 100644
 --- a/panels/network/connection-editor/ip6-page.ui
 +++ b/panels/network/connection-editor/ip6-page.ui
 @@ -9,13 +9,13 @@
@@ -432,9 +432,9 @@ index c22fb0f..4ee25a7 100644
                  <child>
                    <object class="GtkLabel">
                      <property name="label" translatable="yes">IPv_6 Method</property>
-@@ -35,8 +35,8 @@
-                   <object class="GtkCheckButton" id="automatic_radio">
-                     <property name="label" translatable="yes">Automatic</property>
+@@ -37,8 +37,8 @@
+                     <property name="action-name">ip6page.ip6method</property>
+                     <property name="action-target">'automatic'</property>
                      <layout>
 -                      <property name="row">0</property>
 -                      <property name="column">1</property>
@@ -443,9 +443,9 @@ index c22fb0f..4ee25a7 100644
                      </layout>
                    </object>
                  </child>
-@@ -45,8 +45,8 @@
-                     <property name="label" translatable="yes">Automatic, DHCP only</property>
-                     <property name="group">automatic_radio</property>
+@@ -48,8 +48,8 @@
+                     <property name="action-name">ip6page.ip6method</property>
+                     <property name="action-target">'dhcp'</property>
                      <layout>
 -                      <property name="row">0</property>
 -                      <property name="column">2</property>
@@ -454,9 +454,9 @@ index c22fb0f..4ee25a7 100644
                      </layout>
                    </object>
                  </child>
-@@ -55,8 +55,8 @@
-                     <property name="label" translatable="yes">Link-Local Only</property>
-                     <property name="group">automatic_radio</property>
+@@ -59,8 +59,8 @@
+                     <property name="action-name">ip6page.ip6method</property>
+                     <property name="action-target">'local'</property>
                      <layout>
 -                      <property name="row">1</property>
 -                      <property name="column">1</property>
@@ -465,9 +465,9 @@ index c22fb0f..4ee25a7 100644
                      </layout>
                    </object>
                  </child>
-@@ -65,8 +65,8 @@
-                     <property name="label" translatable="yes">Manual</property>
-                     <property name="group">automatic_radio</property>
+@@ -70,8 +70,8 @@
+                     <property name="action-name">ip6page.ip6method</property>
+                     <property name="action-target">'manual'</property>
                      <layout>
 -                      <property name="row">1</property>
 -                      <property name="column">2</property>
@@ -476,9 +476,9 @@ index c22fb0f..4ee25a7 100644
                      </layout>
                    </object>
                  </child>
-@@ -75,8 +75,8 @@
-                     <property name="label" translatable="yes">Disable</property>
-                     <property name="group">automatic_radio</property>
+@@ -81,8 +81,8 @@
+                     <property name="action-name">ip6page.ip6method</property>
+                     <property name="action-target">'disabled'</property>
                      <layout>
 -                      <property name="row">2</property>
 -                      <property name="column">1</property>
@@ -487,9 +487,9 @@ index c22fb0f..4ee25a7 100644
                      </layout>
                    </object>
                  </child>
-@@ -85,8 +85,8 @@
-                     <property name="label" translatable="yes">Shared to other computers</property>
-                     <property name="group">automatic_radio</property>
+@@ -92,8 +92,8 @@
+                     <property name="action-name">ip6page.ip6method</property>
+                     <property name="action-target">'shared'</property>
                      <layout>
 -                      <property name="row">2</property>
 -                      <property name="column">2</property>
@@ -498,7 +498,7 @@ index c22fb0f..4ee25a7 100644
                      </layout>
                    </object>
                  </child>
-@@ -95,9 +95,9 @@
+@@ -102,9 +102,9 @@
                      <property name="orientation">vertical</property>
                      <property name="spacing">6</property>
                      <layout>
@@ -510,7 +510,7 @@ index c22fb0f..4ee25a7 100644
                      </layout>
                      <child>
                        <object class="GtkBox" id="address_box">
-@@ -115,7 +115,7 @@
+@@ -122,7 +122,7 @@
                          </child>
                          <child>
                            <object class="GtkBox">
@@ -519,7 +519,7 @@ index c22fb0f..4ee25a7 100644
                              <child>
                                <object class="GtkLabel" id="address_address_label">
                                  <property name="hexpand">True</property>
-@@ -253,7 +253,7 @@
+@@ -260,7 +260,7 @@
                          <property name="orientation">vertical</property>
                          <child>
                            <object class="GtkBox">
@@ -528,7 +528,7 @@ index c22fb0f..4ee25a7 100644
                              <child>
                                <object class="GtkLabel" id="routes_address_label">
                                  <property name="hexpand">True</property>
-@@ -329,19 +329,19 @@
+@@ -336,19 +336,19 @@
      </child>
    </template>
    <object class="GtkSizeGroup" id="routes_metric_sizegroup">
