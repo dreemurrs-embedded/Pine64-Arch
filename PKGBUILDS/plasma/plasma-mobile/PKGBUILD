@@ -4,7 +4,7 @@
 
 pkgname=plasma-mobile
 pkgver=5.27.8
-pkgrel=1
+pkgrel=2
 pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
@@ -30,6 +30,7 @@ sha512sums=('35c710db141c4d4c94e453002cb282a6572f5f27431920fc98b6a45f3f28a09ad90
 
 build() {
   cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
   cmake --build build
 }
