@@ -1,18 +1,20 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 # Contributor: Bernhard Landauer <bernhard@manjaro.org>
 
-pkgname=qqc2-breeze-style
-pkgver=5.27.7
+_name=qqc2-breeze-style
+pkgname=${_name}5
+pkgver=5.27.8
 pkgrel=1
 pkgdesc='Breeze inspired QQC2 Style'
 arch=(x86_64 armv7h aarch64)
 url='https://community.kde.org/Frameworks'
 license=(LGPL)
-depends=(kirigami2 kiconthemes)
+depends=(kirigami2 kiconthemes5)
 makedepends=(extra-cmake-modules git)
-replaces=("$pkgname-git")
-source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('04b4f54a175f9725d2f0f8f795a97ed09ab2fa07432171bb4c4bf288a4955932'
+conflicts=("$_name")
+replaces=("$_name-git" "$_name")
+source=("https://download.kde.org/stable/plasma/$pkgver/$_name-$pkgver.tar.xz"{,.sig})
+sha256sums=('bb94352223e0bc239e2b0277492094c2f6868b3109b02c82447e99927d1df1c0'
             'SKIP')
 validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr@jriddell.org>
               'E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
@@ -21,7 +23,7 @@ validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr
               '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
+  cmake -B build -S $_name-$pkgver \
     -DBUILD_TESTING=OFF
   cmake --build build
 }
