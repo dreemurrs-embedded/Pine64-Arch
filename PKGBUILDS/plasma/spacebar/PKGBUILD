@@ -5,47 +5,38 @@
 
 pkgname=spacebar
 pkgver=23.01.0
-pkgrel=2
+pkgrel=3
 pkgdesc="SMS and messaging application for Mobile Devices running Plasma"
 arch=('x86_64' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
 depends=(
     'c-ares'
-    'kcontacts'
-    'knotifications'
+    'kcontacts5'
+    'knotifications5'
     'kirigami2'
-    'kpeople'
-    'ki18n'
+    'kpeople5'
+    'ki18n5'
     'qt5-quickcontrols2'
-    'modemmanager-qt'
+    'modemmanager-qt5'
     'telepathy-qt'
     'libphonenumber'
-    'kdbusaddons'
-    'kio'
-    'kirigami-addons')
+    'kdbusaddons5'
+    'kio5'
+    'kirigami-addons5')
 makedepends=('cmake'
     'extra-cmake-modules'
     'qcoro-qt5')
 source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
 md5sums=('3012268219511c0d8ccfaa24544dcca9')
 
-prepare() {
-  mkdir -p build
-}
-
 build() {
-  cd build
-  cmake ../spacebar-$pkgver \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DBUILD_TESTING=OFF \
-    -DKDE_INSTALL_LIBDIR=lib \
-    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
-    -DCMAKE_BUILD_TYPE=Release
-  make
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir/" install
+  DESTDIR="$pkgdir" cmake --install build
 }
