@@ -3,17 +3,17 @@
 
 pkgname=gnome-clocks-mobile
 _pkgname=gnome-clocks
-pkgver=41.0
+pkgver=45.0
 pkgrel=3
 pkgdesc="Clocks applications for GNOME"
 url="https://wiki.gnome.org/Apps/Clocks"
 arch=(x86_64 armv7h aarch64)
 license=(GPL)
-depends=(gtk3 libgweather gnome-desktop geoclue2 geocode-glib feedbackd libhandy)
+depends=(gtk3 libgweather gnome-desktop geoclue2 geocode-glib feedbackd libhandy xdg-desktop-portal)
 makedepends=(vala gobject-introspection yelp-tools git meson)
 provides=(gnome-clocks)
 conflicts=(gnome-clocks)
-_commit=90d36119a5ac0bb86586e261a26562baea4d577c  # tags/41.0^0
+_commit=b1c6ff122488fea47833108f7f661481b9b9574a  # tags/45.0^0
 source=("git+https://gitlab.gnome.org/GNOME/gnome-clocks.git#commit=$_commit"
         '0001-timer-Use-name-that-can-be-added-to-the-event-naming.patch'
         '0002-Use-libfeedback-in-instead-of-GSound.patch'
