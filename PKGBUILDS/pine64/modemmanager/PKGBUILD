@@ -3,18 +3,41 @@
 # Contributor: Jan Alexander Steffens (heftig) <jan.steffens@archlinux.org>
 
 pkgbase=modemmanager
-pkgname=(modemmanager libmm-glib)
-pkgver=1.20.6
+pkgname=(
+  modemmanager
+  libmm-glib
+)
+pkgver=1.22.0
 pkgrel=1
 pkgdesc="Mobile broadband modem management service"
 arch=(x86_64 armv7h aarch64)
 url="https://www.freedesktop.org/wiki/Software/ModemManager/"
-license=(GPL2 LGPL2.1)
-depends=(systemd libgudev polkit ppp libqmi libmbim
-         mobile-broadband-provider-info)
-makedepends=(gtk-doc gobject-introspection vala meson git bash-completion)
-checkdepends=(python-gobject python-dbus)
-_commit=6aa0ff583d04aea88b4da7a1c20049f57062dab6  # tags/1.20.6^0
+license=(
+  GPL2
+  LGPL2.1
+)
+depends=(
+  libgudev
+  libmbim
+  libqmi
+  mobile-broadband-provider-info
+  polkit
+  ppp
+  systemd
+)
+makedepends=(
+  bash-completion
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  vala
+)
+checkdepends=(
+  python-gobject
+  python-dbus
+)
+_commit=03f786ce66360d67c669f4f122f8aa458e6f01ea  # tags/1.22.0^0
 source=("git+https://gitlab.freedesktop.org/mobile-broadband/ModemManager.git#commit=$_commit"
         'modemmanager-polkit.rules'
         '0001-mm-broadband-modem-improve-voice-capabilities-detect.patch')
@@ -60,9 +83,17 @@ _pick() {
 }
 
 package_modemmanager() {
-  depends+=(libmm-glib.so libg{lib,object,io,module}-2.0.so libsystemd.so libgudev-1.0.so
-            libqmi-glib.so libmbim-glib.so)
-  optdepends=('usb_modeswitch: install if your modem shows up as a storage drive')
+  depends+=(
+    libgudev-1.0.so
+    libg{lib,object,io,module}-2.0.so
+    libmbim-glib.so
+    libmm-glib.so
+    libqmi-glib.so
+    libsystemd.so
+  )
+  optdepends=(
+    'usb_modeswitch: install if your modem shows up as a storage drive'
+  )
 
   meson install -C build --destdir "$pkgdir"
 
