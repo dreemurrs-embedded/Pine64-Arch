@@ -4,14 +4,14 @@
 
 pkgname=plasma-mobile
 pkgver=5.27.8
-pkgrel=2
+pkgrel=3
 pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
 depends=(desktop-file-utils
          libphonenumber
-         kirigami-addons
+         kirigami-addons5
          kpeople5
          modemmanager-qt5
          networkmanager-qt5
