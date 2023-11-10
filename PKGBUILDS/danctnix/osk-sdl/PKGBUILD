@@ -1,29 +1,26 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 # Contributor: Lance G. <gero3977@gmail.com>
-
 pkgname=osk-sdl
-pkgver=0.66
-pkgrel=4
+pkgver=0.67.r1.g41f67e2
+pkgrel=1
 pkgdesc="SDL2 On-screen Keyboard for FDE"
 arch=(x86_64 armv7h aarch64)
 url="https://gitlab.com/postmarketOS/osk-sdl"
 license=('GPL3')
-depends=(device-mapper cryptsetup sdl2 sdl2_ttf mesa ttf-dejavu)
+depends=(device-mapper cryptsetup sdl2 sdl2_ttf mesa ttf-dejavu libglvnd)
 makedepends=(scdoc meson)
-source=($pkgname-$pkgver.tar.gz::https://gitlab.com/postmarketOS/osk-sdl/-/archive/$pkgver/$pkgname-$pkgver.tar.gz
+_commit="41f67e26b8e8466c0613ea51ff602c19e01c7009" # include 0.67 and fixes
+source=(git+https://gitlab.com/postmarketOS/osk-sdl.git#commit=${_commit}
         osk-sdl-hooks
-        osk-sdl-install
-        fix-compiling-for-gcc12.patch
-        fix-config-parsing-with-libstdc++.patch)
+        osk-sdl-install)
 
-prepare() {
-    cd "$pkgname-$pkgver" 
-    patch -u -p0 --input="${srcdir}/fix-compiling-for-gcc12.patch"
-    patch -u -p0 --input="${srcdir}/fix-config-parsing-with-libstdc++.patch"
+pkgver() {
+  cd "$pkgname"
+  git describe --long | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 build() {
-  arch-meson "$pkgname-$pkgver" _build
+  arch-meson "$pkgname"  _build
   meson compile -C _build
 }
 
@@ -37,8 +34,7 @@ package() {
   install -Dm644 ${srcdir}/osk-sdl-hooks ${pkgdir}/usr/lib/initcpio/hooks/osk-sdl
   install -Dm644 ${srcdir}/osk-sdl-install ${pkgdir}/usr/lib/initcpio/install/osk-sdl
 }
-md5sums=('fb608060dea423d221bdfff9a6101624'
-         '32b89734fc22fe0dc470e10c3c2e8034'
-         '397d60aee88c4cda995562083c164e66'
-         '8fef952dada64ff63040b5406e71ecac'
-         'e6dff50a2f9a27d5de92437394e9cfda')
+
+md5sums=('SKIP'
+         'eae94cd34d31bb1a2ba4945267496c67'
+         '397d60aee88c4cda995562083c164e66')
