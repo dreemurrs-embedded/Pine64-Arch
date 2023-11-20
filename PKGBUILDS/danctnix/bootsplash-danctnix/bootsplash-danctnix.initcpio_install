@@ -1,7 +1,0 @@
-build() {
-	add_binary /usr/lib/firmware/bootsplash-themes/danctnix/bootsplash /usr/lib/firmware/bootsplash-themes/danctnix/bootsplash
-}
-
-help() {
-	echo "This hook includes plymouth in the initramfs image."
-}
