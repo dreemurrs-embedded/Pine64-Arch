@@ -3,6 +3,9 @@
 build() {
     local mod
 
+    add_module "lima"
+    add_module "panfrost"
+
     add_module "dm-crypt"
     add_module 'dm-integrity'
     if [[ $CRYPTO_MODULES ]]; then
