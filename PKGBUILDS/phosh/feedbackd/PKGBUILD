@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=feedbackd
-pkgver=0.2.0
+pkgver=0.2.1
 pkgrel=1
 pkgdesc="A daemon to provide haptic (and later more) feedback on events"
 url="https://source.puri.sm/Librem5/feedbackd"
@@ -8,7 +8,7 @@ arch=('x86_64' 'armv7h' 'aarch64')
 license=('GPL')
 depends=('gobject-introspection' 'gsound' 'json-glib' 'libgudev')
 makedepends=('meson' 'vala' 'git')
-_commit="eadcfb16c3d6e648e471d0342a43075dfdf4143a" # tags/v0.2.0
+_commit="1104cef50acb0b18a0d545e6a09773e3feb42e5b" # tags/v0.2.1
 _fbdthemes_commit="d11a4c3e70f58345d8ab34cb75c3d5edfb5fe2be" # tags/v0.1.0
 source=("feedbackd::git+https://source.puri.sm/Librem5/feedbackd.git#commit=${_commit}"
         "feedbackd-device-themes::git+https://source.puri.sm/Librem5/feedbackd-device-themes.git#commit=${_fbdthemes_commit}")
