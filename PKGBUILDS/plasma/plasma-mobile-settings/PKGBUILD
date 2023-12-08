@@ -2,34 +2,42 @@
 # Contributor: Bernhard Landauer <oberon@manjaro.org>
 
 pkgname=plasma-mobile-settings
-pkgver=20210329
+pkgver=20230723
 pkgrel=1
 arch=('any')
 url="https://gitlab.manjaro.org/manjaro-arm/packages/community/plasma-mobile/$pkgname"
 license=('GPL')
 pkgdesc='Settings files for Plasma Mobile'
-depends=('accountsservice' 'noto-fonts' 'breeze' 'breeze-gtk')
+depends=('accountsservice' 'noto-fonts' 'breeze' 'breeze-gtk' 'pipewire' 'pipewire-session-manager' 'hfd-service'
+         'modemmanager' 'systemd')
 makedepends=('git')
+install=$pkgname.install
 source=('applications-blacklistrc'
     'kdeglobals'
     'kwinrc'
-    'ofono-fast-dormancy.sh'
+    'kscreenlockerrc'
+    'startkderc'
     '91_plasma-mobile.gschema.override'
     'plasmamobile.json'
     'settings.ini'
     'powerdevil.hook'
     '90-plasma-flashlight.rules'
-    'kde-tweaks.sh')
-sha256sums=('4b0bd5c4dbae3cfe2884e04d47af16086a9bdd57f1d9bf8700cddcd7f205c671'
-            'f7621041edd8dde4a2d15110c5c1d902a78ac1f57a4de6ceb250e12da5db7417'
-            '68bc1f74168a8d4f9c3418b37b9373d5a46d3fe550c3d5357dd3d737114abdcf'
-            '187bd69ff45ddedb5a2f2152792bd65c0c46ee0082239e86a0d0aab654327617'
+    'kde-tweaks.sh'
+    'kdewallet.kwl'
+    'kdewallet.salt')
+sha256sums=('e6f9737ffd2b0750defe36487a66cff27f44c751ddf6583db971bfbb04583d0a'
+            '62e8771e2e068c3e6e9ca5dfc055bf73a141766611565d525236980fc0f4a415'
+            'dc625d0c9861f7e4dfb153e095cc18d30a86223c9dbcce25333f270dfa0e5466'
+            'a8ba8eb604185b184e46d2bfd43df12f239295dd7bfe9e6711e0e0d238b40a3b'
+            'bf14819bb36a95cbb465169ca3640d8a93f9a648881f9f52f6315a1ba40d273c'
             'fd5a89ce81197a912a9879aa5aa33daf68c8f80a4b70192fff89364ef9d18734'
             '42db6e099ab56aa4f6c01107fe83897a059bc371a389379cd3c260d4ab8fd2bc'
             'e3e671c730f7a4ed54011a1152a54e5ce11e6092850c379deb5641d88b5463bd'
             '42c4de4c9310904ada1c84e23a34e42fcf20f8318a5f798372468381965dbd18'
-            'd90fbbc46520d7f757d7650976039dabd7342856f3868e41c7d3ed60f515640d'
-            'a20bf47c2a3a5d22029f953933079a2b8c0948e2c687e32f084d6964309ae113')
+            '8f67f43fa2450254568c283025e1e4f16737df2c89d894407311bcadf75a3c0b'
+            'b9682f69afdd481e992d0b5caa275619fd47f9f0a4968789fe71d65b57e9eef8'
+            'c284837b4e7f1262a2844a2b52a98475a3f655192489fa01a70c3a6535ceda34'
+            '786e097683f48193c41ac14756e7cdaf0314acb97919c26838b7530d0996041f')
 
 pkgver() {
     date +%Y%m%d
@@ -40,7 +48,8 @@ package() {
     install -Dm644 applications-blacklistrc $xdg/applications-blacklistrc
     install -Dm644 kdeglobals $xdg/kdeglobals
     install -Dm644 kwinrc $xdg/kwinrc
-    install -Dm755 ofono-fast-dormancy.sh $pkgdir/usr/lib/systemd/system-sleep/ofono-fast-dormancy.sh
+    install -Dm644 kscreenlockerrc $xdg/kscreenlockerrc
+    install -Dm644 startkderc $xdg/startkderc
     install -Dm644 "${srcdir}/91_plasma-mobile.gschema.override" -t "${pkgdir}/usr/share/glib-2.0/schemas"
     install -Dm644 "${srcdir}/plasmamobile.json" -t "${pkgdir}/usr/share/maliit/keyboard2/devices/"
     install -Dm644 "${srcdir}/settings.ini" -t "${pkgdir}/etc/skel/.config/gtk-3.0/"
@@ -49,4 +58,20 @@ package() {
     install -Dm644 "${srcdir}/powerdevil.hook" "${pkgdir}/usr/share/libalpm/hooks/90-powerdevil.hook"
 
     install -Dm755 "${srcdir}/kde-tweaks.sh" "${pkgdir}/etc/profile.d/kde-tweaks.sh"
+
+    # TODO: remove once keyboard input bug is fixed
+    # https://bugs.kde.org/show_bug.cgi?id=435183
+    install -Dm600 -t "$pkgdir"/etc/skel/.local/share/kwalletd \
+        "$srcdir"/kdewallet.kwl \
+        "$srcdir"/kdewallet.salt
+
+    # Enable Pipewire for app switcher thumbnails
+    mkdir -p $pkgdir/usr/lib/systemd/user/default.target.wants
+    ln -sfv /usr/lib/systemd/user/pipewire.service \
+        $pkgdir/usr/lib/systemd/user/default.target.wants/pipewire.service
+
+    # Enable hfd-service for vibrations
+    mkdir -p $pkgdir/usr/lib/systemd/system/multi-user.target.wants
+    ln -sfv /usr/lib/systemd/system/hfd-service.service \
+        $pkgdir/usr/lib/systemd/system/multi-user.target.wants/hfd-service.service
 }

@@ -1,0 +1,89 @@
+From cdf92bd3841092da49027e943d5f455c8a07af79 Mon Sep 17 00:00:00 2001
+From: undef <gitlab@undef.tools>
+Date: Sat, 23 Sep 2023 10:37:01 +0000
+Subject: [PATCH] power-manager: Show sleep warning conditional to chassis type
+
+Currently, GNOME settings daemon displays a notification warning
+the user before the sleeping the device. This is generally a very
+useful feature. However, with the adoption of new platforms in GNOME
+like phones and tablets, this can be a problem. In such devices,
+the desired behavior is to sleep as soon as possible and by default.
+Therefore, having a notification pop-up (which can potentially trigger
+some other haptic feedback like a LED) just because the device is
+doing what it is supposed to do (go to sleep) can be problematic.
+
+Discussion in a previous MR indicated that using the system's chassis
+type was a preferred option for deciding this behaviour. This commit
+builds upon the work by Pablo Correa Gomez in !285 to provide the same
+outcome using the chassis type value.
+
+Closes #656
+---
+ plugins/power/gsd-power-manager.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
+
+diff --git a/plugins/power/gsd-power-manager.c b/plugins/power/gsd-power-manager.c
+index 0aa3b546..c71437ec 100644
+--- a/plugins/power/gsd-power-manager.c
++++ b/plugins/power/gsd-power-manager.c
+@@ -220,6 +220,9 @@ struct _GsdPowerManager
+         GsdPowerIdleMode         previous_idle_mode;
+ 
+         guint                    xscreensaver_watchdog_timer_id;
++
++        /* Device Properties */
++        gboolean                 show_sleep_warnings;
+ };
+ 
+ enum {
+@@ -2508,15 +2511,17 @@ idle_triggered_idle_cb (GnomeIdleMonitor *monitor,
+         } else if (watch_id == manager->idle_sleep_id) {
+                 idle_set_mode_no_temp (manager, GSD_POWER_IDLE_MODE_SLEEP);
+         } else if (watch_id == manager->idle_sleep_warning_id) {
+-                show_sleep_warning (manager);
+-
++                if (manager->show_sleep_warnings) {
++                        show_sleep_warning (manager);
++                }
+                 if (manager->user_active_id < 1) {
+-                    manager->user_active_id = gnome_idle_monitor_add_user_active_watch (manager->idle_monitor,
+-                                                                                        idle_became_active_cb,
+-                                                                                        manager,
+-                                                                                        NULL);
+-                    g_debug ("installing idle_became_active_cb to clear sleep warning on activity (%i)",
+-                             manager->user_active_id);
++                        manager->user_active_id = 
++                                gnome_idle_monitor_add_user_active_watch (manager->idle_monitor,
++                                                                          idle_became_active_cb,
++                                                                          manager,
++                                                                          NULL);
++                        g_debug ("installing idle_became_active_cb to clear sleep warning on activity (%i)",
++                                 manager->user_active_id);
+                 }
+         }
+ }
+@@ -3052,6 +3057,7 @@ gboolean
+ gsd_power_manager_start (GsdPowerManager *manager,
+                          GError **error)
+ {
++        g_autofree char *chassis_type = NULL;
+         g_debug ("Starting power manager");
+         gnome_settings_profile_start (NULL);
+ 
+@@ -3079,6 +3085,13 @@ gsd_power_manager_start (GsdPowerManager *manager,
+                 return FALSE;
+         }
+ 
++        chassis_type = gnome_settings_get_chassis_type ();
++        if (g_strcmp0 (chassis_type, "tablet") == 0 || g_strcmp0 (chassis_type, "handset") == 0) {
++                manager->show_sleep_warnings = FALSE;
++        } else {
++                manager->show_sleep_warnings = TRUE;
++        }
++
+         /* coldplug the list of screens */
+         gnome_rr_screen_new_async (gdk_screen_get_default (),
+                                    on_rr_screen_acquired, manager);
+-- 
+2.42.0
+

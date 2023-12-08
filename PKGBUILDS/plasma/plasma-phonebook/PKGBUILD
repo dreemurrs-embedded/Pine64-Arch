@@ -3,33 +3,32 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-phonebook
-pkgver=0.1
-pkgrel=1
+pkgver=23.01.0
+pkgrel=4
 pkgdesc="Phonebook application for Mobile Devices running Plasma"
-arch=('x86_64' 'aarch64')
+arch=('x86_64' 'armv7h' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
 license=('GPL3')
-depends=('kirigami2' 'kcontacts' 'kpeople' 'kpeoplevcard' 'qt5-quickcontrols2' 'qt5-svg')
-makedepends=('git' 'cmake' 'extra-cmake-modules' 'kdoctools')
-source=("https://invent.kde.org/plasma-mobile/plasma-phonebook/-/archive/v$pkgver/plasma-phonebook-v$pkgver.tar.gz")
-md5sums=('0d35c1fbe48dff7c69a81c24e66d4eb7')
-
-prepare() {
-  mkdir -p build
-}
+depends=(kcontacts5
+         kirigami2
+         kirigami-addons5
+         kpeople5
+         kpeoplevcard
+         qt5-quickcontrols2
+         qt5-svg)
+makedepends=(cmake
+             extra-cmake-modules
+             kdoctools5)
+source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
+md5sums=('dfed55c5c8413fc511b985141aa5860d')
 
 build() {
-  cd build
-  cmake ../plasma-phonebook-v$pkgver \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DBUILD_TESTING=OFF \
-    -DLIB_INSTALL_DIR=lib \
-    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
-    -DCMAKE_BUILD_TYPE=Release
-  make
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir/" install
+  DESTDIR="$pkgdir" cmake --install build
 }

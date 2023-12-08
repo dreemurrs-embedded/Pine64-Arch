@@ -1,25 +1,12 @@
 flash_uboot() {
-  echo "Install new bootloader by running:"
-  echo
-  echo "For the Pinetab:"
-  echo "# dd if=/boot/u-boot-sunxi-with-spl-pinetab-DRAMSPEED.bin of=/dev/mmcblk0 bs=8k seek=1 for Pinetab SD"
-  echo "# dd if=/boot/u-boot-sunxi-with-spl-pinetab-DRAMSPEED.bin of=/dev/mmcblk2 bs=8k seek=1 for Pinetab eMMC"
-  echo
-  echo "For the PinePhone:"
-  echo "# dd if=/boot/u-boot-sunxi-with-spl-pinephone-DRAMSPEED.bin of=/dev/mmcblk0 bs=8k seek=1 for PinePhone SD"
-  echo "# dd if=/boot/u-boot-sunxi-with-spl-pinephone-DRAMSPEED.bin of=/dev/mmcblk2 bs=8k seek=1 for PinePhone eMMC"
+  /usr/bin/update-u-boot -s
 }
 
-## arg 1:  the new package version
 post_install() {
   echo "Generating U-Boot script"
   mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d /boot/boot.txt /boot/boot.scr
-
-  flash_uboot
 }
 
-## arg 1:  the new package version
-## arg 2:  the old package version
 post_upgrade() {
   echo "Re-generating U-Boot script"
   mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d /boot/boot.txt /boot/boot.scr

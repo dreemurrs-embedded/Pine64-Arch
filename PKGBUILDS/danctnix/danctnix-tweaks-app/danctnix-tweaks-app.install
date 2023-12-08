@@ -1,0 +1,7 @@
+post_install() {
+  systemctl enable danctnix-tweakd.service
+}
+
+post_remove() {
+  systemctl disable danctnix-tweakd.service
+}

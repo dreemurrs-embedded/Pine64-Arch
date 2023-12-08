@@ -1,0 +1,23 @@
+From: Debian GNOME Maintainers
+ <pkg-gnome-maintainers@lists.alioth.debian.org>
+Date: Thu, 2 Jun 2022 14:36:35 +0200
+Subject: network-connection-editor-Allow-dialog-to-resize
+
+===================================================================
+---
+ panels/network/connection-editor/connection-editor.ui | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/panels/network/connection-editor/connection-editor.ui b/panels/network/connection-editor/connection-editor.ui
+index 2bff4d0..703ad58 100644
+--- a/panels/network/connection-editor/connection-editor.ui
++++ b/panels/network/connection-editor/connection-editor.ui
+@@ -2,7 +2,7 @@
+ <interface>
+   <!-- interface-requires gtk+ 3.0 -->
+   <template class="NetConnectionEditor" parent="GtkDialog">
+-    <property name="resizable">False</property>
++    <property name="resizable">True</property>
+     <property name="modal">True</property>
+     <property name="default_width">500</property>
+     <property name="default_height">600</property>

@@ -4,49 +4,18 @@ Subject: Add GtkHdySqueezer
 
 This is imported from HdySqueezer from libhandy 1.0.2.
 ---
- gtk/Makefile.am            |    4 +
  gtk/gtkprivate.h           |    1 +
  gtk/hdy-cairo-private.h    |   21 +
  gtk/hdy-squeezer-private.h |   63 ++
  gtk/hdy-squeezer.c         | 1573 ++++++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build            |    3 +
- 6 files changed, 1665 insertions(+)
+ 5 files changed, 1661 insertions(+)
  create mode 100644 gtk/hdy-cairo-private.h
  create mode 100644 gtk/hdy-squeezer-private.h
  create mode 100644 gtk/hdy-squeezer.c
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index ef9c90a..5150fd0 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
- gtk_private_type_h_sources =	\
- 	gtkcsstypesprivate.h	\
- 	gtktexthandleprivate.h	\
-+	hdy-squeezer-private.h	\
- 	hdy-view-switcher-private.h
- 
- 
-@@ -603,7 +604,9 @@ gtk_private_h_sources =		\
- 	gtktreemenu.h		\
- 	gdkpixbufutilsprivate.h \
- 	hdy-animation-private.h	\
-+	hdy-cairo-private.h	\
- 	hdy-css-private.h	\
-+	hdy-squeezer-private.h	\
- 	hdy-view-switcher-bar-private.h	\
- 	hdy-view-switcher-button-private.h	\
- 	hdy-view-switcher-private.h	\
-@@ -984,6 +987,7 @@ gtk_base_c_sources = 		\
- 	gdkpixbufutils.c	\
- 	hdy-animation.c	\
- 	hdy-css.c	\
-+	hdy-squeezer.c	\
- 	hdy-view-switcher.c	\
- 	hdy-view-switcher-bar.c	\
- 	hdy-view-switcher-button.c	\
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
-index b470e62..9b5f8bb 100644
+index 473bb99..68f0f8d 100644
 --- a/gtk/gtkprivate.h
 +++ b/gtk/gtkprivate.h
 @@ -30,6 +30,7 @@
@@ -1733,7 +1702,7 @@ index 0000000..b36db93
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_YALIGN]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 3c97a01..852147a 100644
+index 9fe7c4d..80ae1bf 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -385,6 +385,7 @@ gtk_sources = files(

@@ -1,0 +1,42 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+
+pkgname=danctnix-plasma-desktop-settings
+pkgver=20230721
+pkgrel=1
+arch=('any')
+url="https://danctnix.org"
+license=('GPL')
+pkgdesc='Settings files for Plasma Desktop'
+depends=('breeze-gtk' 'kwin' 'maliit-keyboard' 'noto-fonts' 'plasma-desktop' 'sddm')
+makedepends=('git')
+install=$pkgname.install
+source=('kwinrc'
+        '91_plasma.gschema.override'
+        'plasmamobile.json'
+        'settings.ini'
+        'powerdevil.hook'
+        'sddm.conf.d-danctnix.conf')
+sha256sums=('57ef45fb1065ca281786aca343f4a51584455c444e95f61f54c5545b1aa27eda'
+            'fd5a89ce81197a912a9879aa5aa33daf68c8f80a4b70192fff89364ef9d18734'
+            '42db6e099ab56aa4f6c01107fe83897a059bc371a389379cd3c260d4ab8fd2bc'
+            'e3e671c730f7a4ed54011a1152a54e5ce11e6092850c379deb5641d88b5463bd'
+            '42c4de4c9310904ada1c84e23a34e42fcf20f8318a5f798372468381965dbd18'
+            '1b3bd51533da9fb9f04c20ff5143b64238dff0ccc5cd47e114b93eff3a0bb6d8')
+
+pkgver() {
+    date +%Y%m%d
+}
+
+package() {
+    xdg=$pkgdir/etc/xdg
+    install -Dm644 kwinrc $xdg/kwinrc
+    install -Dm644 "${srcdir}/91_plasma.gschema.override" -t "${pkgdir}/usr/share/glib-2.0/schemas"
+    install -Dm644 "${srcdir}/plasmamobile.json" -t "${pkgdir}/usr/share/maliit/keyboard2/devices/"
+    install -Dm644 "${srcdir}/settings.ini" -t "${pkgdir}/etc/skel/.config/gtk-3.0/"
+
+    # install alpm hook
+    install -Dm644 "${srcdir}/powerdevil.hook" "${pkgdir}/usr/share/libalpm/hooks/90-powerdevil.hook"
+
+    # sddm login
+    install -Dm644 "${srcdir}/sddm.conf.d-danctnix.conf" "${pkgdir}/etc/sddm.conf.d/danctnix.conf"
+}

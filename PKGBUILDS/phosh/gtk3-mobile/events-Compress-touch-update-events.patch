@@ -19,10 +19,10 @@ See https://source.puri.sm/Librem5/debs/gtk/-/issues/8
  1 file changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/gdk/gdkevents.c b/gdk/gdkevents.c
-index 12af9cc..3327f7c 100644
+index 087178e..40ef45d 100644
 --- a/gdk/gdkevents.c
 +++ b/gdk/gdkevents.c
-@@ -267,26 +267,32 @@ _gdk_event_queue_handle_motion_compression (GdkDisplay *display)
+@@ -268,30 +268,36 @@ _gdk_event_queue_handle_motion_compression (GdkDisplay *display)
    while (tmp_list)
      {
        GdkEventPrivate *event = tmp_list->data;
@@ -50,13 +50,17 @@ index 12af9cc..3327f7c 100644
 +          pending_motion_device != device)
          break;
  
+-      pending_motion_window = event->event.motion.window;
++      pending_motion_window = window;
+ 
 -      if (!event->event.motion.window->event_compression)
 +      if (!window->event_compression)
-         break;
+         {
+           uncompressed_motion = TRUE;
+           break;
+         }
  
--      pending_motion_window = event->event.motion.window;
 -      pending_motion_device = event->event.motion.device;
-+      pending_motion_window = window;
 +      pending_motion_device = device;
        pending_motions = tmp_list;
  

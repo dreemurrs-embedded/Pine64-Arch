@@ -1,0 +1,23 @@
+[org.gnome.desktop.session]
+idle-delay=60
+
+[org.gnome.Epiphany.web]
+user-agent='Mozilla/5.0 (PinePhone, like iPhone; Linux aarch64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0 Chrome/64 Mobile/15E148 Safari/605.1.15'
+
+[org.gnome.desktop.background]
+picture-uri='file:///usr/share/danctnix/adwaita-phone.jpg'
+
+[org.gnome.desktop.sound]
+theme-name='librem5'
+
+[org.gnome.settings-daemon.peripherals.touchscreen]
+orientation-lock=true
+
+[org.gnome.settings-daemon.plugins.wwan]
+unlock-sim=true
+
+[org.gnome.software]
+download-updates=false
+
+[sm.puri.phosh]
+enable-suspend=true

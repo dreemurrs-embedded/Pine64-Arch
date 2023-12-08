@@ -1,0 +1,20 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=plasma-mobile-sounds
+pkgver=0.1
+pkgrel=1
+pkgdesc="Sound Theme for Plasma Mobile by KDE"
+arch=(any)
+url="https://invent.kde.org/plasma-mobile/plasma-mobile-sounds"
+license=('CCPL' 'GPL')
+makedepends=('cmake' 'extra-cmake-modules')
+source=(https://download.kde.org/stable/plasma-mobile-sounds/$pkgver/plasma-mobile-sounds-$pkgver.tar.xz)
+
+build() {
+    cmake -B build -S "$pkgname-$pkgver"
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+}
+
+md5sums=('612003ae4b4269361d80ef248de1d630')

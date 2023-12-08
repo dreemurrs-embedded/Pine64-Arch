@@ -1,0 +1,50 @@
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Fri, 20 Sep 2019 16:11:07 +0530
+Subject: [PATCH 1/7] avatar-chooser: Adapt to work on librem5
+
+---
+ panels/user-accounts/cc-avatar-chooser.ui | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/panels/user-accounts/cc-avatar-chooser.ui b/panels/user-accounts/cc-avatar-chooser.ui
+index fe1696f..0d89a23 100644
+--- a/panels/user-accounts/cc-avatar-chooser.ui
++++ b/panels/user-accounts/cc-avatar-chooser.ui
+@@ -3,6 +3,11 @@
+   <!-- interface-requires gtk+ 3.8 -->
+   <template class="CcAvatarChooser" parent="GtkPopover">
+     <property name="visible">False</property>
++    <child>
++      <object class="GtkScrolledWindow">
++        <property name="visible">1</property>
++        <property name="hscrollbar-policy">never</property>
++        <property name="min-content-height">380</property>
+     <child>
+       <object class="GtkBox">
+         <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+@@ -11,7 +16,7 @@
+           <object class="GtkFlowBox" id="user_flowbox">
+             <property name="selection-mode">none</property>
+             <property name="homogeneous">True</property>
+-            <property name="max-children-per-line">5</property>
++            <property name="max-children-per-line">3</property>
+             <property name="column-spacing">10</property>
+           </object>
+         </child>
+@@ -19,7 +24,7 @@
+           <object class="GtkFlowBox" id="flowbox">
+             <property name="selection-mode">none</property>
+             <property name="homogeneous">True</property>
+-            <property name="max-children-per-line">5</property>
++            <property name="max-children-per-line">3</property>
+             <property name="column-spacing">10</property>
+           </object>
+         </child>
+@@ -37,5 +42,7 @@
+         </child>
+       </object>
+     </child>
++      </object>
++    </child>
+   </template>
+ </interface>

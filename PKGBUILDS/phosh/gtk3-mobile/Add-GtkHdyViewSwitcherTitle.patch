@@ -4,46 +4,15 @@ Subject: Add GtkHdyViewSwitcherTitle
 
 This is imported from HdyViewSwitcherTitle from libhandy 1.0.0.
 ---
- gtk/Makefile.am                       |   5 +-
  gtk/hdy-view-switcher-title-private.h |  46 +++
  gtk/hdy-view-switcher-title.c         | 606 ++++++++++++++++++++++++++++++++++
  gtk/meson.build                       |   2 +
  gtk/ui/hdy-view-switcher-title.ui     |  52 +++
- 5 files changed, 710 insertions(+), 1 deletion(-)
+ 4 files changed, 706 insertions(+)
  create mode 100644 gtk/hdy-view-switcher-title-private.h
  create mode 100644 gtk/hdy-view-switcher-title.c
  create mode 100644 gtk/ui/hdy-view-switcher-title.ui
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 5150fd0..96d8c10 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -610,6 +610,7 @@ gtk_private_h_sources =		\
- 	hdy-view-switcher-bar-private.h	\
- 	hdy-view-switcher-button-private.h	\
- 	hdy-view-switcher-private.h	\
-+	hdy-view-switcher-title-private.h	\
- 	open-type-layout.h	\
- 	language-names.h	\
- 	script-names.h
-@@ -991,6 +992,7 @@ gtk_base_c_sources = 		\
- 	hdy-view-switcher.c	\
- 	hdy-view-switcher-bar.c	\
- 	hdy-view-switcher-button.c	\
-+	hdy-view-switcher-title.c	\
- 	language-names.c	\
- 	script-names.c
- 
-@@ -1252,7 +1254,8 @@ templates =				\
- 	ui/gtkvolumebutton.ui		\
- 	ui/gtksidebarrow.ui		\
- 	ui/hdy-view-switcher-bar.ui	\
--	ui/hdy-view-switcher-button.ui
-+	ui/hdy-view-switcher-button.ui	\
-+	ui/hdy-view-switcher-title.ui
- 
- #
- # rules to generate built sources
 diff --git a/gtk/hdy-view-switcher-title-private.h b/gtk/hdy-view-switcher-title-private.h
 new file mode 100644
 index 0000000..6bc8fdf
@@ -709,7 +678,7 @@ index 0000000..4cb815b
 +  return gtk_hdy_squeezer_get_visible_child (self->squeezer) == (GtkWidget *) self->title_box;
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 852147a..065140e 100644
+index 80ae1bf..4b3e871 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -389,6 +389,7 @@ gtk_sources = files(

@@ -1,0 +1,177 @@
+From 10e1d19382ac123b294407dcc7df40b86cb61238 Mon Sep 17 00:00:00 2001
+From: Ondrej Jirman <megous@megous.com>
+Date: Tue, 11 Feb 2020 14:10:05 +0100
+Subject: [PATCH] pinephone: Add volume_key environment variable
+
+When the user has a volume key pressed volume_key variable will
+contain either value 'down' or 'up', otherwise it will be empty.
+
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+---
+ board/sunxi/Makefile |  1 +
+ board/sunxi/board.c  | 18 ++++++++++
+ board/sunxi/lradc.c  | 81 ++++++++++++++++++++++++++++++++++++++++++++
+ board/sunxi/lradc.h  | 11 ++++++
+ 4 files changed, 111 insertions(+)
+ create mode 100644 board/sunxi/lradc.c
+ create mode 100644 board/sunxi/lradc.h
+
+diff --git a/board/sunxi/Makefile b/board/sunxi/Makefile
+index d96b7897..a096a5c7 100644
+--- a/board/sunxi/Makefile
++++ b/board/sunxi/Makefile
+@@ -12,3 +12,4 @@ obj-$(CONFIG_MACH_SUN4I)	+= dram_sun4i_auto.o
+ obj-$(CONFIG_MACH_SUN5I)	+= dram_sun5i_auto.o
+ obj-$(CONFIG_MACH_SUN7I)	+= dram_sun5i_auto.o
+ obj-$(CONFIG_CHIP_DIP_SCAN)	+= chip.o
++obj-$(CONFIG_MACH_SUN50I)	+= lradc.o
+diff --git a/board/sunxi/board.c b/board/sunxi/board.c
+index 2790a0f9..50344342 100644
+--- a/board/sunxi/board.c
++++ b/board/sunxi/board.c
+@@ -46,6 +46,7 @@
+ #include <spl.h>
+ #include <sy8106a.h>
+ #include <asm/setup.h>
++#include "lradc.h"
+ #include <status_led.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+@@ -588,6 +589,12 @@ void sunxi_board_init(void)
+ {
+ 	int power_failed = 0;
+ 
++#ifdef CONFIG_MACH_SUN50I
++	// we init the lradc in SPL to get the ADC started early to have
++	// a valid sample when U-Boot main binary gets executed.
++	lradc_enable();
++#endif
++
+ #ifdef CONFIG_LED_STATUS
+ 	if (IS_ENABLED(CONFIG_SPL_DRIVERS_MISC))
+ 		status_led_init();
+@@ -861,6 +868,17 @@ int misc_init_r(void)
+ 		env_set("fdtfile", str);
+ 	}
+ 
++#ifdef CONFIG_MACH_SUN50I
++	int key = lradc_get_pressed_key();
++	if (key == KEY_VOLUMEDOWN)
++		env_set("volume_key", "down");
++	else if (key == KEY_VOLUMEUP)
++		env_set("volume_key", "up");
++
++	// no longer needed
++	lradc_disable();
++#endif
++
+ 	setup_environment(gd->fdt_blob);
+ 
+ 	return 0;
+diff --git a/board/sunxi/lradc.c b/board/sunxi/lradc.c
+new file mode 100644
+index 00000000..693b198e
+--- /dev/null
++++ b/board/sunxi/lradc.c
+@@ -0,0 +1,81 @@
++#include <common.h>
++#include <asm/io.h>
++#include "lradc.h"
++
++#define LRADC_BASE		0x1c21800
++
++#define LRADC_CTRL		(LRADC_BASE + 0x00)
++#define LRADC_INTC		(LRADC_BASE + 0x04)
++#define LRADC_INTS		(LRADC_BASE + 0x08)
++#define LRADC_DATA0		(LRADC_BASE + 0x0c)
++#define LRADC_DATA1		(LRADC_BASE + 0x10)
++
++/* LRADC_CTRL bits */
++#define FIRST_CONVERT_DLY(x)	((x) << 24) /* 8 bits */
++#define CHAN_SELECT(x)		((x) << 22) /* 2 bits */
++#define CONTINUE_TIME_SEL(x)	((x) << 16) /* 4 bits */
++#define KEY_MODE_SEL(x)		((x) << 12) /* 2 bits */
++#define LEVELA_B_CNT(x)		((x) << 8)  /* 4 bits */
++#define HOLD_KEY_EN(x)		((x) << 7)
++#define HOLD_EN(x)		((x) << 6)
++#define LEVELB_VOL(x)		((x) << 4)  /* 2 bits */
++#define SAMPLE_RATE(x)		((x) << 2)  /* 2 bits */
++#define ENABLE(x)		((x) << 0)
++
++/* LRADC_INTC and LRADC_INTS bits */
++#define CHAN1_KEYUP_IRQ		BIT(12)
++#define CHAN1_ALRDY_HOLD_IRQ	BIT(11)
++#define CHAN1_HOLD_IRQ		BIT(10)
++#define	CHAN1_KEYDOWN_IRQ	BIT(9)
++#define CHAN1_DATA_IRQ		BIT(8)
++#define CHAN0_KEYUP_IRQ		BIT(4)
++#define CHAN0_ALRDY_HOLD_IRQ	BIT(3)
++#define CHAN0_HOLD_IRQ		BIT(2)
++#define	CHAN0_KEYDOWN_IRQ	BIT(1)
++#define CHAN0_DATA_IRQ		BIT(0)
++
++// this is for PinePhone only
++
++int lradc_get_pressed_key(void)
++{
++	uint32_t val;
++	uint32_t vref = 3000000 * 2 / 3;
++
++	val = readl(LRADC_DATA0) & 0x3f;
++	val = val * vref / 63;
++
++//	printf("lradc=%u\n", val);
++
++	if (val < 200000) // 158730
++		return KEY_VOLUMEUP;
++	else if (val < 400000) // 349206
++		return KEY_VOLUMEDOWN;
++
++	return 0;
++}
++
++void lradc_enable(void)
++{
++	// aldo3 is always on and defaults to 3V
++
++	writel(0xffffffff, LRADC_INTS);
++	writel(0, LRADC_INTC);
++
++	/*
++	 * Set sample time to 4 ms / 250 Hz. Wait 2 * 4 ms for key to
++	 * stabilize on press, wait (1 + 1) * 4 ms for key release
++	 */
++	writel(FIRST_CONVERT_DLY(0) | LEVELA_B_CNT(0) | HOLD_EN(0) |
++		SAMPLE_RATE(0) | ENABLE(1), LRADC_CTRL);
++
++}
++
++void lradc_disable(void)
++{
++	writel(0xffffffff, LRADC_INTS);
++	writel(0, LRADC_INTC);
++
++	/* Disable lradc, leave other settings unchanged */
++	writel(FIRST_CONVERT_DLY(2) | LEVELA_B_CNT(1) | HOLD_EN(1) |
++		SAMPLE_RATE(2), LRADC_CTRL);
++}
+diff --git a/board/sunxi/lradc.h b/board/sunxi/lradc.h
+new file mode 100644
+index 00000000..c908401b
+--- /dev/null
++++ b/board/sunxi/lradc.h
+@@ -0,0 +1,11 @@
++#pragma once
++
++enum {
++	KEY_NONE = 0,
++	KEY_VOLUMEDOWN = 1,
++	KEY_VOLUMEUP = 2,
++};
++
++int lradc_get_pressed_key(void);
++void lradc_enable(void);
++void lradc_disable(void);
+-- 
+2.34.1
+

@@ -3,31 +3,16 @@ Date: Thu, 27 Aug 2020 14:45:07 +0530
 Subject: Add org.gtk.Settings.Purism
 
 ---
- gtk/Makefile.am                         |  3 ++-
  gtk/meson.build                         |  1 +
  gtk/org.gtk.Settings.Purism.gschema.xml | 18 ++++++++++++++++++
- 3 files changed, 21 insertions(+), 1 deletion(-)
+ 2 files changed, 19 insertions(+)
  create mode 100644 gtk/org.gtk.Settings.Purism.gschema.xml
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index d8e215f..8e42a20 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -1785,7 +1785,8 @@ gsettings_SCHEMAS = \
- 	org.gtk.Settings.FileChooser.gschema.xml \
- 	org.gtk.Settings.ColorChooser.gschema.xml \
- 	org.gtk.Settings.EmojiChooser.gschema.xml \
--	org.gtk.Settings.Debug.gschema.xml
-+	org.gtk.Settings.Debug.gschema.xml \
-+	org.gtk.Settings.Purism.gschema.xml
- 
- @GSETTINGS_RULES@
- 
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 03f4c9f..0e31a40 100644
+index 40feabc..e50a4bc 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
-@@ -960,6 +960,7 @@ gtk_settings_schemas = [
+@@ -964,6 +964,7 @@ gtk_settings_schemas = [
    'org.gtk.Settings.ColorChooser.gschema.xml',
    'org.gtk.Settings.EmojiChooser.gschema.xml',
    'org.gtk.Settings.Debug.gschema.xml',

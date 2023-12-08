@@ -1,0 +1,81 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+
+pkgname=gnome-clocks-mobile
+_pkgname=gnome-clocks
+pkgver=41.0
+pkgrel=3
+pkgdesc="Clocks applications for GNOME"
+url="https://wiki.gnome.org/Apps/Clocks"
+arch=(x86_64 armv7h aarch64)
+license=(GPL)
+depends=(gtk3 libgweather gnome-desktop geoclue2 geocode-glib feedbackd libhandy)
+makedepends=(vala gobject-introspection yelp-tools git meson)
+provides=(gnome-clocks)
+conflicts=(gnome-clocks)
+_commit=90d36119a5ac0bb86586e261a26562baea4d577c  # tags/41.0^0
+source=("git+https://gitlab.gnome.org/GNOME/gnome-clocks.git#commit=$_commit"
+        '0001-timer-Use-name-that-can-be-added-to-the-event-naming.patch'
+        '0002-Use-libfeedback-in-instead-of-GSound.patch'
+        '0003-timers-persist-running-timers.patch'
+        '0004-alarm-item-Make-sure-that-the-time-property-is-alway.patch'
+        '0005-alarm-remove-edit-property.patch'
+        '0006-alarms-Make-alarms-persisted-and-add-missed-alarms-n.patch'
+        '0007-Fixed-infinite-alarming.patch'
+        '0008-Alarms-Fix-wiping-edit-data.patch'
+        '0009-Don-t-show-numpad-when-setting-a-new-alarm-timer.patch'
+        '0010-add-option-to-start-hidden.patch'
+        '0011-autostart-gnome-clocks.patch'
+        '0012-alarm-setup-dialog-Allow-much-smaller-heights-useing.patch'
+        '0013-timer-setup-remove-unused-lables.patch'
+        '0014-timer-Allow-much-smaller-heights-useing-a-ScrolledWi.patch'
+        '0015-alarm-make-ringing-panel-fit-to-small-window-heights.patch'
+        '0016-world-standalone-allow-smaller-window-heights.patch')
+sha256sums=('SKIP'
+            '4aa66ae47df1d970ed6138e3d3cec7eea588af7dfa39f0940c13dfa5164052ad'
+            '9e692d5e340c81943b7312249054a74ee4f83c756a5bf510102a01f5f9ffc458'
+            '4d46e7968b54d7f16c89ec2d69a5e06c8952253e589bf58546d2dddf86f4d57a'
+            '10b5aec1a643e8210e410aed716c136a949aa5eacc2b9589fd81c97d99536b79'
+            'a22e67d3d580c5291b706048c55410e7cbe2d9e59e57c29357e4bbdd00ceaf5f'
+            '5ac80e8d2379577e6f5f5b0e7862446d6a017b319401f7bdc2ce523d9ac55da6'
+            '0ae3d7354a491296c03f4102aace3eaf6f0193efda2311b462cf1afa3f9c7a37'
+            '73dea007e55d6fec12730fdb1cd7bf319c8b373b337f79e7b91d912ec3d8cc40'
+            'c242f5fd594cc58ba5dd5b313cb5a057308503c94576bbaa58928181a77cf083'
+            '1f0a13d25aae7942859decb9167a1e53ce24060cc56ef17a0d0b2c10fb77204f'
+            'dc9fe50c7b6c902eeeb2e67f4a81b017856f800c98b6ce68627db3e8fc5c39b7'
+            '8b15b617990827196c7444b4238c562af004dd5d98841e00d8829d12a70b0621'
+            '437bf6caa21232c7d8ec40d541ebd443e9343197cd21256e4ce8a1cab6045f6a'
+            'bb0121b34c44b0515a9289704e0562871cd5da1544ca520fb04b80baa5c388fe'
+            '664515657ee315894be6e1b0b87c9308d9dc1de2eb00aebc29ecf87c133147ac'
+            '992d8868dc96d5b5742cafa26f119484d461a84ee29ac5cf1985ea7f51942d36')
+
+pkgver() {
+  cd $_pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd $_pkgname
+
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+}
+
+build() {
+  arch-meson $_pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

@@ -1,0 +1,50 @@
+From bd2fce71df6d3eab84486a445f38e5ed38828f79 Mon Sep 17 00:00:00 2001
+From: Steve Stevens <steve@heunox.com>
+Date: Sun, 9 Jan 2022 12:07:43 -0700
+Subject: [PATCH 08/16] Alarms: Fix wiping edit data
+
+The notifies called when setting up the alarm-setup-dialog would cause
+the alarm item to be nulled out when attempting to update the alarm with
+the data. Thus this patch suspends those notify actions until the
+initial setup of the dialog is complete.
+
+Dependancy: alarms-Make-alarms-persisted-and-add-missed-alarms-n.patch
+Applied-Upstream: False
+---
+ src/alarm-setup-dialog.vala | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/alarm-setup-dialog.vala b/src/alarm-setup-dialog.vala
+index 2d826d0..85c9d06 100644
+--- a/src/alarm-setup-dialog.vala
++++ b/src/alarm-setup-dialog.vala
+@@ -99,6 +99,7 @@ private class SetupDialog : Gtk.Dialog {
+     private unowned Gtk.Button delete_button;
+     private List<Item> other_alarms;
+     private DurationModel duration_model;
++    private bool lock_notify = true;
+ 
+     static construct {
+         typeof (DayPickerRow).ensure ();
+@@ -192,6 +193,8 @@ private class SetupDialog : Gtk.Dialog {
+         if (alarm.days != null) {
+             repeats.load ((Utils.Weekdays) alarm.days);
+         }
++        lock_notify = false;
++        avoid_duplicate_alarm ();
+     }
+ 
+     // Sets alarm according to the current dialog settings.
+@@ -224,6 +227,9 @@ private class SetupDialog : Gtk.Dialog {
+     }
+ 
+     private void avoid_duplicate_alarm () {
++        if (lock_notify) {
++            return;
++        }
+         apply_to_alarm ();
+ 
+         var duplicate = alarm.check_duplicate_alarm (other_alarms);
+-- 
+2.34.1
+

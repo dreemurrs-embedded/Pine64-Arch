@@ -5,42 +5,58 @@
 
 _pkgname=evince
 pkgname=$_pkgname-mobile
-pkgver=40.1
+pkgver=45.0
 pkgrel=1
-pkgdesc='Purism mobile document viewer (PDF, Postscript, djvu, tiff, dvi, XPS, SyncTex support with gedit, comics books (cbr,cbz,cb7 and cbt))'
-url='https://gitlab.gnome.org/GNOME/evince'
-arch=('aarch64')
+pkgdesc="Document viewer (PDF, PostScript, XPS, djvu, dvi, tiff, cbr, cbz, cb7, cbt)"
+url="https://wiki.gnome.org/Apps/Evince"
+arch=('x86_64' 'armv7h' 'aarch64')
 license=('GPL')
-_commit=133f1c1880fd97d432442c8f7956c2c4a1efd5dc  # tags/40.1^0
-source=("git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
-        'data-List-compatible-form-factors.patch'
-        'properties-view-Reduce-the-label-width-chars.patch'
-        'Disable-fullscreen-actions-in-phosh.patch'
-        'toolbar-Allow-to-toggle-the-sidebar-button.patch'
-        'toolbar-Allow-hiding-zoom-annotation-and-page-widgets.patch'
-        'window-Port-it-to-phones.patch')
-sha256sums=('SKIP'
-            'b5354b0c93fcc1ef8838a12a7eeedd31e83c5ec6c666761af97e35fb7cbfa80d'
-            '194086757f539afc7cd5d24f4bc3e1b16fa321d5cb6c9e27fe0470eb62508098'
-            'fa8554c29ef59ad926bc33adead0c4b327cc14c5b444f4fbaa897c76fb67f1c3'
-            '3ce259a56cc4f35badbdc142b83c72a4fe1422aeb483979ec343ab8a68a76302'
-            '6dbd8d185cd896e1ab772f2aee6147113333109ea8f0e8446335f4da6a9f2bb9'
-            '00413c8f03b75a309c02acb2ab9ea5b52d4f4096994e0bec691fd998c2ed8ef5')
+depends=(
+  dconf
+  djvulibre
+  gnome-desktop
+  gsettings-desktop-schemas
+  gsfonts
+  gspell
+  gst-plugins-base-libs
+  gtk3
+  gvfs
+  libarchive
+  libgxps
+  libhandy
+  libsecret
+  libspectre
+  libsynctex
+  libxml2
+  poppler-glib
+)
+makedepends=(
+  appstream-glib
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+  texlive-bin
+  yelp-tools
+)
+optdepends=('texlive-bin: DVI support')
 provides=(libev{document,view}3.so $_pkgname)
 conflicts=($_pkgname)
-depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre t1lib dconf libsecret libsynctex
-         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell libhandy)
-makedepends=(libnautilus-extension texlive-bin gobject-introspection docbook-xsl python gtk-doc
-             git meson appstream-glib yelp-tools)
-
-optdepends=(
-  'texlive-bin: DVI support'
-  'gvfs: bookmark support and session saving'
-)
+_commit=80b393cac6468561664810d5e4a0f1897507062b  # tags/45.0^0
+source=("git+https://gitlab.gnome.org/GNOME/evince.git#commit=$_commit"
+        '0001-toolbar-Allow-to-toggle-the-sidebar-button.patch'
+        '0002-toolbar-Allow-hiding-zoom-annotation-and-page-widgets.patch'
+        '0003-properties-view-Reduce-the-label-width-chars.patch'
+        '0004-window-Port-it-to-phones.patch')
+sha256sums=('SKIP'
+            '22a5c037d60cce4869193a294f90c071dab2a47ff97f9632eb22ba0f8377b4a0'
+            '0153d21c3da3a65c28c246bc31a44b307c1af4e6e56f897b8e8ec15b92974df3'
+            'b184beef8d11f3d1196869744865b94343b75440f326582e51cb7fb3f4beb176'
+            'f125e441c0d5cc80599859347903f6b3e1d82cab25b30df508ed0bb6892c8a45')
 
 pkgver() {
   cd $_pkgname
-  git describe --tags | sed 's/-/+/g'
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
@@ -51,13 +67,17 @@ prepare() {
     src="${src%%::*}"
     src="${src##*/}"
     [[ $src = *.patch ]] || continue
-    msg2 "Applying patch $src..."
+    echo "Applying patch $src..."
     patch -Np1 < "../$src"
   done
 }
 
 build() {
-  arch-meson $_pkgname build -D ps=enabled
+  local meson_options=(
+    -D ps=enabled
+  )
+
+  arch-meson $_pkgname build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -66,5 +86,8 @@ check() {
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
+
+  # We don't need to provide evince-lib-docs.
+  rm -r "$pkgdir"/usr/share/doc/lib*
 }

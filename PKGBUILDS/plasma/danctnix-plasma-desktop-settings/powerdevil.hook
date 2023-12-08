@@ -1,0 +1,11 @@
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/lib/org_kde_powerdevil
+
+[Action]
+Description = Enhance Powerdevil privileges for mobile usage ...
+When = PostTransaction
+NeedsTargets
+Exec = /bin/sh -c 'setcap cap_wake_alarm+ep /usr/lib/org_kde_powerdevil'

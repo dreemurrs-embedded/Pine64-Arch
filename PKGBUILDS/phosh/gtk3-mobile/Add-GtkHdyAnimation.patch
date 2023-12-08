@@ -4,34 +4,13 @@ Subject: Add GtkHdyAnimation
 
 This is imported from HdyAnimation from libhandy 1.0.2.
 ---
- gtk/Makefile.am             |   2 +
  gtk/hdy-animation-private.h |  53 ++++++++++
  gtk/hdy-animation.c         | 250 ++++++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build             |   2 +
- 4 files changed, 307 insertions(+)
+ 3 files changed, 305 insertions(+)
  create mode 100644 gtk/hdy-animation-private.h
  create mode 100644 gtk/hdy-animation.c
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 12cba66..ef9c90a 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -602,6 +602,7 @@ gtk_private_h_sources =		\
- 	gtkwindowprivate.h	\
- 	gtktreemenu.h		\
- 	gdkpixbufutilsprivate.h \
-+	hdy-animation-private.h	\
- 	hdy-css-private.h	\
- 	hdy-view-switcher-bar-private.h	\
- 	hdy-view-switcher-button-private.h	\
-@@ -981,6 +982,7 @@ gtk_base_c_sources = 		\
- 	gtkwin32draw.c		\
- 	gtkwin32theme.c		\
- 	gdkpixbufutils.c	\
-+	hdy-animation.c	\
- 	hdy-css.c	\
- 	hdy-view-switcher.c	\
- 	hdy-view-switcher-bar.c	\
 diff --git a/gtk/hdy-animation-private.h b/gtk/hdy-animation-private.h
 new file mode 100644
 index 0000000..6816f6e
@@ -348,7 +327,7 @@ index 0000000..0de1128
 +  return p * p * p + 1;
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 0bdf438..3c97a01 100644
+index 1d35e83..9fe7c4d 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -383,6 +383,7 @@ gtk_sources = files(

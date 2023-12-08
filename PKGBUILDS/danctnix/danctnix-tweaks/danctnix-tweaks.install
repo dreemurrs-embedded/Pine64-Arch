@@ -1,0 +1,11 @@
+post_upgrade() {
+  if [ "$(stat -c '%W' /etc/pacman.d/gnupg)" -lt 1624838400 ]; then
+    echo "Security fix: recreating gnupg keys for pacman"
+    echo "All systems before 2021/06/28 release shipped common private keys for pacman. Due to this vulnerability, all gnupg keys must be regenerated."
+    echo "This might take a while, please wait."
+
+    /usr/bin/rm -rf /etc/pacman.d/gnupg
+    /usr/bin/pacman-key --init
+    /usr/bin/pacman-key --populate archlinuxarm danctnix
+  fi
+}

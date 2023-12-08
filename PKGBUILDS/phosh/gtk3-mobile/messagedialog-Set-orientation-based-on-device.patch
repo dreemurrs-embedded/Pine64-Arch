@@ -91,10 +91,10 @@ index e70c820..e3a6659 100644
  
    settings = gtk_widget_get_settings (GTK_WIDGET (dialog));
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index 2b2f5de..8539ed9 100644
+index e40e429..b6609f9 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
-@@ -3982,10 +3982,13 @@ messagedialog { // Message Dialog styling
+@@ -3987,10 +3987,13 @@ messagedialog { // Message Dialog styling
  
      .dialog-action-area button {
        padding: 10px 14px; // labels are not vertically centered on message dialog, this is a workaround
@@ -110,7 +110,7 @@ index 2b2f5de..8539ed9 100644
  
        &:first-child {
          border-left-style: none;
-@@ -3998,6 +4001,21 @@ messagedialog { // Message Dialog styling
+@@ -4003,6 +4006,21 @@ messagedialog { // Message Dialog styling
          -gtk-outline-bottom-right-radius: $button_radius + 2;
        }
      }
@@ -133,7 +133,7 @@ index 2b2f5de..8539ed9 100644
  }
  
 diff --git a/gtk/theme/Adwaita/gtk-contained-dark.css b/gtk/theme/Adwaita/gtk-contained-dark.css
-index 58c4f90..827083e 100644
+index 3cd917d..76e816b 100644
 --- a/gtk/theme/Adwaita/gtk-contained-dark.css
 +++ b/gtk/theme/Adwaita/gtk-contained-dark.css
 @@ -1602,11 +1602,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
@@ -158,7 +158,7 @@ index 58c4f90..827083e 100644
  filechooser .dialog-action-box { border-top: 1px solid #1b1b1b; }
  
 diff --git a/gtk/theme/Adwaita/gtk-contained.css b/gtk/theme/Adwaita/gtk-contained.css
-index 0a8eff2..55bf5cd 100644
+index 4eff74f..ffbd2ae 100644
 --- a/gtk/theme/Adwaita/gtk-contained.css
 +++ b/gtk/theme/Adwaita/gtk-contained.css
 @@ -1618,11 +1618,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
@@ -183,7 +183,7 @@ index 0a8eff2..55bf5cd 100644
  filechooser .dialog-action-box { border-top: 1px solid #cdc7c2; }
  
 diff --git a/gtk/theme/HighContrast/gtk-contained-inverse.css b/gtk/theme/HighContrast/gtk-contained-inverse.css
-index 3a10224..fdaffe9 100644
+index 5a2cf09..7e9f8ec 100644
 --- a/gtk/theme/HighContrast/gtk-contained-inverse.css
 +++ b/gtk/theme/HighContrast/gtk-contained-inverse.css
 @@ -1682,11 +1682,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c
@@ -208,7 +208,7 @@ index 3a10224..fdaffe9 100644
  filechooser .dialog-action-box { border-top: 1px solid #686868; }
  
 diff --git a/gtk/theme/HighContrast/gtk-contained.css b/gtk/theme/HighContrast/gtk-contained.css
-index c20b50f..e006471 100644
+index ba598cc..20fbd2c 100644
 --- a/gtk/theme/HighContrast/gtk-contained.css
 +++ b/gtk/theme/HighContrast/gtk-contained.css
 @@ -1698,11 +1698,17 @@ messagedialog .titlebar { min-height: 20px; background-image: none; background-c

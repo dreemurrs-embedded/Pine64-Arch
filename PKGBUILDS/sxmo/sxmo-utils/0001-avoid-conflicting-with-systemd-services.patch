@@ -1,0 +1,85 @@
+From 8195a8a62ada6e9f538af893085bb4b186a24357 Mon Sep 17 00:00:00 2001
+From: ArenM <aren@peacevolution.org>
+Date: Wed, 27 Apr 2022 23:57:38 -0400
+Subject: [PATCH sxmo-utils 1/6] avoid conflicting with systemd services
+
+Arch enables pipewire, mmsd, and vvmd by default. If we start them with
+superd either it or systemd will think the services failed to start.
+
+If we want to manage these services (e.g. mmsdconfig & vvmdconfig) we
+need to know which service manager is being used, to do this we should
+allow systemd to manage the service because we can't easily disable it.
+---
+ configs/default_hooks/sxmo_hook_start.sh | 19 -------------------
+ scripts/core/sxmo_mmsdconfig.sh          |  3 +++
+ scripts/core/sxmo_vvmdconfig.sh          |  3 +++
+ 3 files changed, 6 insertions(+), 19 deletions(-)
+
+diff --git a/configs/default_hooks/sxmo_hook_start.sh b/configs/default_hooks/sxmo_hook_start.sh
+index 194814d..60a4c64 100755
+--- a/configs/default_hooks/sxmo_hook_start.sh
++++ b/configs/default_hooks/sxmo_hook_start.sh
+@@ -16,16 +16,6 @@ while ! superctl status > /dev/null 2>&1; do
+ 	sleep 0.5
+ done
+ 
+-# Load our sound daemons
+-
+-if [ "$(command -v pulseaudio)" ]; then
+-	superctl start pulseaudio
+-elif [ "$(command -v pipewire)" ]; then
+-	# pipewire-pulse will start pipewire
+-	superctl start pipewire-pulse
+-	superctl start wireplumber
+-fi
+-
+ # Periodically update some status bar components
+ sxmo_hook_statusbar.sh all
+ sxmo_daemons.sh start statusbar_periodics sxmo_run_aligned.sh 60 \
+@@ -99,15 +89,6 @@ superctl start sxmo_soundmonitor
+ # Play a funky startup tune if you want (disabled by default)
+ #mpv --quiet --no-video ~/welcome.ogg &
+ 
+-# mmsd and vvmd
+-if [ -f "${SXMO_MMS_BASE_DIR:-"$HOME"/.mms/modemmanager}/mms" ]; then
+-	superctl start mmsd-tng
+-fi
+-
+-if [ -f "${SXMO_VVM_BASE_DIR:-"$HOME"/.vvm/modemmanager}/vvm" ]; then
+-	superctl start vvmd
+-fi
+-
+ # add some warnings if things are not setup correctly
+ deviceprofile="$(command -v "sxmo_deviceprofile_$SXMO_DEVICE_NAME.sh")"
+ 
+diff --git a/scripts/core/sxmo_mmsdconfig.sh b/scripts/core/sxmo_mmsdconfig.sh
+index 035ab93..36531e1 100755
+--- a/scripts/core/sxmo_mmsdconfig.sh
++++ b/scripts/core/sxmo_mmsdconfig.sh
+@@ -7,6 +7,9 @@
+ # shellcheck source=scripts/core/sxmo_common.sh
+ . "$(dirname "$0")/sxmo_common.sh"
+ 
++# on arch we manage mmsd with systemd instead of superd
++alias superctl='systemctl --user'
++
+ set -e
+ 
+ MMS_BASE_DIR="${SXMO_MMS_BASE_DIR:-"$HOME"/.mms/modemmanager}"
+diff --git a/scripts/core/sxmo_vvmdconfig.sh b/scripts/core/sxmo_vvmdconfig.sh
+index ab14e4e..ae76ed0 100755
+--- a/scripts/core/sxmo_vvmdconfig.sh
++++ b/scripts/core/sxmo_vvmdconfig.sh
+@@ -9,6 +9,9 @@
+ 
+ set -e
+ 
++# on arch we manage mmsd with systemd instead of superd
++alias superctl='systemctl --user'
++
+ VVM_BASE_DIR="${SXMO_VVM_BASE_DIR:-"$HOME"/.vvm/modemmanager}"
+ VVMCONFIG="$VVM_BASE_DIR/vvm"
+ 
+-- 
+2.40.0
+

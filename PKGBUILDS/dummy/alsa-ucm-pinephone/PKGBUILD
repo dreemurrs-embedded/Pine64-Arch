@@ -1,0 +1,9 @@
+pkgname=alsa-ucm-pinephone
+pkgver=0.6.1
+pkgrel=2
+pkgdesc="This is a dummy package. It is no longer needed."
+url="https://danctnix.org"
+license=(NONE)
+arch=(i686 x86_64 armv7h aarch64)
+depends=(alsa-ucm-conf)
+

@@ -12,10 +12,10 @@ Make sure it moves to the bottom on narrow sizes.
  5 files changed, 13 insertions(+)
 
 diff --git a/gtk/theme/Adwaita/_common.scss b/gtk/theme/Adwaita/_common.scss
-index 9aa8860..2b2f5de 100644
+index 19b6f38..e40e429 100644
 --- a/gtk/theme/Adwaita/_common.scss
 +++ b/gtk/theme/Adwaita/_common.scss
-@@ -4850,6 +4850,11 @@ viewswitcher {
+@@ -4868,6 +4868,11 @@ viewswitcher {
      padding: 0;
    }
  
@@ -28,10 +28,10 @@ index 9aa8860..2b2f5de 100644
      border-radius: 0;
      border-top: 0;
 diff --git a/gtk/theme/Adwaita/gtk-contained-dark.css b/gtk/theme/Adwaita/gtk-contained-dark.css
-index 504ca02..58c4f90 100644
+index 9797b3a..3cd917d 100644
 --- a/gtk/theme/Adwaita/gtk-contained-dark.css
 +++ b/gtk/theme/Adwaita/gtk-contained-dark.css
-@@ -1952,6 +1952,8 @@ popover.emoji-completion .emoji:hover { background: #424242; }
+@@ -1958,6 +1958,8 @@ popover.emoji-completion .emoji:hover { background: #424242; }
  /************ libhandy * */
  viewswitcher, viewswitcher button { margin: 0; padding: 0; }
  
@@ -41,10 +41,10 @@ index 504ca02..58c4f90 100644
  
  viewswitcher button:not(:checked):not(:hover) { background: transparent; }
 diff --git a/gtk/theme/Adwaita/gtk-contained.css b/gtk/theme/Adwaita/gtk-contained.css
-index e38176c..0a8eff2 100644
+index 72946ec..4eff74f 100644
 --- a/gtk/theme/Adwaita/gtk-contained.css
 +++ b/gtk/theme/Adwaita/gtk-contained.css
-@@ -1968,6 +1968,8 @@ popover.emoji-completion .emoji:hover { background: white; }
+@@ -1974,6 +1974,8 @@ popover.emoji-completion .emoji:hover { background: white; }
  /************ libhandy * */
  viewswitcher, viewswitcher button { margin: 0; padding: 0; }
  
@@ -54,10 +54,10 @@ index e38176c..0a8eff2 100644
  
  viewswitcher button:not(:checked):not(:hover) { background: transparent; }
 diff --git a/gtk/theme/HighContrast/gtk-contained-inverse.css b/gtk/theme/HighContrast/gtk-contained-inverse.css
-index c3dee8d..3a10224 100644
+index eb633dc..5a2cf09 100644
 --- a/gtk/theme/HighContrast/gtk-contained-inverse.css
 +++ b/gtk/theme/HighContrast/gtk-contained-inverse.css
-@@ -2032,6 +2032,8 @@ popover.emoji-completion .emoji:hover { background: #424242; }
+@@ -2038,6 +2038,8 @@ popover.emoji-completion .emoji:hover { background: #424242; }
  /************ libhandy * */
  viewswitcher, viewswitcher button { margin: 0; padding: 0; }
  
@@ -67,10 +67,10 @@ index c3dee8d..3a10224 100644
  
  viewswitcher button:not(:checked):not(:hover) { background: transparent; }
 diff --git a/gtk/theme/HighContrast/gtk-contained.css b/gtk/theme/HighContrast/gtk-contained.css
-index 0684091..c20b50f 100644
+index 95d09e5..ba598cc 100644
 --- a/gtk/theme/HighContrast/gtk-contained.css
 +++ b/gtk/theme/HighContrast/gtk-contained.css
-@@ -2048,6 +2048,8 @@ popover.emoji-completion .emoji:hover { background: white; }
+@@ -2054,6 +2054,8 @@ popover.emoji-completion .emoji:hover { background: white; }
  /************ libhandy * */
  viewswitcher, viewswitcher button { margin: 0; padding: 0; }
  

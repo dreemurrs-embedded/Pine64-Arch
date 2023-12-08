@@ -1,21 +1,44 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=chatty
-pkgver=0.2.0
+pkgver=0.7.3
 pkgrel=2
 pkgdesc="Messaging client"
 url="https://source.puri.sm/Librem5/chatty"
 license=('GPL')
 arch=('x86_64' 'armv7h' 'aarch64')
-depends=('evolution-data-server' 'feedbackd' 'gtk3' 'libhandy' 'purple-mm-sms')
-makedepends=('meson' 'ninja')
-source=(https://source.puri.sm/Librem5/chatty/-/archive/v$pkgver/chatty-v$pkgver.tar.gz)
+depends=('evolution-data-server' 'feedbackd' 'gtk4' 'libhandy' 'libolm' 'libpurple'
+    'gspell' 'libmm-glib' 'gnome-desktop')
+makedepends=('meson' 'ninja' 'git' 'itstool')
+checkdepends=('xorg-server-xvfb')
+optdepends=('mmsd-tng: MMS support'
+            'libpurple-lurch: OMEMO encryption'
+            'libpurple-carbons: message carbons support'
+            'libpurple-xmpp-http-upload: XMPP HTTP File Upload support'
+            'purple-telegram: Telegram chat protocol support')
+_commit="5e9dacb8080d99b15cc9e97455bf7ab41d42edd3" # tags/v0.7.3
+source=(git+https://source.puri.sm/Librem5/chatty.git#commit=${_commit})
+
+pkgver() {
+    cd $pkgname
+    git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+    cd $pkgname
+    git submodule update --init
+}
 
 build() {
-    arch-meson $pkgname-v$pkgver output
+    arch-meson $pkgname output
     ninja -C output
 }
+
+# FAIL: secure memory pool is not locked while in FIPS mode
+#check() {
+#    xvfb-run ninja -C output test
+#}
 
 package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
-md5sums=('208c5fa0367bd7dfc98578bd009c3ab5')
+md5sums=('SKIP')

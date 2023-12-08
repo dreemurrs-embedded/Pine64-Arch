@@ -1,0 +1,5 @@
+# duck volume of audio streams when notification or accessibility sounds are played
+load-module module-role-ducking trigger_roles=event,a11y ducking_roles=no_role,music,video,game global=true
+
+# automatically switch default source/sink to a new device (Bluetooth, USB)
+load-module module-switch-on-connect

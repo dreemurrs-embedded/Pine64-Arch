@@ -1,0 +1,9 @@
+[org.gnome.settings-daemon.plugins.power]
+ambient-enabled=false
+power-button-action='suspend'
+sleep-inactive-battery-timeout=300
+sleep-inactive-ac-type='nothing'
+sleep-inactive-battery-type='suspend'
+
+[org.gtk.Settings.Purism]
+is-phone=true

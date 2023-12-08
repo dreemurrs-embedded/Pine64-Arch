@@ -1,0 +1,27 @@
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Mon, 25 May 2020 21:03:38 +0200
+Subject: [PATCH 4/4] power: add more suspend timing options
+
+---
+ panels/power/cc-power-panel.ui | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/panels/power/cc-power-panel.ui b/panels/power/cc-power-panel.ui
+index 56f77ca..86ba6e4 100644
+--- a/panels/power/cc-power-panel.ui
++++ b/panels/power/cc-power-panel.ui
+@@ -8,6 +8,14 @@
+       <column type="gint"/>
+     </columns>
+     <data>
++      <row>
++        <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">5 minutes</col>
++        <col id="1">300</col>
++      </row>
++      <row>
++        <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">10 minutes</col>
++        <col id="1">600</col>
++      </row>
+       <row>
+         <col id="0" translatable="yes" context="automatic_suspend" comments="Translators: Option for &quot;Delay&quot; in &quot;Automatic suspend&quot; dialog.">15 minutes</col>
+         <col id="1">900</col>

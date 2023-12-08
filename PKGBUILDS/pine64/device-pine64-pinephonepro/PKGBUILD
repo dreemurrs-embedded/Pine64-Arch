@@ -1,0 +1,49 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=device-pine64-pinephonepro
+pkgver=0.4
+pkgrel=3
+pkgdesc="PinePhone Pro device package"
+arch=(aarch64)
+url="https://github.com/dreemurrs-embedded/Pine64-Arch"
+license=('MIT')
+depends=(danctnix-tweaks linux-megi brcm-firmware alsa-ucm-pinephonepro eg25-manager uboot-tools)
+install="$pkgname.install"
+backup=("boot/boot.txt")
+source=(boot.txt
+        mkscr
+        10-proximity.rules
+        12_mobile-pinephone.gschema.override
+        pinephone-suspend-hook.sh
+        machine-info
+        pulseaudio-pinetweaks.conf)
+
+package() {
+    # Install boot script and mkscr, we've moved on to Tow-Boot.
+    mkdir -p "${pkgdir}/boot"
+    cp boot.txt mkscr "${pkgdir}/boot/"
+
+    # Kanged from Mobian, this is to make iio-sensor-proxy works with
+    # proximity sensor.
+    install -Dm644 "$srcdir"/10-proximity.rules \
+        "$pkgdir"/usr/lib/udev/rules.d/10-proximity.rules
+
+    # Custom settings for PinePhone Pro
+    install -Dm644 -t "$pkgdir/usr/share/glib-2.0/schemas" "$srcdir/12_mobile-pinephone.gschema.override"
+
+    # Some workaround for suspend
+    install -Dm755 "$srcdir"/pinephone-suspend-hook.sh \
+        "$pkgdir"/usr/lib/systemd/system-sleep/pinephone-suspend-hook.sh
+
+    install -Dm644 "$srcdir"/machine-info "$pkgdir"/etc/machine-info
+
+    install -Dm644 "$srcdir"/pulseaudio-pinetweaks.conf \
+        "$pkgdir"/etc/pulse/daemon.conf.d/pinetweaks.conf
+}
+
+md5sums=('b0959c5029dba51e734c645b2294e284'
+         '021623a04afd29ac3f368977140cfbfd'
+         'b72ff096c022588f72c226283ac328bd'
+         '64752ddac7886945f8c5ad0d9cb09749'
+         'b0912b95d7d810a0f161d9bd79fc162b'
+         'a3414404885e67eadef3c22ef83034df'
+         '1504e684e5a2aec439e0674cdfc9d3c1')

@@ -31,9 +31,10 @@ Architecture = aarch64
 # Misc options
 #UseSyslog
 #Color
-#TotalDownload
+#NoProgressBar
 CheckSpace
 #VerbosePkgLists
+#ParallelDownloads = 5
 
 # By default, pacman accepts packages signed by keys that its local keyring
 # trusts (see pacman-key and its man page), as well as unsigned packages.
@@ -68,25 +69,25 @@ LocalFileSigLevel = Optional
 # repo name header and Include lines. You can add preferred servers immediately
 # after the header, and they will be used before the default mirrors.
 
+# DANCTNIX: Uncomment this if you want to be the first trying out new stuffs.
+# They might break your device.
+#[danctnix-testing]
+#Server = https://p64.arikawa-hi.me/aarch64/danctnix-testing/
+
+[danctnix]
+Server = https://p64.arikawa-hi.me/aarch64/danctnix/
+
 [core]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
-SigLevel = Never
+Server = http://mirror.archlinuxarm.org/aarch64/core/
 
 [extra]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
-SigLevel = Never
-
-[community]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
-SigLevel = Never
+Server = http://mirror.archlinuxarm.org/aarch64/extra/
 
 [alarm]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
-SigLevel = Never
+Server = http://mirror.archlinuxarm.org/aarch64/alarm/
 
 [aur]
-Server = http://sg.mirror.archlinuxarm.org/aarch64/$repo
-SigLevel = Never
+Server = http://mirror.archlinuxarm.org/aarch64/aur/
 
 # An example of a custom package repository.  See the pacman manpage for
 # tips on creating your own repositories.

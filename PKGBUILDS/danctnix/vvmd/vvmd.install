@@ -1,0 +1,7 @@
+post_install() {
+  systemctl --global enable vvmd.service
+}
+
+pre_remove() {
+  systemctl --global disable vvmd.service
+}

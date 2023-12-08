@@ -1,37 +1,27 @@
 # Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Robert Cegliński <rob.ceglinski@gmail.com>
+# Contributor: Christopher Snowhill <chris@kode54.net>
 # Contributor: Denis Zheleztsov <difrex.punk@gmail.com>
+
 pkgname=wlr-randr
-pkgver=r15.f5fba61
+pkgver=0.3.0
 pkgrel=1
-pkgdesc="Utility to manage outputs of a Wayland compositor. You need a support wlr-output-management-unstable-v1 in the compositor."
+pkgdesc="Utility to manage outputs of a Wayland compositor"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://github.com/emersion/wlr-randr"
+url="https://sr.ht/~emersion/wlr-randr/"
 license=('MIT')
-depends=('wayland')
-makedepends=('meson' 'ninja' 'git')
-source=("git+https://github.com/emersion/wlr-randr.git")
-md5sums=('SKIP')
-
-pkgver() {
-	cd "$pkgname"
-	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-}
-
-prepare() {
-  cd "$pkgname"
-  meson --prefix /usr "$srcdir/build"
-}
+depends=("wayland")
+makedepends=("meson")
+source=("https://git.sr.ht/~emersion/wlr-randr/refs/download/v$pkgver/wlr-randr-$pkgver.tar.gz")
+sha512sums=('c82c750d953eacfe709c733a729b2c5811cee03986b1517fe32777713e28fe440985fd7bf0565423c126555f844e34c72cd8ac2db8dbd2abe45ccf8f6a40e59a')
+validpgpkeys=('34FF9526CFEF0E97A340E2E40FDE7BE0E88F5E48')
 
 build() {
-  cd "$srcdir/$pkgname"
-
-  ninja -C "$srcdir/build"
+  arch-meson $pkgname-$pkgver build
+  meson compile -C build
 }
 
 package() {
-  cd "$srcdir/$pkgname"
-
-  DESTDIR="$pkgdir" ninja -C "$srcdir/build" install
+  meson install -C build --destdir "$pkgdir"
+  install -Dm644 $pkgname-$pkgver/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
-
-# vim:set ts=2 sw=2 et:

@@ -4,45 +4,16 @@ Subject: Add GtkHdyNavigationDirection
 
 This is imported from HdyNavigationDirection from libhandy 1.0.0.
 ---
- gtk/Makefile.am                        |  3 +++
  gtk/gtkprivate.h                       |  1 +
  gtk/hdy-navigation-direction-private.h | 22 ++++++++++++++++++++++
  gtk/hdy-navigation-direction.c         | 26 ++++++++++++++++++++++++++
  gtk/meson.build                        |  2 ++
- 5 files changed, 54 insertions(+)
+ 4 files changed, 51 insertions(+)
  create mode 100644 gtk/hdy-navigation-direction-private.h
  create mode 100644 gtk/hdy-navigation-direction.c
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index ff8a255..2d0a384 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -364,6 +364,7 @@ gtk_semi_private_h_sources = \
- gtk_private_type_h_sources =	\
- 	gtkcsstypesprivate.h	\
- 	gtktexthandleprivate.h	\
-+	hdy-navigation-direction-private.h \
- 	hdy-squeezer-private.h	\
- 	hdy-view-switcher-private.h
- 
-@@ -606,6 +607,7 @@ gtk_private_h_sources =		\
- 	hdy-animation-private.h	\
- 	hdy-cairo-private.h	\
- 	hdy-css-private.h	\
-+	hdy-navigation-direction-private.h	\
- 	hdy-shadow-helper-private.h	\
- 	hdy-squeezer-private.h	\
- 	hdy-view-switcher-bar-private.h	\
-@@ -989,6 +991,7 @@ gtk_base_c_sources = 		\
- 	gdkpixbufutils.c	\
- 	hdy-animation.c	\
- 	hdy-css.c	\
-+	hdy-navigation-direction.c	\
- 	hdy-squeezer.c	\
- 	hdy-shadow-helper.c	\
- 	hdy-view-switcher.c	\
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
-index 9b5f8bb..8322900 100644
+index 68f0f8d..8c6eded 100644
 --- a/gtk/gtkprivate.h
 +++ b/gtk/gtkprivate.h
 @@ -30,6 +30,7 @@
@@ -114,7 +85,7 @@ index 0000000..35b9ab4
 + * Since: 1.0
 + */
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 580be08..c951dcc 100644
+index ae3dc94..7407f5b 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -385,6 +385,7 @@ gtk_sources = files(

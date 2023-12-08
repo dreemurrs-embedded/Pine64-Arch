@@ -1,0 +1,40 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=phosh-mobile-settings
+pkgver=0.33.0
+pkgrel=1
+pkgdesc="A settings app for mobile specific things (mostly for Phosh)"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://gitlab.gnome.org/guidog/phosh-mobile-settings"
+license=('GPL')
+depends=(
+    'gtk4'
+    'gsound'
+    'libadwaita'
+    'lm_sensors'
+    'phosh'
+    'wayland'
+)
+makedepends=(
+    'git'
+    'meson'
+    'ninja'
+    'wayland-protocols'
+)
+_commit="53badcd697f1f208a470966a21c52113ba61810e"  # tags/v0.33.0
+source=("phosh-mobile-settings::git+https://gitlab.gnome.org/guidog/phosh-mobile-settings.git#commit=${_commit}")
+
+pkgver() {
+    cd phosh-mobile-settings
+    git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+    arch-meson phosh-mobile-settings output --wrap-mode default
+    ninja -C output
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C output install
+}
+
+md5sums=('SKIP')

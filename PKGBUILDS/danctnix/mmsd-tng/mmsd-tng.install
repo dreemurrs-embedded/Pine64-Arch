@@ -1,0 +1,7 @@
+post_install() {
+  systemctl --global enable mmsd-tng.service
+}
+
+pre_remove() {
+  systemctl --global disable mmsd-tng.service
+}

@@ -1,0 +1,179 @@
+#!/bin/sh
+# Script is based on:
+# https://gitlab.com/postmarketOS/pmaports/-/blob/master/temp/u-boot-pinephone/update-u-boot
+
+board=
+device=
+dryrun=
+default_freq=528
+freq=
+skip_delay=
+
+get_boot_blockdev() {
+	# Find the blockdevice where /boot is mounted from
+	mount | sed -n -E 's:.*(/dev/mmcblk[0-9])p[0-9] on /boot .*:\1:p'
+}
+
+get_defaults() {
+	if [ -z "$board" -a -e /sys/firmware/devicetree/base/compatible ]; then
+		case "$(cat /sys/firmware/devicetree/base/compatible | tr -d '\000' 2>/dev/null)" in
+		pine64,pinephone*) board=pinephone ;;
+		pine64,pinetab*) board=pinetab ;;
+		esac
+	fi
+
+	if [ -z "$device" ]; then
+		case "$board" in
+		pinephone|pinetab) device=$(get_boot_blockdev) ;;
+		esac
+	fi
+
+	if [ -z "$freq" -a -e /proc/device-tree/memory/ram_freq ]; then
+		proc_freq=$(tr -d '\0' </proc/device-tree/memory/ram_freq 2>/dev/null)
+		if [ -n "$proc_freq" ]; then
+			echo "Detected clock: $proc_freq MHz"
+			default_freq="$proc_freq"
+		else
+			echo "WARNING: Failed to read clock from /proc/device-tree/memory/ram_freq"
+			echo "Using default clock: $default_freq MHz"
+		fi
+	elif [ -z "$freq" ]; then
+		echo Using default clock: $default_freq MHz
+	else
+		echo Changing clock: $freq MHz
+	fi
+}
+
+die() {
+	echo "ERROR: $@"
+	exit 1
+}
+
+usage() {
+	get_defaults
+
+	cat <<EOF
+usage: $0 [-n,--dry-run] [-b|--board <board-type>] [-d|--device <device>] [-r|--ram-freq <freq>] [-s|--skip-delay]
+
+options:
+
+ -b,--board <board>       Specify the board type: pinephone, pinetab
+                          (current default: ${board:-none})
+
+ -d,--device <device>     Specify the device where to install u-boot
+                          (current default: ${device:-none})
+
+ -n,--dry-run             Print commands but don't execute them
+
+ -r,--ram-freq            RAM clock speed, one of:
+                          * 492
+                          * 528 (recommended, this is the default speed)
+                          * 552
+                          * 624
+
+ -s,--skip-delay          Skip delay and flash the image immediately 
+
+EOF
+}
+
+[ "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ] && die "Chroot detected, exiting."
+
+while [ $# -gt 0 ]; do
+	opt="$1"
+	shift
+	case "$opt" in
+	-b|--board)
+		case "$1" in
+		pinephone) board="pinephone" ;;
+		pinetab) board="pinetab" ;;
+		*) usage; exit 1;;
+		esac
+		shift
+		;;
+	-d|--device)
+		device="$1"
+		shift
+		;;
+	-n|--dry-run)
+		dryrun="echo"
+		;;
+	-r|--ram-freq)
+		case "$1" in
+		492) freq="492" ;;
+		528) freq="528" ;;
+		552) freq="552" ;;
+		624) freq="624" ;;
+		*) usage; exit 1;;
+		esac
+		shift
+		;;
+	-s|--skip-delay)
+		skip_delay="yes"
+		;;
+        --)
+                break
+                ;;
+        -*)
+                usage
+                exit 1
+                ;;
+        esac
+done
+
+get_defaults
+if [ -z "$board" -o -z "$device" ]; then
+	usage
+	exit 1
+fi
+
+if [ -z "$dryrun" ]; then
+	if [ ! -z "$freq" ]; then
+		echo "/!\ Disclaimer warning:"
+		echo "Overclocking your device may render it unstable or prevent it to boot"
+		echo "If you're unable to boot your device you'll have to reflash the bootloader"
+		echo "using the command:"
+		echo
+		echo "For MBR systems:"
+		echo "# dd if=u-boot-sunxi-with-spl-$board-DRAMSPEED.bin of=/dev/DISKDEVICE bs=8k seek=1"
+		echo
+		echo "For GPT systems:"
+		echo "# dd if=u-boot-sunxi-with-spl-$board-DRAMSPEED.bin of=/dev/DISKDEVICE bs=128k seek=1"
+		echo
+		echo "The mentioned bootloader can be found under /boot partition."
+		echo
+		read -p "Continue? (y/n) [n]: " -n 1 -r
+		echo 
+		case "$REPLY" in
+			y|Y) ;;
+			*) exit 1 ;;
+		esac
+	fi
+	if [ -z "$skip_delay" ]; then
+		echo "Updating $board u-boot in $device in 3 seconds..."
+		sleep 3
+	else
+		echo "Updating $board u-boot in $device"
+	fi
+fi
+
+if [ -z "$freq" ]; then
+	freq=$default_freq
+fi
+
+(
+set -e
+case "$board" in
+pinephone|pinetab)
+	[ -f /boot/u-boot-sunxi-with-spl-$board-$freq.bin ] || die "The bootloader image cannot be found."
+	part_type=$(blkid -o value -s PTTYPE $device)
+	case $part_type in
+		gpt) $dryrun dd if=/boot/u-boot-sunxi-with-spl-$board-$freq.bin of=$device bs=128k seek=1 ;;
+		dos) $dryrun dd if=/boot/u-boot-sunxi-with-spl-$board-$freq.bin of=$device bs=8k seek=1 ;;
+		*)   echo "Unsupported partition type ${part_type}." && return 1 ;;
+	esac
+	;;
+esac
+$dryrun sync
+) || die "U-Boot installation in $device failed"
+
+[ -z "$dryrun" ] && echo "Completed successfully."

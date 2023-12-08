@@ -1,0 +1,32 @@
+# Maintainer: Aren <aren@peacevolution.org>
+# Contributor: dni <office@dnilabs.com>
+
+pkgname=sxmo-dwm
+pkgver=6.3.0
+pkgrel=1
+pkgdesc="Dwm fork for Sxmo UI; supports volume-key hotkeys, swallow, keyboard, among other patches"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://git.sr.ht/~mil/sxmo-dwm"
+license=('MIT')
+depends=('xorg-server' 'freetype2' 'libx11' 'libxinerama' 'libxft' 'pango')
+provides=('dwm')
+source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-dwm/archive/$pkgver.tar.gz")
+sha512sums=('9a2cfdde48101d56b2f0f91b56b9b51e4cee2e0be195b3d93155950df312ffe3fa79c74a77a3cecf3456ba3b56373230b56aa54b9841791f466af306b181c869')
+
+prepare() {
+  sed -i -e '/CFLAGS/{s/-Os//;s/=/+=/}' \
+    -e '/LDFLAGS/{s/=/+=/}' "$pkgname-$pkgver/config.mk"
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  make \
+    X11INC=/usr/include/X11 X11LIB=/usr/lib/X11 \
+    FREETYPEINC=/usr/include/freetype2 \
+    NOBONSAIFLAGS=-DNOBONSAI
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make PREFIX=/usr DESTDIR="$pkgdir" install
+}

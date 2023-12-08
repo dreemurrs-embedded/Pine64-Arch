@@ -46,6 +46,12 @@ setup_usb_network_configfs() {
 	# Create rndis function. The function can be named differently in downstream kernels.
 	mkdir $CONFIGFS/g1/functions/"$usb_rndis_function" \
 		|| echo "  Couldn't create $CONFIGFS/g1/functions/$usb_rndis_function"
+	# https://github.com/RobertCNelson/boot-scripts/commit/714e162ba98cf3d2897e7fc95e951c6df15a7d0a
+	if [ -f $CONFIGFS/g1/functions/"$usb_rndis_function"/class ]; then
+		echo EF > $CONFIGFS/g1/functions/"$usb_rndis_function"/class
+		echo 04 > $CONFIGFS/g1/functions/"$usb_rndis_function"/subclass
+		echo 01 > $CONFIGFS/g1/functions/"$usb_rndis_function"/protocol
+	fi || echo "$CONFIGFS/g1/functions/$usb_rndis_function/class not found"
 
 	# Create configuration instance for the gadget
 	mkdir $CONFIGFS/g1/configs/c.1 \

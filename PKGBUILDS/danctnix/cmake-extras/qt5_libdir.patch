@@ -1,0 +1,31 @@
+diff --git a/src/QmlPlugins/QmlPluginsConfig.cmake b/src/QmlPlugins/QmlPluginsConfig.cmake
+index 63143b0..5e60146 100644
+--- a/src/QmlPlugins/QmlPluginsConfig.cmake
++++ b/src/QmlPlugins/QmlPluginsConfig.cmake
+@@ -2,7 +2,7 @@
+ # target before loading this plugin.
+ 
+ if(NOT TARGET qmlplugindump)
+-    find_program(qmlplugindump_exe qmlplugindump HINTS /usr/lib/qt5/bin/)
++    find_program(qmlplugindump_exe qmlplugindump HINTS /usr/lib/qt/bin/)
+ 
+     if(NOT qmlplugindump_exe)
+       message(FATAL_ERROR "Could not locate qmlplugindump.")
+@@ -43,7 +43,7 @@ function(export_qmlfiles PLUGIN PATH)
+     cmake_parse_arguments(QMLFILES "${options}" "${single}" "" ${ARGN})
+ 
+     if(NOT QMLFILES_DESTINATION)
+-        set(QMLFILES_DESTINATION "${CMAKE_INSTALL_LIBDIR}/qt5/qml")
++        set(QMLFILES_DESTINATION "${CMAKE_INSTALL_LIBDIR}/qt/qml")
+     endif()
+ 
+     if(NOT QMLFILES_SEARCH_PATH)
+@@ -115,7 +115,7 @@ function(export_qmlplugin PLUGIN VERSION PATH)
+     cmake_parse_arguments(QMLPLUGIN "${options}" "${single}" "${multi}" ${ARGN})
+ 
+     if(NOT QMLPLUGIN_DESTINATION)
+-        set(QMLPLUGIN_DESTINATION "${CMAKE_INSTALL_LIBDIR}/qt5/qml")
++        set(QMLPLUGIN_DESTINATION "${CMAKE_INSTALL_LIBDIR}/qt/qml")
+     endif()
+ 
+     if(QMLPLUGIN_BINARY_DIR)

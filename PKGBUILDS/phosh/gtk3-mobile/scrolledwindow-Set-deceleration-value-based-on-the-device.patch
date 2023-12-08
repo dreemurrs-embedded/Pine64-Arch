@@ -10,7 +10,7 @@ for the same reasons.
  1 file changed, 15 insertions(+), 10 deletions(-)
 
 diff --git a/gtk/gtkscrolledwindow.c b/gtk/gtkscrolledwindow.c
-index 0f4193b..782b960 100644
+index a931d2b..e173e57 100644
 --- a/gtk/gtkscrolledwindow.c
 +++ b/gtk/gtkscrolledwindow.c
 @@ -177,6 +177,7 @@
@@ -59,7 +59,7 @@ index 0f4193b..782b960 100644
  }
  
  static void
-@@ -3472,7 +3475,7 @@ start_scroll_deceleration_cb (gpointer user_data)
+@@ -3490,7 +3493,7 @@ start_scroll_deceleration_cb (gpointer user_data)
    if (!priv->deceleration_id)
      {
        uninstall_scroll_cursor (scrolled_window);
@@ -68,7 +68,7 @@ index 0f4193b..782b960 100644
      }
  
    return FALSE;
-@@ -3620,7 +3623,7 @@ gtk_scrolled_window_scroll_event (GtkWidget      *widget,
+@@ -3638,7 +3641,7 @@ gtk_scrolled_window_scroll_event (GtkWidget      *widget,
  
        if (start_deceleration &&
            scroll_history_finish (scrolled_window, &vel_x, &vel_y))
@@ -77,7 +77,7 @@ index 0f4193b..782b960 100644
        else if (_gtk_scrolled_window_get_overshoot (scrolled_window, NULL, NULL))
          {
            priv->scroll_events_overshoot_id =
-@@ -3771,12 +3774,14 @@ gtk_scrolled_window_accumulate_velocity (GtkKineticScrolling **scrolling, double
+@@ -3790,12 +3793,14 @@ gtk_scrolled_window_accumulate_velocity (GtkKineticScrolling **scrolling, double
  }
  
  static void
@@ -93,7 +93,7 @@ index 0f4193b..782b960 100644
  
    g_return_if_fail (priv->deceleration_id == 0);
  
-@@ -3801,7 +3806,7 @@ gtk_scrolled_window_start_deceleration (GtkScrolledWindow *scrolled_window)
+@@ -3820,7 +3825,7 @@ gtk_scrolled_window_start_deceleration (GtkScrolledWindow *scrolled_window)
          gtk_kinetic_scrolling_new (lower,
                                     upper,
                                     MAX_OVERSHOOT_DISTANCE,
@@ -102,7 +102,7 @@ index 0f4193b..782b960 100644
                                     OVERSHOOT_FRICTION,
                                     priv->unclamped_hadj_value,
                                     priv->x_velocity);
-@@ -3824,7 +3829,7 @@ gtk_scrolled_window_start_deceleration (GtkScrolledWindow *scrolled_window)
+@@ -3843,7 +3848,7 @@ gtk_scrolled_window_start_deceleration (GtkScrolledWindow *scrolled_window)
          gtk_kinetic_scrolling_new (lower,
                                     upper,
                                     MAX_OVERSHOOT_DISTANCE,
@@ -111,7 +111,7 @@ index 0f4193b..782b960 100644
                                     OVERSHOOT_FRICTION,
                                     priv->unclamped_vadj_value,
                                     priv->y_velocity);
-@@ -4608,7 +4613,7 @@ gtk_scrolled_window_grab_notify (GtkWidget *widget,
+@@ -4666,7 +4671,7 @@ gtk_scrolled_window_grab_notify (GtkWidget *widget,
                                       priv->drag_device))
      {
        if (_gtk_scrolled_window_get_overshoot (scrolled_window, NULL, NULL))

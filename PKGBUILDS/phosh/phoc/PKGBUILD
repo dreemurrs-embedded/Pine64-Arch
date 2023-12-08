@@ -1,40 +1,64 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.7.0
+pkgver=0.33.0
 pkgrel=1
-pkgdesc="A compositor for phones based on wlroots"
+pkgdesc="wlroots based Wayland compositor for mobile phones"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://source.puri.sm/Librem5/phoc"
+url="https://gitlab.gnome.org/World/Phosh/phoc"
 license=('GPL')
-depends=('gobject-introspection' 'gnome-desktop' 'libinput' 'mutter'
-         'xcb-util-errors' 'xcb-util-wm')
-makedepends=('meson' 'ninja')
+depends=(
+  'gobject-introspection'
+  'gnome-desktop'
+  'libglvnd'
+  'libinput'
+  'libxcb'
+  'mutter'
+  'seatd'
+  'xcb-util-errors'
+  'xcb-util-renderutil'
+  'xcb-util-wm'
+  'wayland-protocols'
+)
+makedepends=(
+  'git'
+  'glslang'
+  'meson'
+  'ninja'
+  'vulkan-headers'
+)
+checkdepends=('xorg-server-xvfb')
+_commit="2701b187218f70858c596fded81fbe9ba63a86c1"  # tags/0.33.0
+source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}")
 
-# We don't want to maintain the wlroots package, so we static compile it
-_commit_wlr="3d227f140e3c4af42d759477fc38e82a4c3dc4ef"
-source=(https://source.puri.sm/Librem5/phoc/-/archive/v$pkgver/phoc-v$pkgver.tar.gz
-        https://source.puri.sm/Librem5/wlroots/-/archive/$_commit_wlr/wlroots-$_commit_wlr.tar.gz)
-
-prepare() {
-	rm -r ${pkgname}-v${pkgver}/subprojects/wlroots
-	mv wlroots-$_commit_wlr ${pkgname}-v${pkgver}/subprojects/wlroots
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^v//;s/-/+/g'
 }
 
 build() {
-	arch-meson ${pkgname}-v${pkgver} output -Dtests=false
-	ninja -C output
+  local meson_options=(
+    --wrap-mode default
+    -D embed-wlroots=enabled
+    --default-library=static
+  )
+
+  arch-meson $pkgname build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  WLR_RENDERER=pixman xvfb-run ninja -C build test
 }
 
 package() {
-	DESTDIR="$pkgdir" ninja -C output install
+  DESTDIR="$pkgdir" ninja install -C build
 
-	# Install scale-to-fit helper
-	install -Dm755 ${pkgname}-v${pkgver}/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
+  # Install scale-to-fit helper
+  install -Dm755 "$pkgname"/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
 
-	# Remove unnecessary files
-	rm -r "$pkgdir"/usr/lib
-	rm -r "$pkgdir"/usr/include
+  # Remove unnecessary files
+  rm -r "$pkgdir"/usr/lib
+  rm -r "$pkgdir"/usr/include
 }
 
-md5sums=('9339ce69a2d30066569a0ba4a208c5d8'
-         '494decd05f32711ef544454d30f3cd4d')
+sha256sums=('SKIP')

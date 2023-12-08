@@ -1,0 +1,43 @@
+# Maintainer: Aren <aren@peacevolution.org>
+# Contributor: Anjandev Momi <anjan@momi.ca>
+
+pkgname=codemadness-frontends
+pkgver=0.6
+pkgrel=1
+pkgdesc="Experimental (cli, web, and gopher) frontends for youtube, reddit, & duckduckgo"
+url="https://www.codemadness.org/idiotbox.html"
+arch=('x86_64' 'armv7h' 'aarch64')
+license=('ISC')
+depends=('libressl')
+source=(https://codemadness.org/releases/frontends/frontends-$pkgver.tar.gz)
+
+prepare() {
+  cd frontends-$pkgver
+  sed -i 's/^#FRONTENDS_/FRONTENDS_/g' Makefile
+  sed -i 's/^#LIBTLS_/LIBTLS_/g' Makefile
+}
+
+build() {
+  # TODO: this is ugly, there must be a better way
+  export PKG_CONFIG_PATH="/usr/lib/libressl/pkgconfig"
+
+  cd frontends-$pkgver
+  make \
+    LIBTLS_LDFLAGS="-Wl,-rpath /usr/lib/libressl $(pkg-config --libs libtls)" \
+    LIBTLS_LDFLAGS_STATIC="$(pkg-config --libs --static libtls)" \
+    CFLAGS="$CFLAGS $(pkg-config --cflags libtls)"
+}
+
+package() {
+  cd frontends-$pkgver
+  install -Dm755 youtube/cgi $pkgdir/usr/bin/youtube-cgi
+  install -Dm755 youtube/gopher $pkgdir/usr/bin/youtube-gopher
+  install -Dm755 youtube/cli $pkgdir/usr/bin/youtube-cli
+
+  install -Dm755 duckduckgo/gopher $pkgdir/usr/bin/duckduckgo-gopher
+  install -Dm755 duckduckgo/cli $pkgdir/usr/bin/duckduckgo-cli
+
+  install -Dm755 reddit/gopher $pkgdir/usr/bin/reddit-gopher
+  install -Dm755 reddit/cli $pkgdir/usr/bin/reddit-cli
+}
+sha256sums=('d0fea32daae0ddba8164af9a10fbefc1e55de88e52b2f46a142231d08c676715')

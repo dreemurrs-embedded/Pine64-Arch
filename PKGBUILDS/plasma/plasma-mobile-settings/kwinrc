@@ -1,23 +1,6 @@
-[Plugins]
-org.kde.phone.multitaskingEnabled=false
-kwin4_effect_eyeonscreenEnabled=false
-kwin4_effect_windowapertureEnabled=false
-blurEnabled=false
-contrastEnabled=false
-
-[Windows]
-Placement=Maximizing
-
-[TabBox]
-TouchBorderActivate=9
-TouchBorderAlternativeActivate=9
-
 [org.kde.kdecoration2]
 NoPlugin=true
 
-[TouchEdges]
-Left=None
-Right=None
-
-[HWComposerOutputs][0]
-Scale=3
+[Wayland]
+InputMethod[$e]=/usr/share/applications/com.github.maliit.keyboard.desktop
+VirtualKeyboardEnabled=true

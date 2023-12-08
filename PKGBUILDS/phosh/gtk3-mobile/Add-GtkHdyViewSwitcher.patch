@@ -4,54 +4,20 @@ Subject: Add GtkHdyViewSwitcher
 
 This is imported from HdyViewSwitcher from libhandy 1.0.1.
 ---
- gtk/Makefile.am                 |   7 +-
  gtk/gtkprivate.h                |   1 +
  gtk/hdy-css-private.h           |  25 ++
  gtk/hdy-css.c                   |  74 ++++
  gtk/hdy-view-switcher-private.h |  43 +++
  gtk/hdy-view-switcher.c         | 733 ++++++++++++++++++++++++++++++++++++++++
  gtk/meson.build                 |   4 +
- 7 files changed, 886 insertions(+), 1 deletion(-)
+ 6 files changed, 880 insertions(+)
  create mode 100644 gtk/hdy-css-private.h
  create mode 100644 gtk/hdy-css.c
  create mode 100644 gtk/hdy-view-switcher-private.h
  create mode 100644 gtk/hdy-view-switcher.c
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index a0717b9..1e7f108 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -363,7 +363,8 @@ gtk_semi_private_h_sources = \
- 
- gtk_private_type_h_sources =	\
- 	gtkcsstypesprivate.h	\
--	gtktexthandleprivate.h
-+	gtktexthandleprivate.h	\
-+	hdy-view-switcher-private.h
- 
- 
- # GTK+ header files that don't get installed
-@@ -601,7 +602,9 @@ gtk_private_h_sources =		\
- 	gtkwindowprivate.h	\
- 	gtktreemenu.h		\
- 	gdkpixbufutilsprivate.h \
-+	hdy-css-private.h	\
- 	hdy-view-switcher-button-private.h	\
-+	hdy-view-switcher-private.h	\
- 	open-type-layout.h	\
- 	language-names.h	\
- 	script-names.h
-@@ -977,6 +980,8 @@ gtk_base_c_sources = 		\
- 	gtkwin32draw.c		\
- 	gtkwin32theme.c		\
- 	gdkpixbufutils.c	\
-+	hdy-css.c	\
-+	hdy-view-switcher.c	\
- 	hdy-view-switcher-button.c	\
- 	language-names.c	\
- 	script-names.c
 diff --git a/gtk/gtkprivate.h b/gtk/gtkprivate.h
-index 80a18a1..b470e62 100644
+index dcab28d..473bb99 100644
 --- a/gtk/gtkprivate.h
 +++ b/gtk/gtkprivate.h
 @@ -30,6 +30,7 @@
@@ -962,7 +928,7 @@ index 0000000..2664b3e
 +  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_STACK]);
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index 71c85dc..0e7e7f2 100644
+index 38b810c..1054e29 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -383,7 +383,9 @@ gtk_sources = files(

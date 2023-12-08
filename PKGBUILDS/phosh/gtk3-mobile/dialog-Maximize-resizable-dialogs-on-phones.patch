@@ -8,10 +8,10 @@ This will make them look better on phone screens.
  1 file changed, 3 insertions(+)
 
 diff --git a/gtk/gtkdialog.c b/gtk/gtkdialog.c
-index 1905b48..e6cd4e0 100644
+index 0e58ac4..84e1413 100644
 --- a/gtk/gtkdialog.c
 +++ b/gtk/gtkdialog.c
-@@ -778,6 +778,9 @@ gtk_dialog_map (GtkWidget *widget)
+@@ -779,6 +779,9 @@ gtk_dialog_map (GtkWidget *widget)
  
    GTK_WIDGET_CLASS (gtk_dialog_parent_class)->map (widget);
  

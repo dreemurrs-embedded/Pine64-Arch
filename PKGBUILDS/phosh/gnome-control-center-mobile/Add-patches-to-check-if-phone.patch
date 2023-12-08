@@ -1,0 +1,37 @@
+From: Mohammed Sadiq <sadiq@sadiqpk.org>
+Date: Tue, 2 Mar 2021 16:45:32 +0530
+Subject: [PATCH 1/8] Add patches to check if phone
+
+---
+ panels/common/pureos.h | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+ create mode 100644 panels/common/pureos.h
+
+diff --git a/panels/common/pureos.h b/panels/common/pureos.h
+new file mode 100644
+index 0000000..2e31d7e
+--- /dev/null
++++ b/panels/common/pureos.h
+@@ -0,0 +1,22 @@
++#include <gtk/gtk.h>
++
++static inline gboolean
++pureos_get_is_phone (void)
++{
++  GSettingsSchema *schema;
++  GSettings *gsettings;
++  gboolean is_phone;
++
++  schema = g_settings_schema_source_lookup (g_settings_schema_source_get_default (),
++                                            "org.gtk.Settings.Purism", TRUE);
++
++  if (!schema)
++    return FALSE;
++
++  gsettings = g_settings_new_full (schema, NULL, NULL);
++  is_phone = g_settings_get_boolean (gsettings, "is-phone");
++  g_object_unref (gsettings);
++  g_settings_schema_unref (schema);
++
++  return is_phone;
++}

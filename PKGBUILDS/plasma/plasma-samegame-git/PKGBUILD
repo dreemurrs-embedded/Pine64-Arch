@@ -2,7 +2,7 @@
 # Contributor: dodgejcr@gmail.com
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 pkgname=plasma-samegame-git
-pkgver=r11.9ccb7dc
+pkgver=r13.b386420
 pkgrel=1
 pkgdesc="Samegame clone suitable for mobile devices"
 arch=('any')

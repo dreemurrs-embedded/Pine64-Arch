@@ -1,0 +1,9 @@
+post_install() {
+    # Let's unmask suspend and let people try it out, let me know if you
+    # have any issues! (@danct12 on #pinetab)
+    systemctl unmask suspend.target
+}
+
+post_upgrade() {
+    post_install
+}

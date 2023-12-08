@@ -1,0 +1,40 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: dodgejcr@gmail.com
+# Contributor: Bhushan Shah <bhush94 at gmail dot com>
+
+pkgname=plasma-mobile
+pkgver=5.27.8
+pkgrel=3
+pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
+arch=('aarch64' 'x86_64')
+url="https://community.kde.org/Plasma/Mobile"
+license=('GPL3')
+depends=(desktop-file-utils
+         libphonenumber
+         kirigami-addons5
+         kpeople5
+         modemmanager-qt5
+         networkmanager-qt5
+         plasma-wayland-session
+         plasma-workspace
+         pipewire-session-manager
+         telepathy-qt)
+makedepends=(baloo5
+             cmake
+             extra-cmake-modules
+             kdoctools5)
+replaces=('plasma-phone-components')
+source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz")
+install=$pkgname.install
+sha512sums=('35c710db141c4d4c94e453002cb282a6572f5f27431920fc98b6a45f3f28a09ad90a3e5117446bd128effa45ba5b11a1d5e9ade22c1322b1711f72e1cacb33c2')
+
+build() {
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

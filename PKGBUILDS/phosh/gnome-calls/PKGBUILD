@@ -1,0 +1,69 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=gnome-calls
+pkgver=45.0
+pkgrel=1
+pkgdesc="Make and receive PSTN phone calls"
+url="https://gitlab.gnome.org/GNOME/calls"
+license=('GPL')
+arch=('x86_64' 'armv7h' 'aarch64')
+depends=(
+  'callaudiod'
+  'evolution-data-server'
+  'feedbackd'
+  'folks'
+  'gobject-introspection'
+  'gom'
+  'gst-plugins-bad'
+  'gst-plugins-good'
+  'gtk3'
+  'libhandy'
+  'libpeas'
+  'modemmanager'
+  'sofia-sip'
+  'wayland-protocols'
+  )
+makedepends=(
+  'git'
+  'meson'
+  'ninja'
+  'python-docutils'
+  'vala'
+  )
+checkdepends=('xorg-server-xvfb')
+replaces=('calls')
+_commit="936d36287324163b958c6ea0c4297c7a607ee18c" # tags/v45.0
+source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd calls
+  git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+  cd calls
+  git submodule--helper update --init
+
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+}
+
+build() {
+  arch-meson calls output
+  ninja -C output
+}
+
+## SIP test hanging
+#check() {
+#  xvfb-run ninja -C output test
+#}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C output install
+}

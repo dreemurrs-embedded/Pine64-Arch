@@ -1,0 +1,8 @@
+pkgname=uboot-pinephonepro
+pkgver=2022.01
+pkgrel=9
+pkgdesc="This is a dummy package. It is no longer needed."
+url="https://danctnix.org"
+license=(NONE)
+arch=(aarch64)
+

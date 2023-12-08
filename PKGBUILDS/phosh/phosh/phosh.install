@@ -1,0 +1,8 @@
+post_install() {
+    gio-querymodules /usr/lib/phosh/plugins
+    gio-querymodules /usr/lib/phosh/plugins/prefs
+}
+
+post_upgrade() {
+    post_install
+}

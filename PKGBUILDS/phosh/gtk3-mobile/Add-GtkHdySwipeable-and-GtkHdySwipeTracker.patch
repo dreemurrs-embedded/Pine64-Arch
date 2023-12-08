@@ -4,49 +4,17 @@ Subject: Add GtkHdySwipeable and GtkHdySwipeTracker
 
 This is imported from HdySwipeable and HdySwipeTracker from libhandy 1.0.2.
 ---
- gtk/Makefile.am                 |    6 +
  gtk/hdy-swipe-tracker-private.h |   52 ++
  gtk/hdy-swipe-tracker.c         | 1246 +++++++++++++++++++++++++++++++++++++++
  gtk/hdy-swipeable-private.h     |   82 +++
  gtk/hdy-swipeable.c             |  274 +++++++++
  gtk/meson.build                 |    4 +
- 6 files changed, 1664 insertions(+)
+ 5 files changed, 1658 insertions(+)
  create mode 100644 gtk/hdy-swipe-tracker-private.h
  create mode 100644 gtk/hdy-swipe-tracker.c
  create mode 100644 gtk/hdy-swipeable-private.h
  create mode 100644 gtk/hdy-swipeable.c
 
-diff --git a/gtk/Makefile.am b/gtk/Makefile.am
-index 2d0a384..09c47c0 100644
---- a/gtk/Makefile.am
-+++ b/gtk/Makefile.am
-@@ -366,6 +366,8 @@ gtk_private_type_h_sources =	\
- 	gtktexthandleprivate.h	\
- 	hdy-navigation-direction-private.h \
- 	hdy-squeezer-private.h	\
-+	hdy-swipeable-private.h \
-+	hdy-swipe-tracker-private.h \
- 	hdy-view-switcher-private.h
- 
- 
-@@ -610,6 +612,8 @@ gtk_private_h_sources =		\
- 	hdy-navigation-direction-private.h	\
- 	hdy-shadow-helper-private.h	\
- 	hdy-squeezer-private.h	\
-+	hdy-swipeable-private.h \
-+	hdy-swipe-tracker-private.h \
- 	hdy-view-switcher-bar-private.h	\
- 	hdy-view-switcher-button-private.h	\
- 	hdy-view-switcher-private.h	\
-@@ -994,6 +998,8 @@ gtk_base_c_sources = 		\
- 	hdy-navigation-direction.c	\
- 	hdy-squeezer.c	\
- 	hdy-shadow-helper.c	\
-+	hdy-swipeable.c		\
-+	hdy-swipe-tracker.c	\
- 	hdy-view-switcher.c	\
- 	hdy-view-switcher-bar.c	\
- 	hdy-view-switcher-button.c	\
 diff --git a/gtk/hdy-swipe-tracker-private.h b/gtk/hdy-swipe-tracker-private.h
 new file mode 100644
 index 0000000..c886734
@@ -1726,7 +1694,7 @@ index 0000000..916abd9
 +  rect->height = gtk_widget_get_allocated_height (GTK_WIDGET (self));
 +}
 diff --git a/gtk/meson.build b/gtk/meson.build
-index c951dcc..c3d5edc 100644
+index 7407f5b..ae63ff0 100644
 --- a/gtk/meson.build
 +++ b/gtk/meson.build
 @@ -388,6 +388,8 @@ gtk_sources = files(

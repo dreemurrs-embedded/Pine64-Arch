@@ -1,0 +1,21 @@
+pkgname=bes2600-firmware
+pkgver=20230704.r0.g48d97e9
+pkgrel=1
+pkgdesc="Firmware files for BES2600"
+makedepends=('git')
+arch=('any')
+license=('custom')
+options=(!strip)
+_commit="48d97e9d99fbd4db9c3109e05f71d583f4fb9b34" # 20230704
+source=(git+https://gitlab.com/pine64-org/bes2600-firmware.git)
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "$pkgname"
+  git describe --long --tags --abbrev=7 | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+package() {
+  mkdir -p ${pkgdir}/usr/lib/
+  cp -r ${pkgname}/firmware ${pkgdir}/usr/lib
+}
