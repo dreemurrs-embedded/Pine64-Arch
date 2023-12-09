@@ -5,7 +5,7 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=6.5.7
+pkgver=6.6.5
 pkgrel=1
 arch=('aarch64')
 url="https://github.com/megous/linux"
@@ -14,7 +14,7 @@ makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'dtc' 'python3'
 options=('!strip')
 
 # Source
-_tag="orange-pi-6.5-20231014-0052"
+_tag="orange-pi-6.6-20231208-1005"
 source=("linux-$_tag.tar.gz::https://codeberg.org/megi/linux/archive/${_tag}.tar.gz"
         'config'
         'linux.preset'
@@ -132,8 +132,8 @@ _package() {
   echo "${_kernver}" |
     install -Dm644 /dev/stdin "${pkgdir}/usr/lib/modules/${_extramodules}/version"
 
-  # remove build and source links
-  rm "${pkgdir}"/usr/lib/modules/${_kernver}/{source,build}
+  # remove build link
+  rm "${pkgdir}"/usr/lib/modules/${_kernver}/build
 
   # now we call depmod...
   depmod -b "${pkgdir}/usr" -F System.map "${_kernver}"
@@ -239,8 +239,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('32b9d6f37e05daa523f2368ceea9fb01'
-         '5f9267c618ff31d7a8f2c1a3a2a63ea2'
+md5sums=('0e12e914d49adb3ed11da5a645a8b2db'
+         '1d3c06a614cb63f7554a3e0b2503db23'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
