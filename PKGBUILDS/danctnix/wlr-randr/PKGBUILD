@@ -4,7 +4,7 @@
 # Contributor: Denis Zheleztsov <difrex.punk@gmail.com>
 
 pkgname=wlr-randr
-pkgver=0.3.0
+pkgver=0.3.1
 pkgrel=1
 pkgdesc="Utility to manage outputs of a Wayland compositor"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -13,7 +13,7 @@ license=('MIT')
 depends=("wayland")
 makedepends=("meson")
 source=("https://git.sr.ht/~emersion/wlr-randr/refs/download/v$pkgver/wlr-randr-$pkgver.tar.gz")
-sha512sums=('c82c750d953eacfe709c733a729b2c5811cee03986b1517fe32777713e28fe440985fd7bf0565423c126555f844e34c72cd8ac2db8dbd2abe45ccf8f6a40e59a')
+sha512sums=('a4e6b007311df169b2cff888afc4585d91b35a21549bfe09182863355045b5308535eb305d88defb120273ff13d9efd55662993b4696de68b9383590ce7ebdd6')
 validpgpkeys=('34FF9526CFEF0E97A340E2E40FDE7BE0E88F5E48')
 
 build() {
