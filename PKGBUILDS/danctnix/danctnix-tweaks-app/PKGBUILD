@@ -1,15 +1,22 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgbase=danctnix-tweaks-app
 pkgname=("$pkgbase" "$pkgbase-phosh" "$pkgbase-sxmo" "$pkgbase-pinephone")
-pkgver=0.12.0
-pkgrel=2
+pkgver=0.12.0+23+ge52235e
+pkgrel=1
 pkgdesc="Tweaks tool for phone UIs"
 url="https://github.com/dreemurrs-embedded/danctnix-tweaks"
 license=('LGPL')
 arch=('any')
-makedepends=('libhandy' 'python' 'python-gobject' 'python-yaml' 'gtk3'
-             'python-setuptools' 'meson' 'git')
-_commit="ec65cee9d89941f4be2afae71d0fe73a8ae60e60" # tags/0.12.0
+makedepends=(
+    'git'
+    'gtk3'
+    'libhandy'
+    'meson'
+    'python-gobject'
+    'python-yaml'
+    'python-setuptools'
+)
+_commit="e52235e1482da1b735933a44684a2dff9e61fdeb" # branch/master
 source=("git+https://github.com/dreemurrs-embedded/danctnix-tweaks.git#commit=$_commit")
 
 pkgver() {
@@ -23,7 +30,12 @@ build() {
 }
 
 package_danctnix-tweaks-app() {
-    depends=('libhandy' 'python' 'python-gobject' 'python-yaml' 'gtk3')
+    depends=(
+        'gtk3'
+        'libhandy'
+        'python-gobject'
+        'python-yaml'
+    )
     install=danctnix-tweaks-app.install
 
     DESTDIR="$pkgdir" meson install -C output
