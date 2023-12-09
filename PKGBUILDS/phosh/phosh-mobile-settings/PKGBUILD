@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh-mobile-settings
-pkgver=0.33.0
+pkgver=0.34.0
 pkgrel=1
 pkgdesc="A settings app for mobile specific things (mostly for Phosh)"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -20,7 +20,7 @@ makedepends=(
     'ninja'
     'wayland-protocols'
 )
-_commit="53badcd697f1f208a470966a21c52113ba61810e"  # tags/v0.33.0
+_commit="266a34a418c635def2e8a7275437979e36748f9a"  # tags/v0.34.0
 source=("phosh-mobile-settings::git+https://gitlab.gnome.org/guidog/phosh-mobile-settings.git#commit=${_commit}")
 
 pkgver() {
