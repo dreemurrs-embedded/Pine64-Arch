@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.34.0
+pkgver=0.34.1
 pkgrel=1
 pkgdesc="A Wayland shell for GNOME on mobile devices."
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -32,7 +32,7 @@ makedepends=(
 )
 checkdepends=('xorg-server-xvfb')
 install="$pkgname.install"
-_commit="6dc3677b923794338d111cc5cecc3c7a6b046f18" # tags/v0.34.0
+_commit="a70e81cf22d124570bc209ee5a4bc8caa4591587" # tags/v0.34.1
 source=("phosh::git+https://gitlab.gnome.org/World/Phosh/phosh.git#commit=${_commit}"
         'pam_phosh'
         'phosh.service')
