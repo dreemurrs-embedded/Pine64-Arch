@@ -1,0 +1,56 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+_pkgname=chatty
+pkgname=purism-chatty
+pkgver=0.8.0
+pkgrel=1
+pkgdesc="SMS/MMS, Matrix and (optionally) XMPP messaging app"
+url="https://gitlab.gnome.org/World/Chatty"
+license=('GPL')
+arch=('x86_64' 'armv7h' 'aarch64')
+depends=(
+    'evolution-data-server'
+    'feedbackd'
+    'gnome-desktop-4'
+    'gtk4'
+    'libadwaita'
+    'libmm-glib'
+    'libolm'
+    'libpurple'
+)
+replaces=('chatty<=0.7.3')
+makedepends=('git' 'itstool' 'meson' 'ninja')
+checkdepends=('xorg-server-xvfb')
+optdepends=(
+    'libpurple-carbons: message carbons support'
+    'libpurple-lurch: OMEMO encryption'
+    'libpurple-xmpp-http-upload: XMPP HTTP File Upload support'
+    'mmsd-tng: MMS support'
+    'purple-telegram: Telegram chat protocol support'
+)
+_commit="b462f22b5333f831e925606de27c4a3cff260dea" # tags/v0.8.0
+source=($_pkgname::git+https://gitlab.gnome.org/World/Chatty.git#commit=${_commit})
+
+pkgver() {
+    cd $_pkgname
+    git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+    cd $_pkgname
+    git submodule update --init
+}
+
+build() {
+    arch-meson $_pkgname output
+    ninja -C output
+}
+
+# FAIL: secure memory pool is not locked while in FIPS mode
+#check() {
+#    xvfb-run ninja -C output test
+#}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C output install
+}
+md5sums=('SKIP')
