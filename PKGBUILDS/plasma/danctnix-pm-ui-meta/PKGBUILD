@@ -21,7 +21,8 @@ depends=(noto-fonts
          plasma-pa
          polkit-kde-agent
          xdg-desktop-portal
-         xdg-desktop-portal-kde)
+         xdg-desktop-portal-kde
+         kirigami-addons)
 optdepends=('maliit-keyboard: OSK for Plasma Mobile'
             'plasma-mobile-sounds: Sound theme for Plasma Mobile')
 
