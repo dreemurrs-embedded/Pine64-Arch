@@ -2,7 +2,7 @@
 # Maintainer: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgname=gnome-settings-daemon
-pkgver=45.0
+pkgver=45.1
 pkgrel=1.1
 pkgdesc="GNOME Settings Daemon"
 url="https://gitlab.gnome.org/GNOME/gnome-settings-daemon"
@@ -24,8 +24,7 @@ depends=(
   librsvg
   libwacom
   nss
-  pulseaudio
-  pulseaudio-alsa
+  pulse-native-provider
   systemd
   upower
 )
@@ -44,7 +43,7 @@ checkdepends=(
 optdepends=('usbguard: USB protection support')
 groups=(gnome)
 backup=(etc/xdg/Xwayland-session.d/00-xrdb)
-_commit=ed2173a812a820d3e7aaa8107e554f9e6068684f  # tags/45.0^0
+_commit=1b887600d457014b1e1c9258699e4df9dedf5749  # tags/45.1^0
 source=(
   "git+https://gitlab.gnome.org/GNOME/gnome-settings-daemon.git#commit=$_commit"
   "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
