@@ -1,8 +1,8 @@
 diff --git i/panels/info-overview/meson.build w/panels/info-overview/meson.build
-index e23094871..e28aecb99 100644
+index af5213bf3..899e77b79 100644
 --- i/panels/info-overview/meson.build
 +++ w/panels/info-overview/meson.build
-@@ -72,7 +72,7 @@ executable(
+@@ -69,7 +69,7 @@ executable(
  
  install_data(
    [ 'gnome-logo-text.svg', 'gnome-logo-text-dark.svg' ],

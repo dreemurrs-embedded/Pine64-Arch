@@ -4,7 +4,7 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=45.0+r41+g454955aad
+pkgver=45.2
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
@@ -37,7 +37,6 @@ depends=(
   libcolord
   libcups
   libepoxy
-  libgnomekbd
   libgoa
   libgtop
   libgudev
@@ -90,7 +89,7 @@ optdepends=(
 )
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=454955aada03e4674751d662ad13d26c80484c6f  # gnome-45
+_commit=cc5da95fecaeb5486435c54917edf9633addc02d  # tags/45.2^0
 source=(
   "git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
   "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
@@ -106,7 +105,7 @@ source=(
 )
 sha256sums=('SKIP'
             'SKIP'
-            '8695bc08c06026b7bfdd43941b4e07bb3ffbaa4e709be0b23ee138d24b6dbc8f'
+            '6f9e9c8607b9a3b7efe5a17a98a9d1db8b7321d0d1b3bca30b45790bd438d91e'
             '062e53654e8662ed53743b4c652b7b41c5c2993a713337626c832d0af3eda015'
             'e51f740175e82d6a399080dfb514b95923dc9b1230b447df2a47c1f7e24ef3e9'
             '09e36b0aa2c40d6b6f5be11fd9617223d5b142ff8b50db6fce0eeebc63007327'
