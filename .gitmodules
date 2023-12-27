@@ -19,3 +19,6 @@
 [submodule "PKGBUILDS/sxmo/pnc"]
 	path = PKGBUILDS/sxmo/pnc
 	url = https://aur.archlinux.org/pnc.git
+[submodule "PKGBUILDS/sxmo/lisgd"]
+	path = PKGBUILDS/sxmo/lisgd
+	url = https://aur.archlinux.org/lisgd.git
