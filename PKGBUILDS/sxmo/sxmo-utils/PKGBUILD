@@ -2,31 +2,26 @@
 # Contributor: dni <office@dnilabs.com>
 
 pkgname=('sxmo-utils' 'sxmo-utils-sway' 'sxmo-utils-dwm')
-pkgver=1.14.1
-pkgrel=2
+pkgver=1.15.2
+pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('AGPL3')
-makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox')
+makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox' 'scdoc')
 install=sxmo-utils.install
+# There have been quite a few bugfixes since the 1.15.1 release, this is about
+# 20 commits ahead of the release so we don't have to carry patches for all of
+# them. There is a 1.15.2 release coming soon that will include these.
 source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
         '0001-avoid-conflicting-with-systemd-services.patch'
-        '0002-Fixup-icons-for-nerd-fonts-3.0.patch'
-        '0003-Manual-fixups-for-nerd-fonts-3.0.patch'
-        '0004-Fix-broken-printf-statements-in-modemtext.patch'
-        '0005-Don-t-kill-tailtextlog-when-changing-recipients.patch'
-        '0006-Update-fontconfig.conf-for-nerd-fonts-3.0.patch'
+        '0002-Partially-revert-7a77851c.patch'
         '00-sxmo.rules'
         '10-sxmo.conf'
         'sxmo-setpermissions.service')
-sha512sums=('203114348d12b979b73836313e06f1f33b082520eaf907535a1b85a96a1b0900badd4540cb82a02ca88db6f800a5d761d6eca94eb41262005f3423c994137d6e'
-            'fe06c1d53886696c102e3d0a2e6d558404c8a3d4e8124781eaa403a74829febca1931c15d41e094080dc51f2030c25cc0a841f3b089df9426dc2281ace09e72d'
-            'a220ffd626d98c0da3ea16d1ec192379cb2d312c185169ef85025f623bd6ea1c0c1ba46f2bc5df5c6de8a9aa17f67c038f9409f9f312780ca211312d2e4b0a29'
-            'b8c3e584bd837a7d6cb971ea43d9f5ef44a7d5a846e7adc18ab36bb98fec3c46a4f42f1dcc965e7f23830807863f2407cf0493e2f068a05424f9e062868167fb'
-            '398dc7fb1f0889faa5f26fea3f9c6f926751369b4b019162b8ba40db4938a3143951233bbb0a5de11ae6b9f5ba3431db6c0828046a66877ed34da4e4dc71c44e'
-            'b333b51b92544fdf8ec715829424a6b9bbba1072725c693f0b97cab978871f6cdd1e58bb561e7116d959e5e38be3ed86e26504ce4abd14f5ecc34bf7f1b52186'
-            '13e9ad46ef0c0feb6d1999a7096b95a404eb9e3726ac921cec1d704415ea7ebff4d2dc8b85997bc96c84c0359832f6fc1de280e7803e0dce7e2bbbc05406fd6c'
+sha512sums=('ee68b67a0d136a7a70b896d9ad4217d23f54022faca59c9ac241f1948c6a203453595569278e5909fa631e3855fcf0560efa7012ad9d201f1819fd65bd7b0500'
+            '2a11f00fa5f508a0a5af3fb28730317de1cc99bb340ef724e5566aaa9bccec44563da3094028e8f447db63500bbedf46c25c1db250abf771f2e3549038e59224'
+            'd327fcc2abdc25889f650d7c47a6b9cc67e85539954b45d4097ff9bffb75133244ea8b0d96339f9c3280a544395dcc9b96d59c6a9a117b7f685afe5123d377eb'
             'd705fc9611716a73c89da94bf3abc9292e9069bc994b0bd097159f4babd83d4693d5cc3e42336739ac46a8c6b4a0f39d077047202901dc5066df75e597450fa7'
             'b69a09f98f8a5cad8164cd48c5f6a78f2ce0e9818fb77ccf2a3e243cd0f2023e438022b20aad9e6b5edd90e1bb862326db79dc423630682d4c43e897090d3da1'
             '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd')
@@ -35,11 +30,7 @@ prepare() {
   cd "$pkgname-$pkgver"
 
   patch -p1 < '../0001-avoid-conflicting-with-systemd-services.patch'
-  patch -p1 < '../0002-Fixup-icons-for-nerd-fonts-3.0.patch'
-  patch -p1 < '../0003-Manual-fixups-for-nerd-fonts-3.0.patch'
-  patch -p1 < '../0004-Fix-broken-printf-statements-in-modemtext.patch'
-  patch -p1 < '../0005-Don-t-kill-tailtextlog-when-changing-recipients.patch'
-  patch -p1 < '../0006-Update-fontconfig.conf-for-nerd-fonts-3.0.patch'
+  patch -p1 < '../0002-Partially-revert-7a77851c.patch'
 }
 
 build() {
@@ -76,6 +67,8 @@ package_sxmo-utils() {
     'xdg-user-dirs'
 
     # Audio
+    # TODO: alsa-utils is only required for sxmo_record.sh, it can probably be
+    # removed soon
     'alsa-utils'
     'bluez'
     'bluez-utils'
@@ -84,24 +77,31 @@ package_sxmo-utils() {
     'pulseaudio-alsa'
 
     # Core GUI dependencies
+    'brightnessctl'
+    'conky'
     'dunst'
     'libnotify'
-    'light'
     'lisgd'
     'mpv'
     'sxmo-ui'
-    'ttf-dejavu-nerd')
+    'ttf-dejavu-nerd'
+    'upower')
   optdepends=('bemenu-ncurses: sxmo menus over ssh'
               'bonsai: better multikey script'
               'clickclack: haptic feedback'
               'codemadness-frontends: Youtube & Reddit scripts'
+              'j4-dmenu-desktop: all apps menu generated from .desktop files'
               'mediainfo: sound recorder'
               'pipewire-pulse: recommended sound server'
               'sfeed: Rss and atom feeds'
               'vim: The default editor'
               'yt-dlp: Play videos from the web')
 
-  make -C "$pkgname-$pkgver" OPENRC=0 DESTDIR="$pkgdir" install-scripts
+  make -C "$pkgname-$pkgver" \
+    OPENRC=0 \
+    DESTDIR="$pkgdir" \
+    EXTERNAL_SERVICES=0 \
+    install-scripts install-docs
 
   # Allow access to ModemManager and NetworkManager
   install -Dm644 -t "$pkgdir/usr/share/polkit-1/rules.d" "00-sxmo.rules"
@@ -132,7 +132,6 @@ package_sxmo-utils-sway() {
   replaces=('sxmo-ui-sway-meta')
   install=
   depends=('bemenu-wayland'
-          'conky-wayland'
            'foot'
            'grim'
            'mako'
@@ -158,7 +157,6 @@ package_sxmo-utils-dwm() {
   replaces=('sxmo-ui-dwm-meta')
   install=
   depends=('autocutsel'
-           'conky'
            'feh'
            'svkbd'
            'sxiv'
