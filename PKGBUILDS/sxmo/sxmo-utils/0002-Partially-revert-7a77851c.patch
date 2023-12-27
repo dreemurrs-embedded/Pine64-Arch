@@ -1,0 +1,26 @@
+From dd33b1aba3bb6c3802666a7bd7f13f0d6e6d42b9 Mon Sep 17 00:00:00 2001
+From: Aren Moynihan <aren@peacevolution.org>
+Date: Tue, 19 Dec 2023 09:58:00 -0500
+Subject: [PATCH sxmo-utils 2/2] Partially revert 7a77851c
+
+The proper way to handle this is either to give lisgd specifically more
+permissions (setgid), or to make sway support gestures natively. Until
+those are done we're stuck with this.
+---
+ configs/udev/90-sxmo.rules | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configs/udev/90-sxmo.rules b/configs/udev/90-sxmo.rules
+index 6075523..1c9a354 100644
+--- a/configs/udev/90-sxmo.rules
++++ b/configs/udev/90-sxmo.rules
+@@ -1,5 +1,5 @@
+ # lisgd requires /dev/input/by-path/first-touchscreen
+-ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event[0-9]*", ENV{ID_INPUT_TOUCHSCREEN}=="1", SYMLINK+="input/by-path/first-touchscreen"
++ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event[0-9]*", ENV{ID_INPUT_TOUCHSCREEN}=="1", MODE:="0666", SYMLINK+="input/by-path/first-touchscreen"
+ 
+ # Proximity Sensor
+ ## Set event thresholds
+-- 
+2.43.0
+
