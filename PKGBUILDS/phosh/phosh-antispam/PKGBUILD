@@ -1,0 +1,28 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+# Contributor: Francisco Carpio <carpiofj@gmail.com>
+
+pkgname=phosh-antispam
+pkgver=3.3.1
+pkgrel=1
+pkgdesc='An anti-spam program designed to work with Phosh'
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://gitlab.com/kop316/phosh-antispam"
+license=('GPL3')
+depends=('gnome-calls' 'libadwaita')
+makedepends=('meson')
+_commit=${pkgver}
+source=("${url}/-/archive/${_commit}/${pkgname}-${_commit}.tar.gz")
+sha256sums=('a1242ea3a0cc49381962894a7969f260b1d7489cd4d5d6dfa5ed7e1ceeaef7ac')
+
+build() {
+  arch-meson $pkgname-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}
