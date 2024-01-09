@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.33.0
+pkgver=0.35.0
 pkgrel=1
 pkgdesc="wlroots based Wayland compositor for mobile phones"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -27,7 +27,7 @@ makedepends=(
   'vulkan-headers'
 )
 checkdepends=('xorg-server-xvfb')
-_commit="2701b187218f70858c596fded81fbe9ba63a86c1"  # tags/0.33.0
+_commit="af25a8c426c63992b84c85577db14debf9ed5c72"  # tags/0.35.0
 source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}")
 
 pkgver() {
