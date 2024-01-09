@@ -3,7 +3,7 @@
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.38
+pkgver=3.24.39
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 url="https://www.gtk.org/"
@@ -68,7 +68,7 @@ conflicts=(
   gtk3-print-backends
 )
 install=gtk3.install
-_commit=3e6fd55ee00d4209ce2f2af292829e4d6f674adc  # tags/3.24.38^0
+_commit=9ce32d5d7d2411032876232d86b66f9fd5f7e815  # tags/3.24.39^0
 source=(
   "git+https://gitlab.gnome.org/GNOME/gtk.git#commit=$_commit"
   gtk-query-immodules-3.0.hook
@@ -146,6 +146,10 @@ pkgver() {
 
 prepare() {
   cd gtk
+
+  # Fix Hebrew
+  # https://gitlab.archlinux.org/archlinux/packaging/packages/gtk3/-/issues/4
+  git cherry-pick -n 26336c401a39cbd8a7b8128fac7029077c6e1dd0
 
   local src
   for src in "${source[@]}"; do
