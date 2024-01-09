@@ -1,12 +1,12 @@
 pkgname=bes2600-firmware
-pkgver=20230704.r0.g48d97e9
+pkgver=20231227.r0.g7a305de
 pkgrel=1
 pkgdesc="Firmware files for BES2600"
 makedepends=('git')
 arch=('any')
 license=('custom')
 options=(!strip)
-_commit="48d97e9d99fbd4db9c3109e05f71d583f4fb9b34" # 20230704
+_commit="7a305de61771a84f1264866b204cf172df6d9195" # 20231227
 source=(git+https://gitlab.com/pine64-org/bes2600-firmware.git)
 sha256sums=('SKIP')
 
