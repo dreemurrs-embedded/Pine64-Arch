@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 6.6.12-danctnix1 Kernel Configuration
+# Linux/arm64 6.6.13-danctnix1 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 12.1.0"
 CONFIG_CC_IS_GCC=y
@@ -6037,6 +6037,31 @@ CONFIG_VIDEO_ROCKCHIP_VDEC=m
 # CONFIG_PI433 is not set
 # CONFIG_XIL_AXIS_FIFO is not set
 # CONFIG_FIELDBUS_DEV is not set
+CONFIG_BES2600=m
+CONFIG_BES2600_WLAN_SDIO=y
+# CONFIG_BES2600_WLAN_USB is not set
+# CONFIG_BES2600_WLAN_SPI is not set
+# CONFIG_BES2600_USE_GPIO_IRQ is not set
+# CONFIG_BES2600_WAPI_SUPPORT is not set
+# CONFIG_BES2600_USE_STE_EXTENSIONS is not set
+# CONFIG_BES2600_DISABLE_BEACON_HINTS is not set
+# CONFIG_BES2600_TESTMODE is not set
+
+#
+# Driver debug features
+#
+CONFIG_BES2600_DEBUGFS=y
+# CONFIG_BES2600_BH_DEBUG is not set
+# CONFIG_BES2600_WSM_DEBUG is not set
+# CONFIG_BES2600_WSM_DUMPS is not set
+# CONFIG_BES2600_WSM_DUMPS_SHORT is not set
+# CONFIG_BES2600_TXRX_DEBUG is not set
+# CONFIG_BES2600_TX_POLICY_DEBUG is not set
+# CONFIG_BES2600_STA_DEBUG is not set
+# CONFIG_BES2600_DUMP_ON_ERROR is not set
+# CONFIG_BES2600_ITP is not set
+# end of Driver debug features
+
 # CONFIG_GOLDFISH is not set
 # CONFIG_CHROME_PLATFORMS is not set
 # CONFIG_MELLANOX_PLATFORM is not set
