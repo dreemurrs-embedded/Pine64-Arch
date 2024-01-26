@@ -3,7 +3,7 @@
 
 pkgname=gnome-settings-daemon
 pkgver=45.1
-pkgrel=1.1
+pkgrel=1.2
 pkgdesc="GNOME Settings Daemon"
 url="https://gitlab.gnome.org/GNOME/gnome-settings-daemon"
 arch=(x86_64 armv7h aarch64)
@@ -41,7 +41,6 @@ checkdepends=(
   python-gobject
 )
 optdepends=('usbguard: USB protection support')
-groups=(gnome)
 backup=(etc/xdg/Xwayland-session.d/00-xrdb)
 _commit=1b887600d457014b1e1c9258699e4df9dedf5749  # tags/45.1^0
 source=(
