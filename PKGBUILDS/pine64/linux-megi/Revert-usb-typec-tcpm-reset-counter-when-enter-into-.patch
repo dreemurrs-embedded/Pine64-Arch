@@ -1,0 +1,28 @@
+From b6e597fb5914c061b8bf0f2aa90bc2a7a664360d Mon Sep 17 00:00:00 2001
+From: Danct12 <danct12@disroot.org>
+Date: Sat, 10 Feb 2024 19:55:50 +0000
+Subject: [PATCH] Revert "usb: typec: tcpm: reset counter when enter into
+ unattached state after try role"
+
+This reverts commit 2d6d80127006ae3da26b1f21a65eccf957f2d1e5.
+---
+ drivers/usb/typec/tcpm/tcpm.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index bfb6f9481e87..a8e03cfde9dd 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -3730,9 +3730,6 @@ static void tcpm_detach(struct tcpm_port *port)
+ 	if (tcpm_port_is_disconnected(port))
+ 		port->hard_reset_count = 0;
+ 
+-	port->try_src_count = 0;
+-	port->try_snk_count = 0;
+-
+ 	if (!port->attached)
+ 		return;
+ 
+-- 
+2.43.0
+

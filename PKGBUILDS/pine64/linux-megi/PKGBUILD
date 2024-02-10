@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-megi
 _desc="Megous Kernel"
 pkgver=6.7.4
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://codeberg.org/megi/linux"
 license=('GPL2')
@@ -24,6 +24,8 @@ source=("linux-$_tag.tar.gz::https://codeberg.org/megi/linux/archive/${_tag}.tar
         'ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch'
         # Sleep Mode
         '0001-arm64-dts-allwinner-a64-h5-Add-CPU-idle-states.patch'
+        # TEMP: Remove this when USB-C Host bug is fixed on PinePhone Pro
+        'Revert-usb-typec-tcpm-reset-counter-when-enter-into-.patch'
         # PinePhone Patches
         'dts-pinephone-drop-modem-power-node.patch'
         'dts-pinephone-pro-remove-modem-node.patch'
@@ -240,12 +242,13 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('bba05d08bcd51a328e42abc400e49f74'
-         '083c64d830a6862b5b9495a53824a099'
+         '39f22179859372827321f938283c1651'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce6c81ad1ad1f8b333fd6077d47abdaf'
          '3dc88030a8f2f5a5f97266d99b149f77'
          '13e2d2a903493e858473c61279355987'
          '081b35c2970e3fec444b32f941a26e1d'
+         '5838e950dbd7e0ef6a18dd1bd047f5a1'
          '10d200e0a964f24cdb744678a758e22b'
          'ed972b8da2887aef963e63268b055cd3'
          '7d80f76f1647afa00de320f5866484a1'
