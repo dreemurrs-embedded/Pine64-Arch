@@ -1,5 +1,5 @@
-From 1738cf2540373c6b319e51545579bcd044ad688e Mon Sep 17 00:00:00 2001
-From: Danct12 <danct12@disroot.org>
+From b9119491359f94e97290a5a288a7ae3e6be12784 Mon Sep 17 00:00:00 2001
+From: Dang Huynh <danct12@disroot.org>
 Date: Fri, 9 Feb 2024 15:05:03 +0000
 Subject: [PATCH] test/cases/bash-completion: Use Linux banner for non-x86
  platform
@@ -11,7 +11,7 @@ This also fix _detect_kver bash-completion test on non-x86 platform.
  1 file changed, 8 insertions(+)
 
 diff --git a/test/cases/bash-completion.bats b/test/cases/bash-completion.bats
-index a47a495..e22031e 100644
+index a47a495..24483f9 100644
 --- a/test/cases/bash-completion.bats
 +++ b/test/cases/bash-completion.bats
 @@ -13,7 +13,15 @@ setup() {
@@ -19,17 +19,17 @@ index a47a495..e22031e 100644
  @test "_detect_kver" {
      local kernel_ver tmp_knl
 +    local arch
-+    arch=$(uname -m)
++    arch="$(uname -m)"
 +
      kernel_ver="6.0.9-arch1-1 #1 SMP PREEMPT_DYNAMIC Wed, 16 Nov 2022 17:01:17 +0000 x86_64 GNU/Linux"
 +
 +    # For non-i686/x86_64 platform, we rely on Linux banner for version detection.
-+    # https://elixir.bootlin.com/linux/v6.7.4/source/init/version-timestamp.c#L28
-+    [[ $arch != @(i?86|x86_64) ]] && kernel_ver=$(echo $kernel_ver | sed '1s/^/Linux version /')
++    # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/init/version-timestamp.c?h=v6.7#n28
++    [[ "$arch" != @(i?86|x86_64) ]] && kernel_ver="Linux version ${kernel_ver}"
 +
      tmp_knl=$(__gen_test_kernel "$kernel_ver")
      run _detect_kver "$tmp_knl"
      assert_output "6.0.9-arch1-1"
 -- 
-2.43.0
+GitLab
 
