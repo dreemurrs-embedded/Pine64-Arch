@@ -4,7 +4,7 @@
 
 pkgname=plasma-mobile
 pkgver=5.27.10
-pkgrel=1
+pkgrel=2
 pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
@@ -16,7 +16,7 @@ depends=(desktop-file-utils
          modemmanager-qt5
          networkmanager-qt5
          plasma-wayland-session
-         plasma-workspace
+         "plasma-workspace<=${pkgver}"
          pipewire-session-manager)
 makedepends=(baloo5
              cmake
