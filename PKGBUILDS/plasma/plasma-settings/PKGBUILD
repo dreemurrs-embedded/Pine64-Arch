@@ -1,0 +1,35 @@
+# Maintainer: Antonio Rojas <arojas@archlinux.org>
+
+pkgname=plasma-settings
+pkgver=24.02.0
+pkgrel=1
+pkgdesc='Settings application for Plasma Mobile'
+url='https://plasma-mobile.org/'
+arch=(x86_64 armv7h aarch64)
+license=(GPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kcmutils
+         kcoreaddons
+         kdbusaddons
+         ki18n
+         kirigami
+         kirigami-addons
+         qt6-base
+         qt6-declarative)
+makedepends=(extra-cmake-modules
+             kservice)
+source=(https://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('b423461aa9c6dc0a7c96170261114ee9ecfe6296c97c9be8522d1942d125a5ad'
+            'SKIP')
+validpgpkeys=(39FFA93CAE9C6AFC212AD00202325448204E452A  # Carl Schwan <carl@carlschwan.eu>
+              0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D) # Bhushan Shah (mykolab address) <bshah@mykolab.com>
+
+build() {
+  cmake -B build -S $pkgname-$pkgver
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}
