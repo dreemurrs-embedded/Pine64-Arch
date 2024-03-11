@@ -1,2 +1,0 @@
-[Applications]
-blacklist=cuttlefish,org.kde.plasma.themeexplorer,org.kde.klipper,ciborium,syncmonitorhelper,org.kde.okular,wordview,assistant,assistant-qt5,designer,designer-qt5,linguist,linguist-qt5,org.kde.perusecreator,userfeedbackconsole,org.kde.kuserfeedback-console,avahi-discover,bssh,bvnc,ktelnetservice5,qv4l2,qvidcap,qdbusviewer,qdbusviewer-qt5,gprompter,xgps,xgpsspeed,mpv,appimagelauncher,appimagelaunchersettings,vlc

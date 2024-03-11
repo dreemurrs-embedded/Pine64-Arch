@@ -1,5 +1,0 @@
-[General]
-BrowserApplication[$e]=!angelfish
-
-[KDE]
-LookAndFeelPackage=org.kde.plasma.phone
