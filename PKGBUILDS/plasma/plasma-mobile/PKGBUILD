@@ -3,29 +3,31 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-mobile
-pkgver=5.27.10
-pkgrel=2
-pkgdesc="General UI components for Plasma Phone including shell, containment and applets."
-arch=('aarch64' 'x86_64')
+pkgver=6.0.1
+pkgrel=1
+pkgdesc="Plasma shell for mobile devices"
+arch=('x86_64' 'armv7h' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
-license=('GPL3')
-depends=(desktop-file-utils
-         libphonenumber
-         kirigami-addons5
-         kpeople5
-         modemmanager-qt5
-         networkmanager-qt5
-         plasma-wayland-session
-         "plasma-workspace<=${pkgver}"
-         pipewire-session-manager)
-makedepends=(baloo5
-             cmake
-             extra-cmake-modules
-             kdoctools5)
+license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
+depends=(
+  bluez-qt
+  libplasma
+  kirigami-addons
+  milou
+  plasma-nano
+  plasma-nm
+  plasma-pa
+  plasma-workspace
+)
+makedepends=(
+  cmake
+  extra-cmake-modules
+)
+optdepends=('hfd-service: Haptic feedback')
 replaces=('plasma-phone-components')
 source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-sha512sums=('ccd88e89137eca3d0a03f771be48b033a96d4c13ac174c4cdd94e83c6aaf1f424f68f0ca99a15f2ea1c5c7b4b99d6297dde3ba34018411be6424969aa9941684')
+sha512sums=('71604189a2d1e542dce6651aff2a5c0de0d4dc4b244d6497bc1575b96897a7526f56103dd4a90b14abf7c8f9b3797b9cf3d3e6d7cfa981f76c75cca890483ad4')
 
 build() {
   cmake -B build -S $pkgname-$pkgver \
