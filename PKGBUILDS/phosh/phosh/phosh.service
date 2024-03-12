@@ -33,7 +33,7 @@ ConditionPathExists=/dev/tty0
 Environment=XDG_CURRENT_DESKTOP=Phosh:GNOME
 Environment=XDG_SESSION_DESKTOP=phosh
 Environment=XDG_SESSION_TYPE=wayland
-ExecStart=/usr/bin/phosh-session
+ExecStart=capsh --noamb -- -c "exec /usr/bin/phosh-session"
 TimeoutStartSec=30
 User=1000
 PAMName=login
