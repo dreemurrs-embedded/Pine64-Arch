@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.36.0
+pkgver=0.37.0
 pkgrel=1
 pkgdesc="wlroots based Wayland compositor for mobile phones"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -27,12 +27,17 @@ makedepends=(
   'vulkan-headers'
 )
 checkdepends=('xorg-server-xvfb')
-_commit="70bbce162e4736a43a4e7bf5fad308e476a4b340"  # tags/0.36.0
+_commit="aba8e23c41229f1847f63c3f7b29bc185a686b07"  # tags/0.37.0
+_gmobile_commit="v0.0.6"
 source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}")
 
 pkgver() {
   cd $pkgname
   git describe --tags | sed 's/^v//;s/-/+/g'
+}
+
+prepare() {
+  sed -i "s/^revision=.*/revision=${_gmobile_commit}/g" $pkgname/subprojects/gmobile.wrap
 }
 
 build() {
