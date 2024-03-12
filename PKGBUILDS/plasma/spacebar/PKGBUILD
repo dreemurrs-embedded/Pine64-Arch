@@ -4,31 +4,37 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=spacebar
-pkgver=23.01.0
-pkgrel=4
+pkgver=24.02.0
+pkgrel=1
 pkgdesc="SMS and messaging application for Mobile Devices running Plasma"
-arch=('x86_64' 'aarch64')
+arch=('x86_64' 'armv7h' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
-license=('GPL3')
+license=('GPL-2.0-only OR GPL-3.0-only')
 depends=(
-    'c-ares'
-    'kcontacts5'
-    'knotifications5'
-    'kirigami2'
-    'kpeople5'
-    'ki18n5'
-    'qt5-quickcontrols2'
-    'modemmanager-qt5'
-    'telepathy-qt'
-    'libphonenumber'
-    'kdbusaddons5'
-    'kio5'
-    'kirigami-addons5')
-makedepends=('cmake'
-    'extra-cmake-modules'
-    'qcoro-qt5')
-source=("https://download.kde.org/stable/plasma-mobile/$pkgver/$pkgname-$pkgver.tar.xz")
-md5sums=('3012268219511c0d8ccfaa24544dcca9')
+  'c-ares'
+  'futuresql-qt6'
+  'kconfig'
+  'kcoreaddons'
+  'kcontacts'
+  'kdbusaddons'
+  'ki18n'
+  'kio'
+  'kirigami'
+  'kirigami-addons'
+  'knotifications'
+  'kpeople'
+  'kwindowsystem'
+  'libphonenumber'
+  'modemmanager-qt'
+  'qcoro-qt6'
+  'qt6-declarative'
+)
+makedepends=(
+  'cmake'
+  'extra-cmake-modules'
+)
+source=("http://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz")
+sha256sums=('b5c7b5c58cba9250bffa0fb88f7cd3fb712bfc112fb1716ef9b1c07f0bd6d2ca')
 
 build() {
   cmake -B build -S $pkgname-$pkgver \
