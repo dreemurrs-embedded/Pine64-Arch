@@ -4,11 +4,11 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=45.2
+pkgver=45.3
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
-license=(GPL3)
+license=(GPL-2.0-or-later)
 arch=(x86_64 armv7h aarch64)
 depends=(
   accountsservice
@@ -89,7 +89,7 @@ optdepends=(
 )
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=cc5da95fecaeb5486435c54917edf9633addc02d  # tags/45.2^0
+_commit=4e107fa21250416812d64da8cf32946babb7728d  # tags/45.3^0
 source=(
   "git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
   "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
@@ -154,7 +154,6 @@ check() {
 
 package() {
   meson install -C build --destdir "$pkgdir"
-  install -d -o root -g 102 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
 
   echo "X-Purism-FormFactor=Workstation;Mobile;" >> "$pkgdir/usr/share/applications/gnome-control-center.desktop"
 }
