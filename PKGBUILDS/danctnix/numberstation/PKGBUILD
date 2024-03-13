@@ -1,7 +1,7 @@
 # Maintainer: Martijn Braam <martijn@brixit.nl>
 pkgname=numberstation
-pkgver=1.3.0
-pkgrel=2
+pkgver=1.4.0
+pkgrel=1
 pkgdesc="A simple GTK TOTP token generator"
 url="https://git.sr.ht/~martijnbraam/numberstation"
 arch=(any)
@@ -19,4 +19,4 @@ package() {
     DESTDIR="$pkgdir" ninja -C build install
 }
 
-md5sums=('90af76873c5a3afd7d75413b3b0c17de')
+md5sums=('aaa7f21fce9af5eccdf9d35123f29712')
