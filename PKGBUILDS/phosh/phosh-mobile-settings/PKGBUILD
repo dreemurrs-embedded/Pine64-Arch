@@ -1,11 +1,11 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh-mobile-settings
 pkgver=0.37.0
-pkgrel=1
+pkgrel=2
 pkgdesc="A settings app for mobile specific things (mostly for Phosh)"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.gnome.org/World/Phosh/phosh-mobile-settings"
-license=('GPL')
+license=('GPL-3.0-or-later')
 depends=(
     'gtk4'
     'gsound'
@@ -30,11 +30,11 @@ pkgver() {
 
 build() {
     arch-meson phosh-mobile-settings output --wrap-mode default
-    ninja -C output
+    meson compile -C output
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C output install
+    meson install -C output --skip-subprojects --destdir "$pkgdir"
 }
 
 md5sums=('SKIP')
