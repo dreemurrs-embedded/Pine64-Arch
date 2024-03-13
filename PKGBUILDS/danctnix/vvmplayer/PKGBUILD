@@ -1,6 +1,6 @@
 # Maintainer: Aren Moynihan <aren@peacevolution.org>
 pkgname=vvmplayer
-pkgver=2.3.1
+pkgver=2.5
 pkgrel=1
 pkgdesc="VVM Player is a front end GUI to display, play, and delete visual voicemails"
 url="https://gitlab.com/kop316/vvmplayer"
@@ -10,7 +10,7 @@ depends=("gtk4" "libadwaita" "gstreamer" "gst-plugins-base" "gst-plugins-good"
          "gst-plugins-ugly" "evolution-data-server" "callaudiod" "vvmd")
 makedepends=("meson")
 source=("$pkgname-$pkgver.tar.gz::https://gitlab.com/kop316/vvmplayer/-/archive/$pkgver/vvmplayer-$pkgver.tar.gz")
-sha256sums=('90686d8e438b75c23ee0ecb2286cde6dcc7d8abeda299db68d2e80f8bb13ba92')
+sha256sums=('a7267142cbee276fe7f75212742490d42ff0e1ee1c1f7def9c32513f324a9d64')
 
 build() {
   arch-meson "$pkgname-$pkgver" build
