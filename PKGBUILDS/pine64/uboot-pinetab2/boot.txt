@@ -1,9 +1,9 @@
 if test ${devnum} -eq 1; then
 	echo "Booting from SD"
-	setenv linux_mmcdev 0
+	setenv linux_mmcdev 1
 else
 	echo "Booting from eMMC"
-	setenv linux_mmcdev 1
+	setenv linux_mmcdev 0
 fi
 
 # If we have at least 2 partitions, then the 1st one is /boot, and / is #2

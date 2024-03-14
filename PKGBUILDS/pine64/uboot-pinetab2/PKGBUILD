@@ -4,7 +4,7 @@ buildarch=8
 
 pkgname=uboot-pinetab2
 pkgver=2023.07.02
-pkgrel=2
+pkgrel=3
 pkgdesc="U-Boot for PineTab 2"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
@@ -27,7 +27,7 @@ source=("$pkgname::git+https://github.com/Kwiboo/u-boot-rockchip.git#commit=$_co
 md5sums=('SKIP'
          'SKIP'
          'ff5c59970e70f67abbf19819c06efb37'
-         '635379a8a8063fe2ff147e54637fb2ed'
+         'ed65ec486f0e0dc9e9c3118dffaa3782'
          '021623a04afd29ac3f368977140cfbfd'
          'ec7c2005cb5cc9a23d1eb0e1bf089bf9')
 
