@@ -4,7 +4,7 @@
 
 pkgname=plasma-dialer
 pkgver=23.01.0
-pkgrel=4
+pkgrel=5
 pkgdesc="Phone Dialer for Plasma Mobile"
 arch=('aarch64' 'x86_64')
 url="https://community.kde.org/Plasma/Mobile"
@@ -23,8 +23,7 @@ depends=(callaudiod
          qt5-feedback
          qt5-quickcontrols2
          qtmpris
-         telepathy-mission-control
-         telepathy-qt)
+         telepathy-mission-control)
 makedepends=(cmake
              extra-cmake-modules
              kdoctools5
