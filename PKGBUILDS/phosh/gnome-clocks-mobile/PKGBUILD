@@ -9,7 +9,7 @@ pkgdesc="Clocks applications for GNOME"
 url="https://wiki.gnome.org/Apps/Clocks"
 arch=(x86_64 armv7h aarch64)
 license=(GPL)
-depends=(gtk3 libgweather gnome-desktop geoclue2 geocode-glib feedbackd libhandy)
+depends=(gtk3 libgweather gnome-desktop geoclue2 geocode-glib feedbackd libhandy waked)
 makedepends=(vala gobject-introspection yelp-tools git meson)
 provides=(gnome-clocks)
 conflicts=(gnome-clocks)
@@ -30,7 +30,8 @@ source=("git+https://gitlab.gnome.org/GNOME/gnome-clocks.git#commit=$_commit"
         '0013-timer-setup-remove-unused-lables.patch'
         '0014-timer-Allow-much-smaller-heights-useing-a-ScrolledWi.patch'
         '0015-alarm-make-ringing-panel-fit-to-small-window-heights.patch'
-        '0016-world-standalone-allow-smaller-window-heights.patch')
+        '0016-world-standalone-allow-smaller-window-heights.patch'
+        'invoke-waked-when-an-alarm-changes.patch')
 sha256sums=('SKIP'
             '4aa66ae47df1d970ed6138e3d3cec7eea588af7dfa39f0940c13dfa5164052ad'
             '9e692d5e340c81943b7312249054a74ee4f83c756a5bf510102a01f5f9ffc458'
@@ -47,7 +48,8 @@ sha256sums=('SKIP'
             '437bf6caa21232c7d8ec40d541ebd443e9343197cd21256e4ce8a1cab6045f6a'
             'bb0121b34c44b0515a9289704e0562871cd5da1544ca520fb04b80baa5c388fe'
             '664515657ee315894be6e1b0b87c9308d9dc1de2eb00aebc29ecf87c133147ac'
-            '992d8868dc96d5b5742cafa26f119484d461a84ee29ac5cf1985ea7f51942d36')
+            '992d8868dc96d5b5742cafa26f119484d461a84ee29ac5cf1985ea7f51942d36'
+            'bf4dcd655839aefe84c6303730aaea50a41cdc40859f21a76a099faa3284a10a')
 
 pkgver() {
   cd $_pkgname
