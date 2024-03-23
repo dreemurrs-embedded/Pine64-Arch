@@ -14,4 +14,28 @@ post_upgrade() {
   mkimage -A arm -O linux -T script -C none -n "U-Boot boot script" -d /boot/boot.txt /boot/boot.scr
 
   flash_uboot
+
+  if [ -f /boot/boot.txt.pacnew ]; then
+    echo "!! WARNING: SYSTEM FAILURE IMMINENT. DO NOT RESTART. !!"
+    echo "!! WARNING: SYSTEM FAILURE IMMINENT. DO NOT RESTART. !!"
+    echo
+    echo "You have modified the device boot script."
+    echo
+    echo "It is recommended to compare /boot/boot.txt and /boot/boot.txt.pacnew for differences and manually apply these changes."
+    echo
+    echo "You can compare the changes using the command:"
+    echo " $ diff -u /boot/boot.txt /boot/boot.txt.pacnew"
+    echo
+    echo "Once you have updated the boot script, run this command to recompile the boot script:"
+    echo " $ cd /boot && sudo ./mkscr"
+    echo
+    echo "If you don't know what to do, run the following command:"
+    echo " $ sudo mv /boot/boot.txt{.pacnew,}"
+    echo " $ cd /boot && sudo ./mkscr"
+    echo
+    echo "FAILING TO DO SO MAY RESULT IN A NON-BOOTABLE SYSTEM."
+    echo
+    echo "!! WARNING: SYSTEM FAILURE IMMINENT. DO NOT RESTART. !!"
+    echo "!! WARNING: SYSTEM FAILURE IMMINENT. DO NOT RESTART. !!"
+  fi
 }

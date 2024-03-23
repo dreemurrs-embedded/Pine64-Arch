@@ -4,7 +4,7 @@ buildarch=8
 
 pkgname=uboot-pinetab2
 pkgver=2023.07.02
-pkgrel=3
+pkgrel=4
 pkgdesc="U-Boot for PineTab 2"
 arch=('aarch64')
 url='http://www.denx.de/wiki/U-Boot/WebHome'
