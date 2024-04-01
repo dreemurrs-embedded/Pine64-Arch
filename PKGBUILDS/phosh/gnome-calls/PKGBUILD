@@ -1,10 +1,10 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=gnome-calls
-pkgver=45.0
+pkgver=46.0
 pkgrel=1
 pkgdesc="Make and receive PSTN phone calls"
 url="https://gitlab.gnome.org/GNOME/calls"
-license=('GPL')
+license=('GPL-3.0-or-later')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=(
   'callaudiod'
@@ -27,11 +27,12 @@ makedepends=(
   'meson'
   'ninja'
   'python-docutils'
+  'python-packaging'
   'vala'
   )
 checkdepends=('xorg-server-xvfb')
 replaces=('calls')
-_commit="936d36287324163b958c6ea0c4297c7a607ee18c" # tags/v45.0
+_commit="db9b771c19a22cf1ee46e1bce60c69a6c4c0e155" # tags/v46.0
 source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
 sha256sums=('SKIP')
 
