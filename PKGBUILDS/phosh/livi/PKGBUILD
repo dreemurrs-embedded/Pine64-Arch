@@ -1,0 +1,48 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=livi
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="GTK4 video player using GStreamer as backend"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://gitlab.gnome.org/guidog/livi"
+license=('GPL-3.0-or-later')
+depends=(
+    'gstreamer'
+    'gst-plugins-bad'
+    'gst-plugins-base'
+    'gtk4'
+    'libadwaita'
+)
+makedepends=(
+    'git'
+    'meson'
+    'python-packaging'
+)
+checkdepends=('xorg-server-xvfb')
+_commit="2995b99d079b9310d794eaeee8c2e849ed69f31f" # tags/v0.1.0
+source=("livi::git+https://gitlab.gnome.org/guidog/livi.git#commit=${_commit}")
+
+pkgver() {
+    cd $pkgname
+    git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+prepare() {
+    cd livi
+    git submodule update --init
+}
+
+build() {
+    arch-meson livi output
+    meson compile -C output
+}
+
+check() {
+    xvfb-run meson test -C output
+}
+
+package() {
+    meson install -C output --destdir "$pkgdir"
+}
+
+md5sums=('SKIP')
