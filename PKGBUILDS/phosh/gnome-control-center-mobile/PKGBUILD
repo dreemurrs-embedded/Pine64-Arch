@@ -4,7 +4,7 @@
 
 _pkgname=gnome-control-center
 pkgname=gnome-control-center-mobile
-pkgver=45.3
+pkgver=46.0.1
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop - Purism fork"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
@@ -18,20 +18,23 @@ depends=(
   cups-pk-helper
   dconf
   fontconfig
-  gcr
+  gcc-libs
+  gcr-4
   gdk-pixbuf2
   glib2
+  glibc
   gnome-bluetooth-3.0
   gnome-color-manager
   gnome-desktop-4
   gnome-online-accounts
   gnome-settings-daemon
   gnutls
+  graphene
   gsettings-desktop-schemas
   gsound
-  gtk3
   gtk4
   hicolor-icon-theme
+  json-glib
   krb5
   libadwaita
   libcolord
@@ -47,6 +50,7 @@ depends=(
   libpulse
   libpwquality
   libsecret
+  libsoup3
   libwacom
   libx11
   libxi
@@ -65,6 +69,7 @@ makedepends=(
   git
   meson
   python
+  python-packaging
 )
 checkdepends=(
   python-dbusmock
@@ -89,40 +94,28 @@ optdepends=(
 )
 provides=(gnome-control-center)
 conflicts=(gnome-control-center)
-_commit=4e107fa21250416812d64da8cf32946babb7728d  # tags/45.3^0
 source=(
-  "git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
+  "git+https://gitlab.gnome.org/GNOME/gnome-control-center.git?signed#tag=$pkgver"
   "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
-  'pixmaps-dir.diff'
   # purism
   '0001-avatar-chooser-Adapt-to-work-on-librem5.patch'
-  '0005-power-show-brightness-slider-in-a-separate-row.patch'
   'Add-patches-to-check-if-phone.patch'
-  'network-connection-editor-Allow-dialog-to-resize.patch'
   # mobian
   '0004-power-add-more-suspend-timing-options.patch'
   'resize-connection-editor.patch'
 )
-sha256sums=('SKIP'
+sha256sums=('5ee40c5b39544aba9ff36156bc5e5e3258e065e92518a1c150a2936bafe3db0a'
             'SKIP'
-            '6f9e9c8607b9a3b7efe5a17a98a9d1db8b7321d0d1b3bca30b45790bd438d91e'
-            '062e53654e8662ed53743b4c652b7b41c5c2993a713337626c832d0af3eda015'
-            'e51f740175e82d6a399080dfb514b95923dc9b1230b447df2a47c1f7e24ef3e9'
+            'c18c1b9fdab8e8b7aad8519a58996267377965dbe3d8d8dc9a9129fe80da01ef'
             '09e36b0aa2c40d6b6f5be11fd9617223d5b142ff8b50db6fce0eeebc63007327'
-            '644b076297beba48a1d2752121c4c0cca143b12ae5e737d1b4e2ee2fb8abb5f7'
-            '36696693a2fa7ba74ec6d5b94d97f5dbafbec14b16af3d832395a55d382f0a1f'
-            '6bef98e21e0ab11e24ddcdab94771e22c37978b34ba3d0c3029822e5594aaf93')
-
-pkgver() {
-  cd ${_pkgname}
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
-}
+            '6f1906d58edfa87658c6396091601cab44f40046aced3a56bf5b4e46c0510fb6'
+            'c006215f8e8c6ef523708089f246815f845d82d94e5f442460d4a4aafdfb617b')
+validpgpkeys=(
+  9B60FE7947F0A3C58136817F2C2A218742E016BE # Felipe Borges (GNOME) <felipeborges@gnome.org>
+)
 
 prepare() {
   cd ${_pkgname}
-
-  # Install bare logos into pixmaps, not icons
-  git apply -3 ../pixmaps-dir.diff
 
   git submodule init subprojects/gvc
   git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
