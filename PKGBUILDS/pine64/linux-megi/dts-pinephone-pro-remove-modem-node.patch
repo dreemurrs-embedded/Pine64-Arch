@@ -1,7 +1,7 @@
-From 60d8aedea7c8c390ee744730ab3e565ea84496fb Mon Sep 17 00:00:00 2001
+From edcae83af3670289daff653fc768063993804115 Mon Sep 17 00:00:00 2001
 From: Danct12 <danct12@disroot.org>
 Date: Fri, 10 Dec 2021 23:01:34 +0700
-Subject: [PATCH] arm64: dts: rk3399-pinephone-pro: Remove modem node
+Subject: [PATCH 2/3] arm64: dts: rk3399-pinephone-pro: Remove modem node
 
 Since we don't use modem-power driver, this can be removed
 for eg25-manager.
@@ -10,10 +10,10 @@ for eg25-manager.
  1 file changed, 2 insertions(+), 38 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts b/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
-index 61c990764..13141c643 100644
+index 41738a73a..a63aa9d80 100644
 --- a/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
 +++ b/arch/arm64/boot/dts/rockchip/rk3399-pinephone-pro.dts
-@@ -413,6 +413,7 @@
+@@ -407,6 +407,7 @@ vcc_4g_5v: vcc-4g-5v {
  		regulator-min-microvolt = <5000000>;
  		regulator-max-microvolt = <5000000>;
  		vin-supply = <&vcc5v0_sys>;
@@ -21,15 +21,15 @@ index 61c990764..13141c643 100644
  	};
  
  	vcc_4g: vcc-4g {
-@@ -425,6 +426,7 @@
+@@ -419,6 +420,7 @@ vcc_4g: vcc-4g {
  		regulator-min-microvolt = <3800000>;
  		regulator-max-microvolt = <3800000>;
  		vin-supply = <&vcc_sys>;
 +		regulator-always-on;
  	};
  
- 	vcc1v8_codec: vcc1v8-codec-regulator {
-@@ -1187,31 +1189,6 @@
+ 	// XXX: modem codec supplies:
+@@ -1251,31 +1253,6 @@ mipi_in_panel: endpoint {
  
  &uart3 {
  	status = "okay";
@@ -56,12 +56,12 @@ index 61c990764..13141c643 100644
 -		cts-gpios = <&gpio3 RK_PC0 GPIO_ACTIVE_HIGH>;
 -		rts-gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_HIGH>;
 -
--		quectel,qdai = "3,0,0,4,0,0,1,1";
+-		quectel,qdai = "3,0,0,4,0,1,1,1";
 -	};
  };
  
  &pmu_io_domains {
-@@ -1292,19 +1269,6 @@
+@@ -1356,19 +1333,6 @@ vcc_4g_5v_en: vcc-4g-5v-en-pin {
  		vcc_4g_en: vcc-4g-en-pin {
  			rockchip,pins = <4 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
  		};
@@ -82,4 +82,5 @@ index 61c990764..13141c643 100644
  
  	pmic {
 -- 
-2.34.1
+2.44.0
+
