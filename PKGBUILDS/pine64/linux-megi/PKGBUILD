@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-megi
 _desc="Megous Kernel"
 pkgver=6.8.0
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://codeberg.org/megi/linux"
 license=('GPL2')
@@ -100,7 +100,7 @@ _package() {
   # sed expression for following substitutions
   local _subst="
     s|%PKGBASE%|${pkgbase}|g
-    s|%KERNVER%|${_kernver}|g
+    s|%KERNVER%|${kernver}|g
   "
 
   # install mkinitcpio preset file
