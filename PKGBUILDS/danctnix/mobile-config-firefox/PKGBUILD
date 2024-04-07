@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=mobile-config-firefox
-pkgver=4.3.0
+pkgver=4.3.1
 pkgrel=1
 pkgdesc="Mobile and privacy friendly configuration for Firefox"
 arch=(any)
@@ -18,4 +18,4 @@ package() {
   cd "$pkgname-$pkgver"
   make DESTDIR="$pkgdir" install
 }
-sha256sums=('ae33f37b03be496dbe08041c319d6ef1945549d2dc1d6017092b459c5192e71a')
+sha256sums=('b9c47f687e846b9dc7f17eed040528a9fb21e6f4ce733263dedbb436ac413851')
