@@ -19,5 +19,6 @@ depends=(
 	sound-theme-librem5
 	iio-sensor-proxy
 	wys
+	xdg-desktop-portal-gtk
 	)
 
