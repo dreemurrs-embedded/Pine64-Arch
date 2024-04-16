@@ -2,13 +2,13 @@
 # Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-pinetab2
-pkgver=6.8.danctnix1
+pkgver=6.8.6.danctnix1
 pkgrel=1
 pkgdesc='PineTab2'
 _srctag=v${pkgver%.*}-${pkgver##*.}
 arch=(aarch64)
 url="https://github.com/dreemurrs-embedded/linux-pinetab2/commits/$_srctag"
-license=(GPL2)
+license=(GPL-2.0-only)
 makedepends=(
   bc
   cpio
@@ -26,7 +26,10 @@ makedepends=(
   python-sphinx
   texlive-latexextra
 )
-options=('!strip')
+options=(
+  !debug
+  !strip
+)
 _srcname=linux-pinetab2
 source=(
   "$_srcname::git+https://github.com/dreemurrs-embedded/linux-pinetab2#tag=$_srctag"
@@ -38,7 +41,7 @@ validpgpkeys=(
   F09A933C0FE0331E558CA4E166CAB7EAA45DD781  # Danct12
 )
 b2sums=('SKIP'
-        '645ed24ae0adc33dbd3dec47c183235d809801f441e4b04d1e57ee46e500fb4bb9eaf16ab19dc5be814d743e5b162c937ea0ca398021cbd529cdbf8b62d5c6fb')
+        'c5a00da4fdab838763da3253ca2bcac74d771b23bc7ff86668a57db4d76ca7ac2541e51c00855b24ac77ba9a97e36c6784489addf4afd4f94924582cdd5511c4')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
