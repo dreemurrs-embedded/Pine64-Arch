@@ -1,16 +1,17 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
-pkgver=0.37.0
+pkgver=0.38.0
 pkgrel=1
 pkgdesc="wlroots based Wayland compositor for mobile phones"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://gitlab.gnome.org/World/Phosh/phoc"
-license=('GPL')
+url="https://phosh.mobi"
+license=('LGPL-2.1-or-later AND GPL-3.0-or-later AND MIT AND (GPL-3.0-or-later or MIT)')
 depends=(
   'gobject-introspection'
   'gnome-desktop'
   'libglvnd'
   'libinput'
+  'libliftoff'
   'libxcb'
   'mutter'
   'seatd'
@@ -20,50 +21,42 @@ depends=(
   'wayland-protocols'
 )
 makedepends=(
-  'git'
+  'gi-docgen'
   'glslang'
   'meson'
-  'ninja'
+  'python-docutils'
   'vulkan-headers'
 )
 checkdepends=('xorg-server-xvfb')
-_commit="aba8e23c41229f1847f63c3f7b29bc185a686b07"  # tags/0.37.0
-_gmobile_commit="v0.0.6"
-source=("git+https://gitlab.gnome.org/World/Phosh/phoc.git#commit=${_commit}")
-
-pkgver() {
-  cd $pkgname
-  git describe --tags | sed 's/^v//;s/-/+/g'
-}
-
-prepare() {
-  sed -i "s/^revision=.*/revision=${_gmobile_commit}/g" $pkgname/subprojects/gmobile.wrap
-}
+source=(https://sources.phosh.mobi/releases/$pkgname/$pkgname-$pkgver.tar.xz{,.asc})
+sha256sums=('39c4549f0d45724f5b31281f30c716aaa47a6bacb3c8a8d8f0fde7a9cc1550b7'
+            'SKIP')
+validpgpkeys=('0DB3932762F78E592F6522AFBB5A2C77584122D3')
 
 build() {
   local meson_options=(
     --wrap-mode default
     -D embed-wlroots=enabled
+    -D gtk_doc=true
+    -D man=true
     --default-library=static
   )
 
-  arch-meson $pkgname build "${meson_options[@]}"
+  arch-meson $pkgname-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 
 check() {
-  WLR_RENDERER=pixman xvfb-run ninja -C build test
+  WLR_RENDERER=pixman xvfb-run meson test -C build --print-errorlogs
 }
 
 package() {
-  DESTDIR="$pkgdir" ninja install -C build
+  meson install -C build --destdir "$pkgdir"
 
   # Install scale-to-fit helper
-  install -Dm755 "$pkgname"/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
+  install -Dm755 "$pkgname-$pkgver"/helpers/scale-to-fit "$pkgdir"/usr/bin/scale-to-fit
 
   # Remove unnecessary files
   rm -r "$pkgdir"/usr/lib
   rm -r "$pkgdir"/usr/include
 }
-
-sha256sums=('SKIP')
