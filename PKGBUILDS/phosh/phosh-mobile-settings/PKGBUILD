@@ -1,10 +1,10 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh-mobile-settings
-pkgver=0.37.0
-pkgrel=2
-pkgdesc="A settings app for mobile specific things (mostly for Phosh)"
+pkgver=0.38.0
+pkgrel=1
+pkgdesc="A (Phosh-specific) settings app for mobile"
 arch=('x86_64' 'armv7h' 'aarch64')
-url="https://gitlab.gnome.org/World/Phosh/phosh-mobile-settings"
+url="https://phosh.mobi"
 license=('GPL-3.0-or-later')
 depends=(
     'gtk4'
@@ -17,24 +17,19 @@ depends=(
 makedepends=(
     'git'
     'meson'
-    'ninja'
+    'python-packaging'
     'wayland-protocols'
 )
-_commit="dce617a9afe10e14843439a672bcc672ba1bb3b0"  # tags/v0.37.0
-source=("phosh-mobile-settings::git+https://gitlab.gnome.org/World/Phosh/phosh-mobile-settings.git#commit=${_commit}")
-
-pkgver() {
-    cd phosh-mobile-settings
-    git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
+source=(https://sources.phosh.mobi/releases/$pkgname/$pkgname-$pkgver.tar.xz{,.asc})
+sha256sums=('583aa056c271e72e88956208f5f441b007969ffb41f0169746d94fbc0d3098c9'
+            'SKIP')
+validpgpkeys=('0DB3932762F78E592F6522AFBB5A2C77584122D3')
 
 build() {
-    arch-meson phosh-mobile-settings output --wrap-mode default
+    arch-meson $pkgname-$pkgver output
     meson compile -C output
 }
 
 package() {
     meson install -C output --skip-subprojects --destdir "$pkgdir"
 }
-
-md5sums=('SKIP')
