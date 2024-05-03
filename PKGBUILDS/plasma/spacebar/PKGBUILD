@@ -4,7 +4,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=spacebar
-pkgver=24.02.0
+pkgver=24.05.0
 pkgrel=1
 pkgdesc="SMS and messaging application for Mobile Devices running Plasma"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -34,7 +34,7 @@ makedepends=(
   'extra-cmake-modules'
 )
 source=("http://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz")
-sha256sums=('b5c7b5c58cba9250bffa0fb88f7cd3fb712bfc112fb1716ef9b1c07f0bd6d2ca')
+sha256sums=('1ab34a700ff3f97af0bcc9cb97fbd03bbc5a41ea4ff40144ad1ed9e30584f3f5')
 
 build() {
   cmake -B build -S $pkgname-$pkgver \
