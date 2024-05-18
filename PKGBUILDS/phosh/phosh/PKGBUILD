@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.38.0
+pkgver=0.39.0
 pkgrel=1
 pkgdesc="A Wayland shell for GNOME on mobile devices."
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -15,6 +15,7 @@ depends=(
     'gtk3'
     'libadwaita'
     'libcap'
+    'libgmobile'
     'libhandy'
     'libnm'
     'libpulse'
@@ -35,19 +36,16 @@ makedepends=(
 checkdepends=('xorg-server-xvfb')
 install="$pkgname.install"
 source=(https://sources.phosh.mobi/releases/$pkgname/$pkgname-$pkgver.tar.xz{,.asc}
-        https://gitlab.gnome.org/World/Phosh/phosh/-/commit/eca607733788dd141692f467b4b7c96520c513d3.patch
         'pam_phosh'
         'phosh.service')
-sha256sums=('c27ae4145ceed0e0536533b9c2bf5f756297bbdccb2f6e8c7beb80d2c9be9806'
+sha256sums=('9f565e81224052bd4b6e7d3e331eb8bc7865e1bc122447673b5c4dfd07442a5c'
             'SKIP'
-            '08760fd005a01bc9e97e8b893eb749dffb992828043ddc22ff826b6556151631'
             '43b94d0d9f4d083f028c77d18cb0d0f8037d160c41f333878c7cae3df0163c3d'
             '48dfe40c42218c92eec59969c06f203dc8a3928b21ca9ee2b92b0987de874a66')
 validpgpkeys=('0DB3932762F78E592F6522AFBB5A2C77584122D3')
 
 prepare() {
     cd $pkgname-$pkgver
-    patch -p1 -i "$srcdir"/eca607733788dd141692f467b4b7c96520c513d3.patch
 }
 
 build() {
