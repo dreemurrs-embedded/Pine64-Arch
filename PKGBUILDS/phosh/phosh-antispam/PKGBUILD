@@ -2,26 +2,23 @@
 # Contributor: Francisco Carpio <carpiofj@gmail.com>
 
 pkgname=phosh-antispam
-pkgver=3.4
+pkgver=3.5
 pkgrel=1
 pkgdesc='An anti-spam program designed to work with Phosh'
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.com/kop316/phosh-antispam"
-license=('GPL3')
-depends=('gnome-calls' 'libadwaita')
-makedepends=('meson')
+license=('GPL-3.0-or-later')
+depends=(
+  'gnome-calls'
+  'libadwaita'
+)
+makedepends=(meson)
 _commit=${pkgver}
-source=("${url}/-/archive/${_commit}/${pkgname}-${_commit}.tar.gz"
-        "${url}/-/commit/a7399955ecc6e3d2f2a6d9c1534c6f839c0a0477.patch")
-sha256sums=('ec337af2241c7e3aff0b41b3b599b2961499e28f1251a8d6662ff08dff4c2743'
-            'a603dc79eea96d7e7c5205fe33f9261215e71e37e1f4360c567d1045f65bdf1b')
+source=("${url}/-/archive/${_commit}/${pkgname}-${_commit}.tar.gz")
+sha256sums=('62b5e63727da62c2574d4ddf10a02f6db25a2aa8d43db8d84651bc6a3e512702')
 
 prepare() {
   cd $pkgname-$pkgver
-
-  # Fix for test error:
-  # Tests were compiled with G_DISABLE_ASSERT and are likely no-ops. Aborting.
-  patch -p1 -i "$srcdir"/a7399955ecc6e3d2f2a6d9c1534c6f839c0a0477.patch
 }
 
 build() {
