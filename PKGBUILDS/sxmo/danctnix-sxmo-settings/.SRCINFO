@@ -1,0 +1,18 @@
+pkgbase = danctnix-sxmo-settings
+	pkgdesc = Configuration files for SXMO
+	pkgver = 20241117
+	pkgrel = 1
+	url = https://sr.ht/~mil/sxmo/
+	install = danctnix-sxmo-settings.install
+	arch = any
+	license = MIT
+	depends = modemmanager
+	depends = bluez
+	depends = sxmo-utils
+	depends = tinydm
+	source = sxmo-qt-mobile-controls.sh
+	source = ./sway-pinephone-keyboard.conf
+	sha512sums = bf8db527c49fa724e640a90269ba2648a2555f5867b2adbfbd88d1f685261f757339757c09ee08f590c76de4bd3d0c73a47dea9bd340644dd4707e76152cefd1
+	sha512sums = bb11151e246d16e071761ebb35ca7f8b8cedbad8366e9bac6aed30554a795877cc9dccbe69ecca4b19b6f72bd87e613705f3ae4f2f40d2f9c2d09cc179999d59
+
+pkgname = danctnix-sxmo-settings

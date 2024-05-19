@@ -2,10 +2,10 @@
 # Contributor: dni <office@dnilabs.com>
 
 pkgname=danctnix-sxmo-settings
-pkgver=20230405
+pkgver=20241117
 pkgrel=1
 pkgdesc="Configuration files for SXMO"
-url="https://sr.ht/~mil/Sxmo/"
+url="https://sr.ht/~mil/sxmo/"
 arch=('any')
 license=('MIT')
 depends=('modemmanager' 'bluez' 'sxmo-utils' 'tinydm')
