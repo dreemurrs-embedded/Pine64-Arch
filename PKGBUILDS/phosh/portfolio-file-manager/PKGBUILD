@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=portfolio-file-manager
-pkgver=1.0.0
+pkgver=1.0.1
 pkgrel=1
 pkgdesc="A minimalist file manager for those who want to use Linux mobile devices."
 url="https://github.com/tchx84/Portfolio"
@@ -11,7 +11,7 @@ makedepends=('meson')
 checkdepends=('python-pytest' 'xorg-server-xvfb')
 replaces=('portfolio-fm')
 source=(Portfolio-${pkgver}.tar.gz::https://github.com/tchx84/Portfolio/archive/v${pkgver}.tar.gz)
-sha512sums=('bbb724a6c9b0e76fb8bd8bc91241ea85c64e8c27ad3015f4d0bb02b9f2896ebea3b8bba7cf8c3241d0a6801904ddbed432dfb1973f7a3944965c6efd97970819')
+sha512sums=('ef297550bee61862bf17b8ffd4170dc4d7a1205a2006783ff27bb96f22427f2da322b1e4633472084b05365bb1d2201bd554cfb385412e535a58000a8c062c03')
 
 build() {
     arch-meson Portfolio-${pkgver} output
