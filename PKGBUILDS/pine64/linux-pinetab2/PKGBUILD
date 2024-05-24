@@ -2,12 +2,14 @@
 # Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-pinetab2
-pkgver=6.8.6.danctnix2
+pkgver=6.9.1.danctnix1
 pkgrel=1
 pkgdesc='PineTab2'
+_srcname=linux-pinetab2
 _srctag=v${pkgver%.*}-${pkgver##*.}
 arch=(aarch64)
-url="https://github.com/dreemurrs-embedded/linux-pinetab2/commits/$_srctag"
+url_git="https://github.com/dreemurrs-embedded/${_srcname}"
+url="${url_git}/commits/$_srctag"
 license=(GPL-2.0-only)
 makedepends=(
   bc
@@ -17,22 +19,17 @@ makedepends=(
   libelf
   pahole
   perl
+  python
   tar
   xz
-
-  # htmldocs
-  graphviz
-  imagemagick
-  python-sphinx
-  texlive-latexextra
 )
 options=(
   !debug
   !strip
 )
-_srcname=linux-pinetab2
 source=(
-  "$_srcname::git+https://github.com/dreemurrs-embedded/linux-pinetab2#tag=$_srctag"
+  https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/linux-${pkgver%.*}.tar.{xz,sign}
+  ${url_git}/releases/download/${_srctag}/${_srctag}.patch{,.sig}
   config  # the main kernel config file
 )
 validpgpkeys=(
@@ -40,27 +37,22 @@ validpgpkeys=(
   647F28654894E3BD457199BE38DBBDC86092693E  # Greg Kroah-Hartman
   F09A933C0FE0331E558CA4E166CAB7EAA45DD781  # Danct12
 )
-b2sums=('583811fa42cd5cbac6967e316a8939abe4443473046482d8be871549edb857445fe4fb1b1fb268e26b953c29513bad443bb567fc7bed90ce19fc2fc23e918059'
-        '4631b4e505c7d6270318691ca26d22f6b1bccf4afa52256727305ada47dbdc90cf0a679b7814ff7dc54986ef4628a610ae1e2ce5c4f9497d19c1824d2e685a55')
+b2sums=('388af1d13e78a424f72a961697f4b0b6a234e54ce1e4a2532fc73717301e048c6f4a6251b6e3c4541179d1382566c3f411baa6883818a10d178ef27d036b5379'
+        'SKIP'
+        '72700b2e57681a73c8ec4c3a80455e912ddc572772d28cb073583f654627de5378b65f5e02d0fb27dc34644ceac89beef07a5135af3bb822b0a6b698b8795bb4'
+        'SKIP'
+        '50334be1e6d07626f396782ef807579a1898f92d9545138a6635d73d5976f487253cd169fc3e82c3c2d23d8772174fa9990a9fbaf3e0318e2adbb07b28506655')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
 export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
-_make() {
-  test -s version
-  make KERNELRELEASE="$(<version)" "$@"
-}
-
 prepare() {
-  cd $_srcname
+  cd linux-${pkgver%.*}
 
   echo "Setting version..."
   echo "-$pkgrel" > localversion.10-pkgrel
   echo "${pkgbase#linux}" > localversion.20-pkgname
-  make defconfig
-  make -s kernelrelease > version
-  make mrproper
 
   local src
   for src in "${source[@]}"; do
@@ -73,44 +65,55 @@ prepare() {
 
   echo "Setting config..."
   cp ../config .config
-  _make olddefconfig
+  make olddefconfig
   diff -u ../config .config || :
 
+  make -s kernelrelease > version
   echo "Prepared $pkgbase version $(<version)"
 }
 
 build() {
-  cd $_srcname
-  _make DTC_FLAGS="-@" all
+  cd linux-${pkgver%.*}
+  make DTC_FLAGS="-@" all
+  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
 }
 
 _package() {
   pkgdesc="The $pkgdesc kernel and modules"
   depends=(
     coreutils
-    initramfs
     kmod
+    mkinitcpio
   )
   optdepends=(
     'wireless-regdb: to set the correct wireless channels of your country'
     'linux-firmware: firmware images needed for some devices'
   )
+  provides=(
+    KSMBD-MODULE
+    WIREGUARD-MODULE
+  )
+  replaces=(
+    wireguard-arch
+  )
 
-  cd $_srcname
+  cd linux-${pkgver%.*}
   local modulesdir="$pkgdir/usr/lib/modules/$(<version)"
 
   echo "Installing boot image..."
   # systemd expects to find the kernel here to allow hibernation
   # https://github.com/systemd/systemd/commit/edda44605f06a41fb86b7ab8128dcf99161d2344
-  install -Dm644 "$(_make -s image_name)" "$modulesdir/vmlinuz"
+  install -Dm644 "$(make -s image_name)" "$modulesdir/vmlinuz"
 
   # Used by mkinitcpio to name the kernel
   echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
 
   echo "Installing modules..."
-  ZSTD_CLEVEL=19 _make INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 \
+  ZSTD_CLEVEL=19 make INSTALL_MOD_PATH="$pkgdir/usr" INSTALL_MOD_STRIP=1 \
     DEPMOD=/doesnt/exist modules_install  # Suppress depmod
-  _make INSTALL_DTBS_PATH="$pkgdir/boot/dtbs" dtbs_install
+
+  echo "Installing device trees..."
+  make INSTALL_DTBS_PATH="$pkgdir/boot/dtbs" dtbs_install
 
   # Removing unnecessary device tree
   for dtb in "$pkgdir"/boot/dtbs/rockchip/*; do
@@ -127,15 +130,18 @@ _package-headers() {
   pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel"
   depends=(pahole)
 
-  cd $_srcname
+  cd linux-${pkgver%.*}
   local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
 
   echo "Installing build files..."
   install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map \
-    localversion.* version vmlinux
+    localversion.* version vmlinux tools/bpf/bpftool/vmlinux.h
   install -Dt "$builddir/kernel" -m644 kernel/Makefile
   install -Dt "$builddir/arch/arm64" -m644 arch/arm64/Makefile
   cp -t "$builddir" -a scripts
+
+  # required when DEBUG_INFO_BTF_MODULES is enabled
+  install -Dt "$builddir/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
 
   echo "Installing headers..."
   cp -t "$builddir" -a include
