@@ -1,0 +1,20 @@
+post_install() {
+    cat << EOF
+    Add the following lines to your ~/.xinitrc or, for
+    system-wide use, to a new file, named, say, 40-autocutsel
+    in the directory /etc/X11/xinit/xinitrc.d/ :
+
+autocutsel -fork &
+autocutsel -selection PRIMARY -fork &
+EOF
+}
+
+post_upgrade() {
+  post_install 
+}
+post_remove() {
+cat << EOF
+  you might want to remove autocutsel related files in 
+  /etc/X11/xinit/xinitrc.d now.
+EOF
+}
