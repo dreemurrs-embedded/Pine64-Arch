@@ -2,14 +2,14 @@
 # Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-pinetab2
-pkgver=6.9.1.danctnix1
+pkgver=6.9.2.danctnix1
 pkgrel=1
 pkgdesc='PineTab2'
 _srcname=linux-pinetab2
 _srctag=v${pkgver%.*}-${pkgver##*.}
 arch=(aarch64)
-url_git="https://github.com/dreemurrs-embedded/${_srcname}"
-url="${url_git}/commits/$_srctag"
+_url_git="https://github.com/dreemurrs-embedded/${_srcname}"
+url="${_url_git}/commits/$_srctag"
 license=(GPL-2.0-only)
 makedepends=(
   bc
@@ -29,7 +29,7 @@ options=(
 )
 source=(
   https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/linux-${pkgver%.*}.tar.{xz,sign}
-  ${url_git}/releases/download/${_srctag}/${_srctag}.patch{,.sig}
+  ${_url_git}/releases/download/${_srctag}/${_srctag}.patch.zst{,.sig}
   config  # the main kernel config file
 )
 validpgpkeys=(
@@ -37,11 +37,11 @@ validpgpkeys=(
   647F28654894E3BD457199BE38DBBDC86092693E  # Greg Kroah-Hartman
   F09A933C0FE0331E558CA4E166CAB7EAA45DD781  # Danct12
 )
-b2sums=('388af1d13e78a424f72a961697f4b0b6a234e54ce1e4a2532fc73717301e048c6f4a6251b6e3c4541179d1382566c3f411baa6883818a10d178ef27d036b5379'
+b2sums=('ae19877e19239c2b521cdf04d182c0ee849228c9ecb4c9dddb626d85ed51faaa5215cc70b5c1ad203c346df85197cd5512894a27eba1c1fd6add9cd2fbaa2a3e'
         'SKIP'
-        '72700b2e57681a73c8ec4c3a80455e912ddc572772d28cb073583f654627de5378b65f5e02d0fb27dc34644ceac89beef07a5135af3bb822b0a6b698b8795bb4'
+        '3e3c5bb20b1fcd465f9ee23b630f53a4869d0baf0322afe83a219ea16613cd36fddd951c9f0bf31d45c81cedffd69f0a2c81a1703d75b1e82e6eceb6699b44f9'
         'SKIP'
-        '50334be1e6d07626f396782ef807579a1898f92d9545138a6635d73d5976f487253cd169fc3e82c3c2d23d8772174fa9990a9fbaf3e0318e2adbb07b28506655')
+        '3505131ad53cc52dd90773c6068c91b7901f9a978e6398812e4ff9fef07b009bf44c7c3ca1dc63ea4059ba677dc0d88f084f900de3db0fc5e053b628872d4efa')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
@@ -58,8 +58,9 @@ prepare() {
   for src in "${source[@]}"; do
       src="${src%%::*}"
       src="${src##*/}"
+      src="${src%.zst}"
       [[ $src = *.patch ]] || continue
-      msg2 "Applying patch: $src..."
+      echo "Applying patch: $src..."
       patch -Np1 < "../$src"
   done
 

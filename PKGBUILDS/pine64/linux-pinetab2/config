@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 6.9.1-danctnix1 Kernel Configuration
+# Linux/arm64 6.9.2-danctnix1 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 14.1.1 20240507"
 CONFIG_CC_IS_GCC=y
