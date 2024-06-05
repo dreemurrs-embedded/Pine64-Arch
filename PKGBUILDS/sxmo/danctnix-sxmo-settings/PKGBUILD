@@ -3,9 +3,9 @@
 
 pkgname=danctnix-sxmo-settings
 pkgver=20230405
-pkgrel=1
+pkgrel=2
 pkgdesc="Configuration files for SXMO"
-url="https://sr.ht/~mil/Sxmo/"
+url="https://sr.ht/~mil/sxmo/"
 arch=('any')
 license=('MIT')
 depends=('modemmanager' 'bluez' 'sxmo-utils' 'tinydm')
