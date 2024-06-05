@@ -1,4 +1,4 @@
-From c64bafe10f66a2771548d4542b99d3f37c7fd0fb Mon Sep 17 00:00:00 2001
+From 1705cd94601612d49c6fd4ab732ffabb75c2950c Mon Sep 17 00:00:00 2001
 From: "Jan Alexander Steffens (heftig)" <jan.steffens@gmail.com>
 Date: Mon, 16 Sep 2019 04:53:20 +0200
 Subject: [PATCH] ZEN: Add sysctl and CONFIG to disallow unprivileged
@@ -36,10 +36,10 @@ index 6030a8235617..60b7fe5fa74a 100644
  {
  	return &init_user_ns;
 diff --git a/init/Kconfig b/init/Kconfig
-index 9ffb103fc927..f91ccd3c1456 100644
+index 664bedb9a71f..746e382ad747 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -1226,6 +1226,22 @@ config USER_NS
+@@ -1247,6 +1247,22 @@ config USER_NS
  
  	  If unsure, say N.
  
@@ -63,12 +63,12 @@ index 9ffb103fc927..f91ccd3c1456 100644
  	bool "PID Namespaces"
  	default y
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 10917c3e1f03..458360cf9bfb 100644
+index aebb3e6c96dc..f186c72983b0 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -100,6 +100,10 @@
- #include <linux/user_events.h>
- #include <linux/iommu.h>
+@@ -104,6 +104,10 @@
+ #include <uapi/linux/pidfd.h>
+ #include <linux/pidfs.h>
  
 +#ifdef CONFIG_USER_NS
 +#include <linux/user_namespace.h>
@@ -77,7 +77,7 @@ index 10917c3e1f03..458360cf9bfb 100644
  #include <asm/pgalloc.h>
  #include <linux/uaccess.h>
  #include <asm/mmu_context.h>
-@@ -2265,6 +2269,10 @@ __latent_entropy struct task_struct *copy_process(
+@@ -2154,6 +2158,10 @@ __latent_entropy struct task_struct *copy_process(
  	if ((clone_flags & (CLONE_NEWUSER|CLONE_FS)) == (CLONE_NEWUSER|CLONE_FS))
  		return ERR_PTR(-EINVAL);
  
@@ -88,7 +88,7 @@ index 10917c3e1f03..458360cf9bfb 100644
  	/*
  	 * Thread groups must share signals as well, and detached threads
  	 * can only be started up within the thread group.
-@@ -3411,6 +3419,12 @@ int ksys_unshare(unsigned long unshare_flags)
+@@ -3301,6 +3309,12 @@ int ksys_unshare(unsigned long unshare_flags)
  	if (unshare_flags & CLONE_NEWNS)
  		unshare_flags |= CLONE_FS;
  
@@ -102,7 +102,7 @@ index 10917c3e1f03..458360cf9bfb 100644
  	if (err)
  		goto bad_unshare_out;
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 157f7ce2942d..881fc4f5d61e 100644
+index 81cc974913bb..db581894e611 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
 @@ -80,6 +80,9 @@
@@ -132,7 +132,7 @@ index 157f7ce2942d..881fc4f5d61e 100644
  	{
  		.procname	= "tainted",
 diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index eabe8bcc7042..ac9d1f702086 100644
+index 0b0b95418b16..c4b835b91fc0 100644
 --- a/kernel/user_namespace.c
 +++ b/kernel/user_namespace.c
 @@ -22,6 +22,13 @@
@@ -149,6 +149,3 @@ index eabe8bcc7042..ac9d1f702086 100644
  static struct kmem_cache *user_ns_cachep __ro_after_init;
  static DEFINE_MUTEX(userns_state_mutex);
  
--- 
-2.43.0
-
