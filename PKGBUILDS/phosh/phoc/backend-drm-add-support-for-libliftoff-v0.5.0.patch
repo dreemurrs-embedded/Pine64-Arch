@@ -1,0 +1,53 @@
+From 1bfd0613ca4865c73250488375310fdd6a4c1b5d Mon Sep 17 00:00:00 2001
+From: Simon Ser <contact@emersion.fr>
+Date: Tue, 28 May 2024 00:30:33 +0200
+Subject: [PATCH] backend/drm: add support for libliftoff v0.5.0
+
+Don't require libliftoff 0.5.0 just yet: we want to be able to
+backport this patch.
+
+(cherry-picked from commit 6e6c4408d36ddad705458ca4b2e301192f7963fd)
+---
+ backend/drm/libliftoff.c | 5 +++++
+ backend/drm/meson.build  | 1 +
+ 2 files changed, 6 insertions(+)
+
+diff --git a/backend/drm/libliftoff.c b/backend/drm/libliftoff.c
+index a3b61540d4..7a4d090e0b 100644
+--- a/backend/drm/libliftoff.c
++++ b/backend/drm/libliftoff.c
+@@ -7,6 +7,7 @@
+ 
+ #include "backend/drm/drm.h"
+ #include "backend/drm/iface.h"
++#include "config.h"
+ 
+ static bool init(struct wlr_drm_backend *drm) {
+ 	// TODO: lower log level
+@@ -436,7 +437,11 @@ static bool crtc_commit(struct wlr_drm_connector *conn,
+ 		goto out;
+ 	}
+ 
++#if HAVE_LIBLIFTOFF_0_5
++	int ret = liftoff_output_apply(crtc->liftoff, req, flags, NULL);
++#else
+ 	int ret = liftoff_output_apply(crtc->liftoff, req, flags);
++#endif
+ 	if (ret != 0) {
+ 		wlr_drm_conn_log(conn, test_only ? WLR_DEBUG : WLR_ERROR,
+ 			"liftoff_output_apply failed: %s", strerror(-ret));
+diff --git a/backend/drm/meson.build b/backend/drm/meson.build
+index 6fcb2c15e9..c85dc1a088 100644
+--- a/backend/drm/meson.build
++++ b/backend/drm/meson.build
+@@ -47,6 +47,7 @@ wlr_files += files(
+ 
+ if libliftoff.found()
+ 	wlr_files += files('libliftoff.c')
++	internal_config.set10('HAVE_LIBLIFTOFF_0_5', libliftoff.version().version_compare('>=0.5.0'))
+ endif
+ 
+ features += { 'drm-backend': true }
+-- 
+GitLab
+

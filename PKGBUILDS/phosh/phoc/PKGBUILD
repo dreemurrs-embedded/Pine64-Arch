@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phoc
 pkgver=0.39.0
-pkgrel=1
+pkgrel=2
 pkgdesc="wlroots based Wayland compositor for mobile phones"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://phosh.mobi"
@@ -23,20 +23,24 @@ depends=(
 )
 makedepends=(
   'gi-docgen'
+  'glib2-devel'
   'glslang'
   'meson'
   'python-docutils'
   'vulkan-headers'
 )
 checkdepends=('xorg-server-xvfb')
-source=(https://sources.phosh.mobi/releases/$pkgname/$pkgname-$pkgver.tar.xz{,.asc})
+source=(https://sources.phosh.mobi/releases/$pkgname/$pkgname-$pkgver.tar.xz{,.asc}
+        'backend-drm-add-support-for-libliftoff-v0.5.0.patch')
 sha256sums=('a7f1058f64db39877d9907347842bc1e91da18bf8a358f0e7e0422ae8b90a3fc'
-            'SKIP')
+            'SKIP'
+            'f267a2ccb2d1f6ecfdac31f5e90fe7ff842af2a7def5d0153b224bc02f03d3d6')
 validpgpkeys=('0DB3932762F78E592F6522AFBB5A2C77584122D3')
 
 prepare() {
   cd $pkgname-$pkgver/subprojects/wlroots
   patch -p1 -i "../packagefiles/wlroots/0001-Revert-layer-shell-error-on-0-dimension-without-anch.patch"
+  patch -p1 -i "$srcdir/backend-drm-add-support-for-libliftoff-v0.5.0.patch"
 }
 
 build() {
