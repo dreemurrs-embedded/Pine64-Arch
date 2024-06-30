@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=gnome-calls
-pkgver=46.0
+pkgver=46.3
 pkgrel=1
 pkgdesc="Make and receive PSTN phone calls"
 url="https://gitlab.gnome.org/GNOME/calls"
@@ -24,6 +24,7 @@ depends=(
   )
 makedepends=(
   'git'
+  'glib2-devel'
   'meson'
   'ninja'
   'python-docutils'
@@ -32,9 +33,9 @@ makedepends=(
   )
 checkdepends=('xorg-server-xvfb')
 replaces=('calls')
-_commit="db9b771c19a22cf1ee46e1bce60c69a6c4c0e155" # tags/v46.0
+_commit="f8c247148717bbad9414a9b246d88d1e685e68ed" # tags/v46.3
 source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
-sha256sums=('SKIP')
+sha256sums=('4eddd4cbdd10c9f3f611573b05b5ce7275f1dab3f6ae1aeda9e4b2fc2ea2494b')
 
 pkgver() {
   cd calls
