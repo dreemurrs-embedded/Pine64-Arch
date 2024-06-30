@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.39.0
+pkgver=0.40.0
 pkgrel=1
 pkgdesc="A Wayland shell for GNOME on mobile devices."
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -28,6 +28,7 @@ depends=(
 )
 makedepends=(
     'gi-docgen'
+    'glib2-devel'
     'meson'
     'python-docutils'
     'python-packaging'
@@ -38,7 +39,7 @@ install="$pkgname.install"
 source=(https://sources.phosh.mobi/releases/$pkgname/$pkgname-$pkgver.tar.xz{,.asc}
         'pam_phosh'
         'phosh.service')
-sha256sums=('9f565e81224052bd4b6e7d3e331eb8bc7865e1bc122447673b5c4dfd07442a5c'
+sha256sums=('d08895b19095a4a9fbe824700304973615936c55c0b04877f20269254d7dd640'
             'SKIP'
             '43b94d0d9f4d083f028c77d18cb0d0f8037d160c41f333878c7cae3df0163c3d'
             '48dfe40c42218c92eec59969c06f203dc8a3928b21ca9ee2b92b0987de874a66')
@@ -54,7 +55,6 @@ build() {
         -D gtk_doc=true
         -D man=true
         -D phoc_tests=disabled
-        -D systemd=true
     )
     arch-meson $pkgname-$pkgver output "${meson_options[@]}"
     meson compile -C output
