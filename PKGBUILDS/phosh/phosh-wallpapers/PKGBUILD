@@ -1,14 +1,14 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgbase=phosh-wallpapers
-pkgname=('phosh-wallpapers' 'plymouth-theme-phosh')
-pkgver=0.37.0
+pkgname=('phosh-wallpapers' 'plymouth-theme-phosh' 'sound-theme-phosh')
+pkgver=0.40.0
 pkgrel=1
 pkgdesc="Wallpapers for Phosh UI"
 arch=(any)
 url="https://gitlab.gnome.org/guidog/phosh-wallpapers"
 makedepends=('meson' 'plymouth')
 source=($url/-/archive/v$pkgver/$pkgname-v$pkgver.tar.gz)
-sha256sums=('451bcbbf6e7359966a0c49bde8dee83e2b78e56267d1fc43e909392ff77b2775')
+sha256sums=('d05609b4df8938966d4c68133aff0b6626b1bdf1263f77e3fde46abaa573bc7d')
 
 build() {
     arch-meson $pkgname-v$pkgver output
@@ -20,6 +20,7 @@ package_phosh-wallpapers() {
     license=('CC-BY-SA-4.0 AND GPL-3.0-or-later')
     meson install -C output --destdir "$pkgdir"
     mv "$pkgdir"/usr/share/plymouth "$srcdir"/usr_share_plymouth
+    mv "$pkgdir"/usr/share/sounds "$srcdir"/usr_share_sounds
 }
 
 package_plymouth-theme-phosh() {
@@ -28,4 +29,11 @@ package_plymouth-theme-phosh() {
     depends=('plymouth')
     mkdir -p "$pkgdir"/usr/share
     mv "$srcdir"/usr_share_plymouth "$pkgdir"/usr/share/plymouth
+}
+
+package_sound-theme-phosh() {
+    pkgdesc="Sound theme for Phosh UI"
+    license=('CC0 AND CC-BY-SA-4.0')
+    mkdir -p "$pkgdir"/usr/share
+    mv "$srcdir"/usr_share_sounds "$pkgdir"/usr/share/sounds
 }
