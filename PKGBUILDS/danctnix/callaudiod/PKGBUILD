@@ -1,13 +1,13 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=callaudiod
-pkgver=0.1.9
+pkgver=0.1.10
 pkgrel=1
 pkgdesc="Call audio routing daemon"
 url="https://gitlab.com/mobian1/callaudiod"
 license=('GPL3')
 arch=('x86_64' 'armv7h' 'aarch64')
 depends=('alsa-lib' 'glib2' 'libpulse')
-makedepends=('meson')
+makedepends=('glib2-devel' 'meson')
 source=(https://gitlab.com/mobian1/callaudiod/-/archive/$pkgver/callaudiod-$pkgver.tar.gz)
 
 build() {
@@ -20,4 +20,4 @@ package() {
     cd $pkgname-$pkgver
     DESTDIR="$pkgdir" ninja -C output install
 }
-md5sums=('454a7702110a55e1085fb2a1b1fd3ef1')
+md5sums=('63224b60875d92a2fe8c59d2ff0628c8')
