@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 _pkgname=chatty
 pkgname=purism-chatty
-pkgver=0.8.3
+pkgver=0.8.4
 pkgrel=1
 pkgdesc="SMS/MMS, Matrix and (optionally) XMPP messaging app"
 url="https://gitlab.gnome.org/World/Chatty"
@@ -17,6 +17,7 @@ depends=(
     'libmm-glib'
     'libolm'
     'libpurple'
+    'libspelling'
 )
 replaces=('chatty<=0.7.3')
 makedepends=('git' 'itstool' 'meson' 'ninja')
@@ -28,7 +29,7 @@ optdepends=(
     'mmsd-tng: MMS support'
     'purple-telegram: Telegram chat protocol support'
 )
-_commit="3046c457f82e677e828b575901859fa52c958684" # tags/v0.8.3
+_commit="28b23d3d1a376b4691e031010fbe4a4b0da64d69" # tags/v0.8.4
 source=($_pkgname::git+https://gitlab.gnome.org/World/Chatty.git#commit=${_commit})
 
 pkgver() {
