@@ -2,7 +2,7 @@
 # Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-pinetab2
-pkgver=6.9.8.danctnix1
+pkgver=6.9.8.danctnix2
 pkgrel=1
 pkgdesc='PineTab2'
 _srcname=linux-pinetab2
@@ -39,9 +39,9 @@ validpgpkeys=(
 )
 b2sums=('3c3874b053d7076564936f2053ef666733d329c402999aac736cf64418cb74e471cf9d7ae62e8fab49e4e916f196c5b8317aa243691b1d18119a25196108dd06'
         'SKIP'
-        '9cb21e30eb7b790312091ab656c43b81737b7d173d81364ca74de996e0237f8c15c1ed1ccff3b12a072a8cc9f80627e6d62e0c6eba4f366e6e0432647c76f137'
+        '1f3fc6766b0de72aaa55cb3c20ce6928d29b013eefe91e8424ba30691ee61eca3ebbb533b6180bedcc30e9d7085d95ab140283b1519f607d3dac99f6614a683d'
         'SKIP'
-        '310e28aa3d21bf693454a0ce07fdab9755b6100229b0746c1ce77b33134928d6d3f146dbf1383169e62d6d7c74f926d491dd6c14f7b322dfe47a9de45a90b6a1')
+        '86fb72f82ec263f0a202e198eb890955ace653fe890c142ffbee45a9e77c011b330835edbd84794c9b181dfd8468cecf0d6962f89d11d75687bff49d81c83b20')
 
 export KBUILD_BUILD_HOST=archlinux
 export KBUILD_BUILD_USER=$pkgbase
