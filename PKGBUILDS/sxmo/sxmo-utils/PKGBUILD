@@ -2,41 +2,35 @@
 # Contributor: dni <office@dnilabs.com>
 
 pkgname=('sxmo-utils' 'sxmo-utils-sway' 'sxmo-utils-dwm')
-pkgver=1.15.2
-pkgrel=2
+pkgver=1.16.3
+pkgrel=1
 pkgdesc="Utility scripts, programs, and configs that hold the sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
 license=('AGPL3')
-makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox' 'scdoc')
+makedepends=('libx11' 'xorgproto' 'linux-headers' 'busybox' 'scdoc' 'git')
 install=sxmo-utils.install
-# There have been quite a few bugfixes since the 1.15.1 release, this is about
-# 20 commits ahead of the release so we don't have to carry patches for all of
-# them. There is a 1.15.2 release coming soon that will include these.
-source=("$pkgname-$pkgver.tar.gz::https://git.sr.ht/~mil/sxmo-utils/archive/$pkgver.tar.gz"
+source=("git+https://git.sr.ht/~mil/sxmo-utils#tag=$pkgver"
         '0001-avoid-conflicting-with-systemd-services.patch'
         '0002-Partially-revert-7a77851c.patch'
         '00-sxmo.rules'
-        '10-sxmo.conf'
-        'sxmo-setpermissions.service')
-sha512sums=('ee68b67a0d136a7a70b896d9ad4217d23f54022faca59c9ac241f1948c6a203453595569278e5909fa631e3855fcf0560efa7012ad9d201f1819fd65bd7b0500'
+        '10-sxmo.conf')
+sha512sums=('db923a70658862106b34ed2c81c1335e41c8857b3216fd7e64ea6e594a1feef670451968946dc45bea8dd6c7e8bfbe3ecd944f85c0bddddf3f1f5700b1664f04'
             '2a11f00fa5f508a0a5af3fb28730317de1cc99bb340ef724e5566aaa9bccec44563da3094028e8f447db63500bbedf46c25c1db250abf771f2e3549038e59224'
             'd327fcc2abdc25889f650d7c47a6b9cc67e85539954b45d4097ff9bffb75133244ea8b0d96339f9c3280a544395dcc9b96d59c6a9a117b7f685afe5123d377eb'
             'd705fc9611716a73c89da94bf3abc9292e9069bc994b0bd097159f4babd83d4693d5cc3e42336739ac46a8c6b4a0f39d077047202901dc5066df75e597450fa7'
-            'b69a09f98f8a5cad8164cd48c5f6a78f2ce0e9818fb77ccf2a3e243cd0f2023e438022b20aad9e6b5edd90e1bb862326db79dc423630682d4c43e897090d3da1'
-            '532c3045f52f872704876bdf56afbc7470c5d17e46655dd4040d545b6d3eb34a8791909e554c560471f9494c7382107839bcff1e48be242d5eea0092482165cd')
+            'b69a09f98f8a5cad8164cd48c5f6a78f2ce0e9818fb77ccf2a3e243cd0f2023e438022b20aad9e6b5edd90e1bb862326db79dc423630682d4c43e897090d3da1')
+
 
 prepare() {
-  cd "$pkgname-$pkgver"
+  cd "sxmo-utils"
 
   patch -p1 < '../0001-avoid-conflicting-with-systemd-services.patch'
   patch -p1 < '../0002-Partially-revert-7a77851c.patch'
 }
 
 build() {
-  cd "$pkgname-$pkgver"
-
-  make
+  make -C "sxmo-utils"
 }
 
 package_sxmo-utils() {
@@ -46,7 +40,7 @@ package_sxmo-utils() {
     'bc'
     'curl'
     'gawk'
-    'gojq'
+    'jq'
     'less'
     'net-tools' # netstat command
     'pnc'
@@ -96,7 +90,7 @@ package_sxmo-utils() {
               'vim: The default editor'
               'yt-dlp: Play videos from the web')
 
-  make -C "$pkgname-$pkgver" \
+  make -C "sxmo-utils" \
     OPENRC=0 \
     DESTDIR="$pkgdir" \
     EXTERNAL_SERVICES=0 \
@@ -114,18 +108,13 @@ package_sxmo-utils() {
   # fix directory permissions, TODO this should be done upstream
   chmod 750 "$pkgdir/etc/doas.d"
 
-  # set the sxmo version, releases have a chronic issue of not updating this
-  echo "$pkgver" > "$pkgdir/usr/share/sxmo/version"
-
   # HACK: doas is built without --with-doas-confdir so install the sxmo config directly
   install -Dm640 "$pkgdir/etc/doas.d/sxmo.conf" "$pkgdir/etc/doas.conf"
-
-  install -Dm644 "$srcdir/sxmo-setpermissions.service" "$pkgdir/usr/lib/systemd/system/sxmo-setpermissions.service"
 }
 
 package_sxmo-utils-sway() {
   pkgdesc="Use sway as the window manager with sxmo"
-  url="https://sr.ht/~mil/Sxmo/"
+  url="https://sr.ht/~mil/sxmo/"
   arch=('any')
   provides=('sxmo-ui')
   replaces=('sxmo-ui-sway-meta')
@@ -133,6 +122,7 @@ package_sxmo-utils-sway() {
   depends=('bemenu-wayland'
            'foot'
            'grim'
+           'imv'
            'mako'
            'slurp'
            'sway'
@@ -143,20 +133,20 @@ package_sxmo-utils-sway() {
            'wtype'
            'wvkbd'
            'xorg-xwayland')
-  optdepends=('sxmo-sway: better touch event handling')
 
-  make -C "$pkgbase-$pkgver" DESTDIR="$pkgdir" install-sway
+  make -C "sxmo-utils" DESTDIR="$pkgdir" install-sway
 }
 
 package_sxmo-utils-dwm() {
   pkgdesc="Packages required to use dwm as a ui for sxmo"
-  url="https://sr.ht/~mil/Sxmo/"
+  url="https://sr.ht/~mil/sxmo/"
   arch=('any')
   provides=('sxmo-ui')
   replaces=('sxmo-ui-dwm-meta')
   install=
   depends=('autocutsel'
            'feh'
+           'scrot'
            'svkbd'
            'sxiv'
            'sxmo-dmenu'
@@ -166,7 +156,7 @@ package_sxmo-utils-dwm() {
            'xcalib'
            'xclip'
            'xdotool'
-           'xsel'
+           'xob'
            'xorg-xdpyinfo'
            'xorg-xinput'
            'xorg-xprop'
@@ -175,7 +165,8 @@ package_sxmo-utils-dwm() {
            'xorg-xset'
            'xorg-xsetroot'
            'xorg-xwininfo'
-           'xprintidle')
+           'xprintidle'
+           'xsel')
 
-  make -C "$pkgbase-$pkgver" DESTDIR="$pkgdir" install-dwm
+  make -C "sxmo-utils" DESTDIR="$pkgdir" install-dwm
 }
