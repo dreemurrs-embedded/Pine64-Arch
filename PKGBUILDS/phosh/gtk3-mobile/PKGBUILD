@@ -3,15 +3,15 @@
 # Contributor: Ionut Biru <ibiru@archlinux.org>
 
 pkgname=gtk3-mobile
-pkgver=3.24.41
+pkgver=3.24.43
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (Built with Purism patches)"
 url="https://www.gtk.org/"
 arch=('x86_64' 'armv7h' 'aarch64')
-license=(LGPL-2.0-only)
+license=(LGPL-2.1-or-later)
 depends=(
   adwaita-icon-theme
-  atk
+  at-spi2-core
   cairo
   cantarell-fonts
   dconf
@@ -20,6 +20,7 @@ depends=(
   fribidi
   gdk-pixbuf2
   glib2
+  glibc
   gtk-update-icon-cache
   harfbuzz
   iso-codes
@@ -30,8 +31,8 @@ depends=(
   libepoxy
   libgl
   librsvg
-  libxcomposite
   libx11
+  libxcomposite
   libxcursor
   libxdamage
   libxext
@@ -48,9 +49,10 @@ depends=(
 )
 makedepends=(
   git
-  glib2-docs
+  glib2-devel
   gobject-introspection
   gtk-doc
+  hicolor-icon-theme
   meson
   sassc
   wayland-protocols
@@ -68,10 +70,10 @@ conflicts=(
   gtk3-print-backends
 )
 install=gtk3.install
-_commit=77ebdd85091833a7869ece48c3114fa6d9966321  # tags/3.24.41^0
 source=(
-  "git+https://gitlab.gnome.org/GNOME/gtk.git#commit=$_commit"
+  "git+https://gitlab.gnome.org/GNOME/gtk.git#tag=$pkgver"
   gtk-query-immodules-3.0.hook
+  0001-Allow-disabling-legacy-Tracker-search.patch
   # Purism patches
   Add-GtkHdyViewSwitcherButton.patch
   Add-GtkHdyViewSwitcher.patch
@@ -105,8 +107,9 @@ source=(
   events-Compress-touch-update-events.patch
   gdk-wayland-Track-last-touch-serial-on-seat.patch
 )
-sha256sums=('SKIP'
+sha256sums=('2d447a2ecf41d2616e413263b495a8f410a43dda1c74cf3e05a740c98f98f9ff'
             'de46e5514ff39a7a65e01e485e874775ab1c0ad20b8e94ada43f4a6af1370845'
+            'f102ea1987b9b8370882d5c7f6aa577bfa3adade834b179c6352c39388ab9b3e'
             '5d741bf9ef9071f1a78cf8b1b8f0ffa62d67e1144628093e66a0e22ac06d5d3d'
             '4d8c9deaa13619eb813e399413bb8e4a77b825e843e80efe9580f0c70317dbae'
             '23cff79de2a818b58e8dc76551d32b67642c5031253350285dbec5d7f160a7a0'
@@ -165,6 +168,7 @@ build() {
     -D gtk_doc=true
     -D introspection=true
     -D man=true
+    -D tracker=false
     -D tracker3=true
   )
 
