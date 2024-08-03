@@ -3,7 +3,7 @@
 
 pkgname=('sxmo-utils' 'sxmo-utils-sway' 'sxmo-utils-dwm')
 pkgver=1.15.2
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -126,7 +126,7 @@ package_sxmo-utils() {
 
 package_sxmo-utils-sway() {
   pkgdesc="Use sway as the window manager with sxmo"
-  url="https://sr.ht/~mil/Sxmo/"
+  url="https://sr.ht/~mil/sxmo/"
   arch=('any')
   provides=('sxmo-ui')
   replaces=('sxmo-ui-sway-meta')
@@ -151,7 +151,7 @@ package_sxmo-utils-sway() {
 
 package_sxmo-utils-dwm() {
   pkgdesc="Packages required to use dwm as a ui for sxmo"
-  url="https://sr.ht/~mil/Sxmo/"
+  url="https://sr.ht/~mil/sxmo/"
   arch=('any')
   provides=('sxmo-ui')
   replaces=('sxmo-ui-dwm-meta')

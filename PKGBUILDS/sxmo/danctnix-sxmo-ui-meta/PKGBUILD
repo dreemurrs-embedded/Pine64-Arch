@@ -1,9 +1,9 @@
 # Maintainer: dni <office@dnilabs.com>
 pkgname=danctnix-sxmo-ui-meta
 pkgver=1.6.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Sxmo: Simple X Mobile - A Pinephone UI that is simple and suckless"
-url="https://sr.ht/~mil/Sxmo/"
+url="https://sr.ht/~mil/sxmo/"
 arch=('any')
 depends=('danctnix-sxmo-settings' 'dnsmasq' 'polkit' 'sxmo-utils')
 license=('MIT')
