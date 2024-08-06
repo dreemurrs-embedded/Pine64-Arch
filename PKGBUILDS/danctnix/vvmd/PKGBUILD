@@ -1,6 +1,6 @@
 # Maintainer: Aren Moynihan <aren@peacevolution.org>
 pkgname=vvmd
-pkgver=0.18
+pkgver=1.0
 pkgrel=1
 pkgdesc="Visual Voicemail Daemon"
 url="https://gitlab.com/kop316/vvmd"
@@ -11,7 +11,7 @@ depends=("c-ares" "mobile-broadband-provider-info" "libmm-glib" "libphonenumber"
 makedepends=("meson")
 source=("$pkgname-$pkgver.tar.gz::https://gitlab.com/kop316/vvmd/-/archive/$pkgver/vvmd-$pkgver.tar.gz"
         "vvmd.service")
-sha256sums=('7c1c5a7940a2ae98b98d8d0f6e1ff7cd3c3d5256bf9d0fed2118812c76674580'
+sha256sums=('cde2bfb2e289c618d78994205204806575603b3894d81f5c18b2b6badadf0dd3'
             'b4bfd3b3758427975eee8ca5b4a39fb43ce7ea36b56d7c82a23fdacdb4161c50')
 
 build() {
