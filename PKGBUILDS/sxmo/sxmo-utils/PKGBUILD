@@ -3,7 +3,7 @@
 
 pkgname=('sxmo-utils' 'sxmo-utils-sway' 'sxmo-utils-dwm')
 pkgver=1.15.2
-pkgrel=1
+pkgrel=2
 pkgdesc="Utility scripts, programs, and configs that hold the sxmo UI environment together"
 url="https://git.sr.ht/~mil/sxmo-utils"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -73,8 +73,7 @@ package_sxmo-utils() {
     'bluez'
     'bluez-utils'
     'libpulse'
-    'pulseaudio'
-    'pulseaudio-alsa'
+    'pulse-native-provider'
 
     # Core GUI dependencies
     'brightnessctl'
