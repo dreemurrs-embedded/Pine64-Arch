@@ -1,0 +1,7 @@
+post_upgrade() {
+    /usr/bin/udevadm trigger --subsystem-match=leds --action=change
+}
+
+post_install() {
+    post_upgrade
+}

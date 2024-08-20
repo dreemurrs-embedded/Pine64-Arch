@@ -1,15 +1,17 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=feedbackd
-pkgver=0.3.0
+pkgver=0.4.1
 pkgrel=1
 pkgdesc="A daemon to provide haptic, led and audio feedback triggered by application events"
 url="https://source.puri.sm/Librem5/feedbackd"
 arch=('x86_64' 'armv7h' 'aarch64')
+install="$pkgname.install"
 license=('GPL-3.0-or-later AND LGPL-2.1-or-later')
 depends=('gobject-introspection' 'gsound' 'json-glib' 'libgmobile' 'libgudev')
-makedepends=('git' 'meson' 'vala')
+makedepends=('git' 'glib2-devel' 'meson' 'vala')
+checkdepends=('umockdev')
 _fbd_themes_name=feedbackd-device-themes
-_fbd_themes_ver=0.1.0
+_fbd_themes_ver=0.4.0
 source=(https://source.puri.sm/Librem5/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.gz
         https://source.puri.sm/Librem5/${_fbd_themes_name}/-/archive/v${_fbd_themes_ver}/${_fbd_themes_name}-v${_fbd_themes_ver}.tar.gz)
 
@@ -24,18 +26,12 @@ check() {
 
 package() {
   DESTDIR="$pkgdir" ninja -C output install
-  install -Dm644 "$srcdir"/$pkgname-v${pkgver}/debian/feedbackd.udev \
-    "$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
   sed -i 's/libexec/lib/g' "$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
-
-  # FIXME: We aren't supposed to abuse video group, but we need to find a
-  #        efficient way to add user to feedbackd group.
-  sed -i 's/-G feedbackd/-G video/g' "$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
 
   # It would make much more sense to bundle fbd device configuration with the pkg.
   find ${srcdir}/${_fbd_themes_name}-v${_fbd_themes_ver}/data -name \*.json \
     -exec cp {} ${pkgdir}/usr/share/feedbackd/themes \;
 }
 
-md5sums=('9203393ae6e2d9debdd58ec32a827a24'
-         'bf51ba9cb3dbd19878781bd2544c4b02')
+md5sums=('7c86f4fb5f354ab3f646476129c2b4b5'
+         '63e56a4b2089ff59ea9cd4eaefbb7578')
