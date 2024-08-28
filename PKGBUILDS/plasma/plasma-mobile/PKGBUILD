@@ -3,7 +3,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-mobile
-pkgver=6.1.2
+pkgver=6.1.4
 _dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc="Plasma shell for mobile devices"
@@ -28,7 +28,7 @@ optdepends=('hfd-service: Haptic feedback')
 replaces=('plasma-phone-components')
 source=("https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz")
 install=$pkgname.install
-sha512sums=('db59764c89c91245fca60569a996a61e64e7e7eb0a869e10f65fda47dd6c9a7bb1843dfd7bc24d4d6c4cfb2a55a9d5f0a8f3e3ade6f8000edd8509a3efa5479e')
+sha512sums=('7f739bd918dee881014dc779ecc4ddf5ae19a1410ef6a64ea86aef2604dd12cc90edb2ee80b9c53bdf6f59f9ee2a4cce97a996f21456c74b34c1e8a8a895cdd8')
 
 build() {
   cmake -B build -S $pkgname-$pkgver \
