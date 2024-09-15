@@ -1,0 +1,26 @@
+# Maintainer: kclisp <kenchen1368@gmail.com>
+# Contributor: Robin Westermann <waked@seath.de>
+
+pkgname=waked
+pkgver=0.1.1
+pkgrel=1
+pkgdesc="Daemon to let other applications wake up the system"
+url="https://gitlab.com/seath1/waked"
+arch=('x86_64' 'armv7h' 'aarch64')
+license=('GPL2')
+depends=('sdbus-cpp')
+makedepends=('cmake')
+source=(https://gitlab.com/seath1/waked/-/archive/v$pkgver/waked-v$pkgver.tar.gz)
+sha256sums=('56c99a95af55d7b23514945ee71dc19817f024f04f36fdfede48a59928306bd0')
+
+build() {
+  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -B build -S "$pkgname-v$pkgver/src"
+  make -C build
+}
+
+package() {
+  cd $pkgname-v$pkgver
+  install -Dm755 ../build/waked "$pkgdir"/usr/bin/waked
+  install -Dm644 waked.service "$pkgdir"/usr/lib/systemd/system/waked.service
+  install -Dm644 de.seath.Waked.conf "$pkgdir"/etc/dbus-1/system.d/de.seath.Waked.conf
+}
