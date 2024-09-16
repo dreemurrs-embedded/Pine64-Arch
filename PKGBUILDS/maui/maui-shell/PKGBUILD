@@ -1,5 +1,4 @@
-_pkgname=maui-shell
-pkgname=$_pkgname-git
+pkgname=maui-shell
 pkgver=0.6.6.r11.g8272456
 pkgrel=1
 pkgdesc='Maui Shell is a convergent shell for desktops, tablets, and phones.'
@@ -7,7 +6,7 @@ url='https://github.com/Nitrux/maui-shell'
 arch=(x86_64 i686 arm armv6h armv7h aarch64)
 license=(LGPL3)
 depends=(bluedevil
-         cask-server-git
+         cask-server
          fontconfig
          karchive
          kconfig
@@ -35,11 +34,11 @@ depends=(bluedevil
          kunitconversion
          kwallet
          kwayland
-         maui-core-git
-         mauikit-calendar-git
-         mauikit-filebrowsing-git
-         mauikit-git
-         mauiman-git
+         maui-core
+         mauikit-calendar
+         mauikit-filebrowsing
+         mauikit
+         mauiman
          phonon-qt6
          plasma-nm
          plasma-pa
