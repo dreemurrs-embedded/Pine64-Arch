@@ -1,5 +1,5 @@
 pkgname=maui-shell
-pkgver=0.6.6.r11.g8272456
+pkgver=0.6.6.r13.g52dff25
 pkgrel=1
 pkgdesc='Maui Shell is a convergent shell for desktops, tablets, and phones.'
 url='https://github.com/Nitrux/maui-shell'
@@ -53,13 +53,13 @@ depends=(bluedevil
 makedepends=(git extra-cmake-modules)
 optdepends=('maui-settings-git: Settings Manager Apps for the Maui DE')
 groups=(maui)
-provides=($_pkgname)
-conflicts=($_pkgname)
+provides=($pkgname)
+conflicts=($pkgname)
 source=(git+$url.git)
 sha256sums=('SKIP')
 
 pkgver() {
-  cd $_pkgname
+  cd $pkgname
   ( set -o pipefail
     git describe --long 2>/dev/null | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g' ||
     printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
@@ -67,14 +67,14 @@ pkgver() {
 }
 
 build() {
-  cmake -B build -S $_pkgname \
+  cmake -B build -S $pkgname \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=/usr/lib
-  cmake --build build
+  cmake --build build -j4
 }
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
-  install -Dm644 $_pkgname/LICENSE -t "${pkgdir}"/usr/share/licenses/$_pkgname
+  install -Dm644 $pkgname/LICENSE -t "${pkgdir}"/usr/share/licenses/$pkgname
 }

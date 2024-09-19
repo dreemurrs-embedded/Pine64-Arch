@@ -8,13 +8,13 @@ license=(BSD-2-Clause custom:CC0 LGPL)
 depends=(qt6-base)
 makedepends=(git extra-cmake-modules)
 groups=(maui)
-provides=($_pkgname)
-conflicts=($_pkgname)
+provides=($pkgname)
+conflicts=($pkgname)
 source=(git+$url.git)
 sha256sums=('SKIP')
 
 pkgver() {
-  cd $_pkgname
+  cd $pkgname
   ( set -o pipefail
     git describe --long 2>/dev/null | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g' ||
     printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
@@ -22,14 +22,14 @@ pkgver() {
 }
 
 build() {
-  cmake -B build -S $_pkgname \
+  cmake -B build -S $pkgname \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=/usr/lib
-  cmake --build build
+  cmake --build build -j4
 }
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
-  install -Dm644 $_pkgname/licenses/* -t "${pkgdir}"/usr/share/licenses/$_pkgname
+  install -Dm644 $pkgname/licenses/* -t "${pkgdir}"/usr/share/licenses/$pkgname
 }
