@@ -1,3 +1,4 @@
+# Maintainer: James Alexander Rose <jrosary-dev@outlook.com>
 pkgname=maui-shell
 pkgver=0.6.6.r13.g52dff25
 pkgrel=1
@@ -7,6 +8,7 @@ arch=(x86_64 i686 arm armv6h armv7h aarch64)
 license=(LGPL3)
 depends=(bluedevil
          cask-server
+         extra-cmake-modules
          fontconfig
          karchive
          kconfig
@@ -71,7 +73,7 @@ build() {
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=/usr/lib
-  cmake --build build -j4
+  cmake --build build
 }
 
 package() {

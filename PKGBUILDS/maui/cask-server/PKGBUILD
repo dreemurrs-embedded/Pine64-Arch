@@ -1,3 +1,4 @@
+# Maintainer: James Alexander Rose <jrosary-dev@outlook.com>
 pkgname=cask-server
 pkgver=0.6.6.r3.ga06979f
 pkgrel=1
@@ -5,7 +6,53 @@ pkgdesc='Public server and API to interface with Cask features'
 url='https://github.com/Nitrux/cask-server'
 arch=(x86_64 i686 arm armv6h armv7h aarch64)
 license=(BSD-2-Clause custom:CC0 LGPL)
-depends=(qt6-base)
+depends=(
+  bluedevil
+  fontconfig
+  karchive
+  kconfig
+  kcoreaddons
+  kcrash
+  kdbusaddons
+  kdeclarative
+  kded
+  kdesu
+  kglobalaccel
+  ki18n
+  kiconthemes
+  kidletime
+  kinit
+  kio
+  kitemmodels
+  knotifications
+  knotifyconfig
+  kpackage
+  kpeople
+  krunner
+  kservice
+  ktexteditor
+  kunitconversion
+  kwallet
+  kwayland
+  libcanberra
+  mauikit
+  mauikit-calendar
+  mauikit-filebrowsing
+  maui-core
+  mauiman
+  phonon-qt6
+  plasma-nm
+  plasma-pa
+  polkit-qt6
+  prison
+  qt6-base
+  qt6-declarative
+  qt6-quickcontrols2
+  qt6-svg
+  qt6-wayland
+  solid
+  sound-theme-freedesktop
+)
 makedepends=(git extra-cmake-modules)
 groups=(maui)
 provides=($pkgname)
@@ -26,7 +73,7 @@ build() {
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=/usr/lib
-  cmake --build build -j4
+  cmake --build build
 }
 
 package() {
