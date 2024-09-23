@@ -1,5 +1,5 @@
 # Maintainer: James Rose <james.rose1103@outlook.com>
-pkgname=arch-pine64-build
+pkgname=danctnix-arch-build
 pkgver=1.0.0
 pkgrel=1
 pkgdesc="A package to install arch-pine64-build into /opt"
@@ -8,18 +8,18 @@ url="https://github.com/dreemurrs-embedded/arch-pine64-build"
 license=('GPL')
 depends=('devtools' 'base-devel' 'lsof' 'libarchive' 'dosfstools' 'util-linux' 'wget' 'arch-install-scripts' 'qemu-user-static' 'qemu-user-static-binfmt' 'e2fsprogs')
 makedepends=('git')
-source=("https://github.com/dreemurrs-embedded/arch-pine64-build")
+source=("git+https://github.com/dreemurrs-embedded/arch-pine64-build.git")
 sha256sums=('SKIP')
 
 build() {
-    cd "$srcdir/$pkgname"
-    mv build.sh danct-bootstrap
-    chmod +x danct-bootstrap
+    cd "$srcdir/arch-pine64-build"
+    mv build.sh danct-build
+    chmod +x danct-build
 }
 
 package() {
-    cd "$srcdir/$pkgname"
-    install -Dm755 danct-bootstrap "$pkgdir/usr/bin/danct-bootstrap"
+    cd "$srcdir/arch-pine64-build"
+    install -Dm755 danct-build "$pkgdir/usr/bin/danct-build"
     install -d "$pkgdir/opt/$pkgname"
     cp -r ./* "$pkgdir/opt/$pkgname/"
 }
