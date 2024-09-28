@@ -6,7 +6,7 @@
 _pkgname=evince
 pkgname=$_pkgname-mobile
 pkgver=46.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Document viewer (PDF, PostScript, XPS, djvu, dvi, tiff, cbr, cbz, cb7, cbt)"
 url="https://wiki.gnome.org/Apps/Evince"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -34,6 +34,7 @@ makedepends=(
   appstream-glib
   gi-docgen
   git
+  glib2-devel
   gobject-introspection
   meson
   texlive-bin
