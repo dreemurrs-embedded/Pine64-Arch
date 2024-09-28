@@ -5,7 +5,7 @@
 
 pkgname=spacebar
 pkgver=24.05.0
-pkgrel=1
+pkgrel=2
 pkgdesc="SMS and messaging application for Mobile Devices running Plasma"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://community.kde.org/Plasma/Mobile"
@@ -33,8 +33,15 @@ makedepends=(
   'cmake'
   'extra-cmake-modules'
 )
-source=("http://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz")
-sha256sums=('1ab34a700ff3f97af0bcc9cb97fbd03bbc5a41ea4ff40144ad1ed9e30584f3f5')
+source=("http://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz"
+  7af4c57fa4841377d723799c55e4d35226dffd00.patch)
+sha256sums=('1ab34a700ff3f97af0bcc9cb97fbd03bbc5a41ea4ff40144ad1ed9e30584f3f5'
+            'be80ea1aed714b38c41a4adb5b670cfa4c8791ca2f52925e7f985676226da8ad')
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 < ../7af4c57fa4841377d723799c55e4d35226dffd00.patch
+}
 
 build() {
   cmake -B build -S $pkgname-$pkgver \
