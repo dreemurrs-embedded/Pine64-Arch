@@ -2,7 +2,7 @@
 _pkgname=chatty
 pkgname=purism-chatty
 pkgver=0.8.5
-pkgrel=2
+pkgrel=3
 pkgdesc="SMS/MMS, Matrix and (optionally) XMPP messaging app"
 url="https://gitlab.gnome.org/World/Chatty"
 license=('GPL')
@@ -16,6 +16,7 @@ depends=(
     'libadwaita'
     'libmm-glib'
     'libolm'
+    'libphonenumber'
     'libpurple'
     'libspelling'
 )
