@@ -1,0 +1,8 @@
+[org.gnome.settings-daemon.peripherals.touchscreen:Phosh]
+orientation-lock=true
+
+[org.gnome.software:Phosh]
+download-updates=false
+
+[sm.puri.phosh:Phosh]
+enable-suspend=true

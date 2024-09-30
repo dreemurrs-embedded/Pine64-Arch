@@ -1,9 +1,7 @@
 post_install() {
-	dconf update
 	glib-compile-schemas /usr/share/glib-2.0/schemas
 }
 
 post_upgrade() {
-	dconf update
 	glib-compile-schemas /usr/share/glib-2.0/schemas
 }

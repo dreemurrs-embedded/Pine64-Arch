@@ -1,16 +1,15 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=danctnix-phosh-settings
-pkgver=0.5
-pkgrel=3
+pkgver=0.6
+pkgrel=1
 pkgdesc="Settings for Phosh UI"
 arch=(any)
 url="https://github.com/dreemurrs-embedded/Pine64-Arch"
 license=('MIT')
 install="$pkgname.install"
-source=(adwaita-phone.jpg
-        pa-phosh.pa
+source=(pa-phosh.pa
         phosh-wayland.sh
-        11_mobile.gschema.override)
+        11_danctnix.Phosh.gschema.override)
 
 package() {
   # Add custom PA config
@@ -19,13 +18,10 @@ package() {
   # Envscripts
   install -Dm755 -t "$pkgdir/etc/profile.d" "$srcdir/phosh-wayland.sh"
 
-  install -Dm644 -t "$pkgdir/usr/share/glib-2.0/schemas" "$srcdir/11_mobile.gschema.override"
-
-  install -Dm644 -t "$pkgdir/usr/share/danctnix" "$srcdir/adwaita-phone.jpg"
+  install -Dm644 -t "$pkgdir/usr/share/glib-2.0/schemas" "$srcdir/11_danctnix.Phosh.gschema.override"
 }
 
 
-md5sums=('cdc223b00b4e98f77286df98b1cddb4b'
-         'fe7dc2d103ce11388af9ed555578fbf7'
+md5sums=('fe7dc2d103ce11388af9ed555578fbf7'
          '7580818750c3dad45819f0e3345169a7'
-         '9caef3d24adc4d10528eac294353b167')
+         '7d2d71749dc211df6292b545e841e5d1')
