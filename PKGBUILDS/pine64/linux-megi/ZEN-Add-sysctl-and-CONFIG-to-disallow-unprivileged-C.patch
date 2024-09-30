@@ -1,4 +1,4 @@
-From 1705cd94601612d49c6fd4ab732ffabb75c2950c Mon Sep 17 00:00:00 2001
+From dd778eae3f9cfea84eae2777b1bd76bbf28d96dc Mon Sep 17 00:00:00 2001
 From: "Jan Alexander Steffens (heftig)" <jan.steffens@gmail.com>
 Date: Mon, 16 Sep 2019 04:53:20 +0200
 Subject: [PATCH] ZEN: Add sysctl and CONFIG to disallow unprivileged
@@ -14,7 +14,7 @@ Our default behavior continues to match the vanilla kernel.
  5 files changed, 53 insertions(+)
 
 diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index 6030a8235617..60b7fe5fa74a 100644
+index 6030a823561735..60b7fe5fa74ad4 100644
 --- a/include/linux/user_namespace.h
 +++ b/include/linux/user_namespace.h
 @@ -156,6 +156,8 @@ static inline void set_userns_rlimit_max(struct user_namespace *ns,
@@ -36,10 +36,10 @@ index 6030a8235617..60b7fe5fa74a 100644
  {
  	return &init_user_ns;
 diff --git a/init/Kconfig b/init/Kconfig
-index 664bedb9a71f..746e382ad747 100644
+index 5783a0b8751726..5ea91114707c5c 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -1247,6 +1247,22 @@ config USER_NS
+@@ -1265,6 +1265,22 @@ config USER_NS
  
  	  If unsure, say N.
  
@@ -63,10 +63,10 @@ index 664bedb9a71f..746e382ad747 100644
  	bool "PID Namespaces"
  	default y
 diff --git a/kernel/fork.c b/kernel/fork.c
-index aebb3e6c96dc..f186c72983b0 100644
+index cc760491f20127..238695afc6304f 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -104,6 +104,10 @@
+@@ -105,6 +105,10 @@
  #include <uapi/linux/pidfd.h>
  #include <linux/pidfs.h>
  
@@ -77,7 +77,7 @@ index aebb3e6c96dc..f186c72983b0 100644
  #include <asm/pgalloc.h>
  #include <linux/uaccess.h>
  #include <asm/mmu_context.h>
-@@ -2154,6 +2158,10 @@ __latent_entropy struct task_struct *copy_process(
+@@ -2138,6 +2142,10 @@ __latent_entropy struct task_struct *copy_process(
  	if ((clone_flags & (CLONE_NEWUSER|CLONE_FS)) == (CLONE_NEWUSER|CLONE_FS))
  		return ERR_PTR(-EINVAL);
  
@@ -88,7 +88,7 @@ index aebb3e6c96dc..f186c72983b0 100644
  	/*
  	 * Thread groups must share signals as well, and detached threads
  	 * can only be started up within the thread group.
-@@ -3301,6 +3309,12 @@ int ksys_unshare(unsigned long unshare_flags)
+@@ -3287,6 +3295,12 @@ int ksys_unshare(unsigned long unshare_flags)
  	if (unshare_flags & CLONE_NEWNS)
  		unshare_flags |= CLONE_FS;
  
@@ -102,7 +102,7 @@ index aebb3e6c96dc..f186c72983b0 100644
  	if (err)
  		goto bad_unshare_out;
 diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 81cc974913bb..db581894e611 100644
+index 79e6cb1d5c48f8..676e89dc38c339 100644
 --- a/kernel/sysctl.c
 +++ b/kernel/sysctl.c
 @@ -80,6 +80,9 @@
@@ -115,7 +115,7 @@ index 81cc974913bb..db581894e611 100644
  
  /* shared constants to be used in various sysctls */
  const int sysctl_vals[] = { 0, 1, 2, 3, 4, 100, 200, 1000, 3000, INT_MAX, 65535, -1 };
-@@ -1623,6 +1626,15 @@ static struct ctl_table kern_table[] = {
+@@ -1618,6 +1621,15 @@ static struct ctl_table kern_table[] = {
  		.mode		= 0644,
  		.proc_handler	= proc_dointvec,
  	},
@@ -132,7 +132,7 @@ index 81cc974913bb..db581894e611 100644
  	{
  		.procname	= "tainted",
 diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index 0b0b95418b16..c4b835b91fc0 100644
+index 0b0b95418b16a7..c4b835b91fc005 100644
 --- a/kernel/user_namespace.c
 +++ b/kernel/user_namespace.c
 @@ -22,6 +22,13 @@
