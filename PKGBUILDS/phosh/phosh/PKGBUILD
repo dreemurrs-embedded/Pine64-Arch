@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=phosh
-pkgver=0.41.1
+pkgver=0.42.0
 pkgrel=1
 pkgdesc="A Wayland shell for GNOME on mobile devices."
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -40,7 +40,7 @@ install="$pkgname.install"
 source=(https://sources.phosh.mobi/releases/$pkgname/$pkgname-$pkgver.tar.xz{,.asc}
         'pam_phosh'
         'phosh.service')
-sha256sums=('39ce8396d8e3fb60f72d6673d5e600aea10a109618a893d2ad2704931c8d857d'
+sha256sums=('c13ec6d8fdd7e990687c889287826bba9c42360f7e26228f764fd176fcc45262'
             'SKIP'
             '43b94d0d9f4d083f028c77d18cb0d0f8037d160c41f333878c7cae3df0163c3d'
             '48dfe40c42218c92eec59969c06f203dc8a3928b21ca9ee2b92b0987de874a66')
