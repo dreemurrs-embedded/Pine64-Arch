@@ -1,0 +1,27 @@
+From dcc463f9331e3423839649c88efebc6f3b296f7f Mon Sep 17 00:00:00 2001
+From: Aren Moynihan <aren@peacevolution.org>
+Date: Sun, 29 Oct 2023 14:34:31 -0400
+Subject: [PATCH] Direct logs to process stdout
+
+This makes it possible to get logs from the graphical session in
+the system log, instead of losing them to the tty.
+---
+ main.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/main.c b/main.c
+index 0055fad..3ab0ea9 100644
+--- a/main.c
++++ b/main.c
+@@ -51,8 +51,6 @@ static void setup_vt(int vt) {
+ 	int fd = check_errno("open tty", open(p, O_RDWR));
+ 
+ 	check_errno("dup2", dup2(fd, 0));
+-	check_errno("dup2", dup2(fd, 1));
+-	check_errno("dup2", dup2(fd, 2));
+ 
+ 	struct vt_mode mode = { 0 };
+ 	mode.mode = VT_AUTO;
+-- 
+2.42.0
+
