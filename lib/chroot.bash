@@ -187,11 +187,11 @@ function chrootcmd() {
 
 
 	if [ -z "$arch" ]; then
-		pr_err "Undefined architecture"
+		pr_err "You must specify an architecture."
 		chrootcmd_usage
 		return 1
 	elif [ -z "$repo" ]; then
-		pr_err "Undefined repository"
+		pr_err "You must specify a repository."
 		chrootcmd_usage
 		return 1
 	fi
