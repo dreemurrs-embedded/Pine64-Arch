@@ -31,9 +31,6 @@ export SRCDEST="${SRCDEST:-$BASEPATH/sources}"
 export SRCPKGDEST="${SRCPKGDEST:-$BASEPATH/sources/srcpkg}"
 export LOGDEST="${LOGDEST:-$BASEPATH/logs}"
 
-# HACK: We don't need to run setarch.
-export nosetarch=1
-
 SUDO=
 
 if ! SUDO=$(which sudo); then

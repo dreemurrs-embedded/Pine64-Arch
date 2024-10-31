@@ -45,6 +45,21 @@ function mkpkg() {
 	chroot_location="${_BUILDSCR_CHROOT_DIR}/${repo}-${arch}"
 	pr_dbg "Chroot location: ${chroot_location}"
 
+	# we run setarch with a true command to see if it
+	# returns an error.
+	#
+	# if it does, we'll add an architecture alias to devtools
+	# so whenever devtools needs it, it won't fail.
+	if [ ! -f "/usr/share/devtools/setarch-aliases.d/${arch}" ] &&
+		! setarch "${arch}" /bin/true; then
+		pr_info "Creating a setarch alias for ${arch}"
+
+		local arch_check
+		arch_check="$(uname -m)"
+		printf "%s\n" "${arch_check}" |
+			${SUDO} tee "/usr/share/devtools/setarch-aliases.d/${arch}" > /dev/null
+	fi
+
 	for i in "${@:3}"; do 
 		if ! cd "${i}"; then
 			pr_err "Cannot enter ${i}"
