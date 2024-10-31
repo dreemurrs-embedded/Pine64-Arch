@@ -64,7 +64,6 @@ function pkg_repo_sync() {
 	fi
 
 	rsync_bin="$(which rsync)"
-	readonly rsync_bin
 	if [ -z "${rsync_bin}" ]; then
 		pr_err "failed to locate rsync"
 		return 1
