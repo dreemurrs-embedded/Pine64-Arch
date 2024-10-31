@@ -18,8 +18,8 @@ OPTIONS
 }
 
 function pkg_repo_remove() {
-	local temp
-	local arch help_var=0 delete=0 repo packages=()
+	local temp temp_package_name temp_package_file temp_package_arch
+	local arch help_var=0 delete=0 repo package_name=() package_file=()
 
 	if ! temp=$(getopt -o 'ha:d' -l 'help,arch:,delete' -n 'pkgrepo_del' -- "$@"); then
 		return
@@ -81,15 +81,28 @@ function pkg_repo_remove() {
 
 	for i in "${@:2}"
 	do
-		mapfile -t -O "${#packages[@]}" packages < <(printf "%s" "${i}")
+		temp_package_file="$(basename "${i}")"
+		temp_package_name="$(printf "%s" "${temp_package_file}" | rev | cut -d '-' -f 4- | rev)"
+		temp_package_arch="$(printf "%s" "${temp_package_file}" | rev | cut -d '-' -f 1 | rev | cut -d '.' -f 1)"
+		if [ "${temp_package_arch}" == "any" ] ; then
+			mapfile -t -O "${#package_file[@]}" package_file < <(printf "%s" "../any/${temp_package_file}")
+		fi
+		mapfile -t -O "${#package_file[@]}" package_file < <(printf "%s" "${temp_package_file}")
+
+		if [[ "${temp_package_file}" == *".sig" ]]; then
+			pr_dbg "Skipping ${temp_package_file}"
+		else
+			mapfile -t -O "${#package_name[@]}" package_name < <(printf "%s" "${temp_package_name}")
+		fi
 	done
 
-	if [ -z "${packages[0]}" ]; then
+	if [ -z "${package_file[0]}" ]; then
 		pr_err "Please specify at least a package tarball."
 		return 1
 	fi
 
-	pr_dbg "Packages: ${packages[*]}"
+	pr_dbg "Packages Files: ${package_file[*]}"
+	pr_dbg "Packages Names: ${package_name[*]}"
 
 	repo_remove_bin="$(which repo-remove)"
 	if [ -z "${repo_remove_bin}" ]; then
@@ -99,10 +112,11 @@ function pkg_repo_remove() {
 
 	cd "$REPODIR/${repo}/${arch}" || return
 
-	${repo_remove_bin} "${repo}.db.tar.xz" "${packages[@]}" || return
+	${repo_remove_bin} "${repo}.db.tar.xz" "${package_name[@]}" || return
 
 	if [ "$delete" -gt 0 ]; then
-		pr_warn "TODO. Manually remove the package yourself."
+		pr_info "Deleting package files.."
+		rm "${package_file[@]}" || return
 	fi
 
 	cd - || return

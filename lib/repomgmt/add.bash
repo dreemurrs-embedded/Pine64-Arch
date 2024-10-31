@@ -21,7 +21,7 @@ OPTIONS
 
 function pkg_repo_add() {
 	local temp
-	local arch help_var=0 repo packages=()
+	local arch help_var=0 repo packages=() packages_tar=()
 
 	if ! temp=$(getopt -o 'ha:' -l 'help,arch:' -n 'pkgrepo_add' -- "$@"); then
 		return
@@ -107,12 +107,9 @@ function pkg_repo_add() {
 	# If repodir doesn't exist, create it.
 	if [ ! -d "$REPODIR/${repo}/${arch}" ]; then
 		mkdir -p "$REPODIR/${repo}/${arch}" || return
-
-		# "any" folder contains architecture-agnostic packages
-		mkdir -p "$REPODIR/${repo}/any" || return
 	fi
 
-	cp "${packages[@]}" "$REPODIR/${repo}/${arch}" || return
+	cp -H "${packages[@]}" "$REPODIR/${repo}/${arch}" || return
 
 	cd "$REPODIR/${repo}/${arch}" || return
 
@@ -130,6 +127,9 @@ function pkg_repo_add() {
 		if [ "${pkgarch_postprocess}" == "any" ]; then
 			pr_dbg "${i} is architecture-agnostic (${pkgarch_postprocess})"
 
+			# create the "any" folder if it doesn't exist
+			[ ! -d "../any" ] && mkdir -p "../any"
+
 			[ ! -f "../any/${i}" ] && cp "${i}" "../any/${i}"
 			rm "${i}"
 			ln -s "../any/${i}" "${i}"
@@ -137,10 +137,17 @@ function pkg_repo_add() {
 			pr_err "Package target architecture invalid (attempting to add ${pkgarch_postprocess} package to ${arch} repo"
 			return
 		fi
+
+		pr_dbg "${i}"
+		if [[ "${i}" == *".sig" ]]; then
+			pr_dbg "Skipping ${i}"
+		else
+			packages_tar+=("${i}")
+		fi
 	done
 
 	# Remove old package after new package is added
-	${repo_add_bin} -R "${repo}.db.tar.xz" "${packages[@]}" || return
+	${repo_add_bin} -R "${repo}.db.tar.xz" "${packages_tar[@]}" || return
 
 	cd - || return
 }
