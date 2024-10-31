@@ -89,6 +89,12 @@ function pkg_repo_remove() {
 		fi
 		mapfile -t -O "${#package_file[@]}" package_file < <(printf "%s" "${temp_package_file}")
 
+		# If the signature file exists, remove it too.
+		if [[ "${i}" != *".sig" ]] && [ -f "${i}.sig" ]; then
+			pr_dbg "Found signature file for ${temp_package_file}"
+			mapfile -t -O "${#package_file[@]}" package_file < <(printf "%s" "${temp_package_file}.sig")
+		fi
+
 		if [[ "${temp_package_file}" == *".sig" ]]; then
 			pr_dbg "Skipping ${temp_package_file}"
 		else

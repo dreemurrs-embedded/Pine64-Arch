@@ -79,6 +79,11 @@ function pkg_repo_add() {
 	for i in "${@:2}"
 	do
 		mapfile -t -O "${#packages[@]}" packages < <(printf "%s" "${i}")
+
+		# If the signature file exists, copy it too.
+		if [[ "${i}" != *".sig" ]] && [ -f "${i}.sig" ]; then
+			mapfile -t -O "${#packages[@]}" packages < <(printf "%s" "${i}.sig")
+		fi
 	done
 
 	if [ -z "${packages[0]}" ]; then
@@ -138,7 +143,6 @@ function pkg_repo_add() {
 			return
 		fi
 
-		pr_dbg "${i}"
 		if [[ "${i}" == *".sig" ]]; then
 			pr_dbg "Skipping ${i}"
 		else
