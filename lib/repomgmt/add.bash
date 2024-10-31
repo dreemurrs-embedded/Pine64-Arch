@@ -130,7 +130,8 @@ function pkg_repo_add() {
 		if [ "${pkgarch_postprocess}" == "any" ]; then
 			pr_dbg "${i} is architecture-agnostic (${pkgarch_postprocess})"
 
-			mv "${i}" "../any/${i}"
+			[ ! -f "../any/${i}" ] && cp "${i}" "../any/${i}"
+			rm "${i}"
 			ln -s "../any/${i}" "${i}"
 		elif [ "${pkgarch_postprocess}" != "${arch}" ]; then
 			pr_err "Package target architecture invalid (attempting to add ${pkgarch_postprocess} package to ${arch} repo"
