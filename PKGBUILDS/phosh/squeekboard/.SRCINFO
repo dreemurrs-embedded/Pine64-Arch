@@ -1,0 +1,24 @@
+pkgbase = squeekboard
+	pkgdesc = An on-screen-keyboard input method for Wayland
+	pkgver = 1.42.1
+	pkgrel = 1
+	url = https://gitlab.gnome.org/World/Phosh/squeekboard
+	arch = x86_64
+	arch = armv7h
+	arch = aarch64
+	license = GPL-3.0-or-later
+	makedepends = glib2-devel
+	makedepends = meson
+	makedepends = ninja
+	makedepends = rust
+	makedepends = python-packaging
+	depends = feedbackd
+	depends = glib2
+	depends = gtk3
+	depends = gnome-desktop
+	depends = libbsd
+	depends = wayland-protocols
+	source = https://gitlab.gnome.org/World/Phosh/squeekboard/-/archive/v1.42.1/squeekboard-v1.42.1.tar.gz
+	md5sums = cc62256f7a7af1c24f2fb5b272a3f5cf
+
+pkgname = squeekboard

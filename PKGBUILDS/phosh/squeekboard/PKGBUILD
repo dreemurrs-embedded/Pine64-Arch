@@ -1,6 +1,6 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=squeekboard
-pkgver=1.42.0
+pkgver=1.42.1
 pkgrel=1
 pkgdesc="An on-screen-keyboard input method for Wayland"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -23,4 +23,4 @@ package() {
     DESTDIR="$pkgdir" ninja -C output install
 }
 
-md5sums=('9d3e4bb5f8ffb7e3dc2541758275fb86')
+md5sums=('cc62256f7a7af1c24f2fb5b272a3f5cf')
