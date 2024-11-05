@@ -2,18 +2,18 @@
 # Contributor : Philip Müller <philm@manjaro.org>
 
 pkgname=eg25-manager
-pkgver=0.5.0
+pkgver=0.5.2
 pkgrel=1
 pkgdesc="Daemon for managing the Quectel EG25 modem"
 arch=('x86_64' 'armv7h' 'aarch64')
 url="https://gitlab.com/mobian1/devices/eg25-manager"
-license=('GPL3')
+license=('GPL-3.0-or-later')
 depends=('libgudev' 'libgpiod>=2.0' 'libusb' 'libmm-glib')
 makedepends=('meson' 'ninja' 'scdoc' 'git' 'glib2-devel')
 optdepends=('modemmanager: for Phosh and Plasma Mobile')
 replaces=('danctnix-eg25-misc')
 source=(git+$url.git#tag=${pkgver})
-sha256sums=('bc343b5a00e23138b8dd76cc0784471057e68551a3ed8a7a7562665f6584c424')
+sha256sums=('b1ed18d54658ade732d4f6bb59f5ee41c4d258ab85bc62306be67e6a932f0125')
 
 build() {
   arch-meson ${pkgname} build
