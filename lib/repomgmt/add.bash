@@ -119,10 +119,11 @@ function pkg_repo_add() {
 	cd "$REPODIR/${repo}/${arch}" || return
 
 	for i in "${packages[@]}"; do
-		local pkgarch_postprocess
-		pr_dbg "Post-processing ${i}"
+		local pkgarch_postprocess pkgfile_basename
+		pkgfile_basename="$(basename "${i}")"
+		pr_dbg "Post-processing ${pkgfile_basename}"
 
-		pkgarch_postprocess="$(printf "%s" "${i}" | rev | cut -d '-' -f 1 | rev | cut -d '.' -f 1)"
+		pkgarch_postprocess="$(printf "%s" "${pkgfile_basename}" | rev | cut -d '-' -f 1 | rev | cut -d '.' -f 1)"
 
 		# if package architecture is "any", move the package to the parent "any"
 		# directory and create a symlink.
@@ -130,23 +131,23 @@ function pkg_repo_add() {
 		# additionally, if package architecture is not our target architecture
 		# then something is really wrong and we should abort it.
 		if [ "${pkgarch_postprocess}" == "any" ]; then
-			pr_dbg "${i} is architecture-agnostic (${pkgarch_postprocess})"
+			pr_dbg "${pkgfile_basename} is architecture-agnostic (${pkgarch_postprocess})"
 
 			# create the "any" folder if it doesn't exist
 			[ ! -d "../any" ] && mkdir -p "../any"
 
-			[ ! -f "../any/${i}" ] && cp "${i}" "../any/${i}"
-			rm "${i}"
-			ln -s "../any/${i}" "${i}"
+			[ ! -f "../any/${pkgfile_basename}" ] && cp "${pkgfile_basename}" "../any/${pkgfile_basename}"
+			rm "${pkgfile_basename}"
+			ln -s "../any/${pkgfile_basename}" "${pkgfile_basename}"
 		elif [ "${pkgarch_postprocess}" != "${arch}" ]; then
 			pr_err "Package target architecture invalid (attempting to add ${pkgarch_postprocess} package to ${arch} repo"
 			return
 		fi
 
-		if [[ "${i}" == *".sig" ]]; then
-			pr_dbg "Skipping ${i}"
+		if [[ "${pkgfile_basename}" == *".sig" ]]; then
+			pr_dbg "Skipping ${pkgfile_basename}"
 		else
-			packages_tar+=("${i}")
+			packages_tar+=("${pkgfile_basename}")
 		fi
 	done
 

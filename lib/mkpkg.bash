@@ -14,7 +14,7 @@ function mkpkg() {
 	# $2: architecture (armv7h, aarch64, x86_64)
 	# ${@:3}: package path
 
-	local chroot_location arch repo
+	local chroot_location arch repo pkgfiles=() pkgfiles_gpg=()
 
 	arch="$2"
 	repo="$1"
@@ -74,9 +74,26 @@ function mkpkg() {
 
 		${makepkg_bin} --printsrcinfo > .SRCINFO
 
-		pkg_repo_add -a "${arch}" "${repo}" ./*.pkg.tar.xz
+		mapfile -t pkgfiles < <(${makepkg_bin} --packagelist)
 
-		rm ./*.pkg.tar.xz
+		if [ -n "${_BUILDSCR_GPG_KEY}" ]; then
+			local gpg_bin
+			gpg_bin="$(which gpg)"
+
+			if [ -z "${gpg_bin}" ]; then
+				pr_err "GPG binary not found"
+				return
+			fi
+
+			for pkgfile in "${pkgfiles[@]}"; do
+				${gpg_bin} -u "${_BUILDSCR_GPG_KEY}" --output "${pkgfile}.sig" --detach-sig "${pkgfile}"
+				${gpg_bin} --verify "${pkgfile}.sig" "${pkgfile}"
+				pkgfiles_gpg+=( "${pkgfile}.sig" )
+			done
+		fi
+
+		pkg_repo_add -a "${arch}" "${repo}" "${pkgfiles[@]}"
+		rm "${pkgfiles[@]}" "${pkgfiles_gpg[@]}"
 	done
 }
 

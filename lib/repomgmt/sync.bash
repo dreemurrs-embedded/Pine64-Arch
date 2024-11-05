@@ -24,7 +24,7 @@ OPTIONS
 
 function pkg_repo_sync() {
 	local temp
-	local destdir help_var=0 delete=0
+	local destdir help_var=0
 
 	if ! temp=$(getopt -o 'h' -l 'help' -n 'pkgrepo_sync' -- "$@"); then
 		return
