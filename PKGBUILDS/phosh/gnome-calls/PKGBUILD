@@ -1,71 +1,70 @@
 # Maintainer: Danct12 <danct12@disroot.org>
-pkgname=gnome-calls
-pkgver=46.3
-pkgrel=1
-pkgdesc="Make and receive PSTN phone calls"
-url="https://gitlab.gnome.org/GNOME/calls"
-license=('GPL-3.0-or-later')
-arch=('x86_64' 'armv7h' 'aarch64')
-depends=(
-  'callaudiod'
-  'evolution-data-server'
-  'feedbackd'
-  'folks'
-  'gobject-introspection'
-  'gom'
-  'gst-plugins-bad'
-  'gst-plugins-good'
-  'gtk3'
-  'libhandy'
-  'libpeas'
-  'modemmanager'
-  'sofia-sip'
-  'wayland-protocols'
-  )
-makedepends=(
-  'git'
-  'glib2-devel'
-  'meson'
-  'ninja'
-  'python-docutils'
-  'python-packaging'
-  'vala'
-  )
-checkdepends=('xorg-server-xvfb')
-replaces=('calls')
-_commit="f8c247148717bbad9414a9b246d88d1e685e68ed" # tags/v46.3
-source=("git+https://gitlab.gnome.org/GNOME/calls.git#commit=$_commit")
-sha256sums=('4eddd4cbdd10c9f3f611573b05b5ce7275f1dab3f6ae1aeda9e4b2fc2ea2494b')
+# Contributor: Fabian Bornschein <fabiscafe@archlinux.org>
+# Contributor: Carl Smedstad <carsme@archlinux.org>
+# Contributor: Yassine Oudjana <y.oudjana@protonmail.com>
+# Contributor: Philip Goto <philip.goto@gmail.com>
+# Contributor: GI Jack <GI_Jack@hackermail.com>
 
-pkgver() {
-  cd calls
-  git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
+pkgname=gnome-calls
+pkgver=47.0
+pkgrel=1
+pkgdesc="Phone dialer and call handler"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://gitlab.gnome.org/GNOME/calls"
+license=(GPL-3.0-or-later)
+depends=(
+  callaudiod
+  dconf
+  evolution-data-server
+  feedbackd
+  folks
+  gcc-libs
+  glib2
+  glibc
+  gom
+  gstreamer
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  libgee
+  libmm-glib
+  libpeas-2
+  libsecret
+  sofia-sip
+)
+makedepends=(
+  appstream
+  git
+  glib2-devel
+  meson
+  python-docutils
+  vala
+)
+source=("git+https://gitlab.gnome.org/GNOME/calls.git?signed#tag=v${pkgver/[a-z]/_&}"
+        "git+https://gitlab.gnome.org/World/Phosh/libcall-ui.git")
+b2sums=('c5414f48e994c03fdfb48a0a61185d10dfc85cf6ed65a834c83a48bdefadb3f320c8dda3790024a2def7a99dac6152b5d672291af375cd56714143d8151f0d1c'
+        'SKIP')
+validpgpkeys=(
+  B9386554B7DD266BCB8E29A990F0C9B18A6B4A19 # Evangelos Ribeiro Tzaras <devrtz@fortysixandtwo.eu>
+)
 
 prepare() {
   cd calls
-  git submodule--helper update --init
 
-  local src
-  for src in "${source[@]}"; do
-    src="${src%%::*}"
-    src="${src##*/}"
-    [[ $src = *.patch ]] || continue
-    echo "Applying patch $src..."
-    patch -Np1 < "../$src"
-  done
+  git submodule init
+  git submodule set-url subprojects/libcall-ui "${srcdir}/libcall-ui"
+  git -c protocol.file.allow=always -c protocol.allow=never submodule update
 }
 
 build() {
-  arch-meson calls output
-  ninja -C output
+  local meson_options=(
+    -D gtk_doc=true
+    -D tests=false
+  )
+
+  arch-meson calls build "${meson_options[@]}"
 }
 
-## SIP test hanging
-#check() {
-#  xvfb-run ninja -C output test
-#}
-
 package() {
-  DESTDIR="$pkgdir" ninja -C output install
+  meson install -C build --destdir "${pkgdir}"
 }
