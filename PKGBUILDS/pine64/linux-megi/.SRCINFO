@@ -1,0 +1,52 @@
+pkgbase = linux-megi
+	pkgver = 6.11.5
+	pkgrel = 1
+	url = https://codeberg.org/megi/linux
+	arch = aarch64
+	license = GPL2
+	makedepends = xmlto
+	makedepends = docbook-xsl
+	makedepends = kmod
+	makedepends = inetutils
+	makedepends = bc
+	makedepends = git
+	makedepends = dtc
+	makedepends = python
+	makedepends = cpio
+	options = !strip
+	source = linux-orange-pi-6.11-20241029-1901.tar.gz::https://codeberg.org/megi/linux/archive/orange-pi-6.11-20241029-1901.tar.gz
+	source = config
+	source = linux.preset
+	source = ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch
+	source = dts-pinephone-drop-modem-power-node.patch
+	source = dts-pinephone-pro-remove-modem-node.patch
+	source = dts-pinephone-pro-add-modem-ri.patch
+	source = Revert-arm64-allwinner-dts-a64-enable-K101-IM2BYL02.patch
+	md5sums = 00f4928a5bc7ece4bd8c6ece0c46d601
+	md5sums = 1fd7b913281d487753a14c07541d3049
+	md5sums = 86d4a35722b5410e3b29fc92dae15d4b
+	md5sums = 321e550e217dbed67ff38200285ade0a
+	md5sums = 571aee8d8a58c719288fee4185ab1713
+	md5sums = da2ad89730c2fce222ca0e286585a868
+	md5sums = 7d80f76f1647afa00de320f5866484a1
+	md5sums = 9b42c7def68f61a6e3c7a43700361730
+
+pkgname = linux-megi
+	pkgdesc = The Linux Kernel and modules - Megous Kernel
+	install = linux-megi.install
+	depends = coreutils
+	depends = kmod
+	depends = mkinitcpio>=0.7
+	optdepends = crda: to set the correct wireless channels of your country
+	provides = kernel26
+	provides = linux=6.11.5
+	provides = WIREGUARD-MODULE
+	conflicts = linux
+	replaces = linux-pine64
+	backup = etc/mkinitcpio.d/linux-megi.preset
+
+pkgname = linux-megi-headers
+	pkgdesc = Header files and scripts for building modules for linux kernel - Megous Kernel
+	provides = linux-headers=6.11.5
+	conflicts = linux-headers
+	replaces = linux-pine64-headers
