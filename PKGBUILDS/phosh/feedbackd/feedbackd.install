@@ -1,5 +1,17 @@
 post_upgrade() {
     /usr/bin/udevadm trigger --subsystem-match=leds --action=change
+
+    printf "
+The notification LEDs may not work if your user is not in the
+'feedbackd' group.
+
+If this is the case, you can add your user to 'feedbackd' group
+using the command below:
+
+  # gpasswd -a your_username_here feedbackd
+
+"
+
 }
 
 post_install() {

@@ -1,7 +1,7 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=feedbackd
 pkgver=0.5.0
-pkgrel=1
+pkgrel=2
 pkgdesc="A daemon to provide haptic, led and audio feedback triggered by application events"
 url="https://source.puri.sm/Librem5/feedbackd"
 arch=('x86_64' 'armv7h' 'aarch64')
@@ -13,7 +13,8 @@ checkdepends=('umockdev')
 _fbd_themes_name=feedbackd-device-themes
 _fbd_themes_ver=0.4.0
 source=(https://source.puri.sm/Librem5/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.gz
-        https://source.puri.sm/Librem5/${_fbd_themes_name}/-/archive/v${_fbd_themes_ver}/${_fbd_themes_name}-v${_fbd_themes_ver}.tar.gz)
+        https://source.puri.sm/Librem5/${_fbd_themes_name}/-/archive/v${_fbd_themes_ver}/${_fbd_themes_name}-v${_fbd_themes_ver}.tar.gz
+        fbd-sysusers.conf)
 
 build() {
   arch-meson $pkgname-v${pkgver} output
@@ -26,6 +27,9 @@ check() {
 
 package() {
   DESTDIR="$pkgdir" ninja -C output install
+
+  install -D -m 0644 "$srcdir"/fbd-sysusers.conf "$pkgdir"/usr/lib/sysusers.d/feedbackd.conf
+
   sed -i 's/libexec/lib/g' "$pkgdir"/usr/lib/udev/rules.d/90-feedbackd.rules
 
   # It would make much more sense to bundle fbd device configuration with the pkg.
@@ -34,4 +38,5 @@ package() {
 }
 
 md5sums=('cbab3d6ea1af80527bd964e54ccc40f3'
-         '63e56a4b2089ff59ea9cd4eaefbb7578')
+         '63e56a4b2089ff59ea9cd4eaefbb7578'
+         '44215bf5d7527f249e282408cf1d40db')
