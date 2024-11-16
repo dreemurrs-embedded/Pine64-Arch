@@ -1,6 +1,6 @@
 pkgbase = phoc
 	pkgdesc = wlroots based Wayland compositor for mobile phones
-	pkgver = 0.42.1
+	pkgver = 0.43.0
 	pkgrel = 1
 	url = https://phosh.mobi
 	arch = x86_64
@@ -27,10 +27,10 @@ pkgbase = phoc
 	depends = xcb-util-renderutil
 	depends = xcb-util-wm
 	depends = wayland-protocols
-	source = https://sources.phosh.mobi/releases/phoc/phoc-0.42.1.tar.xz
-	source = https://sources.phosh.mobi/releases/phoc/phoc-0.42.1.tar.xz.asc
+	source = https://sources.phosh.mobi/releases/phoc/phoc-0.43.0.tar.xz
+	source = https://sources.phosh.mobi/releases/phoc/phoc-0.43.0.tar.xz.asc
 	validpgpkeys = 0DB3932762F78E592F6522AFBB5A2C77584122D3
-	sha256sums = b50cb2311f2edada54702933c206785fce350b02fcd332a9cc2ebd5338311144
-	sha256sums = SKIP
+	b2sums = 4a89bd56ff1fff983d6f99d84165bae0e2a0a629582386724cacf92d29905925b67bbab62d2ba047534ad343375137a4f6eb4faa51bf52127a3ca9819138466e
+	b2sums = SKIP
 
 pkgname = phoc
