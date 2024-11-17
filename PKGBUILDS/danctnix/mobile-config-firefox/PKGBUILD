@@ -1,13 +1,13 @@
 # Maintainer: Danct12 <danct12@disroot.org>
 pkgname=mobile-config-firefox
-pkgver=4.3.2
+pkgver=4.4.0
 pkgrel=1
 pkgdesc="Mobile and privacy friendly configuration for Firefox"
 arch=(any)
-url="https://gitlab.com/postmarketOS/mobile-config-firefox"
+url="https://gitlab.postmarketos.org/postmarketOS/mobile-config-firefox"
 license=('MPL-2.0')
 depends=(firefox)
-source=($pkgname-$pkgver.tar.gz::https://gitlab.com/postmarketOS/mobile-config-firefox/-/archive/$pkgver/$pkgname-$pkgver.tar.gz)
+source=(${url}/-/archive/$pkgver/$pkgname-$pkgver.tar.gz)
 
 build() {
   cd "$pkgname-$pkgver"
@@ -18,4 +18,4 @@ package() {
   cd "$pkgname-$pkgver"
   make DESTDIR="$pkgdir" install
 }
-sha256sums=('14263d4c154ccca37fc314d53977cf681aa286a1f72275218c9732e651cbc3e1')
+sha256sums=('39f4857ebb66ba9b4181e6d32265b3fc187861af601b868652923e895a295275')
