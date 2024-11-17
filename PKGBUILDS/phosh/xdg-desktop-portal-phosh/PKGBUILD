@@ -1,0 +1,33 @@
+# Maintainer: Danct12 <danct12@disroot.org>
+pkgname=xdg-desktop-portal-phosh
+pkgver=0.42.0
+pkgrel=1
+pkgdesc="Backend implementation for xdg-desktop-portal for Phosh mobile environment"
+arch=('x86_64' 'armv7h' 'aarch64')
+url="https://phosh.mobi"
+license=('GPL-3.0-or-later')
+depends=(
+  'fontconfig'
+  'glib2'
+  'gnome-desktop-4'
+  'gtk4'
+  'libadwaita'
+  'xdg-desktop-portal'
+)
+makedepends=(
+  'glib2-devel'
+  'meson'
+)
+source=(https://sources.phosh.mobi/releases/$pkgname/$pkgname-$pkgver.tar.xz{,.asc})
+b2sums=('b89c34aa5ec349262078551913d4cc944d7f53eb7501508b5e00c4706d988ff4f1b5ce826eefdaf83c756339cca76509e3c59ca6db58c15157063d5a548e2266'
+        'SKIP')
+validpgpkeys=('0DB3932762F78E592F6522AFBB5A2C77584122D3')
+
+build() {
+  arch-meson $pkgname-$pkgver build
+  meson compile -C build
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

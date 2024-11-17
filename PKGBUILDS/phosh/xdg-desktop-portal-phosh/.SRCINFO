@@ -1,0 +1,24 @@
+pkgbase = xdg-desktop-portal-phosh
+	pkgdesc = Backend implementation for xdg-desktop-portal for Phosh mobile environment
+	pkgver = 0.42.0
+	pkgrel = 1
+	url = https://phosh.mobi
+	arch = x86_64
+	arch = armv7h
+	arch = aarch64
+	license = GPL-3.0-or-later
+	makedepends = glib2-devel
+	makedepends = meson
+	depends = fontconfig
+	depends = glib2
+	depends = gnome-desktop-4
+	depends = gtk4
+	depends = libadwaita
+	depends = xdg-desktop-portal
+	source = https://sources.phosh.mobi/releases/xdg-desktop-portal-phosh/xdg-desktop-portal-phosh-0.42.0.tar.xz
+	source = https://sources.phosh.mobi/releases/xdg-desktop-portal-phosh/xdg-desktop-portal-phosh-0.42.0.tar.xz.asc
+	validpgpkeys = 0DB3932762F78E592F6522AFBB5A2C77584122D3
+	b2sums = b89c34aa5ec349262078551913d4cc944d7f53eb7501508b5e00c4706d988ff4f1b5ce826eefdaf83c756339cca76509e3c59ca6db58c15157063d5a548e2266
+	b2sums = SKIP
+
+pkgname = xdg-desktop-portal-phosh
