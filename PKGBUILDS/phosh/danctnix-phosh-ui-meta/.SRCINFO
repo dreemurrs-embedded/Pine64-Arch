@@ -1,0 +1,22 @@
+pkgbase = danctnix-phosh-ui-meta
+	pkgdesc = Meta package for Phosh
+	pkgver = 0.2
+	pkgrel = 5
+	url = https://github.com/dreemurrs-embedded/Pine64-Arch
+	arch = any
+	depends = danctnix-phosh-settings
+	depends = dconf
+	depends = dnsmasq
+	depends = feedbackd
+	depends = gnome-control-center
+	depends = gnome-keyring
+	depends = gtk3
+	depends = iio-sensor-proxy
+	depends = phoc
+	depends = phosh
+	depends = sound-theme-phosh
+	depends = squeekboard
+	depends = wys
+	depends = xdg-desktop-portal-gtk
+
+pkgname = danctnix-phosh-ui-meta
