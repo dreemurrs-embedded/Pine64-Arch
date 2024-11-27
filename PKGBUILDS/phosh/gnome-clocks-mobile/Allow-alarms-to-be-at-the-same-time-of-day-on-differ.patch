@@ -1,0 +1,26 @@
+From 60e568e1d5e1119dcd372f52d22c68e08a0bb5c6 Mon Sep 17 00:00:00 2001
+From: kclisp <kenchen1368@gmail.com>
+Date: Tue, 15 Mar 2022 22:33:59 -0400
+Subject: [PATCH] Allow alarms to be at the same time of day on different days
+
+---
+ src/alarm-item.vala | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/alarm-item.vala b/src/alarm-item.vala
+index 6dcb73d..398f537 100644
+--- a/src/alarm-item.vala
++++ b/src/alarm-item.vala
+@@ -232,8 +232,7 @@ private class Item : Object, ContentItem {
+     }
+ 
+     private bool compare_with_item (Item i) {
+-        return (this.time.get_hour () == i.time.get_hour () &&
+-                this.time.get_minute () == i.time.get_minute ());
++        return (this.time.equal (i.time) && i.active);
+     }
+ 
+     public bool check_duplicate_alarm (List<Item> alarms) {
+-- 
+2.35.1
+
