@@ -1,0 +1,79 @@
+# Maintainer: James Alexander Rose <jrosary-dev@outlook.com>
+pkgname=maui-core
+pkgver=0.6.6.r8.gc4b4e7c
+pkgrel=1
+pkgdesc='Core libraries to manage the DE to be shared between Maui Settings and Cask.'
+url='https://github.com/Nitrux/maui-core'
+arch=(x86_64 i686 arm armv6h armv7h aarch64)
+license=(GPL3)
+depends=(bluedevil
+  fontconfig
+  karchive
+  kconfig
+  kcoreaddons
+  kcrash
+  kdbusaddons
+  kdeclarative
+  kded
+  kdesu
+  kglobalaccel
+  ki18n
+  kiconthemes
+  kidletime
+  kinit
+  kio
+  kitemmodels
+  knotifications
+  knotifyconfig
+  kpackage
+  kpeople
+  krunner
+  kservice
+  ktexteditor
+  kunitconversion
+  kwallet
+  kwayland
+  libcanberra
+  mauikit
+  mauikit-calendar
+  mauikit-filebrowsing
+  mauiman
+  phonon-qt6
+  plasma-nm
+  plasma-pa
+  polkit-qt6
+  prison
+  qt6-base
+  qt6-declarative
+  qt6-quickcontrols2
+  qt6-svg
+  qt6-wayland
+  solid
+  sound-theme-freedesktop)
+makedepends=(git extra-cmake-modules)
+groups=(maui)
+provides=($pkgname)
+conflicts=($pkgname)
+source=(git+$url.git)
+sha256sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  ( set -o pipefail
+    git describe --long 2>/dev/null | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+build() {
+  cmake -B build -S $pkgname \
+    -DBUILD_WITH_QT6=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}
