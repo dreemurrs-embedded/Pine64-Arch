@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 6.12.1-danctnix1 Kernel Configuration
+# Linux/arm64 6.12.3-danctnix1 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="aarch64-unknown-linux-gnu-gcc (GCC) 14.1.1 20240507"
 CONFIG_CC_IS_GCC=y
@@ -6302,6 +6302,7 @@ CONFIG_ARM_ARCH_TIMER_EVTSTREAM=y
 # CONFIG_FSL_ERRATUM_A008585 is not set
 # CONFIG_HISILICON_ERRATUM_161010101 is not set
 # CONFIG_ARM64_ERRATUM_858921 is not set
+# CONFIG_ARM_TIMER_SP804 is not set
 # end of Clock Source drivers
 
 CONFIG_MAILBOX=y
