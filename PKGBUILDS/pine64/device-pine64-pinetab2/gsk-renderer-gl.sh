@@ -1,2 +1,2 @@
 #!/bin/sh
-export GSK_RENDERER=ngl
+export GSK_RENDERER=gl
