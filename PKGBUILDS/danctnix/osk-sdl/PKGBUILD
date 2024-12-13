@@ -3,7 +3,7 @@
 
 pkgname=osk-sdl
 pkgver=0.66
-pkgrel=5
+pkgrel=6
 pkgdesc="SDL2 On-screen Keyboard for FDE"
 arch=(x86_64 armv7h aarch64)
 url="https://gitlab.com/postmarketOS/osk-sdl"
@@ -39,6 +39,6 @@ package() {
 }
 md5sums=('fb608060dea423d221bdfff9a6101624'
          '32b89734fc22fe0dc470e10c3c2e8034'
-         '1b164376ca6c3ee358d5cdd7533a20da'
+         'f5a4ecd937c3b367cab817af62990dbc'
          '8fef952dada64ff63040b5406e71ecac'
          'e6dff50a2f9a27d5de92437394e9cfda')
