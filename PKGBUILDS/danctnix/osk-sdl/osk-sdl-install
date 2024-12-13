@@ -39,6 +39,7 @@ build() {
     add_binary /usr/lib/libGL.so.1
     add_binary /usr/lib/libEGL.so.1
     add_binary /usr/lib/libEGL_mesa.so.0
+    add_binary /usr/lib/gbm/dri_gbm.so
 
     [ -f /usr/share/glvnd/egl_vendor.d/50_mesa.json ] && add_file /usr/share/glvnd/egl_vendor.d/50_mesa.json
 
