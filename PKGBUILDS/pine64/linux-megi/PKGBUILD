@@ -6,7 +6,7 @@ buildarch=8
 pkgbase=linux-megi
 _desc="Megous Kernel"
 pkgver=6.12.1
-pkgrel=1
+pkgrel=2
 arch=('aarch64')
 url="https://codeberg.org/megi/linux"
 license=('GPL2')
@@ -204,10 +204,10 @@ for _p in "${pkgname[@]}"; do
 done
 
 md5sums=('52d9f920c6e603ecbfc6fccb25aadaae'
-         '533378941eb3ff30a2ddf7d6ffb0b1b9'
+         '1c02a79dc5390086b4a8df733f3c514d'
          '86d4a35722b5410e3b29fc92dae15d4b'
-         '348bf7c69d951bf9a4630064ad4571ca'
-         '61ac4edd870b2f1126ac0f483fb879cc'
+         'ce08cd7f8cfafc7103fc46121a7dc23c'
+         'b1f742f1003356ac35527d2975d0f65a'
          '571aee8d8a58c719288fee4185ab1713'
          'da2ad89730c2fce222ca0e286585a868'
          '7d80f76f1647afa00de320f5866484a1'
