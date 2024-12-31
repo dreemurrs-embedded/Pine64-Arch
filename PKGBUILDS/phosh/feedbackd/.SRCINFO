@@ -1,6 +1,6 @@
 pkgbase = feedbackd
 	pkgdesc = A daemon to provide haptic, led and audio feedback triggered by application events
-	pkgver = 0.5.0
+	pkgver = 0.6.0
 	pkgrel = 2
 	url = https://source.puri.sm/Librem5/feedbackd
 	install = feedbackd.install
@@ -18,10 +18,10 @@ pkgbase = feedbackd
 	depends = json-glib
 	depends = libgmobile
 	depends = libgudev
-	source = https://source.puri.sm/Librem5/feedbackd/-/archive/v0.5.0/feedbackd-v0.5.0.tar.gz
+	source = https://source.puri.sm/Librem5/feedbackd/-/archive/v0.6.0/feedbackd-v0.6.0.tar.gz
 	source = https://source.puri.sm/Librem5/feedbackd-device-themes/-/archive/v0.4.0/feedbackd-device-themes-v0.4.0.tar.gz
 	source = fbd-sysusers.conf
-	md5sums = cbab3d6ea1af80527bd964e54ccc40f3
+	md5sums = acbda6c5a7d74fa8c70e36cb3614a56b
 	md5sums = 63e56a4b2089ff59ea9cd4eaefbb7578
 	md5sums = 44215bf5d7527f249e282408cf1d40db
 
