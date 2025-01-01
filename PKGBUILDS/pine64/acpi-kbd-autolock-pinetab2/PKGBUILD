@@ -19,4 +19,4 @@ package() {
 install=acpi-kbd-autolock-pinetab2.install
 
 md5sums=('fdac6076a6c9cf9e3fad89302fc06cf9'
-         'c8862783b76c9addf604ba095c9814b4')
+         'be9a6fb2532a09e22226b2c148841909')
