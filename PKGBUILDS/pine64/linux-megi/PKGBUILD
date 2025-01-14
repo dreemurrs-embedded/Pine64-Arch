@@ -5,16 +5,16 @@ buildarch=8
 
 pkgbase=linux-megi
 _desc="Megous Kernel"
-pkgver=6.12.1
-pkgrel=2
+pkgver=6.12.8
+pkgrel=1
 arch=('aarch64')
 url="https://codeberg.org/megi/linux"
-license=('GPL2')
+license=(GPL-2.0-only)
 makedepends=('xmlto' 'docbook-xsl' 'kmod' 'inetutils' 'bc' 'git' 'dtc' 'python' 'cpio')
 options=('!strip')
 
 # Source
-_tag="orange-pi-6.12-20241127-2323"
+_tag="orange-pi-6.12-20250104-1626"
 source=("linux-$_tag.tar.gz::https://codeberg.org/megi/linux/archive/${_tag}.tar.gz"
         'config'
         'linux.preset'
@@ -203,8 +203,8 @@ for _p in "${pkgname[@]}"; do
   }"
 done
 
-md5sums=('52d9f920c6e603ecbfc6fccb25aadaae'
-         '1c02a79dc5390086b4a8df733f3c514d'
+md5sums=('71a5471fe4fc1616ea4faf5190603f4d'
+         '6fa33aefa670aabfaeba77cc07e6afef'
          '86d4a35722b5410e3b29fc92dae15d4b'
          'ce08cd7f8cfafc7103fc46121a7dc23c'
          'b1f742f1003356ac35527d2975d0f65a'
