@@ -2,7 +2,7 @@
 # Contributor: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
 
 pkgbase=linux-pinetab2
-pkgver=6.12.9.danctnix1
+pkgver=6.12.9.danctnix2
 pkgrel=1
 pkgdesc='PineTab2'
 _srcname=linux-pinetab2
@@ -39,7 +39,7 @@ validpgpkeys=(
 )
 b2sums=('2584e35822a429b6825bf8d99c073848d5ba83d45b382ab82d1caa36ccbf2529036b31d4687dafb29650c87f4b63489caa2cb67a85d05183c572dcad75a35ba8'
         'SKIP'
-        'c32a95c9c1835fbfbbb4e101cb31e2d2c8760c9c6b4c4a3b98d5048b44e519613f850e0970ebadca2a9d240d95ffef51e1e14f30135c81054327798c3f49588a'
+        'ccafc526c352e7fa33dbeadf69be3f2f968d69e5d4651ded4a5baad0028336d0b146d53b79f9a2ce10aeccc7ab74b5d7fee40dc8a61f141da0e84d833ece1a4c'
         'SKIP'
         'c101be21eed7db0db26fd139bcebd8484b323bb0fe428234104a91752f07e74142e260e37e6764c8abe59faee8bd480b46f2ab7905b51feb28bedefef7fd6d49')
 
