@@ -3,7 +3,7 @@
 # Contributor: Bhushan Shah <bhush94 at gmail dot com>
 
 pkgname=plasma-mobile
-pkgver=6.2.4
+pkgver=6.2.5
 _dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc="Plasma shell for mobile devices"
@@ -29,7 +29,7 @@ replaces=('plasma-phone-components')
 source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
 install=$pkgname.install
 validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D')
-sha512sums=('bfa01173055494da87ad06e4c3f7783cc312916b4a55cdc3928b38e304e3d7cf773bea23abf603ae76fc4c9ee86915ea57a8d067981166cd1a7922a19e0dfe6a'
+sha512sums=('d08b996f31962ff4cdc07746a80238fdbe9dc78bebc282e9f42806966451ff2723ef307da792c2d8679a9c6604d52e4d2622b05765c29ba2276356f0e1b1a2be'
             'SKIP')
 
 build() {
