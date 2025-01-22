@@ -3,7 +3,7 @@
 
 pkgname=mmsd-tng
 pkgver=2.6.2
-pkgrel=1
+pkgrel=2
 pkgdesc="Multimedia Messaging Service Daemon - The Next Generation"
 url="https://gitlab.com/kop316/mmsd"
 arch=('x86_64' 'armv7h' 'aarch64')
