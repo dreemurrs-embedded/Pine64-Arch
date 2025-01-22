@@ -1,7 +1,7 @@
 # Maintainer: Aren Moynihan <aren@peacevolution.org>
 pkgname=vvmd
 pkgver=1.0
-pkgrel=2
+pkgrel=3
 pkgdesc="Visual Voicemail Daemon"
 url="https://gitlab.com/kop316/vvmd"
 arch=('x86_64' 'armv7h' 'aarch64')
