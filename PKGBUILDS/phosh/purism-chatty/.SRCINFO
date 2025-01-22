@@ -1,0 +1,36 @@
+pkgbase = purism-chatty
+	pkgdesc = SMS/MMS, Matrix and (optionally) XMPP messaging app
+	pkgver = 0.8.5
+	pkgrel = 4
+	url = https://gitlab.gnome.org/World/Chatty
+	arch = x86_64
+	arch = armv7h
+	arch = aarch64
+	license = GPL
+	checkdepends = xorg-server-xvfb
+	makedepends = git
+	makedepends = glib2-devel
+	makedepends = itstool
+	makedepends = meson
+	makedepends = ninja
+	depends = evolution-data-server
+	depends = feedbackd
+	depends = gnome-desktop-4
+	depends = gtksourceview5
+	depends = gtk4
+	depends = libadwaita
+	depends = libmm-glib
+	depends = libolm
+	depends = libphonenumber
+	depends = libpurple
+	depends = libspelling
+	optdepends = libpurple-carbons: message carbons support
+	optdepends = libpurple-lurch: OMEMO encryption
+	optdepends = libpurple-xmpp-http-upload: XMPP HTTP File Upload support
+	optdepends = mmsd-tng: MMS support
+	optdepends = purple-telegram: Telegram chat protocol support
+	replaces = chatty<=0.7.3
+	source = chatty::git+https://gitlab.gnome.org/World/Chatty.git#commit=7bea437c9e3086148da41a91e82218c9422aa67f
+	md5sums = db205af916bb5210200ee469860a35f0
+
+pkgname = purism-chatty
