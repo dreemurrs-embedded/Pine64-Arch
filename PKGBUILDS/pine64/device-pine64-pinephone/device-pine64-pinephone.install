@@ -1,7 +1,0 @@
-post_install() {
-	systemctl enable eg25-manager
-}
-
-post_upgrade() {
-	systemctl enable eg25-manager
-}

@@ -1,10 +1,8 @@
 # Arch Linux ARM on Mobile
 
-This repository contains PKGBUILDS that makes Arch Linux ARM runs on mobile.
-
-Currently only supports PinePhone and PineTab. Images for these can be found [here](https://github.com/dreemurrs-embedded/Pine64-Arch/releases).
+Looking for PKGBUILDS? They're moved to a [new repo](https://github.com/dreemurrs-embedded/danctnix-packages).
 
 ## Join the community
  * Matrix: #archmobile:kde.org
  * Telegram: @archlinux_pinephone
- * Forum: https://forum.pine64.org/forumdisplay.php?fid=159
+ * Forum: https://github.com/dreemurrs-embedded/Pine64-Arch/discussions

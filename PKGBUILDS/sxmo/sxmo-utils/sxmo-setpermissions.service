@@ -1,6 +1,0 @@
-[Unit]
-Description=sxmo-pinephone
-[Service]
-ExecStart=/usr/bin/sxmo_setpermissions.sh
-[Install]
-WantedBy=multi-user.target

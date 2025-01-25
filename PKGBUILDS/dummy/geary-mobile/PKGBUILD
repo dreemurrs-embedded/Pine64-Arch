@@ -1,9 +1,0 @@
-pkgname=geary-mobile
-pkgver=40.1
-pkgrel=1
-pkgdesc="This is a dummy package. It is no longer needed."
-url="https://danctnix.org"
-license=(NONE)
-arch=(i686 x86_64 armv7h aarch64)
-depends=(geary)
-

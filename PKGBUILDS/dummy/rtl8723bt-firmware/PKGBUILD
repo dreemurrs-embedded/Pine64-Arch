@@ -1,8 +1,0 @@
-pkgname=rtl8723bt-firmware
-pkgver=20211027.6e8e591
-pkgrel=2
-pkgdesc="Firmware files for RTL8723BS/CS - dummy package"
-arch=('any')
-depends=('linux-firmware')
-url="https://xff.cz/git/linux-firmware"
-license=('custom')
