@@ -6,3 +6,7 @@ Looking for PKGBUILDS? They're moved to a [new repo](https://github.com/dreemurr
  * Matrix: #archmobile:kde.org
  * Telegram: @archlinux_pinephone
  * Forum: https://github.com/dreemurrs-embedded/Pine64-Arch/discussions
+
+## Post install
+Username: alarm
+password: 123456
