@@ -1,0 +1,41 @@
+name: 'Repo Lockdown'
+
+on:
+  issues:
+    types: opened
+  pull_request_target:
+    types: opened
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dessant/repo-lockdown@v4
+        with:
+          github-token: ${{ github.token }}
+          exclude-issue-created-before: '2025-08-17T00:00:00Z'
+          issue-comment: >
+            This repository no longer accepts bug reports.
+
+            Development has moved to: https://codeberg.org/DanctNIX/Pine64-Arch
+
+
+            We're sorry for the inconvenience.
+          skip-closed-issue-comment: true
+          close-issue: true
+          lock-issue: true
+          exclude-pr-created-before: '2025-08-17T00:00:00Z'
+          pr-comment: >
+            This repository no longer accepts Pull Requests (PR).
+
+            Development has moved to: https://codeberg.org/DanctNIX/Pine64-Arch
+
+
+            We're sorry for the inconvenience.
+          skip-closed-pr-comment: true
+          close-pr: true
+          lock-pr: true
