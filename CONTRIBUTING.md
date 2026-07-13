@@ -58,6 +58,13 @@ Pull requests are primary way to contribute to this project. Pull requests shoul
 
 The maintainer or our developers will review your changes and try their best to helpfully suggest any changes. If all goes well, your PR should be merged without much delay.
 
+## “AI”-assisted contributions
+**Using pre-existing *boilerplate*, *snippets*, or *syntax suggestions* from your IDE are not considered as “AI”-assisted changes.**
+
+Contributions written largely with help of LLMs (_Large Language Models_), other “AI” (or non-“AI”), or similar systems are not welcome.
+
+Using the output of “AI” as part of your interactions such as issues, pull requests or comments is not welcome.
+
 ## My pull request has been merged, what now?
 
 We would like to thank you for your contribution. You have also contributed something to the Mobile Linux development!
