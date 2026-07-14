@@ -1,0 +1,82 @@
+# Maintainer: James Alexander Rose <jrosary-dev@outlook.com>
+pkgname=maui-shell
+pkgver=0.6.6.r13.g52dff25
+pkgrel=1
+pkgdesc='Maui Shell is a convergent shell for desktops, tablets, and phones.'
+url='https://github.com/Nitrux/maui-shell'
+arch=(x86_64 i686 arm armv6h armv7h aarch64)
+license=(LGPL3)
+depends=(bluedevil
+         cask-server
+         extra-cmake-modules
+         fontconfig
+         karchive
+         kconfig
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         kdeclarative
+         kded
+         kdesu
+         # kdoctools
+         kglobalaccel
+         ki18n
+         kiconthemes
+         kidletime
+         kinit
+         kio
+         kitemmodels
+         knotifications
+         knotifyconfig
+         kpackage
+         kpeople
+         krunner
+         kservice
+         ktexteditor
+         kunitconversion
+         kwallet
+         kwayland
+         maui-core
+         mauikit-calendar
+         mauikit-filebrowsing
+         mauikit
+         mauiman
+         phonon-qt6
+         plasma-nm
+         plasma-pa
+         polkit-qt6
+         prison
+         qt6-base
+         qt6-declarative
+         qt6-quickcontrols2
+         qt6-svg
+         qt6-wayland
+         solid)
+makedepends=(git extra-cmake-modules)
+optdepends=('maui-settings-git: Settings Manager Apps for the Maui DE')
+groups=(maui)
+provides=($pkgname)
+conflicts=($pkgname)
+source=(git+$url.git)
+sha256sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  ( set -o pipefail
+    git describe --long 2>/dev/null | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+build() {
+  cmake -B build -S $pkgname \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 $pkgname/LICENSE -t "${pkgdir}"/usr/share/licenses/$pkgname
+}
